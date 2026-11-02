@@ -1,5 +1,7 @@
 name: Card DB pipeline
 on:
+  push:
+    branches: [carddb-rebuild]
   workflow_dispatch:
     inputs:
       mode:
@@ -28,24 +30,24 @@ jobs:
           npm install
           npx playwright install --with-deps chromium
       - name: Probe live site
-        if: inputs.mode == 'probe'
+        if: github.event_name == 'push' || inputs.mode == 'probe'
         run: npm run probe
       - name: Crawl all cards
-        if: inputs.mode == 'crawl'
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl'
         env:
           EXPECTED_CARDS: "15350"
         run: npm run crawl
       - name: Build SQLite
-        if: inputs.mode == 'crawl'
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl'
         run: python scripts/build_db.py
       - name: Audit 15,350-card completeness
-        if: inputs.mode == 'crawl'
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl'
         run: python scripts/audit_db.py
       - name: Upload diagnostics and database
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fm1-carddb-${{ inputs.mode }}
+          name: fm1-carddb-${{ github.event_name }}-${{ github.run_number }}
           path: |
             artifacts/
             data/
