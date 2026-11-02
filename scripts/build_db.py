@@ -25,11 +25,11 @@ def norm(k,v):
  if isinstance(v,(str,int,float,bool)):return str(v)
  return None
 MANUAL_STATUS={
- "Category":"manual_partial","SoulType":"manual_semantics_verified","RequireLP":"manual_semantics_verified",
+ "Category":"current_taxonomy_verified","SoulType":"manual_semantics_verified","RequireLP":"manual_semantics_verified",
  "RequireSoul":"manual_partial","UnitType":"manual_partial","Skill1":"manual_partial","Skill2":"manual_partial",
  "CoinType":"manual_semantics_verified","CoinCount":"manual_semantics_verified","StatType":"manual_semantics_verified",
  "StatValue":"manual_semantics_verified","TurnType":"manual_semantics_verified","DurationType":"manual_semantics_verified",
- "EnchantSlot":"manual_uncovered","RaceType":"site_enum_only","CompanyType":"site_enum_only","EtcType":"site_enum_only",
+ "EnchantSlot":"site_enum_only","RaceType":"site_enum_only","CompanyType":"site_enum_only","EtcType":"site_enum_only",
  "RareType":"site_enum_only","RareUI":"site_enum_only","Episode":"site_enum_only","DeckLimit":"manual_partial",
  "BuyGrade":"site_enum_only","CardUISoul":"site_enum_only","LV":"site_enum_only","RankType":"site_enum_only",
  "MuSoul":"site_enum_only","NameCount":"site_enum_only","ProbOption":"site_enum_only","EarnSoul":"site_enum_only"
