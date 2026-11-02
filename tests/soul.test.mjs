@@ -11,7 +11,7 @@ test("colored cost requires matching colored soul", () => {
 });
 
 test("neutral cost may use any remaining color", () => {
-  const result = paySoul(pool, { dark: 1, fire: 0, earth: 0, water: 0, wind: 0, light: 0, neutral: 2 });
+  const result = paySoul(pool, { dark: 1, fire: 0, earth: 0, water: 0, forest: 0, metal: 0, light: 0, neutral: 2 });
   assert.equal(result.paid, true);
   assert.deepEqual(result.pool, { dark: 0, fire: 0, earth: 0, water: 0, forest: 0, metal: 0, light: 0, neutral: 0 });
 });
