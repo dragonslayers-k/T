@@ -24,8 +24,7 @@ def norm(k,v):
   s=str(v);return f"{s[:4]}-{s[4:6]}-{s[6:]}"
  if isinstance(v,(str,int,float,bool)):return str(v)
  return None
-soul_rows=rows_of(enum.get("Enum+RequireSoul",{}))
-soul_meta={}
+soul_rows=rows_of(enum.get("Enum+RequireSoul",{}));soul_meta={}
 for row in soul_rows:
  if isinstance(row,list) and len(row)>=3:soul_meta[int(row[0])]={"symbol":row[1],"icon":row[2]}
 PURE_SOUL={11:"dark",21:"fire",31:"water",41:"forest",51:"iron",61:"earth",71:"light",81:"neutral",1:"none"}
@@ -46,9 +45,9 @@ def parse_soul(raw):
  return result
 def plain_text(value):
  value=html.unescape(value or "")
- value=re.sub(r"(?i)<br\\s*/?>","\n",value)
+ value=re.sub(r"(?i)<br\\s*/?>","\\n",value)
  value=re.sub(r"<[^>]+>","",value)
- return re.sub(r"\\n{3,}","\n\n",value).strip()
+ return re.sub(r"\\n{3,}","\\n\\n",value).strip()
 if DB.exists():DB.unlink()
 con=sqlite3.connect(DB)
 con.executescript("""
@@ -81,8 +80,7 @@ with RAW.open(encoding="utf-8") as f,con:
    if isinstance(v,str) and v:con.execute("INSERT INTO card_texts(card_id,text_type,source_text,plain_text,source_location) VALUES(?,?,?,?,?)",(cid,typ,v,plain_text(v),"Firestore"))
   if isinstance(obj.get("TextBase"),str) and obj["TextBase"]:
    con.execute("INSERT INTO card_effects(card_id,effect_index,effect_text,trigger_text,duration_text) VALUES(?,?,?,?,?)",(cid,0,plain_text(obj["TextBase"]),norm("TurnType",obj.get("TurnType")),str(obj.get("Duration")) if obj.get("Duration") is not None else None))
-  lp=obj.get("RequireLP");lp_known=isinstance(lp,(int,float)) and norm("RequireLP",lp) is not None
-  soul=parse_soul(obj.get("RequireSoul"))
+  lp=obj.get("RequireLP");lp_known=isinstance(lp,(int,float)) and norm("RequireLP",lp) is not None;soul=parse_soul(obj.get("RequireSoul"))
   con.execute("INSERT INTO card_costs(card_id,lp_value,lp_known,soul_json,soul_known,source_text) VALUES(?,?,?,?,?,?)",(cid,float(lp) if lp_known else None,1 if lp_known else 0,j(soul),1 if soul["known"] else 0,str(obj.get("RequireSoul")) if obj.get("RequireSoul") is not None else None))
   for ordinal,t in enumerate(soul["tokens"]):
    con.execute("INSERT INTO card_soul_cost_tokens(card_id,ordinal,raw_token,code,count,symbol,icon_path,normalized_color,parse_status) VALUES(?,?,?,?,?,?,?,?,?)",(cid,ordinal,t["raw"],t["code"],t["count"],t["symbol"],t["icon"],t["normalized_color"],t["status"]))
