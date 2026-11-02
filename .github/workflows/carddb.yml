@@ -91,9 +91,11 @@ jobs:
           name: fm1-carddb-${{ github.run_number }}
           path: |
             artifacts/
+            data/fm1_cards.sqlite
             data/fm1_cards.sqlite.gz
             data/raw/
             data/audit-report.json
+            data/images/
             data/images.tar.gz.part-*
           if-no-files-found: warn
           retention-days: 90
