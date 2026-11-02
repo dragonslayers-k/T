@@ -16,5 +16,5 @@
 - `evidence` 또는 원본 이미지 참조
 
 ## 유형
-현재 데이터팩에서 확인되는 유형: `terrain`, `unit`, `item`, `spell`, `enchant`.
-새 유형은 원본에 근거가 있을 때만 추가한다.
+현재 데이터팩에서 확인되는 유형: `land`, `unit`, `item`, `spell`, `enchant`.
+새 유형은 원본에 근거가 있을 때만 추가한다. 실제 제공 JSON의 지형 유형값은 `land`다.
