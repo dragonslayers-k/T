@@ -24,6 +24,16 @@ def norm(k,v):
   s=str(v);return f"{s[:4]}-{s[4:6]}-{s[6:]}"
  if isinstance(v,(str,int,float,bool)):return str(v)
  return None
+MANUAL_STATUS={
+ "Category":"manual_partial","SoulType":"manual_semantics_verified","RequireLP":"manual_semantics_verified",
+ "RequireSoul":"manual_partial","UnitType":"manual_partial","Skill1":"manual_partial","Skill2":"manual_partial",
+ "CoinType":"manual_semantics_verified","CoinCount":"manual_semantics_verified","StatType":"manual_semantics_verified",
+ "StatValue":"manual_semantics_verified","TurnType":"manual_semantics_verified","DurationType":"manual_semantics_verified",
+ "EnchantSlot":"manual_uncovered","RaceType":"site_enum_only","CompanyType":"site_enum_only","EtcType":"site_enum_only",
+ "RareType":"site_enum_only","RareUI":"site_enum_only","Episode":"site_enum_only","DeckLimit":"manual_partial",
+ "BuyGrade":"site_enum_only","CardUISoul":"site_enum_only","LV":"site_enum_only","RankType":"site_enum_only",
+ "MuSoul":"site_enum_only","NameCount":"site_enum_only","ProbOption":"site_enum_only","EarnSoul":"site_enum_only"
+}
 soul_rows=rows_of(enum.get("Enum+RequireSoul",{}));soul_meta={}
 for row in soul_rows:
  if isinstance(row,list) and len(row)>=3:soul_meta[int(row[0])]={"symbol":row[1],"icon":row[2]}
@@ -37,7 +47,9 @@ def parse_soul(raw):
   if not token.isdigit():known=False;continue
   code,count=int(token[:2]),int(token[2:]);meta=soul_meta.get(code,{})
   color=PURE_SOUL.get(code);status="mapped" if color else "manual_review"
-  if color=="none" and count==0:status="no_cost"
+  if color=="none":
+   if count==0:status="no_cost"
+   else:known=False;status="manual_review"
   elif color:result["colors"][color]+=count
   else:known=False
   result["tokens"].append({"raw":token,"code":code,"count":count,"symbol":meta.get("symbol"),"icon":meta.get("icon"),"normalized_color":color,"status":status})
@@ -84,6 +96,7 @@ with RAW.open(encoding="utf-8") as f,con:
   con.execute("INSERT INTO card_costs(card_id,lp_value,lp_known,soul_json,soul_known,source_text) VALUES(?,?,?,?,?,?)",(cid,float(lp) if lp_known else None,1 if lp_known else 0,j(soul),1 if soul["known"] else 0,str(obj.get("RequireSoul")) if obj.get("RequireSoul") is not None else None))
   for ordinal,t in enumerate(soul["tokens"]):
    con.execute("INSERT INTO card_soul_cost_tokens(card_id,ordinal,raw_token,code,count,symbol,icon_path,normalized_color,parse_status) VALUES(?,?,?,?,?,?,?,?,?)",(cid,ordinal,t["raw"],t["code"],t["count"],t["symbol"],t["icon"],t["normalized_color"],t["status"]))
+  con.execute("INSERT INTO verification(card_id,field_key,status,evidence) VALUES(?,?,?,?)",(cid,"RequireSoul","enum_decoded" if soul["known"] else "manual_review",j(soul["tokens"])))
   for typ,url in (r.get("source_image_urls") or {}).items():
    if url:con.execute("INSERT INTO card_images(card_id,image_type,source_url) VALUES(?,?,?)",(cid,typ,url))
   for typ,url in [("detail",detail),("list",r.get("source_list_url") or "https://fmlunatic.com/cardlist")]:
@@ -98,11 +111,12 @@ if manifest.exists():
    con.execute("UPDATE card_images SET local_path=?,mime_type=?,byte_size=?,sha256=?,download_status=? WHERE card_id=? AND image_type=?",(x.get("local_path"),"image/webp" if x.get("status")=="downloaded" else None,x.get("byte_size"),x.get("sha256"),x.get("status"),x["card_id"],x["image_type"]))
 with con:
  for key,raw_values in enum.items():
-  values=rows_of(raw_values);field_key=key.split("+",1)[-1] if "+" in key else key
+  values=rows_of(raw_values);field_key=key.split("+",1)[-1] if key.startswith(("Enum+","Column+")) else key
   for item in values:
    if isinstance(item,dict):label=item.get("UIName") or item.get("TYPE")
    elif isinstance(item,list):label=item[2] if len(item)>2 and isinstance(item[2],str) else (item[1] if len(item)>1 else None)
    else:label=None
-   con.execute("INSERT OR IGNORE INTO taxonomy(field_key,source_value_json,normalized_value) VALUES(?,?,?)",(field_key,j(item),label))
-print(json.dumps({"database":str(DB),"rows_processed":processed,"unique_cards":con.execute("select count(*) from cards").fetchone()[0],"fields":con.execute("select count(*) from card_fields").fetchone()[0],"taxonomy":con.execute("select count(*) from taxonomy").fetchone()[0],"images":con.execute("select count(*) from card_images").fetchone()[0],"soul_cost_fully_parsed":con.execute("select count(*) from card_costs where soul_known=1").fetchone()[0],"soul_cost_needs_review":con.execute("select count(*) from card_costs where soul_known=0").fetchone()[0]},ensure_ascii=False))
+   status=MANUAL_STATUS.get(field_key,"site_enum_only" if key.startswith("Enum+") else "site_ui_metadata")
+   con.execute("INSERT OR IGNORE INTO taxonomy(field_key,source_value_json,normalized_value,manual_mapping_status) VALUES(?,?,?,?)",(field_key,j(item),label,status))
+print(json.dumps({"database":str(DB),"rows_processed":processed,"unique_cards":con.execute("select count(*) from cards").fetchone()[0],"fields":con.execute("select count(*) from card_fields").fetchone()[0],"taxonomy":con.execute("select count(*) from taxonomy").fetchone()[0],"images":con.execute("select count(*) from card_images").fetchone()[0],"soul_cost_fully_parsed":con.execute("select count(*) from card_costs where soul_known=1").fetchone()[0],"soul_cost_needs_review":con.execute("select count(*) from card_costs where soul_known=0").fetchone()[0],"soul_tokens":con.execute("select count(*) from card_soul_cost_tokens").fetchone()[0]},ensure_ascii=False))
 con.close()

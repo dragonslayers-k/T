@@ -11,7 +11,10 @@ on:
         options: [probe, crawl]
         default: probe
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: fm1-carddb-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   carddb:
     runs-on: ubuntu-latest
@@ -36,30 +39,61 @@ jobs:
         env:
           EXPECTED_CARDS: "15350"
         run: npm run crawl
-      - name: Build normalized SQLite database
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
-        run: python scripts/build_db.py
       - name: Download original small and large card images
         if: github.event_name == 'push' || inputs.mode == 'crawl'
         env:
           IMAGE_CONCURRENCY: "6"
         run: npm run download-images
+      - name: Build normalized SQLite database
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
+        run: python scripts/build_db.py
       - name: Audit complete 15,350-card dataset
         if: github.event_name == 'push' || inputs.mode == 'crawl'
         run: python scripts/audit_db.py
       - name: Archive image files
         if: github.event_name == 'push' || inputs.mode == 'crawl'
-        run: tar -czf data/images.tar.gz -C data/images .
-      - name: Upload database, raw source, images and audit report
+        run: |
+          tar -czf data/images.tar.gz -C data/images .
+          split -b 1800m data/images.tar.gz data/images.tar.gz.part-
+          rm data/images.tar.gz
+      - name: Compress database and raw card source
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
+        run: |
+          gzip -c data/fm1_cards.sqlite > data/fm1_cards.sqlite.gz
+          gzip -c data/raw/cards.jsonl > data/raw/cards.jsonl.gz
+      - name: Publish persistent GitHub Release
+        if: success() && (github.event_name == 'push' || inputs.mode == 'crawl')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: fm1-carddb-${{ github.run_number }}
+          name: FM1 Card Database Build ${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          body: |
+            Automated FM1 card database package.
+            - Required cards: 15,350
+            - Small and large WebP image files
+            - Original Firestore JSONL and enum dictionary
+            - Normalized SQLite database and audit report
+          files: |
+            data/fm1_cards.sqlite.gz
+            data/raw/cards.jsonl.gz
+            data/raw/enumtable.json
+            data/raw/appsettings.json
+            data/raw/crawl-summary.json
+            data/raw/image-summary.json
+            data/audit-report.json
+            data/images.tar.gz.part-*
+          fail_on_unmatched_files: true
+      - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fm1-carddb-${{ github.event_name }}-${{ github.run_number }}
+          name: fm1-carddb-${{ github.run_number }}
           path: |
             artifacts/
-            data/fm1_cards.sqlite
+            data/fm1_cards.sqlite.gz
             data/raw/
             data/audit-report.json
-            data/images.tar.gz
+            data/images.tar.gz.part-*
           if-no-files-found: warn
-          retention-days: 30
+          retention-days: 90

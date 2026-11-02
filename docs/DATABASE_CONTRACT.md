@@ -1,43 +1,42 @@
-# 데이터베이스 계약 v1
+# 카드 데이터베이스 계약 v2
 
-## 1. 정체성 및 완전성
-- 대상: FM Lunatic 카드 목록 `https://fmlunatic.com/cardlist`
-- 목표: 정확히 15,350개의 고유 카드 레코드.
-- 기본 키: 원본의 안정적인 카드 ID. ID가 없으면 원본 상세 URL에서 유도한 임시 키를 쓰되 `id_quality=derived`로 표시한다.
-- 이름만 같은 카드는 합치지 않는다. ID가 다르면 별도 카드다.
+## 저장 원칙
+- Firestore 문서의 전체 원본 필드는 `cards.raw_payload_json` 및 `data/raw/cards.jsonl`에 보존한다.
+- 정규화 값은 `card_fields.normalized_value`에 별도로 저장한다.
+- 원본 코드/텍스트/HTML을 정규화 값으로 덮어쓰지 않는다.
+- ID는 Firestore 문서 ID를 사용하며 `KIND`는 이미지 번호로만 사용한다.
+- 상세 URL은 사이트 라우트에서 확인한 `/card/{documentId}` 패턴을 저장한다.
 
-## 2. 원본 보존
-카드마다 `raw_payload_json`, `source_list_url`, `source_card_url`, `source_image_url`, `source_thumbnail_url`, `source_large_image_url`, `source_collected_at`, `source_http_status`, `source_content_hash`를 보존한다.
-원본 페이지가 없는 경우에도 목록 URL은 저장하고, 상세 URL 상태를 `not_found` 등으로 명시한다. 주소를 만들어내지 않는다.
+## SQLite 테이블
+| 테이블 | 내용 |
+|---|---|
+| cards | 카드 ID, 이름, 분류, 속성, 개별 URL, 원본 JSON, 해시 |
+| card_fields | 55개 원본 필드와 정규화 표시값 |
+| card_texts | TextBase/TextExtra 원문 및 검색용 plain text |
+| card_costs | LP 값, RequireSoul 원문, 파싱 결과, 확정 여부 |
+| card_soul_cost_tokens | RequireSoul 4자리 토큰별 코드·수량·아이콘·해석 상태 |
+| card_images | 소형/대형 이미지 URL, 로컬 경로, 크기, SHA-256, 다운로드 상태 |
+| card_effects | 기본 효과 텍스트와 발동/지속 관련 데이터 |
+| source_pages | 카드 목록 및 개별 상세 페이지 URL |
+| taxonomy | Firestore enumtable의 원본 분류값과 표시 이름 |
+| verification | 카드/필드 단위 검증 근거 및 상태 |
 
-## 3. 정규화 테이블
-- cards: ID, 이름, 카드 종류, 속성, 에피소드, 상세 URL 상태, 원본 JSON
-- card_fields: 사이트/매뉴얼에서 발견한 모든 분류·속성의 key, 원본 값, 정규화 값, 원본 표기, 출처
-- card_texts: 설명, 카드 텍스트, 플레버 텍스트 등 텍스트 원문
-- card_costs: LP 및 속성별 소울 비용. 미상과 명시적 0을 구분
-- card_images: 원본 이미지 주소, 로컬 경로, MIME, 바이트, SHA-256, 이미지 종류
-- card_effects: 효과 원문 및 추후 구조화할 발동 시점/대상/조건/지속시간
-- source_pages: 카드별 원본 페이지와 페이지 수집 기록
-- taxonomy: 실제 발견된 필드명·값 및 매뉴얼 대응 상태
-- verification: 카드/필드 단위 검증 상태, 근거, 검증자, 시각
+## 값 표현
+- 미상/누락은 NULL, 명시적 숫자 0은 0.
+- LP 0은 유효한 값이다.
+- RequireSoul 원본 문자열과 토큰별 해석을 함께 보존한다.
+- 색상/무속성/무비용 코드가 확인된 경우에만 해당 색상으로 합산한다.
+- 혼합 속성/NCS/BONUS 등 매뉴얼 의미가 불확실한 토큰은 원본 코드와 아이콘을 보존하고 manual_review로 표시한다.
+- 모든 enum 값은 원본 튜플/객체와 표시 이름을 함께 보존한다.
 
-## 4. 값 표현
-- 원본 값은 문자열/숫자/배열/객체 형태를 그대로 JSON으로 보존한다.
-- 숫자 0은 0, 누락/미상은 NULL.
-- 비용 판독 실패는 0으로 대체하지 않는다.
-- 정규화는 별도 열에 저장하고 원본 값을 덮어쓰지 않는다.
-- 분류 코드가 확정되지 않은 경우 `unmapped` 상태로 남긴다.
+## 검증 상태
+`extracted_unverified`, `enum_mapped`, `manual_semantics_verified`, `image_verified`, `manual_review`, `manual_uncovered`.
+원본 데이터 수집 성공은 카드 효과 구현 완료나 이미지 수동 검증 완료를 의미하지 않는다.
 
-## 5. 검증 상태
-`discovered`, `extracted_unverified`, `source_verified`, `image_verified`, `manual_verified`, `missing`, `parse_failed`.
-검증 상태는 카드 전체와 필드 각각에 부여한다.
-
-## 6. 완료 기준
-1. 고유 카드 수 15,350.
-2. 중복 ID 0, 카드명 누락 0.
-3. 모든 카드에 확인된 원본 목록 URL, 개별 상세 URL 또는 명시적인 상세 URL 부재 사유.
-4. 이미지 URL/로컬 이미지 여부를 카드별로 명시.
-5. 상세 페이지에서 관찰된 필드가 하나도 버려지지 않고 원본/정규화 필드에 보존.
-6. SQLite FK/유일성 검사 통과.
-7. 감사 보고서에서 누락·실패·미검증 수량을 공개.
-8. 단순 수집 성공과 매뉴얼 대조 검증 완료를 별도 집계.
+## 완료 기준
+1. 고유 카드 15,350장.
+2. 카드명/ID/목록 URL/개별 URL 완전성.
+3. 55개 원본 필드와 enum 사전 보존.
+4. 소형·대형 이미지 각 15,350개 다운로드 및 해시 확인.
+5. SQLite의 카드·필드·텍스트·비용·토큰·이미지·taxonomy 참조 무결성.
+6. 미확정 비용/매뉴얼 공백은 별도 수량으로 공개.
