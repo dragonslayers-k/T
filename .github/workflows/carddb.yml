@@ -1,0 +1,53 @@
+name: Card DB pipeline
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: probe or crawl
+        required: true
+        type: choice
+        options: [probe, crawl]
+        default: probe
+permissions:
+  contents: read
+jobs:
+  carddb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+      - name: Probe live site
+        if: inputs.mode == 'probe'
+        run: npm run probe
+      - name: Crawl all cards
+        if: inputs.mode == 'crawl'
+        env:
+          EXPECTED_CARDS: "15350"
+        run: npm run crawl
+      - name: Build SQLite
+        if: inputs.mode == 'crawl'
+        run: python scripts/build_db.py
+      - name: Audit 15,350-card completeness
+        if: inputs.mode == 'crawl'
+        run: python scripts/audit_db.py
+      - name: Upload diagnostics and database
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-carddb-${{ inputs.mode }}
+          path: |
+            artifacts/
+            data/
+          if-no-files-found: warn
+          retention-days: 30

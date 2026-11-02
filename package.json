@@ -1,14 +1,13 @@
 {
-  "name": "fantasy-masters-offline",
-  "version": "0.1.0",
+  "name": "fm1-carddb-rebuild",
   "private": true,
-  "description": "판타지마스터즈1 오프라인 복원 프로젝트의 데이터 검증 기반",
+  "version": "0.1.0",
+  "type": "module",
   "scripts": {
-    "test": "node --test",
-    "validate:cards": "node scripts/validate-cards.mjs"
+    "probe": "node scripts/probe.mjs",
+    "crawl": "node scripts/crawl.mjs"
   },
-  "engines": {
-    "node": ">=20"
-  },
-  "type": "module"
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
 }
