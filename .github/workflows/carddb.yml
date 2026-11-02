@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: probe or crawl
+        description: probe or full crawl
         required: true
         type: choice
         options: [probe, crawl]
@@ -28,27 +28,38 @@ jobs:
         run: |
           npm install
           npx playwright install --with-deps chromium
-      - name: Probe live site
+      - name: Probe live site and card detail tabs
         if: github.event_name == 'push' || inputs.mode == 'probe'
         run: npm run probe
-      - name: Crawl all cards
-        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl'
+      - name: Crawl all 15,350 Firestore card documents
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
         env:
           EXPECTED_CARDS: "15350"
         run: npm run crawl
-      - name: Build SQLite
-        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl'
+      - name: Build normalized SQLite database
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
         run: python scripts/build_db.py
-      - name: Audit 15,350-card completeness
-        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl'
+      - name: Download original small and large card images
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
+        env:
+          IMAGE_CONCURRENCY: "6"
+        run: npm run download-images
+      - name: Audit complete 15,350-card dataset
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
         run: python scripts/audit_db.py
-      - name: Upload diagnostics and database
+      - name: Archive image files
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
+        run: tar -czf data/images.tar.gz -C data/images .
+      - name: Upload database, raw source, images and audit report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: fm1-carddb-${{ github.event_name }}-${{ github.run_number }}
           path: |
             artifacts/
-            data/
+            data/fm1_cards.sqlite
+            data/raw/
+            data/audit-report.json
+            data/images.tar.gz
           if-no-files-found: warn
           retention-days: 30
