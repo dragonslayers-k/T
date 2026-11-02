@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const input = process.argv[2] ?? "cards.json";
-const allowedTypes = new Set(["terrain", "unit", "item", "spell", "enchant"]);
+const allowedTypes = new Set(["land", "unit", "item", "spell", "enchant"]);
 
 function validateCards(cards) {
   const errors = [];
@@ -22,8 +22,8 @@ function validateCards(cards) {
     if (!allowedTypes.has(card.type)) errors.push(`${at}.type: unsupported type ${String(card.type)}`);
     if (typeof card.text !== "string") errors.push(`${at}.text: must preserve source text as string`);
     if (typeof card.description !== "string") errors.push(`${at}.description: must preserve source description as string`);
-    if (typeof card.costKnown !== "boolean") errors.push(`${at}.costKnown: required boolean`);
-    if (card.costKnown === false && card.cost && Object.keys(card.cost).length > 0) {
+    if (card.type !== "land" && typeof card.costKnown !== "boolean") errors.push(`${at}.costKnown: required boolean for non-land cards`);
+    if (card.type !== "land" && card.costKnown === false && card.cost && Object.keys(card.cost).length > 0) {
       errors.push(`${at}.cost: unknown cost must not contain inferred values`);
     }
     if (typeof card.artImage !== "string" || !card.artImage) errors.push(`${at}.artImage: required image reference`);
