@@ -1,0 +1,11 @@
+{
+  "name": "fantasy-masters-offline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "판타지마스터즈1 오프라인 복원 프로젝트의 데이터 검증 기반",
+  "scripts": {
+    "test": "node --test",
+    "validate:cards": "node scripts/validate-cards.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
