@@ -2,13 +2,13 @@ import { mkdir, readFile, appendFile, writeFile } from "node:fs/promises";
 import crypto from "node:crypto";
 
 const enumData=JSON.parse(await readFile("data/raw/enumtable.json","utf8"));
-const categoryRows=enumData["Enum+Category"]||[];
+const rawCategories=enumData["Enum+Category"]||[];
+const categoryRows=Array.isArray(rawCategories)?rawCategories:Object.values(rawCategories);
 const categoryMap=new Map(categoryRows.map(x=>[Number(x.KIND),x]));
 const bucket="https://storage.googleapis.com/fmdb-bcb70.appspot.com/";
 const concurrency=Number(process.env.IMAGE_CONCURRENCY||6);
 const cards=(await readFile("data/raw/cards.jsonl","utf8")).split("\n").filter(Boolean).map(JSON.parse);
-await mkdir("data/images/small",{recursive:true});
-await mkdir("data/images/large",{recursive:true});
+await mkdir("data/images/small",{recursive:true});await mkdir("data/images/large",{recursive:true});
 await writeFile("data/raw/image-manifest.jsonl","");
 const jobs=[];
 function imageUrl(card,size){
@@ -31,12 +31,10 @@ async function worker(){
    let last=null;
    for(let attempt=0;attempt<4;attempt++){
     try{
-     const res=await fetch(job.url,{signal:AbortSignal.timeout(30000)});
-     item.http_status=res.status;
+     const res=await fetch(job.url,{signal:AbortSignal.timeout(30000)});item.http_status=res.status;
      if(!res.ok)throw new Error(`HTTP ${res.status}`);
      const buf=Buffer.from(await res.arrayBuffer());if(!buf.length)throw new Error("empty image");
-     const hash=crypto.createHash("sha256").update(buf).digest("hex");
-     await writeFile(path,buf);
+     const hash=crypto.createHash("sha256").update(buf).digest("hex");await writeFile(path,buf);
      item.status="downloaded";item.byte_size=buf.length;item.sha256=hash;ok++;last=null;break;
     }catch(e){last=e;if(attempt<3)await new Promise(r=>setTimeout(r,700*2**attempt));}
    }
@@ -48,6 +46,5 @@ async function worker(){
 }
 await Promise.all(Array.from({length:concurrency},worker));
 const summary={cards:cards.length,image_jobs:jobs.length,downloaded:ok,failed,missing_mapping:missing,complete:ok===jobs.length,finished_at:new Date().toISOString()};
-await writeFile("data/raw/image-summary.json",JSON.stringify(summary,null,2));
-console.log(JSON.stringify(summary,null,2));
+await writeFile("data/raw/image-summary.json",JSON.stringify(summary,null,2));console.log(JSON.stringify(summary,null,2));
 if(ok!==jobs.length)process.exitCode=2;
