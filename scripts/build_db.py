@@ -45,9 +45,9 @@ def parse_soul(raw):
  return result
 def plain_text(value):
  value=html.unescape(value or "")
- value=re.sub(r"(?i)<br\\s*/?>","\\n",value)
+ value=re.sub(r"(?i)<br\s*/?>","\n",value)
  value=re.sub(r"<[^>]+>","",value)
- return re.sub(r"\\n{3,}","\\n\\n",value).strip()
+ return re.sub(r"\n{3,}","\n\n",value).strip()
 if DB.exists():DB.unlink()
 con=sqlite3.connect(DB)
 con.executescript("""
