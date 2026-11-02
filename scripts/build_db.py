@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import json, sqlite3, hashlib
+import json,sqlite3,hashlib
 from pathlib import Path
-from datetime import datetime, timezone
-
-ROOT=Path("data"); RAW=ROOT/"raw"/"cards.jsonl"; DB=ROOT/"fm1_cards.sqlite"
-if not RAW.exists(): raise SystemExit("Missing Firestore cards.jsonl")
-def j(v): return json.dumps(v,ensure_ascii=False,sort_keys=True)
+from datetime import datetime,timezone
+ROOT=Path("data");RAW=ROOT/"raw"/"cards.jsonl";DB=ROOT/"fm1_cards.sqlite"
+if not RAW.exists():raise SystemExit("Missing Firestore cards.jsonl")
+def j(v):return json.dumps(v,ensure_ascii=False,sort_keys=True)
 if DB.exists():DB.unlink()
 con=sqlite3.connect(DB)
 con.executescript("""
@@ -55,8 +54,8 @@ enum_path=ROOT/"raw"/"enumtable.json"
 if enum_path.exists():
  enum=json.loads(enum_path.read_text(encoding="utf-8"))
  with con:
-  for key,values in enum.items():
-   if not isinstance(values,list):continue
+  for key,raw_values in enum.items():
+   values=raw_values if isinstance(raw_values,list) else list(raw_values.values()) if isinstance(raw_values,dict) else []
    field_key=key.split("+",1)[-1] if "+" in key else key
    for item in values:
     con.execute("INSERT OR IGNORE INTO taxonomy(field_key,source_value_json,normalized_value) VALUES(?,?,?)",(field_key,j(item),str(item.get("UIName")) if isinstance(item,dict) and item.get("UIName") is not None else None))
