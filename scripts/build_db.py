@@ -58,6 +58,7 @@ if enum_path.exists():
    values=raw_values if isinstance(raw_values,list) else list(raw_values.values()) if isinstance(raw_values,dict) else []
    field_key=key.split("+",1)[-1] if "+" in key else key
    for item in values:
-    con.execute("INSERT OR IGNORE INTO taxonomy(field_key,source_value_json,normalized_value) VALUES(?,?,?)",(field_key,j(item),str(item.get("UIName")) if isinstance(item,dict) and item.get("UIName") is not None else None))
+    label=item.get("UIName") if isinstance(item,dict) else (item[2] if isinstance(item,list) and len(item)>2 and isinstance(item[2],str) else None)
+    con.execute("INSERT OR IGNORE INTO taxonomy(field_key,source_value_json,normalized_value) VALUES(?,?,?)",(field_key,j(item),label))
 print(json.dumps({"database":str(DB),"rows_processed":processed,"unique_cards":con.execute("select count(*) from cards").fetchone()[0],"fields":con.execute("select count(*) from card_fields").fetchone()[0],"taxonomy":con.execute("select count(*) from taxonomy").fetchone()[0],"images":con.execute("select count(*) from card_images").fetchone()[0]},ensure_ascii=False))
 con.close()
