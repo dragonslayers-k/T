@@ -30,7 +30,7 @@
 - 모든 enum 값은 원본 튜플/객체와 표시 이름을 함께 보존한다.
 
 ## 검증 상태
-`extracted_unverified`, `enum_mapped`, `manual_semantics_verified`, `image_verified`, `manual_review`, `manual_uncovered`.
+`extracted_unverified`, `enum_mapped`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped`. 인챈트는 정식 다섯 번째 카드 유형이며 미분류 유형이 아니다.
 원본 데이터 수집 성공은 카드 효과 구현 완료나 이미지 수동 검증 완료를 의미하지 않는다.
 
 ## 완료 기준
