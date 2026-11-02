@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { validateCards } from "../scripts/validate-cards.mjs";
 
 const valid = {
-  id: "T00001", name: "예시 지형", type: "terrain", text: "", description: "",
+  id: "T00001", name: "예시 지형", type: "unit", text: "", description: "",
   cost: {}, costKnown: false, artImage: "fm1/images/T00001.webp"
 };
 
@@ -27,4 +27,9 @@ test("rejects inferred values when cost is marked unknown", () => {
 
 test("rejects unsupported card type", () => {
   assert.ok(validateCards([{ ...valid, type: "other" }]).some((e) => e.includes("unsupported type")));
+});
+
+test("accepts source land records without costKnown", () => {
+  const land = { ...valid, id: "L00001", type: "land", costKnown: undefined, cost: {}, souls: { neutral: 1 }, soulValue: 1 };
+  assert.deepEqual(validateCards([land]), []);
 });
