@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 
 const input = process.argv[2] ?? "cards.json";
 const allowedTypes = new Set(["terrain", "unit", "item", "spell", "enchant"]);
@@ -30,7 +31,7 @@ function validateCards(cards) {
   return errors;
 }
 
-if (process.argv[1] && new URL(import.meta.url).pathname === process.argv[1]) {
+if (process.argv[1] && resolve(process.argv[1]) === new URL(import.meta.url).pathname) {
   try {
     const cards = JSON.parse(await readFile(input, "utf8"));
     const errors = validateCards(cards);
