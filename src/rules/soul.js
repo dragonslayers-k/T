@@ -1,6 +1,6 @@
 // Pure FM1 soul/LP helpers. These functions do not mutate the input state.
 export const SOUL_COLORS = Object.freeze([
-  "dark", "fire", "earth", "water", "wind", "light", "neutral"
+  "dark", "fire", "earth", "water", "forest", "metal", "light", "neutral"
 ]);
 
 function isNonNegativeInteger(value) {
