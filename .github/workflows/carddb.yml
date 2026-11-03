@@ -198,6 +198,10 @@ jobs:
           effect_candidate_rows = db.execute("SELECT COUNT(*) FROM card_effect_candidate_summaries").fetchone()[0]
           effect_clause_rows = db.execute("SELECT COUNT(*) FROM card_effect_clauses").fetchone()[0]
           effect_separators = db.execute("SELECT COUNT(*) FROM card_effect_clauses WHERE segment_type='separator'").fetchone()[0]
+          effect_span_errors = db.execute(
+              "SELECT COUNT(*) FROM card_effect_candidate_summaries "
+              "WHERE span_integrity_status NOT IN ('exact','not_split')"
+          ).fetchone()[0]
           field_keys = db.execute("SELECT COUNT(DISTINCT field_key) FROM card_fields").fetchone()[0]
           source_pages = db.execute("SELECT COUNT(*) FROM source_pages").fetchone()[0]
           costs = db.execute("SELECT COUNT(*) FROM card_costs").fetchone()[0]
@@ -228,6 +232,7 @@ jobs:
               "effectCandidateRows": effect_candidate_rows,
               "effectClauseRows": effect_clause_rows,
               "effectSeparatorRows": effect_separators,
+              "effectSpanIntegrityErrors": effect_span_errors,
               "sourcePages": source_pages,
               "costRows": costs, "tokenParsedRows": token_known,
               "hybridMappingReview": mapping_review, "specialSemanticsReview": semantic_review,
@@ -247,7 +252,7 @@ jobs:
               or search_rows != 15350 or korean_hits < 1 or ncs_hits < 1 or fk_errors
               or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000
               or effect_candidate_rows != texts or effect_clause_rows < effect_candidate_rows
-              or source_pages != 30700
+              or effect_span_errors != 0 or source_pages != 30700
           ):
               raise SystemExit("SQLite validation failed: " + json.dumps(summary, ensure_ascii=False))
           with gzip.open("data/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
