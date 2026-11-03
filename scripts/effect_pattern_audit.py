@@ -94,18 +94,18 @@ def split_clause_candidates(text):
     result = []
     for index, (begin, end) in enumerate(chunks):
         clause = text[begin:end]
-        if not clause.strip():
-            continue
+        is_separator = not clause.strip()
         result.append({
             "clause_index": index,
             "start_char": begin,
             "end_char": end,
             "text": clause,
-            "topic_candidates": candidates(clause, TOPICS),
-            "trigger_candidates": candidates(clause, TRIGGERS),
-            "actor_candidates": candidates(clause, ACTORS),
-            "target_candidates": candidates(clause, TARGETS),
-            "operation_candidates": candidates(clause, OPERATIONS),
+            "segment_type": "separator" if is_separator else "clause",
+            "topic_candidates": [] if is_separator else candidates(clause, TOPICS),
+            "trigger_candidates": [] if is_separator else candidates(clause, TRIGGERS),
+            "actor_candidates": [] if is_separator else candidates(clause, ACTORS),
+            "target_candidates": [] if is_separator else candidates(clause, TARGETS),
+            "operation_candidates": [] if is_separator else candidates(clause, OPERATIONS),
             "verification_status": "pattern_candidate",
         })
     return result
@@ -144,17 +144,19 @@ def main():
     con = sqlite3.connect(args.db)
     rows = con.execute("""
         SELECT ct.text_id, ct.card_id, ct.text_type,
-               COALESCE(ct.plain_text, ct.source_text), ct.source_text
+               COALESCE(NULLIF(ct.plain_text, ''), ct.source_text),
+               ct.source_text, c.source_card_url
         FROM card_texts ct
+        LEFT JOIN cards c ON c.card_id = ct.card_id
         WHERE ct.text_type IN ('card_text','additional_text')
         ORDER BY ct.card_id, ct.text_id
     """).fetchall()
     topic_count = Counter()
     records = []
     pattern_counts = Counter()
-    for text_id, card_id, text_type, plain_text, source_text in rows:
-        text = (plain_text or source_text or "").strip()
-        if not text:
+    for text_id, card_id, text_type, plain_text, source_text, source_card_url in rows:
+        text = plain_text or source_text or ""
+        if not text.strip():
             continue
         parsed = analyze(text)
         topic_count.update(parsed["topic_candidates"])
@@ -163,7 +165,7 @@ def main():
             "text_id": text_id, "card_id": card_id, "text_type": text_type,
             "text": text, **parsed,
             "verification_status": "pattern_candidate",
-            "source_detail_url": f"https://fmlunatic.com/card/{card_id}",
+            "source_detail_url": source_card_url,
         })
     patterns = []
     for (text_type, text), count in pattern_counts.items():
