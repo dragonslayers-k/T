@@ -44,6 +44,15 @@ class EffectPatternAuditTests(unittest.TestCase):
     def test_reference_note_is_not_auto_promoted_to_effect(self):
         parsed = analyze("▶ 해당 카드는 상점에서 판매불가입니다.")
         self.assertEqual(parsed["source_text_class_candidate"], "reference_or_rule_note_candidate")
+        self.assertIn("rule_note", parsed["topic_candidates"])
+
+    def test_destroy_trigger_candidate_is_explicit(self):
+        parsed = analyze("자이언트킬링 : 자신 파괴시, 상대 유닛도 파괴.")
+        self.assertIn("on_destroy_or_death", parsed["topic_candidates"])
+
+    def test_card_reference_candidate_is_separate(self):
+        parsed = analyze("상성카드 : 트라이던트")
+        self.assertIn("card_reference", parsed["topic_candidates"])
 
     def test_numeric_percent_is_preserved_as_text(self):
         parsed = analyze("공격시 AP+2 및 25% 추가 피해")
