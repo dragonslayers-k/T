@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import json,sqlite3,hashlib,re,html
+import json,sqlite3,hashlib,re,html,sys
 from pathlib import Path
 from datetime import datetime,timezone
 ROOT=Path("data");RAW=ROOT/"raw"/"cards.jsonl";DB=ROOT/"fm1_cards.sqlite"
-if not RAW.exists():raise SystemExit("Missing Firestore cards.jsonl")
+if not RAW.exists() and "--self-test" not in sys.argv:raise SystemExit("Missing Firestore cards.jsonl")
 def j(v):return json.dumps(v,ensure_ascii=False,sort_keys=True)
 def rows_of(v):return v if isinstance(v,list) else list(v.values()) if isinstance(v,dict) else []
 enum_path=ROOT/"raw"/"enumtable.json";enum=json.loads(enum_path.read_text(encoding="utf-8")) if enum_path.exists() else {}
@@ -38,6 +38,12 @@ soul_rows=rows_of(enum.get("Enum+RequireSoul",{}));soul_meta={}
 for row in soul_rows:
  if isinstance(row,list) and len(row)>=3:soul_meta[int(row[0])]={"symbol":row[1],"icon":row[2]}
 PURE_SOUL={11:"dark",21:"fire",31:"water",41:"forest",51:"iron",61:"earth",71:"light",81:"neutral",1:"none"}
+HYBRID_SOUL={
+ 12:("dark","earth"),13:("dark","fire"),14:("dark","light"),15:("dark","water"),
+ 22:("fire","forest"),23:("fire","iron"),24:("fire","water"),32:("earth","water"),
+ 33:("forest","water"),42:("forest","iron"),43:("forest","light"),
+ 52:("earth","iron"),53:("iron","light"),62:("earth","light")
+}
 def parse_soul(raw):
  result={"raw":raw,"tokens":[],"colors":{"dark":0,"fire":0,"earth":0,"water":0,"forest":0,"iron":0,"light":0,"neutral":0},"known":False}
  if not isinstance(raw,str) or len(raw)%4:return result
@@ -51,10 +57,21 @@ def parse_soul(raw):
    if count==0:status="no_cost"
    else:known=False;status="manual_review"
   elif color:result["colors"][color]+=count
+  elif code in HYBRID_SOUL:
+   for hybrid_color in HYBRID_SOUL[code]:result["colors"][hybrid_color]+=count
+   color="+".join(HYBRID_SOUL[code]);status="mapped_hybrid"
   else:known=False
   result["tokens"].append({"raw":token,"code":code,"count":count,"symbol":meta.get("symbol"),"icon":meta.get("icon"),"normalized_color":color,"status":status})
  result["known"]=known
  return result
+if "--self-test" in sys.argv:
+ sample=parse_soul("43017101")
+ assert sample["known"] and sample["colors"]["forest"]==1 and sample["colors"]["light"]==2
+ assert parse_soul("32016101")["colors"]["earth"]==2
+ assert not parse_soul("8201")["known"] and not parse_soul("8301")["known"]
+ assert parse_soul("0100")["known"]
+ print("SQLite builder RequireSoul self-test passed")
+ raise SystemExit(0)
 def plain_text(value):
  value=html.unescape(value or "")
  value=re.sub(r"(?i)<br\s*/?>","\n",value)
