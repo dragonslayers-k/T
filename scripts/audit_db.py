@@ -26,6 +26,12 @@ result={
  "cards_with_effect_rows":q("select count(distinct card_id) from card_effects"),
  "effect_rows_unverified":q("select count(*) from card_effects where verification_status='extracted_unverified'"),
  "effect_rows_without_text":q("select count(*) from card_effects where effect_text is null or trim(effect_text)=''"),
+ "effect_source_mismatches":q("select count(*) from card_effects e left join card_texts t on t.card_id=e.card_id and t.text_type=case e.source_key when 'TextBase' then 'card_text' when 'TextExtra' then 'additional_text' else '' end and t.plain_text=e.effect_text where t.text_id is null"),
+ "effect_source_text_rows":q("select count(*) from card_texts where text_type in ('card_text','additional_text')"),
+ "effect_rows":q("select count(*) from card_effects"),
+ "cards_with_effect_rows":q("select count(distinct card_id) from card_effects"),
+ "effect_rows_unverified":q("select count(*) from card_effects where verification_status='extracted_unverified'"),
+ "effect_rows_without_text":q("select count(*) from card_effects where effect_text is null or trim(effect_text)=''"),
  "cards_with_image_urls":q("select count(distinct card_id) from card_images where source_url is not null and source_url<>''"),
  "image_rows_in_db":q("select count(*) from card_images"),
  "large_images_downloaded":sum(x.get("status")=="downloaded" for x in large),
@@ -41,7 +47,7 @@ result={
  "category_counts":dict(c.execute("select card_type,count(*) from cards group by card_type")),
  "crawl_pages":crawl.get("pages"),"crawl_complete":crawl.get("complete",False),"complete":False
 }
-result["effect_text_accounted_for"]=result["effect_rows"]==result["effect_source_text_rows"] and result["effect_rows_without_text"]==0
+result["effect_text_accounted_for"]=result["effect_rows"]==result["effect_source_text_rows"] and result["effect_rows_without_text"]==0 and result["effect_source_mismatches"]==0
 result["cost_parse_accounted_for"]=result["soul_cost_fully_parsed"]+result["soul_cost_needs_review"]==target
 result["complete"]=(
  result["firestore_source_count"]==target and result["unique_cards"]==target and
