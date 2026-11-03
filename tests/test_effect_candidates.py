@@ -26,6 +26,11 @@ class EffectCandidateDatabaseTests(unittest.TestCase):
     def test_build_preserves_source_spans_and_separators(self):
         result = build(self.db)
         self.assertEqual(result["candidateSummaryRows"], 1)
+        self.assertEqual(result["spanIntegrityErrors"], 0)
+        self.assertEqual(
+            self.db.execute("SELECT span_integrity_status FROM card_effect_candidate_summaries").fetchone()[0],
+            "exact",
+        )
         rows = self.db.execute(
             "SELECT segment_type,segment_text FROM card_effect_clauses ORDER BY clause_index"
         ).fetchall()
@@ -58,6 +63,10 @@ class EffectCandidateDatabaseTests(unittest.TestCase):
         self.assertEqual(first["clauseRows"], second["clauseRows"])
         self.assertEqual(
             self.db.execute("SELECT COUNT(*) FROM card_effect_candidate_summaries").fetchone()[0],
+            1,
+        )
+        self.assertEqual(
+            self.db.execute("SELECT COUNT(*) FROM card_effect_candidate_summaries WHERE span_integrity_status='exact'").fetchone()[0],
             1,
         )
 
