@@ -142,7 +142,7 @@ if manifest.exists():
   for line in f:
    if not line.strip():continue
    x=json.loads(line)
-   con.execute("UPDATE card_images SET local_path=?,mime_type=?,byte_size=?,sha256=?,download_status=? WHERE card_id=? AND image_type=?",(x.get("local_path"),"image/webp" if x.get("status")=="downloaded" else None,x.get("byte_size"),x.get("sha256"),x.get("status"),x["card_id"],x["image_type"]))
+   con.execute("UPDATE card_images SET local_path=?,mime_type=?,byte_size=?,sha256=?,download_status=? WHERE card_id=? AND image_type=?",(x.get("local_path") or x.get("archive_path"),"image/webp" if x.get("status") in ("downloaded","verified") else x.get("mime_type"),x.get("byte_size"),x.get("sha256"),"archive_verified" if x.get("status")=="verified" else x.get("status"),x["card_id"],x["image_type"]))
 with con:
  for key,raw_values in enum.items():
   values=rows_of(raw_values);field_key=key.split("+",1)[-1] if key.startswith(("Enum+","Column+")) else key
