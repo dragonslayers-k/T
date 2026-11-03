@@ -70,13 +70,15 @@ jobs:
           review = db.execute("SELECT COUNT(*) FROM card_costs WHERE soul_known=0").fetchone()[0]
           semantic_review = db.execute("SELECT COUNT(*) FROM card_costs WHERE semantic_review=1").fetchone()[0]
           tokens = db.execute("SELECT COUNT(*) FROM card_soul_cost_tokens").fetchone()[0]
+          search_rows = db.execute("SELECT COUNT(*) FROM card_search").fetchone()[0]
+          search_test = db.execute("SELECT COUNT(*) FROM card_search WHERE card_search MATCH 'NCS'").fetchone()[0]
           fk = db.execute("PRAGMA foreign_key_check").fetchall()
           summary = {"integrity": integrity, "cards": cards, "costRows": costs,
                      "decodedSoulCosts": known, "unresolvedSoulCosts": review,
-                     "specialSemanticsReview": semantic_review, "soulTokens": tokens, "foreignKeyErrors": len(fk)}
+                     "specialSemanticsReview": semantic_review, "soulTokens": tokens, "searchIndexRows": search_rows, "ncsSearchHits": search_test, "foreignKeyErrors": len(fk)}
           Path("audit-output/sqlite/sqlite-build-summary.json").write_text(
               json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-          if integrity != "ok" or cards != 15350 or costs != 15350 or known != 15350 or review != 0 or semantic_review != 779 or fk:
+          if integrity != "ok" or cards != 15350 or costs != 15350 or known != 15350 or review != 0 or semantic_review != 779 or search_rows != 15350 or search_test < 1 or fk:
               raise SystemExit("SQLite card DB validation failed: " + json.dumps(summary))
           with gzip.open("audit-output/sqlite/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
               with open("data/fm1_cards.sqlite", "rb") as source:
