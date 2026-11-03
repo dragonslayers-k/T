@@ -152,7 +152,7 @@ jobs:
             --output data/quality-audit.json
 
       - name: Audit all 30,700 archived WebP images
-        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: |
           set -euo pipefail
           mkdir -p data/image-audit
@@ -163,7 +163,7 @@ jobs:
           cp data/image-audit/image-manifest.jsonl data/raw/image-manifest.jsonl
 
       - name: Build the normalized SQLite database
-        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: |
           set -euo pipefail
           python scripts/build_db.py
@@ -175,7 +175,7 @@ jobs:
             --summary-only
 
       - name: Verify SQLite counts, references, images, costs, and search
-        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -263,7 +263,7 @@ jobs:
           PY
 
       - name: Prepare image archive chunks and release payload
-        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: |
           set -euo pipefail
           if [ ! -f data/images.tar.gz.part-aa ]; then
