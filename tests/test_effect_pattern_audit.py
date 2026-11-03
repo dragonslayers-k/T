@@ -60,6 +60,16 @@ class EffectPatternAuditTests(unittest.TestCase):
         self.assertEqual("".join(item["text"] for item in clauses), text)
         for item in clauses:
             self.assertEqual(text[item["start_char"]:item["end_char"]], item["text"])
+        separators = [item for item in clauses if item["segment_type"] == "separator"]
+        self.assertEqual([item["text"] for item in separators], ["\n"])
+        self.assertTrue(all(not item["topic_candidates"] for item in separators))
+
+    def test_clause_candidate_spans_preserve_leading_and_trailing_whitespace(self):
+        text = "\n  AP+1  \n"
+        clauses = split_clause_candidates(text)
+        self.assertEqual("".join(item["text"] for item in clauses), text)
+        self.assertEqual(clauses[0]["segment_type"], "separator")
+        self.assertEqual(text[clauses[-1]["start_char"]:clauses[-1]["end_char"]], clauses[-1]["text"])
 
     def test_numeric_percent_is_preserved_as_text(self):
         parsed = analyze("공격시 AP+2 및 25% 추가 피해")
