@@ -65,3 +65,10 @@ GitHub Actions → **Card DB pipeline**에서 실행한다. `probe`는 사이트
 - `card_texts`와 `card_effects`는 원본 TextBase/TextExtra와 검색용 텍스트를 보존한다.
 - `card_effect_candidate_summaries`와 `card_effect_clauses`는 카드별 후보 분류와 절 위치를 함께 저장한다.
 - 후보 상태는 `pattern_candidate`이며, 매뉴얼과 카드별 원문 검증 전에는 게임 규칙 실행 코드로 승격하지 않는다.
+
+## 매뉴얼 규칙·특수기술 데이터
+
+- `data/rules/fm1-skill-catalog-v1.json`: Manual.zip의 기본 특수기술 27개와 후대 커뮤니티 후보 41개를 출처 계층별로 보존합니다.
+- `scripts/import_manual_rules.py`: 규칙 카탈로그를 SQLite의 `game_rule_catalog`, `card_rule_mappings`, `skill_enum_inventory`에 수록합니다.
+- `docs/MANUAL_RULE_COVERAGE.md`: Manual.zip 우선순위, 27개 기본 기술, 후대 자료 충돌, 미구현 후보의 실행 금지 상태를 설명합니다.
+- 커뮤니티 후보 41개는 검색·분석용 데이터이며, 개별 엔진 구현과 테스트가 끝나기 전에는 게임에서 자동 실행하지 않습니다.
