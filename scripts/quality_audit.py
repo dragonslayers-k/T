@@ -10,7 +10,8 @@ import argparse, collections, hashlib, json, math, sys
 from pathlib import Path
 
 EXPECTED = 15350
-NUMERIC_FIELDS = ("RequireLP", "AP", "DP", "HP", "RequireSoul")
+NUMERIC_FIELDS_BY_CATEGORY = {"1": ("RequireLP",), "2": ("HP",)}
+ENCODED_FIELDS = ("RequireSoul",)
 REQUIRED_IDENTITY = ("Name",)
 
 def load_jsonl(path: Path):
@@ -47,17 +48,24 @@ def audit(records, expected=EXPECTED):
         for key in REQUIRED_IDENTITY:
             if raw.get(key) is None or str(raw.get(key)).strip() == "":
                 missing.append({"card_id": cid, "field": key, "reason": "missing_identity"})
-        for key in NUMERIC_FIELDS:
+        category = str(raw.get("Category", ""))
+        for key in NUMERIC_FIELDS_BY_CATEGORY.get(category, ()):
             val = raw.get(key)
             if val is None or val == "":
-                review.append({"card_id": cid, "field": key, "status": "missing", "game_value_required": True})
+                review.append({"card_id": cid, "field": key, "status": "missing", "game_value_required": True, "category": category})
             elif isinstance(val, (int, float)) and not isinstance(val, bool):
                 if val == 0:
                     explicit_zero[key] += 1
                 if not math.isfinite(float(val)) or val < 0:
-                    review.append({"card_id": cid, "field": key, "status": "invalid_numeric", "raw": val})
+                    review.append({"card_id": cid, "field": key, "status": "invalid_numeric", "raw": val, "category": category})
             else:
-                review.append({"card_id": cid, "field": key, "status": "needs_semantic_parse", "raw": val})
+                review.append({"card_id": cid, "field": key, "status": "needs_numeric_parse", "raw": val, "category": category})
+        for key in ENCODED_FIELDS:
+            val = raw.get(key)
+            if val is None or val == "":
+                review.append({"card_id": cid, "field": key, "status": "missing_encoded_source", "game_value_required": False, "category": category})
+            else:
+                review.append({"card_id": cid, "field": key, "status": "encoded_source_present", "raw": val, "category": category})
     return {
         "expected_cards": expected, "record_count": len(records), "unique_ids": len(ids),
         "duplicate_ids": duplicates, "count_delta": len(records)-expected,
@@ -115,6 +123,8 @@ def main():
         result = audit(sample, expected=1)
         assert result["record_count"] == 1 and result["explicit_zero_counts"]["RequireLP"] == 1
         assert any(x["field"] == "HP" and x["status"] == "missing" for x in result["value_review_queue"])
+        assert not any(x["field"] in ("AP", "DP") for x in result["value_review_queue"])
+        assert any(x["field"] == "RequireSoul" and x["status"] == "encoded_source_present" for x in result["value_review_queue"])
         print("quality audit self-test passed")
         return 0
     if not args.cards_jsonl:
