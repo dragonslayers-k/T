@@ -15,7 +15,7 @@
 | card_texts | TextBase/TextExtra 원문 및 검색용 plain text |
 | card_costs | LP 값, RequireSoul 원문, 파싱 결과, 확정 여부 |
 | card_soul_cost_tokens | RequireSoul 4자리 토큰별 코드·수량·아이콘·해석 상태 |
-| card_images | 소형/대형 이미지 URL, 로컬 경로, 크기, SHA-256, 다운로드 상태 |
+| card_images | 소형/대형 이미지 URL, 실제 로컬 경로, 원본 아카이브 멤버 경로, 크기, SHA-256, 검증 상태 |
 | card_effects | TextBase·TextExtra 출처 키, 카드별 효과 원문, 발동/지속 관련 데이터 |
 | source_pages | 카드 목록 및 개별 상세 페이지 URL |
 | taxonomy | Firestore enumtable의 원본 분류값과 표시 이름 |
