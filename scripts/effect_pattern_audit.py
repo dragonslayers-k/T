@@ -50,7 +50,9 @@ OPERATIONS = [
     ("resource_change", r"소울|LP|마력"),
     ("equip_or_unequip", r"장착|해제"),
 ]
-NON_EFFECT = re.compile(r"^invalid$|보유LP는|더블클릭하여 소울|소울은 카드를 소환", re.I)\nFLAVOR_ONLY = re.compile(r"^\\s*\\[[^\\[\\]]*\\]\\s*$", re.S)\nREFERENCE_NOTE = re.compile(r"^\\s*(?:▶|상성카드\\s*:|해당 카드는|카드타입은|기호 소개)", re.I)
+NON_EFFECT = re.compile(r"^invalid$|보유LP는|더블클릭하여 소울|소울은 카드를 소환", re.I)
+FLAVOR_ONLY = re.compile(r"^\s*\[[^\[\]]*\]\s*$", re.S)
+REFERENCE_NOTE = re.compile(r"^\s*(?:▶|상성카드\s*:|해당 카드는|카드타입은|기호 소개)", re.I)
 NUMBER = re.compile(r"(?<!\d)[-+]?\d+(?:\.\d+)?%?")
 TOKEN = re.compile(r"(?:NCS|BONUS|[A-Z]{2,})", re.I)
 
@@ -59,9 +61,21 @@ def candidates(text, rules):
     return [key for key, pattern in rules if re.search(pattern, text)]
 
 
-def analyze(text):
+def classify_source_text(text):
+    if FLAVOR_ONLY.fullmatch(text.strip()):
+        return "flavor_only_candidate"
     if NON_EFFECT.search(text.strip()):
+        return "invalid_or_non_effect_candidate"
+    if REFERENCE_NOTE.search(text.strip()):
+        return "reference_or_rule_note_candidate"
+    return "effect_text_candidate"
+
+
+def analyze(text):
+    text_class = classify_source_text(text)
+    if text_class in ("flavor_only_candidate", "invalid_or_non_effect_candidate"):
         return {
+            "source_text_class_candidate": text_class,
             "topic_candidates": ["non_effect_or_invalid"],
             "trigger_candidates": [], "actor_candidates": [],
             "target_candidates": [], "operation_candidates": [],
@@ -69,6 +83,7 @@ def analyze(text):
         }
     topics = candidates(text, TOPICS) or ["unclassified_candidate"]
     return {
+        "source_text_class_candidate": text_class,
         "topic_candidates": topics,
         "trigger_candidates": candidates(text, TRIGGERS),
         "actor_candidates": candidates(text, ACTORS),
