@@ -72,6 +72,16 @@ review_tokens = {
     """).fetchall()
 }
 
+land_production = {
+    "records": scalar("SELECT COUNT(*) FROM card_land_production"),
+    "decoded": scalar("SELECT COUNT(*) FROM card_land_production WHERE known = 1"),
+    "needsReview": scalar("SELECT COUNT(*) FROM card_land_production WHERE known = 0"),
+    "magicLandEffectCards": scalar("SELECT COUNT(*) FROM card_land_production WHERE magicland = 1"),
+    "muSoulMismatches": scalar("SELECT COUNT(*) FROM card_land_production WHERE mu_soul_matches = 0"),
+    "muSoulCrossChecks": scalar("SELECT COUNT(*) FROM card_land_production WHERE mu_soul_matches IS NOT NULL"),
+    "productionTokenRows": scalar("SELECT COUNT(*) FROM card_soul_production_tokens"),
+    "missingRawEarnSoulList": scalar("SELECT COUNT(*) FROM cards c JOIN card_fields f ON f.card_id = c.card_id WHERE c.card_type = '지형' AND f.field_key = 'EarnSoulList' AND (f.source_value_json IS NULL OR f.source_value_json = 'null' OR f.source_value_json = '""')"),
+}
 unpacked_category_counts = {k: v for k, v in category_counts.items() if k not in EXPECTED_CATEGORIES}
 missing_or_wrong_categories = {
     name: {"expected": expected, "actual": category_counts.get(name, 0)}
@@ -113,6 +123,7 @@ result = {
     "unexpectedCategories": unpacked_category_counts,
     "soulCostByCategory": cost_by_category,
     "manualReviewTokensByCategory": review_tokens,
+    "landProduction": land_production,
     "fieldPresenceByCategory": field_presence,
     "crawlPages": crawl.get("pages"),
     "crawlComplete": crawl.get("complete", False),
@@ -143,6 +154,14 @@ result["complete"] = (
     and result["lpKnownCards"] == 289
     and result["lpZeroCards"] == 72
     and result["costParseAccountedFor"]
+    and result["landProduction"]["records"] == 289
+    and result["landProduction"]["decoded"] == 289
+    and result["landProduction"]["needsReview"] == 0
+    and result["landProduction"]["magicLandEffectCards"] == 50
+    and result["landProduction"]["muSoulMismatches"] == 0
+    and result["landProduction"]["muSoulCrossChecks"] == 239
+    and result["landProduction"]["productionTokenRows"] > 0
+    and result["landProduction"]["missingRawEarnSoulList"] == 0
     and result["categoryTotalsMatch"]
     and not result["unexpectedCategories"]
     and result["crawlComplete"] is True

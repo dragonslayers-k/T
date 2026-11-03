@@ -32,11 +32,78 @@ MANUAL_STATUS={
  "EnchantSlot":"manual_uncovered","RaceType":"site_enum_only","CompanyType":"site_enum_only","EtcType":"site_enum_only",
  "RareType":"site_enum_only","RareUI":"site_enum_only","Episode":"site_enum_only","DeckLimit":"manual_partial",
  "BuyGrade":"site_enum_only","CardUISoul":"site_enum_only","LV":"site_enum_only","RankType":"site_enum_only",
- "MuSoul":"site_enum_only","NameCount":"site_enum_only","ProbOption":"site_enum_only","EarnSoul":"site_enum_only"
+ "MuSoul":"site_enum_only","NameCount":"site_enum_only","ProbOption":"site_enum_only","EarnSoul":"site_enum_only","EarnSoulList":"manual_semantics_verified"
 }
 soul_rows=rows_of(enum.get("Enum+RequireSoul",{}));soul_meta={}
 for row in soul_rows:
  if isinstance(row,list) and len(row)>=3:soul_meta[int(row[0])]={"symbol":row[1],"icon":row[2]}
+earn_soul_meta={}
+for row in rows_of(enum.get("Enum+EarnSoul",{})):
+ if isinstance(row,list) and len(row)>=3:
+  earn_soul_meta[int(row[0])]={"symbol":str(row[1]).upper(),"icon":str(row[2])}
+COLOR_SYMBOL={"DARK":"dark","FIRE":"fire","WATER":"water","FOREST":"forest","IRON":"iron","EARTH":"earth","LIGHT":"light"}
+def parse_earn_soul(raw,mu_soul):
+ result={"raw":raw,"tokens":[],"colored":{c:0 for c in COLOR_SYMBOL.values()},
+         "neutral":0,"magicland":False,"known":False,"review":[],"mu_soul":mu_soul}
+ if not isinstance(raw,str) or not raw:
+  result["review"].append("source-earn-soul-list-missing")
+  return result
+ if len(raw)%4:
+  result["review"].append("invalid-token-width")
+  return result
+ for i in range(0,len(raw),4):
+  token=raw[i:i+4]
+  if not token.isdigit():
+   result["review"].append("non-numeric-token:"+token)
+   continue
+  code,count=int(token[:2]),int(token[2:])
+  meta=earn_soul_meta.get(code)
+  if not meta:
+   result["review"].append("unknown-earn-soul-code:"+token)
+   result["tokens"].append({"raw":token,"code":code,"count":count,"status":"manual_review"})
+   continue
+  symbol=meta["symbol"]
+  item={"raw":token,"code":code,"count":count,"symbol":symbol,"icon":meta["icon"],"status":"enum_decoded"}
+  if symbol=="NONE":
+   item["kind"]="none"
+   if count!=0:
+    item["status"]="manual_review";result["review"].append("nonzero-none-token:"+token)
+  elif symbol=="SPELL":
+   item["kind"]="magicland-effect-marker"
+   result["magicland"]=True
+  elif symbol=="ALL":
+   item["kind"]="all-seven-colors"
+   item["outputs"]={color:count for color in COLOR_SYMBOL.values()}
+   for color in COLOR_SYMBOL.values(): result["colored"][color]+=count
+  elif symbol in ("MU01","MU02","MU03"):
+   per_token=int(symbol[-2:])
+   value=per_token*count
+   item["kind"]="neutral"
+   item["neutralPerToken"]=per_token
+   item["neutralOutput"]=value
+   result["neutral"]+=value
+  else:
+   components=symbol.split("_")
+   if components and all(part in COLOR_SYMBOL for part in components):
+    outputs={COLOR_SYMBOL[part]:count for part in components}
+    item["kind"]="colored"
+    item["outputs"]=outputs
+    for color,value in outputs.items(): result["colored"][color]+=value
+   else:
+    item["status"]="manual_review"
+    result["review"].append("unknown-earn-soul-symbol:"+symbol)
+  result["tokens"].append(item)
+ result["colored"]={color:value for color,value in result["colored"].items() if value}
+ try: mu=int(mu_soul) if mu_soul is not None and mu_soul!="" else None
+ except (TypeError,ValueError): mu=None
+ if not result["magicland"]:
+  if mu is None:
+   result["review"].append("mu-soul-source-missing")
+  elif mu!=result["neutral"]:
+   result["review"].append(f"mu-soul-mismatch:EarnSoulList={result['neutral']},MuSoul={mu}")
+ result["known"]=not result["review"]
+ result["status"]="magicland-effect" if result["magicland"] and result["known"] else ("decoded" if result["known"] else "manual_review")
+ return result
 PURE_SOUL={11:"dark",21:"fire",31:"water",41:"forest",51:"iron",61:"earth",71:"light",81:"neutral",1:"none"}
 def parse_soul(raw):
  result={"raw":raw,"tokens":[],"colors":{"dark":0,"fire":0,"earth":0,"water":0,"forest":0,"iron":0,"light":0,"neutral":0},"known":False}
@@ -69,12 +136,14 @@ CREATE TABLE card_fields(field_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFE
 CREATE TABLE card_texts(text_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),text_type TEXT NOT NULL,source_text TEXT NOT NULL,plain_text TEXT,source_location TEXT);
 CREATE TABLE card_costs(card_id TEXT PRIMARY KEY REFERENCES cards(card_id),lp_value REAL,lp_known INTEGER NOT NULL DEFAULT 0,soul_json TEXT,soul_known INTEGER NOT NULL DEFAULT 0,source_text TEXT,verification_status TEXT DEFAULT 'extracted_unverified');
 CREATE TABLE card_soul_cost_tokens(token_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),ordinal INTEGER NOT NULL,raw_token TEXT NOT NULL,code INTEGER,count INTEGER,symbol TEXT,icon_path TEXT,normalized_color TEXT,parse_status TEXT NOT NULL);
+CREATE TABLE card_land_production(card_id TEXT PRIMARY KEY REFERENCES cards(card_id),earn_soul_raw TEXT NOT NULL,earn_soul_json TEXT NOT NULL,colored_souls_json TEXT NOT NULL,neutral_souls INTEGER NOT NULL,magicland INTEGER NOT NULL,known INTEGER NOT NULL,review_json TEXT NOT NULL,mu_soul_value INTEGER,mu_soul_matches INTEGER);
+CREATE TABLE card_soul_production_tokens(token_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),ordinal INTEGER NOT NULL,raw_token TEXT NOT NULL,code INTEGER NOT NULL,symbol TEXT NOT NULL,icon_path TEXT,amount INTEGER NOT NULL,production_json TEXT NOT NULL,parse_status TEXT NOT NULL);
 CREATE TABLE card_images(image_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),image_type TEXT NOT NULL,source_url TEXT,local_path TEXT,mime_type TEXT,byte_size INTEGER,sha256 TEXT,download_status TEXT DEFAULT 'pending');
 CREATE TABLE card_effects(effect_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),effect_index INTEGER NOT NULL,effect_text TEXT NOT NULL,trigger_text TEXT,target_text TEXT,condition_text TEXT,duration_text TEXT,verification_status TEXT DEFAULT 'extracted_unverified');
 CREATE TABLE source_pages(page_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),page_type TEXT NOT NULL,url TEXT NOT NULL,http_status INTEGER,collected_at TEXT,content_hash TEXT,UNIQUE(card_id,page_type,url));
 CREATE TABLE taxonomy(taxonomy_id INTEGER PRIMARY KEY,field_key TEXT NOT NULL,source_value_json TEXT,normalized_value TEXT,manual_mapping_status TEXT DEFAULT 'unmapped',UNIQUE(field_key,source_value_json));
 CREATE TABLE verification(verification_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),field_key TEXT,status TEXT NOT NULL,evidence TEXT,verified_by TEXT,verified_at TEXT);
-CREATE INDEX idx_cards_name ON cards(name);CREATE INDEX idx_cards_type ON cards(card_type);CREATE INDEX idx_fields_key ON card_fields(field_key);CREATE INDEX idx_fields_value ON card_fields(normalized_value);CREATE INDEX idx_images_card ON card_images(card_id);CREATE INDEX idx_soul_token_code ON card_soul_cost_tokens(code);
+CREATE INDEX idx_cards_name ON cards(name);CREATE INDEX idx_cards_type ON cards(card_type);CREATE INDEX idx_fields_key ON card_fields(field_key);CREATE INDEX idx_fields_value ON card_fields(normalized_value);CREATE INDEX idx_images_card ON card_images(card_id);CREATE INDEX idx_soul_token_code ON card_soul_cost_tokens(code);CREATE INDEX idx_soul_production_code ON card_soul_production_tokens(code);
 """)
 processed=0
 with RAW.open(encoding="utf-8") as f,con:
@@ -97,6 +166,19 @@ with RAW.open(encoding="utf-8") as f,con:
   for ordinal,t in enumerate(soul["tokens"]):
    con.execute("INSERT INTO card_soul_cost_tokens(card_id,ordinal,raw_token,code,count,symbol,icon_path,normalized_color,parse_status) VALUES(?,?,?,?,?,?,?,?,?)",(cid,ordinal,t["raw"],t["code"],t["count"],t["symbol"],t["icon"],t["normalized_color"],t["status"]))
   con.execute("INSERT INTO verification(card_id,field_key,status,evidence) VALUES(?,?,?,?)",(cid,"RequireSoul","enum_decoded" if soul["known"] else "manual_review",j(soul["tokens"])))
+  if int(obj.get("Category") or 0)==1:
+   production=parse_earn_soul(obj.get("EarnSoulList"),obj.get("MuSoul"))
+   mu_value=int(obj["MuSoul"]) if obj.get("MuSoul") not in (None,"") else None
+   mu_matches=None if production["magicland"] or mu_value is None else (1 if mu_value==production["neutral"] else 0)
+   con.execute("INSERT INTO card_land_production(card_id,earn_soul_raw,earn_soul_json,colored_souls_json,neutral_souls,magicland,known,review_json,mu_soul_value,mu_soul_matches) VALUES(?,?,?,?,?,?,?,?,?,?)",
+    (cid,str(obj.get("EarnSoulList") or ""),j(production),j(production["colored"]),production["neutral"],1 if production["magicland"] else 0,1 if production["known"] else 0,j(production["review"]),mu_value,mu_matches))
+   for ordinal,token in enumerate(production["tokens"]):
+    outputs={k:v for k,v in token.items() if k not in ("raw","code","count","symbol","icon","status","kind")}
+    con.execute("INSERT INTO card_soul_production_tokens(card_id,ordinal,raw_token,code,symbol,icon_path,amount,production_json,parse_status) VALUES(?,?,?,?,?,?,?,?,?)",
+     (cid,ordinal,token["raw"],token["code"],token["symbol"],token.get("icon"),token["count"],j(outputs),token["status"]))
+   status=production["status"]
+   con.execute("INSERT INTO verification(card_id,field_key,status,evidence) VALUES(?,?,?,?)",
+    (cid,"EarnSoulList",status,j({"tokens":production["tokens"],"colored":production["colored"],"neutral":production["neutral"],"muSoulMatches":mu_matches,"review":production["review"]})))
   for typ,url in (r.get("source_image_urls") or {}).items():
    if url:con.execute("INSERT INTO card_images(card_id,image_type,source_url) VALUES(?,?,?)",(cid,typ,url))
   for typ,url in [("detail",detail),("list",r.get("source_list_url") or "https://fmlunatic.com/cardlist")]:
@@ -118,5 +200,11 @@ with con:
    else:label=None
    status=MANUAL_STATUS.get(field_key,"site_enum_only" if key.startswith("Enum+") else "site_ui_metadata")
    con.execute("INSERT OR IGNORE INTO taxonomy(field_key,source_value_json,normalized_value,manual_mapping_status) VALUES(?,?,?,?)",(field_key,j(item),label,status))
-print(json.dumps({"database":str(DB),"rows_processed":processed,"unique_cards":con.execute("select count(*) from cards").fetchone()[0],"fields":con.execute("select count(*) from card_fields").fetchone()[0],"taxonomy":con.execute("select count(*) from taxonomy").fetchone()[0],"images":con.execute("select count(*) from card_images").fetchone()[0],"soul_cost_fully_parsed":con.execute("select count(*) from card_costs where soul_known=1").fetchone()[0],"soul_cost_needs_review":con.execute("select count(*) from card_costs where soul_known=0").fetchone()[0],"soul_tokens":con.execute("select count(*) from card_soul_cost_tokens").fetchone()[0]},ensure_ascii=False))
+print(json.dumps({"database":str(DB),"rows_processed":processed,"unique_cards":con.execute("select count(*) from cards").fetchone()[0],"fields":con.execute("select count(*) from card_fields").fetchone()[0],"taxonomy":con.execute("select count(*) from taxonomy").fetchone()[0],"images":con.execute("select count(*) from card_images").fetchone()[0],"soul_cost_fully_parsed":con.execute("select count(*) from card_costs where soul_known=1").fetchone()[0],"soul_cost_needs_review":con.execute("select count(*) from card_costs where soul_known=0").fetchone()[0],
+"land_production_rows":con.execute("select count(*) from card_land_production").fetchone()[0],
+"land_production_decoded":con.execute("select count(*) from card_land_production where known=1").fetchone()[0],
+"magicland_effect_cards":con.execute("select count(*) from card_land_production where magicland=1").fetchone()[0],
+"land_mu_soul_mismatches":con.execute("select count(*) from card_land_production where mu_soul_matches=0").fetchone()[0],
+"land_production_tokens":con.execute("select count(*) from card_soul_production_tokens").fetchone()[0],
+"soul_tokens":con.execute("select count(*) from card_soul_cost_tokens").fetchone()[0]},ensure_ascii=False))
 con.close()

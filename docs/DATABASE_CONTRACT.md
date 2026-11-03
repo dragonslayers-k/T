@@ -40,3 +40,10 @@
 4. 소형·대형 이미지 각 15,350개 다운로드 및 해시 확인.
 5. SQLite의 카드·필드·텍스트·비용·토큰·이미지·taxonomy 참조 무결성.
 6. 미확정 비용/매뉴얼 공백은 별도 수량으로 공개.
+
+
+## 10. 지형 설치 소울과 생산 소울의 정규화
+
+SQLite는 지형의 `RequireLP` 및 `RequireSoul` 설치 조건과 `EarnSoulList` 생산 규칙을 분리한다. `card_costs`에는 LP와 설치 소울 비용이 저장되고, `card_land_production`에는 카드별 생산 결과·MagicLand 표시·MuSoul 대조 결과가 저장된다. 개별 생산 토큰은 `card_soul_production_tokens`에 원문 토큰, enum 코드·심볼·아이콘, 정규화 생산량과 판독 상태를 보존한다.
+
+`EarnSoulList`의 2색 심볼은 각 색상 1개씩, `ALL`은 7개 속성 소울 각 1개씩, `MU01/MU02/MU03`은 무소울 1/2/3개씩 생산한다. `SPELL`은 MagicLand 효과 표시이며 일반 소울 생산량으로 계산하지 않는다. MagicLand는 50장 모두 별도 유형 효과 구현 대상으로 관리한다. 각 일반 지형의 정규화 무소울 생산량은 `MuSoul` 원본값과 대조한다.
