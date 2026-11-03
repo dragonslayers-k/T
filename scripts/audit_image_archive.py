@@ -68,7 +68,7 @@ def main():
                 record["error"] = str(exc)
                 invalid.append({"path": name, "error": str(exc)})
             counts[kind] += 1
-            mf.write(json.dumps(record, ensure_ascii=False) + "\\n")
+            mf.write(json.dumps(record, ensure_ascii=False) + "\n")
     missing = [{"card_id": cid, "image_type": size}
                for cid in sorted(expected) for size in ("small", "large")
                if (cid, size) not in seen]
