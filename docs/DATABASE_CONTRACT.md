@@ -16,7 +16,7 @@
 | card_costs | LP 값, RequireSoul 원문, 파싱 결과, 확정 여부 |
 | card_soul_cost_tokens | RequireSoul 4자리 토큰별 코드·수량·아이콘·해석 상태 |
 | card_images | 소형/대형 이미지 URL, 로컬 경로, 크기, SHA-256, 다운로드 상태 |
-| card_effects | TextBase·TextExtra를 각각 보존한 효과 원문 레코드와 발동/지속 관련 데이터 |
+| card_effects | TextBase·TextExtra 출처 키, 카드별 효과 원문, 발동/지속 관련 데이터 |
 | source_pages | 카드 목록 및 개별 상세 페이지 URL |
 | taxonomy | Firestore enumtable의 원본 분류값과 표시 이름 |
 | verification | 카드/필드 단위 검증 근거 및 상태 |
@@ -32,7 +32,7 @@
 ## 검증 상태
 `extracted_unverified`, `enum_mapped`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped`.
 
-`card_effects`는 TextBase와 TextExtra를 출처별로 별도 저장한다. 이는 효과 문구의 보존이며, 엔진에서 실행 가능한 효과 규칙으로 해석되었다는 뜻이 아니다. 각 원문은 `extracted_unverified` 상태로 시작하며, 조건·대상·수치·실행 방식은 근거 확인 전까지 추정하지 않는다.
+`card_effects`는 TextBase와 TextExtra를 출처별로 별도 저장한다. 이는 효과 문구의 보존이며, 엔진에서 실행 가능한 효과 규칙으로 해석되었다는 뜻이 아니다. 각 원문은 `source_key`에 `TextBase` 또는 `TextExtra` 출처를 명시하고 `extracted_unverified` 상태로 시작한다. 감사 스크립트는 효과 레코드 수와 원문 수가 일치하는지, 각 효과가 원본 텍스트와 연결되는지 검사한다. 조건·대상·수치·실행 방식은 근거 확인 전까지 추정하지 않는다.
 
 원본 데이터 수집 성공은 카드 효과 구현 완료나 이미지 수동 검증 완료를 의미하지 않는다.
 
