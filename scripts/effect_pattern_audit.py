@@ -76,6 +76,41 @@ def classify_source_text(text):
     return "effect_text_candidate"
 
 
+def split_clause_candidates(text):
+    """Split on strong punctuation/branch markers while preserving exact spans."""
+    chunks = []
+    start = 0
+    for match in re.finditer(r"[。;；\n]|[※◇◆]", text):
+        token = match.group(0)
+        if token in "※◇◆":
+            if match.start() > start:
+                chunks.append((start, match.start()))
+            start = match.start()
+        else:
+            chunks.append((start, match.end()))
+            start = match.end()
+    if start < len(text):
+        chunks.append((start, len(text)))
+    result = []
+    for index, (begin, end) in enumerate(chunks):
+        clause = text[begin:end]
+        if not clause.strip():
+            continue
+        result.append({
+            "clause_index": index,
+            "start_char": begin,
+            "end_char": end,
+            "text": clause,
+            "topic_candidates": candidates(clause, TOPICS),
+            "trigger_candidates": candidates(clause, TRIGGERS),
+            "actor_candidates": candidates(clause, ACTORS),
+            "target_candidates": candidates(clause, TARGETS),
+            "operation_candidates": candidates(clause, OPERATIONS),
+            "verification_status": "pattern_candidate",
+        })
+    return result
+
+
 def analyze(text):
     text_class = classify_source_text(text)
     if text_class in ("flavor_only_candidate", "invalid_or_non_effect_candidate"):
@@ -137,9 +172,9 @@ def main():
         })
     patterns.sort(key=lambda r: (-r["count"], r["text_type"], r["text"]))
     result = {
-        "schema_version": 4,
+        "schema_version": 5,
         "source_database": str(args.db),
-        "classification_note": "Candidate extraction from surface text only. Text-class labels and semantic fields are candidates, not executable rules; absent candidates do not prove absent rules. Flavor/reference text is preserved in the output.",
+        "classification_note": "Candidate extraction from surface text only. Text-class labels, clause splits and semantic fields are candidates, not executable rules; source text and character spans are preserved, and absent candidates do not prove absent rules.",
         "total_text_rows": len(records),
         "distinct_text_patterns": len(patterns),
         "topic_candidate_counts": dict(sorted(topic_count.items())),
