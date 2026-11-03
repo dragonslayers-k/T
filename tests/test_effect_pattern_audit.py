@@ -55,7 +55,7 @@ class EffectPatternAuditTests(unittest.TestCase):
         self.assertIn("card_reference", parsed["topic_candidates"])
 
     def test_clause_candidate_spans_reconstruct_source_exactly(self):
-        text = "아군 AP+1.※ 적 HP-2\n다음 효과"
+        text = "아군 AP+1.\n\n※ 적 HP-2\n다음 효과"
         clauses = split_clause_candidates(text)
         self.assertEqual("".join(item["text"] for item in clauses), text)
         for item in clauses:
