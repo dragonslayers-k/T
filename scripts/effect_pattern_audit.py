@@ -8,8 +8,8 @@ from collections import Counter
 from pathlib import Path
 
 TOPICS = [
-    ("direct_hp_attack", r"HP를?\\s*직접공격|직접 공격"),
-    ("dp_bypass", r"DP를?\\s*무시|DP에 막히지|DP 무시"),
+    ("direct_hp_attack", r"HP를?\s*직접공격|직접 공격"),
+    ("dp_bypass", r"DP를?\s*무시|DP에 막히지|DP 무시"),
     ("counter_or_retaliation", r"반격|되받아"),
     ("damage", r"데미지|피해"),
     ("stat_ap", r"AP"), ("stat_dp", r"DP"), ("stat_hp", r"HP"),
@@ -51,7 +51,7 @@ OPERATIONS = [
     ("equip_or_unequip", r"장착|해제"),
 ]
 NON_EFFECT = re.compile(r"^invalid$|보유LP는|더블클릭하여 소울|소울은 카드를 소환", re.I)
-NUMBER = re.compile(r"(?<!\\d)[-+]?\\d+(?:\\.\\d+)?%?")
+NUMBER = re.compile(r"(?<!\d)[-+]?\d+(?:\.\d+)?%?")
 TOKEN = re.compile(r"(?:NCS|BONUS|[A-Z]{2,})", re.I)
 
 
