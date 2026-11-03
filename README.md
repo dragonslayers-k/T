@@ -24,6 +24,7 @@
 - `scripts/crawl.mjs`: Firestore 카드 문서 15,350장 수집
 - `scripts/download_images.mjs`: 카드별 소형·대형 원본 이미지 다운로드
 - `scripts/build_db.py`: SQLite 정규화, enum 매핑, 소울 비용 토큰 분석
+- `scripts/build_effect_candidates.py`: 카드별 효과 텍스트 후보와 원문 절 위치를 SQLite에 저장
 - `scripts/audit_db.py`: 카드·URL·필드·이미지 완전성 검사
 - `.github/workflows/carddb.yml`: GitHub Actions 자동 구축
 
@@ -58,3 +59,9 @@ GitHub Actions → **Card DB pipeline**에서 실행한다. `probe`는 사이트
 - NCS(82)와 BONUS(83)는 토큰 정체성만 인식하며, 게임 내 지불/생성 의미는 `semantic_review`로 둔다.
 - 비용 추정 오버레이는 원본 비용을 덮거나 미상값을 0으로 취급하지 않는다. 검증된 참조 데이터와 별도 검토 절차가 준비되기 전에는 생산 DB에 적용하지 않는다.
 - 마지막으로 확인된 완전 감사는 2026-11-03의 PR 검증 실행에서 카드 15,350개, 소형·대형 이미지 30,700개, 누락/손상/미확인 이미지 경로 0개, SQLite integrity `ok`를 기록했다. 이 결과는 새로운 Release를 만들었다는 뜻이 아니라 Release #27을 검사한 결과다.
+
+## 효과 원문과 후보 데이터
+
+- `card_texts`와 `card_effects`는 원본 TextBase/TextExtra와 검색용 텍스트를 보존한다.
+- `card_effect_candidate_summaries`와 `card_effect_clauses`는 카드별 후보 분류와 절 위치를 함께 저장한다.
+- 후보 상태는 `pattern_candidate`이며, 매뉴얼과 카드별 원문 검증 전에는 게임 규칙 실행 코드로 승격하지 않는다.
