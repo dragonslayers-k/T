@@ -33,9 +33,9 @@ class EffectPatternAuditTests(unittest.TestCase):
 
     def test_unclassified_remains_candidate(self):
         parsed = analyze("이 문구는 사전의 표현과 다릅니다.")
-        self.assertEqual(parsed["topic_candidates"], ["unclassified_candidate"])
+        self.assertEqual(parsed["topic_candidates"], ["unclassified_candidate"])\n        self.assertEqual(parsed["source_text_class_candidate"], "effect_text_candidate")
 
-    def test_numeric_percent_is_preserved_as_text(self):
+    def test_bracket_only_flavor_is_separated_but_not_deleted(self):\n        parsed = analyze("[마을 사람들은 전설을 이야기했다.]")\n        self.assertEqual(parsed["source_text_class_candidate"], "flavor_only_candidate")\n        self.assertEqual(parsed["topic_candidates"], ["non_effect_or_invalid"])\n\n    def test_reference_note_is_not_auto_promoted_to_effect(self):\n        parsed = analyze("▶ 해당 카드는 상점에서 판매불가입니다.")\n        self.assertEqual(parsed["source_text_class_candidate"], "reference_or_rule_note_candidate")\n\n    def test_numeric_percent_is_preserved_as_text(self):
         parsed = analyze("공격시 AP+2 및 25% 추가 피해")
         self.assertIn("stat_ap", parsed["topic_candidates"])
         self.assertIn("damage", parsed["topic_candidates"])
