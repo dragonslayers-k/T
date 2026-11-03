@@ -56,6 +56,14 @@ jobs:
             --archive audit-input/images.tar.gz.part-aa \
             --cards-jsonl audit-input/cards.jsonl \
             --output-dir audit-output/image-audit
+      - name: Audit card fields, taxonomy and detail URLs
+        run: |
+          set -euo pipefail
+          python scripts/audit_card_taxonomy.py \
+            --cards-jsonl audit-input/cards.jsonl \
+            --enumtable audit-input/enumtable.json \
+            --expected 15350 \
+            --output audit-output/card-taxonomy-audit.json
       - name: Run source record quality audit
         run: |
           set -euo pipefail
@@ -69,6 +77,7 @@ jobs:
           mkdir -p data/raw audit-output/sqlite
           cp audit-input/cards.jsonl data/raw/cards.jsonl
           cp audit-input/enumtable.json data/raw/enumtable.json
+          cp audit-output/image-audit/image-manifest.jsonl data/raw/image-manifest.jsonl
           python scripts/build_db.py
           python - <<'PY'
           import gzip, json, sqlite3
@@ -82,14 +91,16 @@ jobs:
           semantic_review = db.execute("SELECT COUNT(*) FROM card_costs WHERE semantic_review=1").fetchone()[0]
           tokens = db.execute("SELECT COUNT(*) FROM card_soul_cost_tokens").fetchone()[0]
           search_rows = db.execute("SELECT COUNT(*) FROM card_search").fetchone()[0]
+          image_rows = db.execute("SELECT COUNT(*) FROM card_images").fetchone()[0]
+          verified_images = db.execute("SELECT COUNT(*) FROM card_images WHERE download_status='archive_verified' AND mime_type='image/webp' AND sha256 IS NOT NULL").fetchone()[0]
           search_test = db.execute("SELECT COUNT(*) FROM card_search WHERE card_search MATCH 'NCS'").fetchone()[0]
           fk = db.execute("PRAGMA foreign_key_check").fetchall()
           summary = {"integrity": integrity, "cards": cards, "costRows": costs,
                      "decodedSoulCosts": known, "unresolvedSoulCosts": review,
-                     "specialSemanticsReview": semantic_review, "soulTokens": tokens, "searchIndexRows": search_rows, "ncsSearchHits": search_test, "foreignKeyErrors": len(fk)}
+                     "specialSemanticsReview": semantic_review, "soulTokens": tokens, "searchIndexRows": search_rows, "imageRows": image_rows, "archiveVerifiedImages": verified_images, "ncsSearchHits": search_test, "foreignKeyErrors": len(fk)}
           Path("audit-output/sqlite/sqlite-build-summary.json").write_text(
               json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-          if integrity != "ok" or cards != 15350 or costs != 15350 or known != 15350 or review != 0 or semantic_review != 779 or search_rows != 15350 or search_test < 1 or fk:
+          if integrity != "ok" or cards != 15350 or costs != 15350 or known != 15350 or review != 0 or semantic_review != 779 or search_rows != 15350 or image_rows != 30700 or verified_images != 30700 or search_test < 1 or fk:
               raise SystemExit("SQLite card DB validation failed: " + json.dumps(summary))
           with gzip.open("audit-output/sqlite/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
               with open("data/fm1_cards.sqlite", "rb") as source:
