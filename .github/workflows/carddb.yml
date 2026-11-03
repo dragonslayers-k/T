@@ -53,7 +53,7 @@ jobs:
     env:
       MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release' || 'tests') }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-27' }}
-      PUBLISH_RELEASE: ${{ inputs.publish_release || false }}
+      PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || 'fm1-carddb-28' }}
     steps:
       - uses: actions/checkout@v4
@@ -241,6 +241,10 @@ jobs:
               "koreanSearchHits": korean_hits, "ncsSearchHits": ncs_hits,
               "foreignKeyErrors": fk_errors,
           }
+          import hashlib
+          summary["sqliteDatabaseSha256"] = hashlib.sha256(
+              Path("data/fm1_cards.sqlite").read_bytes()
+          ).hexdigest()
           Path("data/sqlite-build-summary.json").write_text(
               json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
           )
@@ -270,6 +274,23 @@ jobs:
             split -b 1800m data/images.tar.gz data/images.tar.gz.part-
           fi
           gzip -c data/raw/cards.jsonl > data/raw/cards.jsonl.gz
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          path=Path("data/sqlite-build-summary.json")
+          summary=json.loads(path.read_text(encoding="utf-8"))
+          def sha(filename):
+              return hashlib.sha256(Path(filename).read_bytes()).hexdigest()
+          summary["sqliteGzipSha256"]=sha("data/fm1_cards.sqlite.gz")
+          summary["cardsJsonlGzipSha256"]=sha("data/raw/cards.jsonl.gz")
+          summary["enumtableSha256"]=sha("data/raw/enumtable.json")
+          summary["imageArchivePartAaSha256"]=sha("data/images.tar.gz.part-aa")
+          summary["sourceReleaseTag"]=${{ env.SOURCE_RELEASE_TAG && 'fm1-carddb-27' }}
+          path.write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
+          print(json.dumps({k:summary[k] for k in (
+              "sqliteGzipSha256","cardsJsonlGzipSha256","enumtableSha256","imageArchivePartAaSha256"
+          )},ensure_ascii=False))
+          PY
           mkdir -p release-payload
           cp data/fm1_cards.sqlite.gz release-payload/
           cp data/raw/cards.jsonl.gz release-payload/
@@ -285,7 +306,7 @@ jobs:
           cp data/images.tar.gz.part-* release-payload/
 
       - name: Verify that the requested Release tag is unused
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release == true && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
+        if: ${{ env.PUBLISH_RELEASE == 'true' && (env.MODE == 'audit-release' || env.MODE == 'crawl') }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -300,11 +321,11 @@ jobs:
           fi
 
       - name: Publish one intentional immutable DB Release
-        if: ${{ success() && github.event_name == 'workflow_dispatch' && inputs.publish_release == true && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
+        if: ${{ success() && env.PUBLISH_RELEASE == 'true' && (env.MODE == 'audit-release' || env.MODE == 'crawl') }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.release_tag }}
-          name: FM1 Card Database ${{ inputs.release_tag }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: FM1 Card Database ${{ env.RELEASE_TAG }}
           target_commitish: ${{ github.sha }}
           body: |
             Immutable, audited Fantasy Masters card database package.
@@ -332,7 +353,7 @@ jobs:
         if: ${{ always() && (env.MODE == 'audit-release' || env.MODE == 'crawl') }}
         uses: actions/upload-artifact@v4
         with:
-          name: fm1-carddb-audit-${{ inputs.source_release_tag || github.run_number }}
+          name: fm1-carddb-audit-${{ env.SOURCE_RELEASE_TAG }}-${{ github.run_number }}
           path: |
             data/fm1_cards.sqlite.gz
             data/raw/cards.jsonl.gz
