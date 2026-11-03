@@ -30,22 +30,18 @@ class ManualSkillCatalogueTests(unittest.TestCase):
         self.assertTrue(all(x["verificationStatus"] == "community_documented_candidate" for x in community))
 
     def test_manual_and_community_aliases_do_not_collide(self):
-        self.assertEqual(len(self.catalogue["aliases"]), sum(
-            len(set([x["name"], *x["aliases"]])) for x in self.catalogue["rules"]
-        ) - sum(
-            max(0, len([x for x in [r["name"], *r["aliases"]]]) -
-                len(set([r["name"], *r["aliases"]])))
-            for r in self.catalogue["rules"]
-        ) - self._duplicate_alias_discount())
-
-    def _duplicate_alias_discount(self):
-        # Aliases may repeat within the same rule only if the importer normalizes them;
-        # no alias may resolve to two different rule IDs.
-        total = 0
+        expected = {}
         for rule in self.catalogue["rules"]:
-            values=[MODULE.norm(rule["name"]), *[MODULE.norm(x) for x in rule["aliases"]]]
-            total += len(values)-len(set(values))
-        return total
+            for alias in [rule["name"], *rule["aliases"]]:
+                key = MODULE.norm(alias)
+                self.assertTrue(key)
+                self.assertNotIn(key, expected)
+                expected[key] = rule["id"]
+        self.assertEqual(set(expected), set(self.catalogue["aliases"]))
+        self.assertTrue(all(
+            self.catalogue["aliases"][key]["id"] == rule_id
+            for key, rule_id in expected.items()
+        ))
 
     def test_sources_are_tiered_and_versioned(self):
         data=self.catalogue["data"]
