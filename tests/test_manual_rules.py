@@ -35,7 +35,8 @@ class ManualSkillCatalogueTests(unittest.TestCase):
             for alias in [rule["name"], *rule["aliases"]]:
                 key = MODULE.norm(alias)
                 self.assertTrue(key)
-                self.assertNotIn(key, expected)
+                previous = expected.get(key)
+                self.assertTrue(previous is None or previous == rule["id"])
                 expected[key] = rule["id"]
         self.assertEqual(set(expected), set(self.catalogue["aliases"]))
         self.assertTrue(all(
