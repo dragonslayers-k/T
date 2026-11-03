@@ -119,9 +119,12 @@ def main():
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     if args.self_test:
-        sample = [{"card_id":"x","raw_payload":{"Name":"sample","Category":2,"RequireLP":0,"AP":0}}]
-        result = audit(sample, expected=1)
-        assert result["record_count"] == 1 and result["explicit_zero_counts"]["RequireLP"] == 1
+        sample = [
+            {"card_id":"land","raw_payload":{"Name":"sample land","Category":1,"RequireLP":0,"RequireSoul":"8103"}},
+            {"card_id":"unit","raw_payload":{"Name":"sample unit","Category":2,"RequireSoul":"8103","AP":0,"DP":0}},
+        ]
+        result = audit(sample, expected=2)
+        assert result["record_count"] == 2 and result["explicit_zero_counts"]["RequireLP"] == 1
         assert any(x["field"] == "HP" and x["status"] == "missing" for x in result["value_review_queue"])
         assert not any(x["field"] in ("AP", "DP") for x in result["value_review_queue"])
         assert any(x["field"] == "RequireSoul" and x["status"] == "encoded_source_present" for x in result["value_review_queue"])
