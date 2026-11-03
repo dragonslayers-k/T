@@ -95,7 +95,7 @@ def infer(cards):
 
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument("--cards",type=Path,required=True)
+    p.add_argument("--cards",type=Path)
     p.add_argument("--output",type=Path,default=Path("inferred-cost-overlay.json"))
     p.add_argument("--self-test",action="store_true")
     a=p.parse_args()
@@ -103,6 +103,8 @@ def main():
         sample=[{"id":"known","type":"unit","faction":"fire","cost":{"fire":2},"costKnown":True,"sourceFields":{}},{"id":"missing","type":"unit","faction":"fire","cost":{},"costKnown":False,"sourceFields":{}}]
         out=infer(sample);assert len(out)==1 and out[0]["costValueStatus"]=="inferred" and out[0]["inferredPlayableCost"]
         print("cost inference self-test passed");return
+    if not a.cards:
+        p.error("--cards is required unless --self-test")
     rows=json.loads(a.cards.read_text(encoding="utf-8"))
     result=infer(rows);a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"cards":len(rows),"inferred":len(result),"confidence":dict(collections.Counter(x["confidence"] for x in result))},ensure_ascii=False))
