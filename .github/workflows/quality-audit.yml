@@ -1,0 +1,48 @@
+name: Card quality audit
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing immutable T card DB release tag to audit"
+        required: true
+        type: string
+        default: fm1-carddb-27
+permissions:
+  contents: read
+  actions: write
+jobs:
+  quality-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install image decoder
+        run: python -m pip install --disable-pip-version-check Pillow
+      - name: Download immutable source card records
+        env:
+          TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p audit-input audit-output
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}"
+          curl --fail --location --retry 3 "${BASE}/cards.jsonl.gz" -o audit-input/cards.jsonl.gz
+          gzip -dc audit-input/cards.jsonl.gz > audit-input/cards.jsonl
+          test -s audit-input/cards.jsonl
+      - name: Run source record quality audit
+        run: |
+          set -euo pipefail
+          python scripts/quality_audit.py \
+            --cards-jsonl audit-input/cards.jsonl \
+            --expected 15350 \
+            --output audit-output/quality-audit.json
+      - name: Publish audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-quality-audit-${{ inputs.release_tag }}
+          path: audit-output/quality-audit.json
+          if-no-files-found: warn
+          retention-days: 30
