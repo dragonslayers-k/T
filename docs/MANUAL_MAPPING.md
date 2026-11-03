@@ -89,4 +89,4 @@ Dropbox 원본: `/판마/Manual.zip` (약 5.1 MB, 2026-11-01 수정본)
 - 효과를 실행 가능한 규칙으로 바꾸는 작업은 원문 수집과 별도의 검증 단계로 관리한다.
 
 ## 8. 검증 상태
-`source_extracted`, `enum_mapped`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped` 상태를 구분한다. 자동 추출만 된 값은 수동 검증 완료로 표시하지 않는다. `current_taxonomy_verified`는 다섯 카드 유형이 현재 분류 사전과 일치한다는 뜻이며, 카드별 효과 구현 완료를 의미하지 않는다.
+`source_extracted`, `enum_mapped`, `enum_decoded`, `mapping_review`, `semantic_review`, `source_cross_validated`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped` 상태를 구분한다. 자동 추출만 된 값은 수동 검증 완료로 표시하지 않는다. `current_taxonomy_verified`는 다섯 카드 유형이 현재 분류 사전과 일치한다는 뜻이며, 카드별 효과 구현 완료를 의미하지 않는다.
