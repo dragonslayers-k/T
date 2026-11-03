@@ -1,5 +1,10 @@
 name: Card quality audit
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - ".github/workflows/quality-audit.yml"
   workflow_dispatch:
     inputs:
       release_tag:
@@ -28,7 +33,7 @@ jobs:
           python scripts/infer_playable_costs.py --self-test
       - name: Download immutable source card records
         env:
-          TAG: ${{ inputs.release_tag }}
+          TAG: ${{ inputs.release_tag || 'fm1-carddb-27' }}
         run: |
           set -euo pipefail
           mkdir -p audit-input audit-output
@@ -47,7 +52,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: card-quality-audit-${{ inputs.release_tag }}
+          name: card-quality-audit-${{ inputs.release_tag || 'fm1-carddb-27' }}
           path: audit-output/quality-audit.json
           if-no-files-found: warn
           retention-days: 30
