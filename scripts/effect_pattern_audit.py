@@ -125,6 +125,7 @@ def analyze(text):
     return {
         "source_text_class_candidate": text_class,
         "topic_candidates": topics,
+        "clause_candidates": split_clause_candidates(text),
         "trigger_candidates": candidates(text, TRIGGERS),
         "actor_candidates": candidates(text, ACTORS),
         "target_candidates": candidates(text, TARGETS),
