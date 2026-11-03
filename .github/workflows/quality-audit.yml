@@ -68,14 +68,15 @@ jobs:
           costs = db.execute("SELECT COUNT(*) FROM card_costs").fetchone()[0]
           known = db.execute("SELECT COUNT(*) FROM card_costs WHERE soul_known=1").fetchone()[0]
           review = db.execute("SELECT COUNT(*) FROM card_costs WHERE soul_known=0").fetchone()[0]
+          semantic_review = db.execute("SELECT COUNT(*) FROM card_costs WHERE semantic_review=1").fetchone()[0]
           tokens = db.execute("SELECT COUNT(*) FROM card_soul_cost_tokens").fetchone()[0]
           fk = db.execute("PRAGMA foreign_key_check").fetchall()
           summary = {"integrity": integrity, "cards": cards, "costRows": costs,
                      "decodedSoulCosts": known, "unresolvedSoulCosts": review,
-                     "soulTokens": tokens, "foreignKeyErrors": len(fk)}
+                     "specialSemanticsReview": semantic_review, "soulTokens": tokens, "foreignKeyErrors": len(fk)}
           Path("audit-output/sqlite/sqlite-build-summary.json").write_text(
               json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-          if integrity != "ok" or cards != 15350 or costs != 15350 or known != 14571 or review != 779 or fk:
+          if integrity != "ok" or cards != 15350 or costs != 15350 or known != 15350 or review != 0 or semantic_review != 779 or fk:
               raise SystemExit("SQLite card DB validation failed: " + json.dumps(summary))
           with gzip.open("audit-output/sqlite/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
               with open("data/fm1_cards.sqlite", "rb") as source:
@@ -96,7 +97,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: card-db-sqlite-and-cost-decoding-${{ inputs.release_tag || 'fm1-carddb-27' }}
+          name: card-db-sqlite-special-soul-decoding-${{ inputs.release_tag || 'fm1-carddb-27' }}
           path: audit-output/
           if-no-files-found: warn
           retention-days: 30
