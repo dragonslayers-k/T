@@ -1,108 +1,348 @@
-name: Card DB pipeline
+name: FM1 Card Database
+
 on:
   push:
-    branches: [carddb-rebuild]
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - "docs/**"
+      - ".github/workflows/carddb.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - "docs/**"
+      - ".github/workflows/carddb.yml"
   workflow_dispatch:
     inputs:
       mode:
-        description: probe or full crawl
+        description: "probe = inspect live site; audit-release = rebuild DB from an existing Release; crawl = collect a new source snapshot"
         required: true
         type: choice
-        options: [probe, crawl]
-        default: probe
+        options: [probe, audit-release, crawl]
+        default: audit-release
+      source_release_tag:
+        description: "Existing immutable DB Release used by audit-release mode"
+        required: false
+        type: string
+        default: fm1-carddb-27
+      publish_release:
+        description: "Publish one new immutable Release only after all audits pass"
+        required: false
+        type: boolean
+        default: false
+      release_tag:
+        description: "New unused Release tag (only used when publish_release=true)"
+        required: false
+        type: string
+        default: fm1-carddb-28
+
 permissions:
   contents: write
+
 concurrency:
   group: fm1-carddb-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   carddb:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
+    env:
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release' || 'tests') }}
+      SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-27' }}
+      PUBLISH_RELEASE: ${{ inputs.publish_release || false }}
+      RELEASE_TAG: ${{ inputs.release_tag || 'fm1-carddb-28' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Test effect text candidate parser
-        run: python -m unittest tests/test_effect_pattern_audit.py
-      - name: Install dependencies
+
+      - name: Run all lightweight regression tests
         run: |
-          npm install
+          set -euo pipefail
+          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py
+          python -m unittest tests/test_effect_pattern_audit.py
+          python -m unittest tests/test_cost_decoding.py
+          python -m unittest tests/test_effect_candidates.py
+          python scripts/build_effect_candidates.py --self-test
+          python scripts/quality_audit.py --self-test
+          python scripts/decode_soul_costs.py --self-test
+          python scripts/build_db.py --self-test
+
+      - name: Install image decoder for full audits
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: python -m pip install --disable-pip-version-check Pillow
+
+      - name: Set up Node and browser tools
+        if: ${{ env.MODE == 'probe' || env.MODE == 'crawl' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install crawler dependencies
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'probe' || inputs.mode == 'crawl') }}
+        run: |
+          set -euo pipefail
+          npm ci
           npx playwright install --with-deps chromium
-      - name: Probe live site and card detail tabs
-        if: github.event_name == 'push' || inputs.mode == 'probe'
+
+      - name: Probe live card list and detail structure
+        if: ${{ env.MODE == 'probe' }}
         run: npm run probe
-      - name: Crawl all 15,350 Firestore card documents
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
+
+      - name: Crawl all 15,350 Firestore card records
+        if: ${{ env.MODE == 'crawl' }}
         env:
           EXPECTED_CARDS: "15350"
         run: npm run crawl
+
       - name: Download original small and large card images
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl' }}
         env:
           IMAGE_CONCURRENCY: "6"
         run: npm run download-images
-      - name: Build normalized SQLite database
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
-        run: python scripts/build_db.py
-      - name: Audit complete 15,350-card dataset
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
-        run: python scripts/audit_db.py
-      - name: Inventory card effect text patterns
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
-        run: python scripts/effect_pattern_audit.py --db data/fm1_cards.sqlite --out data/effect-pattern-inventory.json --top 500
-      - name: Archive image files
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
+
+      - name: Download an existing immutable Release
+        if: ${{ env.MODE == 'audit-release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${SOURCE_RELEASE_TAG}"
+          mkdir -p data/raw data/source-archive
+          for ASSET in cards.jsonl.gz enumtable.json appsettings.json crawl-summary.json image-summary.json fm1_cards.sqlite.gz; do
+            curl --fail --location --retry 3 --retry-delay 2 "${BASE}/${ASSET}" -o "data/source-archive/${ASSET}"
+          done
+          curl --fail --location --retry 3 --retry-delay 2 --retry-all-errors "${BASE}/images.tar.gz.part-aa" -o data/source-archive/images.tar.gz.part-aa
+          gzip -t data/source-archive/cards.jsonl.gz
+          gzip -dc data/source-archive/cards.jsonl.gz > data/raw/cards.jsonl
+          cp data/source-archive/enumtable.json data/raw/enumtable.json
+          cp data/source-archive/appsettings.json data/raw/appsettings.json
+          cp data/source-archive/crawl-summary.json data/raw/crawl-summary.json
+          cp data/source-archive/image-summary.json data/raw/image-summary.json
+          cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
+          tar -tzf data/images.tar.gz >/dev/null
+
+      - name: Archive freshly downloaded images
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl' }}
+        run: |
+          set -euo pipefail
+          test -s data/raw/cards.jsonl
+          test -s data/raw/enumtable.json
           tar -czf data/images.tar.gz -C data/images .
-          split -b 1800m data/images.tar.gz data/images.tar.gz.part-
-          rm data/images.tar.gz
-      - name: Compress database and raw card source
-        if: github.event_name == 'push' || inputs.mode == 'crawl'
+
+      - name: Audit source fields, enum taxonomy, and exact card URLs
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: |
-          gzip -c data/fm1_cards.sqlite > data/fm1_cards.sqlite.gz
+          set -euo pipefail
+          python scripts/audit_card_taxonomy.py \
+            --cards-jsonl data/raw/cards.jsonl \
+            --enumtable data/raw/enumtable.json \
+            --expected 15350 \
+            --output data/card-taxonomy-audit.json
+          python scripts/quality_audit.py \
+            --cards-jsonl data/raw/cards.jsonl \
+            --expected 15350 \
+            --output data/quality-audit.json
+
+      - name: Audit all 30,700 archived WebP images
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/image-audit
+          python scripts/audit_image_archive.py \
+            --archive data/images.tar.gz \
+            --cards-jsonl data/raw/cards.jsonl \
+            --output-dir data/image-audit
+          cp data/image-audit/image-manifest.jsonl data/raw/image-manifest.jsonl
+
+      - name: Build the normalized SQLite database
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: |
+          set -euo pipefail
+          python scripts/build_db.py
+          python scripts/build_effect_candidates.py --db data/fm1_cards.sqlite
+          python scripts/effect_pattern_audit.py \
+            --db data/fm1_cards.sqlite \
+            --out data/effect-pattern-inventory.json \
+            --top 500 \
+            --summary-only
+
+      - name: Verify SQLite counts, references, images, costs, and search
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip, json, sqlite3
+          from pathlib import Path
+
+          db = sqlite3.connect("data/fm1_cards.sqlite")
+          db.row_factory = sqlite3.Row
+          integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
+          category_rows = db.execute(
+              "SELECT card_type, COUNT(*) AS n FROM cards GROUP BY card_type"
+          ).fetchall()
+          categories = {row["card_type"]: row["n"] for row in category_rows}
+          expected_categories = {"지형":289, "유닛":8633, "마법":3857, "아이템":1748, "인챈트":823}
+          cards = db.execute("SELECT COUNT(*) FROM cards").fetchone()[0]
+          unique_ids = db.execute("SELECT COUNT(DISTINCT card_id) FROM cards").fetchone()[0]
+          fields = db.execute("SELECT COUNT(*) FROM card_fields").fetchone()[0]
+          texts = db.execute("SELECT COUNT(*) FROM card_texts").fetchone()[0]
+          effects = db.execute("SELECT COUNT(*) FROM card_effects").fetchone()[0]
+          effect_candidate_rows = db.execute("SELECT COUNT(*) FROM card_effect_candidate_summaries").fetchone()[0]
+          effect_clause_rows = db.execute("SELECT COUNT(*) FROM card_effect_clauses").fetchone()[0]
+          effect_separators = db.execute("SELECT COUNT(*) FROM card_effect_clauses WHERE segment_type='separator'").fetchone()[0]
+          effect_span_errors = db.execute(
+              "SELECT COUNT(*) FROM card_effect_candidate_summaries "
+              "WHERE span_integrity_status NOT IN ('exact','not_split')"
+          ).fetchone()[0]
+          field_keys = db.execute("SELECT COUNT(DISTINCT field_key) FROM card_fields").fetchone()[0]
+          source_pages = db.execute("SELECT COUNT(*) FROM source_pages").fetchone()[0]
+          costs = db.execute("SELECT COUNT(*) FROM card_costs").fetchone()[0]
+          token_known = db.execute("SELECT COUNT(*) FROM card_costs WHERE soul_known=1").fetchone()[0]
+          mapping_review = db.execute("SELECT COUNT(*) FROM card_costs WHERE mapping_review=1").fetchone()[0]
+          semantic_review = db.execute("SELECT COUNT(*) FROM card_costs WHERE semantic_review=1").fetchone()[0]
+          tokens = db.execute("SELECT COUNT(*) FROM card_soul_cost_tokens").fetchone()[0]
+          images = db.execute("SELECT COUNT(*) FROM card_images").fetchone()[0]
+          verified_images = db.execute(
+              "SELECT COUNT(*) FROM card_images WHERE download_status='archive_verified' "
+              "AND mime_type='image/webp' AND sha256 IS NOT NULL AND archive_path IS NOT NULL"
+          ).fetchone()[0]
+          detail_urls = db.execute(
+              "SELECT COUNT(*) FROM cards WHERE source_card_url LIKE 'https://fmlunatic.com/card/%'"
+          ).fetchone()[0]
+          search_rows = db.execute("SELECT COUNT(*) FROM card_search").fetchone()[0]
+          korean_hits = db.execute(
+              "SELECT COUNT(*) FROM card_search WHERE card_search MATCH '선물쟁탈전'"
+          ).fetchone()[0]
+          ncs_hits = db.execute(
+              "SELECT COUNT(*) FROM card_search WHERE card_search MATCH 'NCS'"
+          ).fetchone()[0]
+          fk_errors = len(db.execute("PRAGMA foreign_key_check").fetchall())
+          summary = {
+              "integrity": integrity, "cards": cards, "uniqueIds": unique_ids,
+              "categories": categories, "fields": fields, "fieldKeys": field_keys,
+              "texts": texts, "effects": effects,
+              "effectCandidateRows": effect_candidate_rows,
+              "effectClauseRows": effect_clause_rows,
+              "effectSeparatorRows": effect_separators,
+              "effectSpanIntegrityErrors": effect_span_errors,
+              "sourcePages": source_pages,
+              "costRows": costs, "tokenParsedRows": token_known,
+              "hybridMappingReview": mapping_review, "specialSemanticsReview": semantic_review,
+              "soulTokens": tokens, "imageRows": images, "archiveVerifiedImages": verified_images,
+              "detailUrlRows": detail_urls, "searchIndexRows": search_rows,
+              "koreanSearchHits": korean_hits, "ncsSearchHits": ncs_hits,
+              "foreignKeyErrors": fk_errors,
+          }
+          Path("data/sqlite-build-summary.json").write_text(
+              json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+          )
+          if (
+              integrity != "ok" or cards != 15350 or unique_ids != 15350
+              or categories != expected_categories or costs != 15350 or token_known != 15350
+              or mapping_review != 52 or semantic_review != 779 or tokens != 24166
+              or images != 30700 or verified_images != 30700 or detail_urls != 15350
+              or search_rows != 15350 or korean_hits < 1 or ncs_hits < 1 or fk_errors
+              or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000
+              or effect_candidate_rows != texts or effect_clause_rows < effect_candidate_rows
+              or effect_span_errors != 0 or source_pages != 30700
+          ):
+              raise SystemExit("SQLite validation failed: " + json.dumps(summary, ensure_ascii=False))
+          with gzip.open("data/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
+              with open("data/fm1_cards.sqlite", "rb") as source:
+                  while chunk := source.read(1024 * 1024):
+                      out.write(chunk)
+          print(json.dumps(summary, ensure_ascii=False))
+          PY
+
+      - name: Prepare image archive chunks and release payload
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: |
+          set -euo pipefail
+          if [ ! -f data/images.tar.gz.part-aa ]; then
+            split -b 1800m data/images.tar.gz data/images.tar.gz.part-
+          fi
           gzip -c data/raw/cards.jsonl > data/raw/cards.jsonl.gz
-      - name: Publish persistent GitHub Release
-        if: success() && (github.event_name == 'push' || inputs.mode == 'crawl')
+          mkdir -p release-payload
+          cp data/fm1_cards.sqlite.gz release-payload/
+          cp data/raw/cards.jsonl.gz release-payload/
+          cp data/raw/enumtable.json release-payload/
+          cp data/raw/appsettings.json release-payload/
+          cp data/raw/crawl-summary.json release-payload/
+          cp data/raw/image-summary.json release-payload/
+          cp data/card-taxonomy-audit.json release-payload/
+          cp data/quality-audit.json release-payload/
+          cp data/image-audit/image-audit-summary.json release-payload/
+          cp data/sqlite-build-summary.json release-payload/
+          cp data/effect-pattern-inventory.json release-payload/
+          cp data/images.tar.gz.part-* release-payload/
+
+      - name: Verify that the requested Release tag is unused
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release == true && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RELEASE_TAG}" ]; then
+            echo "::error::A new release_tag is required when publish_release is enabled."
+            exit 1
+          fi
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "::error::Release tag already exists. Existing Releases are immutable; choose a new tag only for a meaningful DB revision."
+            exit 1
+          fi
+
+      - name: Publish one intentional immutable DB Release
+        if: ${{ success() && github.event_name == 'workflow_dispatch' && inputs.publish_release == true && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: fm1-carddb-${{ github.run_number }}
-          name: FM1 Card Database Build ${{ github.run_number }}
+          tag_name: ${{ inputs.release_tag }}
+          name: FM1 Card Database ${{ inputs.release_tag }}
           target_commitish: ${{ github.sha }}
           body: |
-            Automated FM1 card database package.
-            - Required cards: 15,350
-            - Small and large WebP image files
-            - Original Firestore JSONL and enum dictionary
-            - Normalized SQLite database and audit report
+            Immutable, audited Fantasy Masters card database package.
+            Source records: 15,350
+            Categories: Land 289 / Unit 8,633 / Magic 3,857 / Item 1,748 / Enchant 823
+            Images: 30,700 verified WebP files (small + large)
+            Includes normalized SQLite, original source records, effect candidate inventory and review states.
+            Costs with unresolved hybrid or special semantics remain explicitly marked for review.
           files: |
+            release-payload/fm1_cards.sqlite.gz
+            release-payload/cards.jsonl.gz
+            release-payload/enumtable.json
+            release-payload/appsettings.json
+            release-payload/crawl-summary.json
+            release-payload/image-summary.json
+            release-payload/card-taxonomy-audit.json
+            release-payload/quality-audit.json
+            release-payload/image-audit-summary.json
+            release-payload/sqlite-build-summary.json
+            release-payload/effect-pattern-inventory.json
+            release-payload/images.tar.gz.part-*
+          fail_on_unmatched_files: true
+
+      - name: Upload normalized DB and audit outputs (no duplicate Release)
+        if: ${{ always() && (env.MODE == 'audit-release' || env.MODE == 'crawl') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-carddb-audit-${{ inputs.source_release_tag || github.run_number }}
+          path: |
             data/fm1_cards.sqlite.gz
             data/raw/cards.jsonl.gz
             data/raw/enumtable.json
-            data/raw/appsettings.json
-            data/raw/crawl-summary.json
-            data/raw/image-summary.json
-            data/audit-report.json
+            data/card-taxonomy-audit.json
+            data/quality-audit.json
+            data/image-audit/image-audit-summary.json
+            data/image-audit/image-manifest.jsonl
+            data/sqlite-build-summary.json
             data/effect-pattern-inventory.json
-            data/images.tar.gz.part-*
-          fail_on_unmatched_files: true
-      - name: Upload build artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fm1-carddb-${{ github.run_number }}
-          path: |
-            artifacts/
-            data/fm1_cards.sqlite
-            data/fm1_cards.sqlite.gz
-            data/raw/
-            data/audit-report.json
-            data/effect-pattern-inventory.json
-            data/images/
-            data/images.tar.gz.part-*
           if-no-files-found: warn
-          retention-days: 90
+          compression-level: 0
+          retention-days: 30

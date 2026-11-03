@@ -140,6 +140,7 @@ def main():
     ap.add_argument("--db", default="data/fm1_cards.sqlite")
     ap.add_argument("--out", default="data/effect-pattern-inventory.json")
     ap.add_argument("--top", type=int, default=200)
+    ap.add_argument("--summary-only", action="store_true", help="omit per-card records already stored in SQLite")
     args = ap.parse_args()
     con = sqlite3.connect(args.db)
     rows = con.execute("""
@@ -182,8 +183,9 @@ def main():
         "distinct_text_patterns": len(patterns),
         "topic_candidate_counts": dict(sorted(topic_count.items())),
         "top_patterns": patterns[:args.top],
-        "card_text_candidates": records,
     }
+    if not args.summary_only:
+        result["card_text_candidates"] = records
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

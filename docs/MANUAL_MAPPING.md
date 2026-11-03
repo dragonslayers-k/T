@@ -72,9 +72,9 @@ Dropbox 원본: `/판마/Manual.zip` (약 5.1 MB, 2026-11-01 수정본)
 | 81 | MU | neutral |
 | 01 | NONE | 명시적 비용 없음(수량 00일 때) |
 
-혼합 속성 코드(12, 13, 14, 15, 22, 23, 24, 32, 33, 42, 43, 52, 53, 62), NCS(82), BONUS(83)는 아이콘·enum 원문과 수량은 저장하지만, 매뉴얼만으로 실제 지불 규칙을 확정할 수 없어 `manual_review`로 남긴다.
+혼합 속성 코드 14종(12, 13, 14, 15, 22, 23, 24, 32, 33, 42, 43, 52, 53, 62)은 색상 조합 후보를 해독하지만, 현재 Release #27 원본에는 독립적으로 대조할 정규화 비용 참조 필드가 없어 `mapping_review`로 남긴다. 이전 PR 문서에 38개 사례와 14,282건을 교차 검증했다고 기재되어 있었으나, 재현 실행에서 참조 비용 행은 0건이었다. 카드 ID·원본 코드·기대 비용을 가진 검증 fixture가 다시 확보되기 전까지 `source_cross_validated`를 부여하지 않는다. NCS(82)와 BONUS(83)는 별도 토큰으로 저장하고, 지불·생성 의미는 `semantic_review`로 남긴다.
 
-전체 15,350장의 원본 토큰 구조를 검사한 결과, 위의 순수 속성/무속성/무비용 코드로 완전히 해석되는 카드는 14,519장, 혼합·특수 코드 검토 대상은 831장이다. 이는 코드 해석 단계의 결과이지, 카드 이미지와 대조한 최종 수동 검증 완료 수량은 아니다.
+Release #27 전체 감사에서 15,350장의 RequireSoul 토큰 문자열은 모두 토큰 단위로 식별·파싱되었다(`soul_known=1`). 혼합 코드가 포함된 52장은 `mapping_review`, NCS 또는 BONUS가 포함된 779장은 `semantic_review`로 구분한다. 이 집계는 코드 구문과 enum 토큰 인식 결과이며, 혼합 조합의 독립 비용 대조나 특수 자원의 게임 규칙 검증, 카드 이미지와의 수동 대조가 완료됐다는 뜻은 아니다.
 
 ## 6. LP와 지형
 사이트 `RequireLP`는 지형 289장에 존재하며 0부터 4까지의 값을 enum과 연결한다. **LP 0은 명시적 0으로 저장**하며 미상이나 누락으로 바꾸지 않는다. 현재 데이터에서 LP 0 지형은 72장이다.
@@ -89,4 +89,4 @@ Dropbox 원본: `/판마/Manual.zip` (약 5.1 MB, 2026-11-01 수정본)
 - 효과를 실행 가능한 규칙으로 바꾸는 작업은 원문 수집과 별도의 검증 단계로 관리한다.
 
 ## 8. 검증 상태
-`source_extracted`, `enum_mapped`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped` 상태를 구분한다. 자동 추출만 된 값은 수동 검증 완료로 표시하지 않는다. `current_taxonomy_verified`는 다섯 카드 유형이 현재 분류 사전과 일치한다는 뜻이며, 카드별 효과 구현 완료를 의미하지 않는다.
+`source_extracted`, `enum_mapped`, `enum_decoded`, `mapping_review`, `semantic_review`, `source_cross_validated`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped` 상태를 구분한다. 자동 추출만 된 값은 수동 검증 완료로 표시하지 않는다. `current_taxonomy_verified`는 다섯 카드 유형이 현재 분류 사전과 일치한다는 뜻이며, 카드별 효과 구현 완료를 의미하지 않는다.
