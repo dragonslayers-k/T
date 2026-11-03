@@ -46,3 +46,10 @@
 GitHub Actions → **Card DB pipeline**에서 실행한다. `probe`는 사이트 구조 확인, `crawl`은 전체 카드·이미지·SQLite 구축이다.
 
 완료 산출물은 SQLite, 원본 카드 JSONL, enum 사전, 이미지 파일팩, 감사 보고서로 구성한다. 감사에서 15,350장과 이미지 30,700개가 모두 확인되기 전에는 완성본으로 표시하지 않는다.
+
+## RequireSoul 비용 해독
+
+- `scripts/decode_soul_costs.py`는 검증된 4자리 토큰(`색상코드 2자리 + 수량 2자리`)만 결정적으로 해독한다.
+- 알려진 비용 14,282장과 비교해 규칙을 검증하며, 불일치가 발생하면 산출물 게시를 중단한다.
+- `82`, `83` 등 미지원 특수 토큰과 복합 토큰은 임의 해석하지 않고 별도 미해결 JSON으로 보존한다.
+- 기존 `Card quality audit` 작업이 감사 보고서와 `requiresoul-decoded.json`, `requiresoul-unresolved.json`을 한 번에 산출한다. 새 워크플로우는 추가하지 않는다.
