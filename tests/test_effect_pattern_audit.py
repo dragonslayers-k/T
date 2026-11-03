@@ -32,7 +32,7 @@ class EffectPatternAuditTests(unittest.TestCase):
         topics, numbers, _ = analyze("공격시 AP+2 및 25% 추가 피해")
         self.assertIn("stat_ap", topics)
         self.assertIn("damage", topics)
-        self.assertEqual(numbers, ["2", "25%"])
+        self.assertEqual(numbers, ["+2", "25%"])
 
 
 if __name__ == "__main__":
