@@ -7,6 +7,7 @@ on:
       - "scripts/**"
       - "tests/**"
       - "docs/**"
+      - "data/rules/**"
       - ".github/workflows/carddb.yml"
   pull_request:
     branches: [main]
@@ -66,11 +67,13 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py
+          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_cost_decoding.py
           python -m unittest tests/test_effect_candidates.py
+          python -m unittest tests/test_manual_rules.py
           python scripts/build_effect_candidates.py --self-test
+          python scripts/import_manual_rules.py --self-test
           python scripts/quality_audit.py --self-test
           python scripts/decode_soul_costs.py --self-test
           python scripts/build_db.py --self-test
@@ -168,6 +171,7 @@ jobs:
           set -euo pipefail
           python scripts/build_db.py
           python scripts/build_effect_candidates.py --db data/fm1_cards.sqlite
+          python scripts/import_manual_rules.py --db data/fm1_cards.sqlite --catalogue data/rules/fm1-skill-catalog-v1.json
           python scripts/effect_pattern_audit.py \
             --db data/fm1_cards.sqlite \
             --out data/effect-pattern-inventory.json \
@@ -202,6 +206,26 @@ jobs:
               "SELECT COUNT(*) FROM card_effect_candidate_summaries "
               "WHERE span_integrity_status NOT IN ('exact','not_split')"
           ).fetchone()[0]
+          manual_rule_count = db.execute(
+              "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='manual'"
+          ).fetchone()[0]
+          community_rule_count = db.execute(
+              "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='community'"
+          ).fetchone()[0]
+          card_rule_mapping_rows = db.execute("SELECT COUNT(*) FROM card_rule_mappings").fetchone()[0]
+          manual_skill_mappings = db.execute(
+              "SELECT COUNT(*) FROM card_rule_mappings WHERE mapping_status='manual_verified'"
+          ).fetchone()[0]
+          community_skill_candidates = db.execute(
+              "SELECT COUNT(*) FROM card_rule_mappings WHERE mapping_status='community_documented_candidate'"
+          ).fetchone()[0]
+          unmapped_skill_rows = db.execute(
+              "SELECT COUNT(*) FROM card_rule_mappings WHERE mapping_status='unmapped'"
+          ).fetchone()[0]
+          skill_inventory_rows = db.execute("SELECT COUNT(*) FROM skill_enum_inventory").fetchone()[0]
+          community_playable_rows = db.execute(
+              "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='community' AND playable_by_default=1"
+          ).fetchone()[0]
           field_keys = db.execute("SELECT COUNT(DISTINCT field_key) FROM card_fields").fetchone()[0]
           source_pages = db.execute("SELECT COUNT(*) FROM source_pages").fetchone()[0]
           costs = db.execute("SELECT COUNT(*) FROM card_costs").fetchone()[0]
@@ -233,6 +257,14 @@ jobs:
               "effectClauseRows": effect_clause_rows,
               "effectSeparatorRows": effect_separators,
               "effectSpanIntegrityErrors": effect_span_errors,
+              "manualRuleCount": manual_rule_count,
+              "communityRuleCandidateCount": community_rule_count,
+              "cardRuleMappingRows": card_rule_mapping_rows,
+              "manualSkillMappingRows": manual_skill_mappings,
+              "communitySkillCandidateRows": community_skill_candidates,
+              "unmappedSkillRows": unmapped_skill_rows,
+              "skillEnumInventoryRows": skill_inventory_rows,
+              "playableCommunityRuleRows": community_playable_rows,
               "sourcePages": source_pages,
               "costRows": costs, "tokenParsedRows": token_known,
               "hybridMappingReview": mapping_review, "specialSemanticsReview": semantic_review,
@@ -257,6 +289,10 @@ jobs:
               or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000
               or effect_candidate_rows != texts or effect_clause_rows < effect_candidate_rows
               or effect_span_errors != 0 or source_pages != 30700
+              or manual_rule_count != 27 or community_rule_count != 41
+              or card_rule_mapping_rows < 15000 or manual_skill_mappings < 1000
+              or community_skill_candidates < 100 or skill_inventory_rows < 100
+              or community_playable_rows != 0
           ):
               raise SystemExit("SQLite validation failed: " + json.dumps(summary, ensure_ascii=False))
           with gzip.open("data/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
@@ -303,6 +339,7 @@ jobs:
           cp data/image-audit/image-audit-summary.json release-payload/
           cp data/sqlite-build-summary.json release-payload/
           cp data/effect-pattern-inventory.json release-payload/
+          cp data/rules/fm1-skill-catalog-v1.json release-payload/
           cp data/images.tar.gz.part-* release-payload/
 
       - name: Verify that the requested Release tag is unused
@@ -346,6 +383,7 @@ jobs:
             release-payload/image-audit-summary.json
             release-payload/sqlite-build-summary.json
             release-payload/effect-pattern-inventory.json
+            release-payload/fm1-skill-catalog-v1.json
             release-payload/images.tar.gz.part-*
           fail_on_unmatched_files: true
 
@@ -364,6 +402,7 @@ jobs:
             data/image-audit/image-manifest.jsonl
             data/sqlite-build-summary.json
             data/effect-pattern-inventory.json
+            data/rules/fm1-skill-catalog-v1.json
           if-no-files-found: warn
           compression-level: 0
           retention-days: 30
