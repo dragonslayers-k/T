@@ -52,6 +52,40 @@ jobs:
             --cards-jsonl audit-input/cards.jsonl \
             --expected 15350 \
             --output audit-output/quality-audit.json
+      - name: Build normalized SQLite card database
+        run: |
+          set -euo pipefail
+          mkdir -p data/raw audit-output/sqlite
+          cp audit-input/cards.jsonl data/raw/cards.jsonl
+          cp audit-input/enumtable.json data/raw/enumtable.json
+          python scripts/build_db.py
+          python - <<'PY'
+          import gzip, json, sqlite3
+          from pathlib import Path
+          db = sqlite3.connect("data/fm1_cards.sqlite")
+          integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
+          cards = db.execute("SELECT COUNT(*) FROM cards").fetchone()[0]
+          costs = db.execute("SELECT COUNT(*) FROM card_costs").fetchone()[0]
+          known = db.execute("SELECT COUNT(*) FROM card_costs WHERE soul_known=1").fetchone()[0]
+          review = db.execute("SELECT COUNT(*) FROM card_costs WHERE soul_known=0").fetchone()[0]
+          tokens = db.execute("SELECT COUNT(*) FROM card_soul_cost_tokens").fetchone()[0]
+          fk = db.execute("PRAGMA foreign_key_check").fetchall()
+          summary = {"integrity": integrity, "cards": cards, "costRows": costs,
+                     "decodedSoulCosts": known, "unresolvedSoulCosts": review,
+                     "soulTokens": tokens, "foreignKeyErrors": len(fk)}
+          Path("audit-output/sqlite/sqlite-build-summary.json").write_text(
+              json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+          if integrity != "ok" or cards != 15350 or costs != 15350 or known != 14571 or review != 779 or fk:
+              raise SystemExit("SQLite card DB validation failed: " + json.dumps(summary))
+          with gzip.open("audit-output/sqlite/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
+              with open("data/fm1_cards.sqlite", "rb") as source:
+                  while True:
+                      chunk = source.read(1024 * 1024)
+                      if not chunk:
+                          break
+                      out.write(chunk)
+          print(json.dumps(summary, ensure_ascii=False))
+          PY
       - name: Decode source RequireSoul values
         run: |
           set -euo pipefail
