@@ -18,6 +18,11 @@ TOPICS = [
     ("summon", r"소환"), ("field_or_land", r"필드|지형|배치"),
     ("condition", r"이하|이상|보다 높|보다 낮|경우|조건|만약"),
     ("duration", r"턴 동안|턴까지|다음 턴|지속|영구히"),
+    ("on_destroy_or_death", r"자신 파괴시|자신 파괴 시|적 \d+파괴시|파괴시"),
+    ("ability_definition", r"^[^:\n]{1,40}\s*[:：]\s*(?:자신|아군|적군|상대|유닛|기술|AP|DP|HP|○|●)"),
+    ("card_reference", r"상성카드\s*:|연계카드\s*:"),
+    ("card_profile_spec", r"[●○◯]|일반공격|장비능력|마법능력|공방체"),
+    ("rule_note", r"^\s*▶"),
 ]
 TRIGGERS = [
     ("attack_or_defense_window", r"공격/방어|공격 및 방어"),
