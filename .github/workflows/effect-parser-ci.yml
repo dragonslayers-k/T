@@ -1,0 +1,25 @@
+name: Effect parser tests
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/effect_pattern_audit.py"
+      - "tests/test_effect_pattern_audit.py"
+      - ".github/workflows/effect-parser-ci.yml"
+  pull_request:
+    paths:
+      - "scripts/effect_pattern_audit.py"
+      - "tests/test_effect_pattern_audit.py"
+      - ".github/workflows/effect-parser-ci.yml"
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run effect parser tests
+        run: python -m unittest tests/test_effect_pattern_audit.py
