@@ -31,7 +31,7 @@
 
 ## 검증 상태
 `extracted_unverified`, `enum_mapped`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped`. 인챈트는 정식 다섯 번째 카드 유형이며 미분류 유형이 아니다.
-`card_effects`는 TextBase와 TextExtra를 출처별로 별도 저장한다. 이는 효과 문구의 보존이며, 엔진에서 실행 가능한 효과 규칙으로 해석되었다는 뜻이 아니다.\n원본 데이터 수집 성공은 카드 효과 구현 완료나 이미지 수동 검증 완료를 의미하지 않는다.
+`card_effects`는 TextBase와 TextExtra를 출처별로 별도 저장한다. 이는 효과 문구의 보존이며, 엔진에서 실행 가능한 효과 규칙으로 해석되었다는 뜻이 아니다.\n`card_effects`는 TextBase와 TextExtra를 출처별로 별도 저장한다. 이는 효과 문구의 보존이며, 엔진에서 실행 가능한 효과 규칙으로 해석되었다는 뜻이 아니다.\n원본 데이터 수집 성공은 카드 효과 구현 완료나 이미지 수동 검증 완료를 의미하지 않는다.
 
 ## 완료 기준
 1. 고유 카드 15,350장.
