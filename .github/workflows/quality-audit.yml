@@ -42,7 +42,9 @@ jobs:
           BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}"
           curl --fail --location --retry 3 "${BASE}/cards.jsonl.gz" -o audit-input/cards.jsonl.gz
           gzip -dc audit-input/cards.jsonl.gz > audit-input/cards.jsonl
+          curl --fail --location --retry 3 "${BASE}/enumtable.json" -o audit-input/enumtable.json
           test -s audit-input/cards.jsonl
+          test -s audit-input/enumtable.json
       - name: Run source record quality audit
         run: |
           set -euo pipefail
@@ -56,11 +58,11 @@ jobs:
           python scripts/decode_soul_costs.py \
             --cards-jsonl audit-input/cards.jsonl \
             --output-dir audit-output/cost-decoding
-      - name: Publish audit and decoded cost outputs
+      - name: Publish audit, SQLite database and decoded cost outputs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: card-quality-and-cost-decoding-${{ inputs.release_tag || 'fm1-carddb-27' }}
+          name: card-db-sqlite-and-cost-decoding-${{ inputs.release_tag || 'fm1-carddb-27' }}
           path: audit-output/
           if-no-files-found: warn
           retention-days: 30
