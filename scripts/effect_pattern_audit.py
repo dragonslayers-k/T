@@ -50,7 +50,7 @@ OPERATIONS = [
     ("resource_change", r"소울|LP|마력"),
     ("equip_or_unequip", r"장착|해제"),
 ]
-NON_EFFECT = re.compile(r"^invalid$|보유LP는|더블클릭하여 소울|소울은 카드를 소환", re.I)
+NON_EFFECT = re.compile(r"^invalid$|보유LP는|더블클릭하여 소울|소울은 카드를 소환", re.I)\nFLAVOR_ONLY = re.compile(r"^\\s*\\[[^\\[\\]]*\\]\\s*$", re.S)\nREFERENCE_NOTE = re.compile(r"^\\s*(?:▶|상성카드\\s*:|해당 카드는|카드타입은|기호 소개)", re.I)
 NUMBER = re.compile(r"(?<!\d)[-+]?\d+(?:\.\d+)?%?")
 TOKEN = re.compile(r"(?:NCS|BONUS|[A-Z]{2,})", re.I)
 
@@ -117,9 +117,9 @@ def main():
         })
     patterns.sort(key=lambda r: (-r["count"], r["text_type"], r["text"]))
     result = {
-        "schema_version": 3,
+        "schema_version": 4,
         "source_database": str(args.db),
-        "classification_note": "Candidate extraction from surface text only. These fields are not interpreted or executable semantics; absent candidates do not prove absent rules.",
+        "classification_note": "Candidate extraction from surface text only. Text-class labels and semantic fields are candidates, not executable rules; absent candidates do not prove absent rules. Flavor/reference text is preserved in the output.",
         "total_text_rows": len(records),
         "distinct_text_patterns": len(patterns),
         "topic_candidate_counts": dict(sorted(topic_count.items())),
