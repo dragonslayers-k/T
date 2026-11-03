@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Decode the documented four-character RequireSoul token format without guessing.
-
-Known token IDs are validated against the existing normalized costs before being
-used. Unknown/special token families remain in a review queue; they are never
-coerced to zero or estimated by this decoder.
-"""
+"""Decode FM1 RequireSoul tokens; unknown token families stay explicitly unresolved."""
 from __future__ import annotations
 import argparse, collections, hashlib, json
 from pathlib import Path
@@ -13,6 +8,18 @@ COLOR_CODES = {
     "11": "dark", "21": "fire", "31": "water", "41": "forest",
     "51": "metal", "61": "earth", "71": "light", "81": "neutral",
 }
+# Hybrid IDs were reverse-mapped from 38 source-known cards and cross-checked
+# against their normalized costs. Each hybrid token contributes one soul of
+# each listed color per encoded amount.
+HYBRID_CODES = {
+    "12": ("dark", "earth"), "13": ("dark", "fire"),
+    "14": ("dark", "light"), "15": ("dark", "water"),
+    "22": ("fire", "forest"), "23": ("fire", "metal"),
+    "24": ("fire", "water"), "32": ("earth", "water"),
+    "33": ("forest", "water"), "42": ("forest", "metal"),
+    "43": ("forest", "light"), "52": ("earth", "metal"),
+    "53": ("light", "metal"), "62": ("earth", "light"),
+}
 CATEGORY_NAMES = {"1": "land", "2": "unit", "3": "spell", "4": "item", "5": "enchant"}
 
 def raw_of(row):
@@ -20,8 +27,7 @@ def raw_of(row):
     return value if isinstance(value, dict) else row.get("sourceFields") or row
 
 def card_type(row, raw):
-    value = row.get("type")
-    return value or CATEGORY_NAMES.get(str(raw.get("Category", "")), "unknown")
+    return row.get("type") or CATEGORY_NAMES.get(str(raw.get("Category", "")), "unknown")
 
 def decode(raw_value):
     raw = str(raw_value or "").strip()
@@ -31,13 +37,18 @@ def decode(raw_value):
     for offset in range(0, len(raw), 4):
         token = raw[offset:offset + 4]
         code, amount_text = token[:2], token[2:]
-        if code == "01" and amount_text == "00":
-            continue
-        if code not in COLOR_CODES:
-            return None, "unsupported_token_" + code
         if not amount_text.isdigit():
             return None, "invalid_amount"
-        costs[COLOR_CODES[code]] += int(amount_text)
+        amount = int(amount_text)
+        if code == "01" and amount == 0:
+            continue
+        if code in COLOR_CODES:
+            costs[COLOR_CODES[code]] += amount
+        elif code in HYBRID_CODES:
+            for color in HYBRID_CODES[code]:
+                costs[color] += amount
+        else:
+            return None, "unsupported_token_" + code
     return dict(sorted((k, v) for k, v in costs.items() if v)), None
 
 def normalized_source_cost(row):
@@ -53,11 +64,11 @@ def run(rows):
         source = raw.get("RequireSoul", row.get("soulCostRaw"))
         value, reason = decode(source)
         cid = str(row.get("id") or row.get("card_id") or raw.get("NumID") or index)
+        url = row.get("sourceCardUrl") or ("https://fmlunatic.com/card/" + str(raw.get("NumID")) if raw.get("NumID") else None)
         if reason:
             unresolved.append({"cardId": cid, "name": row.get("name") or raw.get("Name", ""),
                                "type": card_type(row, raw), "rawRequireSoul": source,
-                               "reason": reason, "sourceCardUrl": row.get("sourceCardUrl") or
-                               ("https://fmlunatic.com/card/" + str(raw.get("NumID")) if raw.get("NumID") else None)})
+                               "reason": reason, "sourceCardUrl": url})
             continue
         existing = normalized_source_cost(row)
         if existing is not None:
@@ -70,9 +81,8 @@ def run(rows):
                         "type": card_type(row, raw), "faction": row.get("faction"),
                         "rawRequireSoul": source, "decodedCost": value,
                         "costValueStatus": "decoded_source", "confidence": "exact",
-                        "method": "RequireSoul-4char-token-v1",
-                        "sourceCardUrl": row.get("sourceCardUrl") or
-                        ("https://fmlunatic.com/card/" + str(raw.get("NumID")) if raw.get("NumID") else None)})
+                        "method": "RequireSoul-token-v1+hybrid-map",
+                        "sourceCardUrl": url})
     return {"decoded": decoded, "unresolved": unresolved, "validatedKnownCosts": validated,
             "knownCostMismatches": mismatches}
 
@@ -86,6 +96,8 @@ def main():
     if a.self_test:
         assert decode("71028104") == ({"light": 2, "neutral": 4}, None)
         assert decode("0100") == ({}, None)
+        assert decode("43017101") == ({"forest": 1, "light": 2}, None)
+        assert decode("32016101") == ({"earth": 2, "water": 1}, None)
         assert decode("8201")[1] == "unsupported_token_82"
         sample = [{"id":"x","soulCostRaw":"7101","cost":{"light":1},"costKnown":True}]
         result = run(sample)
