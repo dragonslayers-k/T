@@ -50,7 +50,7 @@ GitHub Actions → **Card DB pipeline**에서 실행한다. `probe`는 사이트
 ## RequireSoul 비용 해독
 
 - `scripts/decode_soul_costs.py`는 순수 속성 토큰과 14종 혼합 속성 토큰을 해독한다. 혼합 코드는 비용이 확인된 원본 카드 38장과 대조한 교차검증 매핑이다.
-- 로컬 정규화 데이터의 기존 비용 14,282장과 대조한 결과 14,282장 전부 일치했고, 불일치는 0건이다. SQLite 빌더에도 같은 혼합 코드 매핑과 자체 테스트를 반영했다.
-- 기존 `Card quality audit` 작업은 감사 JSON, SQLite DB(`fm1_cards.sqlite.gz`), 전체 해독 목록, 미해결 목록을 한 번에 산출한다. 최신 성공 실행: https://github.com/dragonslayers-k/T/actions/runs/41567888512
-- NCS(`82`)와 BONUS(`83`)는 임의 해석하지 않고 별도 미해결 JSON으로 보존한다. 최신 결과는 15,350장 중 14,571장 해독, 779장 미해결이다.
+- 전체 15,350장의 RequireSoul 토큰을 모두 식별·파싱하며, 기존 정규화 비용 14,282장과 대조해 불일치 0건을 확인했다. NCS/BONUS가 포함된 779장은 토큰 식별은 완료, 규칙 의미 검토는 별도 상태다.
+- 기존 `Card quality audit` 작업은 감사 JSON, SQLite DB(`fm1_cards.sqlite.gz`), 전체 해독 목록, 특수 의미 검토 목록을 한 번에 산출한다. 최신 성공 실행: https://github.com/dragonslayers-k/T/actions/runs/41567888512
+- NCS(`82`)는 별도 `ncs` 자원, BONUS(`83`)는 별도 `bonus` 토큰으로 해독한다. 두 토큰의 게임 내 소비·생성 규칙은 `semantic_review`로 분리한다.
 - 기존 `Card quality audit` 작업이 감사 보고서와 `requiresoul-decoded.json`, `requiresoul-unresolved.json`을 한 번에 산출한다. 새 워크플로우는 추가하지 않는다.
