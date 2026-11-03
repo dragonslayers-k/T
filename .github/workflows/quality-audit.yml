@@ -21,6 +21,11 @@ jobs:
           python-version: "3.12"
       - name: Install image decoder
         run: python -m pip install --disable-pip-version-check Pillow
+      - name: Run audit and inference self-tests
+        run: |
+          set -euo pipefail
+          python scripts/quality_audit.py --self-test
+          python scripts/infer_playable_costs.py --self-test
       - name: Download immutable source card records
         env:
           TAG: ${{ inputs.release_tag }}
