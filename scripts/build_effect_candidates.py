@@ -38,7 +38,8 @@ def build(connection: sqlite3.Connection) -> dict:
         number_candidates_json TEXT NOT NULL,
         special_token_candidates_json TEXT NOT NULL,
         analysis_json TEXT NOT NULL,
-        verification_status TEXT NOT NULL DEFAULT 'pattern_candidate'
+        verification_status TEXT NOT NULL DEFAULT 'pattern_candidate',
+        span_integrity_status TEXT NOT NULL DEFAULT 'not_checked'
     );
     CREATE TABLE IF NOT EXISTS card_effect_clauses (
         clause_id INTEGER PRIMARY KEY,
@@ -108,7 +109,8 @@ def build(connection: sqlite3.Connection) -> dict:
             ))
             candidate_id = cursor.lastrowid
             summaries += 1
-            for item in parsed["clause_candidates"]:
+            clause_parts = []
+            for item in parsed.get("clause_candidates", []):
                 is_separator = item.get("segment_type") == "separator"
                 connection.execute("""
                     INSERT INTO card_effect_clauses (
@@ -132,14 +134,38 @@ def build(connection: sqlite3.Connection) -> dict:
                 ))
                 clauses += 1
                 separators += int(is_separator)
+                clause_parts.append(item["text"])
+                if text[item["start_char"]:item["end_char"]] != item["text"]:
+                    raise RuntimeError(
+                        f"Clause span does not match source text: card={card_id} text_id={text_id} index={item['clause_index']}"
+                    )
+            if parsed.get("clause_candidates"):
+                if "".join(clause_parts) != text:
+                    raise RuntimeError(
+                        f"Clause spans do not reconstruct source text: card={card_id} text_id={text_id}"
+                    )
+                span_status = "exact"
+            else:
+                span_status = "not_split"
+            connection.execute(
+                "UPDATE card_effect_candidate_summaries SET span_integrity_status=? WHERE candidate_id=?",
+                (span_status, candidate_id),
+            )
 
     integrity = connection.execute("PRAGMA foreign_key_check").fetchall()
+    span_errors = connection.execute(
+        "SELECT COUNT(*) FROM card_effect_candidate_summaries "
+        "WHERE span_integrity_status NOT IN ('exact','not_split')"
+    ).fetchone()[0]
+    if span_errors:
+        raise RuntimeError(f"Effect candidate span validation failed for {span_errors} source records")
     return {
         "sourceTextRows": len(rows),
         "candidateSummaryRows": summaries,
         "clauseRows": clauses,
         "separatorRows": separators,
         "foreignKeyErrors": len(integrity),
+        "spanIntegrityErrors": span_errors,
         "status": "pattern_candidate_only",
     }
 
@@ -160,10 +186,10 @@ def self_test() -> None:
     assert result["candidateSummaryRows"] == 1
     assert result["foreignKeyErrors"] == 0
     record = connection.execute("""
-        SELECT source_detail_url, verification_status
+        SELECT source_detail_url, verification_status, span_integrity_status
         FROM card_effect_candidate_summaries
     """).fetchone()
-    assert record == ("https://fmlunatic.com/card/card-1", "pattern_candidate")
+    assert record == ("https://fmlunatic.com/card/card-1", "pattern_candidate", "exact")
     segments = connection.execute("""
         SELECT segment_type, segment_text
         FROM card_effect_clauses ORDER BY clause_index
