@@ -66,9 +66,11 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py
+          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_cost_decoding.py
+          python -m unittest tests/test_effect_candidates.py
+          python scripts/build_effect_candidates.py --self-test
           python scripts/quality_audit.py --self-test
           python scripts/decode_soul_costs.py --self-test
           python scripts/build_db.py --self-test
@@ -165,10 +167,12 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/build_db.py
+          python scripts/build_effect_candidates.py --db data/fm1_cards.sqlite
           python scripts/effect_pattern_audit.py \
             --db data/fm1_cards.sqlite \
             --out data/effect-pattern-inventory.json \
-            --top 500
+            --top 500 \
+            --summary-only
 
       - name: Verify SQLite counts, references, images, costs, and search
         if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'audit-release' || inputs.mode == 'crawl') }}
@@ -191,6 +195,11 @@ jobs:
           fields = db.execute("SELECT COUNT(*) FROM card_fields").fetchone()[0]
           texts = db.execute("SELECT COUNT(*) FROM card_texts").fetchone()[0]
           effects = db.execute("SELECT COUNT(*) FROM card_effects").fetchone()[0]
+          effect_candidate_rows = db.execute("SELECT COUNT(*) FROM card_effect_candidate_summaries").fetchone()[0]
+          effect_clause_rows = db.execute("SELECT COUNT(*) FROM card_effect_clauses").fetchone()[0]
+          effect_separators = db.execute("SELECT COUNT(*) FROM card_effect_clauses WHERE segment_type='separator'").fetchone()[0]
+          field_keys = db.execute("SELECT COUNT(DISTINCT field_key) FROM card_fields").fetchone()[0]
+          source_pages = db.execute("SELECT COUNT(*) FROM source_pages").fetchone()[0]
           costs = db.execute("SELECT COUNT(*) FROM card_costs").fetchone()[0]
           token_known = db.execute("SELECT COUNT(*) FROM card_costs WHERE soul_known=1").fetchone()[0]
           mapping_review = db.execute("SELECT COUNT(*) FROM card_costs WHERE mapping_review=1").fetchone()[0]
@@ -214,7 +223,12 @@ jobs:
           fk_errors = len(db.execute("PRAGMA foreign_key_check").fetchall())
           summary = {
               "integrity": integrity, "cards": cards, "uniqueIds": unique_ids,
-              "categories": categories, "fields": fields, "texts": texts, "effects": effects,
+              "categories": categories, "fields": fields, "fieldKeys": field_keys,
+              "texts": texts, "effects": effects,
+              "effectCandidateRows": effect_candidate_rows,
+              "effectClauseRows": effect_clause_rows,
+              "effectSeparatorRows": effect_separators,
+              "sourcePages": source_pages,
               "costRows": costs, "tokenParsedRows": token_known,
               "hybridMappingReview": mapping_review, "specialSemanticsReview": semantic_review,
               "soulTokens": tokens, "imageRows": images, "archiveVerifiedImages": verified_images,
@@ -231,7 +245,9 @@ jobs:
               or mapping_review != 52 or semantic_review != 779 or tokens != 24166
               or images != 30700 or verified_images != 30700 or detail_urls != 15350
               or search_rows != 15350 or korean_hits < 1 or ncs_hits < 1 or fk_errors
-              or fields < 600000 or texts < 17000 or effects < 17000
+              or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000
+              or effect_candidate_rows != texts or effect_clause_rows < effect_candidate_rows
+              or source_pages != 30700
           ):
               raise SystemExit("SQLite validation failed: " + json.dumps(summary, ensure_ascii=False))
           with gzip.open("data/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
