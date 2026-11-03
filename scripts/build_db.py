@@ -90,8 +90,17 @@ with RAW.open(encoding="utf-8") as f,con:
   for k,typ in [("TextBase","card_text"),("TextExtra","additional_text")]:
    v=obj.get(k)
    if isinstance(v,str) and v:con.execute("INSERT INTO card_texts(card_id,text_type,source_text,plain_text,source_location) VALUES(?,?,?,?,?)",(cid,typ,v,plain_text(v),"Firestore"))
-  if isinstance(obj.get("TextBase"),str) and obj["TextBase"]:
-   con.execute("INSERT INTO card_effects(card_id,effect_index,effect_text,trigger_text,duration_text) VALUES(?,?,?,?,?)",(cid,0,plain_text(obj["TextBase"]),norm("TurnType",obj.get("TurnType")),str(obj.get("Duration")) if obj.get("Duration") is not None else None))
+  # Preserve base and supplementary card text as separate effect-source records.
+  # This is source extraction only; it must not be interpreted as executable rules.
+  effect_index=0
+  for source_key in ("TextBase","TextExtra"):
+   source_value=obj.get(source_key)
+   if isinstance(source_value,str) and source_value.strip():
+    clean_effect=plain_text(source_value)
+    if clean_effect:
+     con.execute("INSERT INTO card_effects(card_id,effect_index,effect_text,trigger_text,target_text,condition_text,duration_text,verification_status) VALUES(?,?,?,?,?,?,?,?)",
+      (cid,effect_index,clean_effect,norm("TurnType",obj.get("TurnType")) if source_key=="TextBase" else None,None,None,str(obj.get("Duration")) if obj.get("Duration") is not None else None,"extracted_unverified"))
+     effect_index+=1
   lp=obj.get("RequireLP");lp_known=isinstance(lp,(int,float)) and norm("RequireLP",lp) is not None;soul=parse_soul(obj.get("RequireSoul"))
   con.execute("INSERT INTO card_costs(card_id,lp_value,lp_known,soul_json,soul_known,source_text) VALUES(?,?,?,?,?,?)",(cid,float(lp) if lp_known else None,1 if lp_known else 0,j(soul),1 if soul["known"] else 0,str(obj.get("RequireSoul")) if obj.get("RequireSoul") is not None else None))
   for ordinal,t in enumerate(soul["tokens"]):
