@@ -50,6 +50,9 @@ jobs:
       - name: Audit complete 15,350-card dataset
         if: github.event_name == 'push' || inputs.mode == 'crawl'
         run: python scripts/audit_db.py
+      - name: Inventory card effect text patterns
+        if: github.event_name == 'push' || inputs.mode == 'crawl'
+        run: python scripts/effect_pattern_audit.py --db data/fm1_cards.sqlite --out data/effect-pattern-inventory.json --top 500
       - name: Archive image files
         if: github.event_name == 'push' || inputs.mode == 'crawl'
         run: |
@@ -82,6 +85,7 @@ jobs:
             data/raw/crawl-summary.json
             data/raw/image-summary.json
             data/audit-report.json
+            data/effect-pattern-inventory.json
             data/images.tar.gz.part-*
           fail_on_unmatched_files: true
       - name: Upload build artifacts
@@ -95,6 +99,7 @@ jobs:
             data/fm1_cards.sqlite.gz
             data/raw/
             data/audit-report.json
+            data/effect-pattern-inventory.json
             data/images/
             data/images.tar.gz.part-*
           if-no-files-found: warn
