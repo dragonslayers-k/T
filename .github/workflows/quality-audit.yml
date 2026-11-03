@@ -108,7 +108,7 @@ jobs:
           image_rows = db.execute("SELECT COUNT(*) FROM card_images").fetchone()[0]
           verified_images = db.execute(
               "SELECT COUNT(*) FROM card_images WHERE download_status='archive_verified' "
-              "AND mime_type='image/webp' AND sha256 IS NOT NULL"
+              "AND mime_type='image/webp' AND sha256 IS NOT NULL AND archive_path IS NOT NULL"
           ).fetchone()[0]
           ncs_hits = db.execute(
               "SELECT COUNT(*) FROM card_search WHERE card_search MATCH 'NCS'"
