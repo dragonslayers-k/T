@@ -51,7 +51,7 @@ OPERATIONS = [
     ("equip_or_unequip", r"장착|해제"),
 ]
 NON_EFFECT = re.compile(r"^invalid$|보유LP는|더블클릭하여 소울|소울은 카드를 소환", re.I)
-NUMBER = re.compile(r"(?<![가-힣A-Za-z])[-+]?\\d+(?:\\.\\d+)?%?")
+NUMBER = re.compile(r"(?<!\\d)[-+]?\\d+(?:\\.\\d+)?%?")
 TOKEN = re.compile(r"(?:NCS|BONUS|[A-Z]{2,})", re.I)
 
 
