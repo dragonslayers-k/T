@@ -70,7 +70,7 @@ CREATE TABLE card_texts(text_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERE
 CREATE TABLE card_costs(card_id TEXT PRIMARY KEY REFERENCES cards(card_id),lp_value REAL,lp_known INTEGER NOT NULL DEFAULT 0,soul_json TEXT,soul_known INTEGER NOT NULL DEFAULT 0,source_text TEXT,verification_status TEXT DEFAULT 'extracted_unverified');
 CREATE TABLE card_soul_cost_tokens(token_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),ordinal INTEGER NOT NULL,raw_token TEXT NOT NULL,code INTEGER,count INTEGER,symbol TEXT,icon_path TEXT,normalized_color TEXT,parse_status TEXT NOT NULL);
 CREATE TABLE card_images(image_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),image_type TEXT NOT NULL,source_url TEXT,local_path TEXT,mime_type TEXT,byte_size INTEGER,sha256 TEXT,download_status TEXT DEFAULT 'pending');
-CREATE TABLE card_effects(effect_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),effect_index INTEGER NOT NULL,effect_text TEXT NOT NULL,trigger_text TEXT,target_text TEXT,condition_text TEXT,duration_text TEXT,verification_status TEXT DEFAULT 'extracted_unverified');
+CREATE TABLE card_effects(effect_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),effect_index INTEGER NOT NULL,source_key TEXT NOT NULL,effect_text TEXT NOT NULL,trigger_text TEXT,target_text TEXT,condition_text TEXT,duration_text TEXT,verification_status TEXT DEFAULT 'extracted_unverified');
 CREATE TABLE source_pages(page_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),page_type TEXT NOT NULL,url TEXT NOT NULL,http_status INTEGER,collected_at TEXT,content_hash TEXT,UNIQUE(card_id,page_type,url));
 CREATE TABLE taxonomy(taxonomy_id INTEGER PRIMARY KEY,field_key TEXT NOT NULL,source_value_json TEXT,normalized_value TEXT,manual_mapping_status TEXT DEFAULT 'unmapped',UNIQUE(field_key,source_value_json));
 CREATE TABLE verification(verification_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),field_key TEXT,status TEXT NOT NULL,evidence TEXT,verified_by TEXT,verified_at TEXT);
@@ -98,8 +98,8 @@ with RAW.open(encoding="utf-8") as f,con:
    if isinstance(source_value,str) and source_value.strip():
     clean_effect=plain_text(source_value)
     if clean_effect:
-     con.execute("INSERT INTO card_effects(card_id,effect_index,effect_text,trigger_text,target_text,condition_text,duration_text,verification_status) VALUES(?,?,?,?,?,?,?,?)",
-      (cid,effect_index,clean_effect,norm("TurnType",obj.get("TurnType")) if source_key=="TextBase" else None,None,None,str(obj.get("Duration")) if obj.get("Duration") is not None else None,"extracted_unverified"))
+     con.execute("INSERT INTO card_effects(card_id,effect_index,source_key,effect_text,trigger_text,target_text,condition_text,duration_text,verification_status) VALUES(?,?,?,?,?,?,?,?,?)",
+      (cid,effect_index,source_key,clean_effect,norm("TurnType",obj.get("TurnType")) if source_key=="TextBase" else None,None,None,str(obj.get("Duration")) if obj.get("Duration") is not None else None,"extracted_unverified"))
      effect_index+=1
   lp=obj.get("RequireLP");lp_known=isinstance(lp,(int,float)) and norm("RequireLP",lp) is not None;soul=parse_soul(obj.get("RequireSoul"))
   con.execute("INSERT INTO card_costs(card_id,lp_value,lp_known,soul_json,soul_known,source_text) VALUES(?,?,?,?,?,?)",(cid,float(lp) if lp_known else None,1 if lp_known else 0,j(soul),1 if soul["known"] else 0,str(obj.get("RequireSoul")) if obj.get("RequireSoul") is not None else None))
