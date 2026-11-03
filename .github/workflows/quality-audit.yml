@@ -45,6 +45,17 @@ jobs:
           curl --fail --location --retry 3 "${BASE}/enumtable.json" -o audit-input/enumtable.json
           test -s audit-input/cards.jsonl
           test -s audit-input/enumtable.json
+      - name: Download and audit immutable card image archive
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/fm1-carddb-27"
+          mkdir -p audit-input audit-output/image-audit
+          curl --fail --location --retry 3 --retry-all-errors "${BASE}/images.tar.gz.part-aa" -o audit-input/images.tar.gz.part-aa
+          gzip -t audit-input/images.tar.gz.part-aa
+          python scripts/audit_image_archive.py \
+            --archive audit-input/images.tar.gz.part-aa \
+            --cards-jsonl audit-input/cards.jsonl \
+            --output-dir audit-output/image-audit
       - name: Run source record quality audit
         run: |
           set -euo pipefail
