@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "description": "Card-source-verified Skill2 effects connected to the FM1 offline combat engine. This catalog is not a blanket claim that all cards with a similar Skill2 label are verified; execution requires each card mapping to carry source_card_verified, card_source authority, and source-card-rule-implemented.",
+  "sourcePolicy": {
+    "sourcePriority": [
+      "Manual.zip where defined",
+      "per-card source text and source URL",
+      "community documentation as supplemental only"
+    ],
+    "mappingGate": [
+      "specialSkill2MappingStatus === source_card_verified",
+      "specialSkill2RuleAuthority === card_source",
+      "specialSkill2ExecutionStatus === source-card-rule-implemented",
+      "source Skill2 text matches the rule's canonical name"
+    ],
+    "failClosed": "Unmapped, candidate-only, community-only, or mismatched Skill2 metadata must not execute.",
+    "engineFile": "FM-OFFLINE/app/src/main/assets/game/rules.js",
+    "testFile": "FM-OFFLINE/tests/rules.test.cjs"
+  },
+  "rules": [
+    {
+      "id": "skill2_tactical_initiative",
+      "name": "기선제압",
+      "trigger": "incoming_unit_attack_before_damage",
+      "condition": {
+        "attackerLevel": "<= defenderLevel"
+      },
+      "target": "defending unit",
+      "effect": {
+        "operation": "reduce_damage",
+        "amount": 1,
+        "minimum": 0
+      },
+      "duration": "this battle resolution",
+      "test": "source Skill2 Tactical Initiative reduces incoming damage by one at equal or lower attacker level"
+    },
+    {
+      "id": "skill2_devoted_defense",
+      "name": "헌신방어",
+      "trigger": "owner_unit_destroyed",
+      "condition": {
+        "nextFriendlyFieldUnit": "exists"
+      },
+      "target": "next friendly unit in field order after destroyed slot",
+      "effect": {
+        "operation": "modify_stats",
+        "ap": 1,
+        "dp": 1,
+        "hp": 1
+      },
+      "duration": "battle-only temporary stats",
+      "test": "source Skill2 Devoted Defense buffs the next friendly field unit when the owner is destroyed"
+    },
+    {
+      "id": "skill2_frenzy_defense",
+      "name": "격노",
+      "trigger": "after_defending_unit_receives_hp_damage",
+      "condition": {
+        "actualHpDamage": "> 0",
+        "defenderSurvives": true
+      },
+      "target": "defending unit",
+      "effect": {
+        "operation": "gain_ap",
+        "amount": "actual HP damage"
+      },
+      "duration": "battle-only temporary AP",
+      "test": "source Skill2 Wrath converts actual HP lost while defending into immediate AP"
+    },
+    {
+      "id": "skill2_holy_aura",
+      "name": "홀리오오라",
+      "trigger": "incoming_unit_attack_damage_calculation",
+      "condition": {
+        "attackerRolledAP": "<= floor((defenderRolledDP + defenderCurrentHP) / 2)"
+      },
+      "target": "defending unit",
+      "effect": {
+        "operation": "prevent_damage",
+        "amount": "all incoming damage"
+      },
+      "duration": "this attack",
+      "test": "source Skill2 Holy Aura prevents damage when attacker AP is at or below half of defender DP plus HP"
+    },
+    {
+      "id": "skill2_alliance_defense",
+      "name": "얼라이디펜스",
+      "trigger": "incoming_unit_attack_before_hp_damage",
+      "condition": {
+        "defenderAffiliation": "non-empty"
+      },
+      "target": "defending unit",
+      "effect": {
+        "operation": "reduce_damage",
+        "amount": "count(other friendly field units with same affiliation)",
+        "minimum": 0
+      },
+      "duration": "this attack",
+      "test": "source Skill2 Alliance Defense reduces damage by each other field unit with the same affiliation"
+    },
+    {
+      "id": "skill2_racial_defense",
+      "name": "레이셜디펜스",
+      "trigger": "incoming_unit_attack_before_hp_damage",
+      "condition": {
+        "defenderRace": "non-empty"
+      },
+      "target": "defending unit",
+      "effect": {
+        "operation": "reduce_damage",
+        "amount": "count(other friendly field units with same race)",
+        "minimum": 0
+      },
+      "duration": "this attack",
+      "test": "source Skill2 Racial Defense reduces damage by each other field unit with the same race"
+    },
+    {
+      "id": "skill2_strong_devoted_defense",
+      "name": "강한헌신방어",
+      "trigger": "owner_unit_destroyed",
+      "condition": {
+        "remainingFriendlyFieldUnits": "> 0"
+      },
+      "target": "all remaining friendly field units",
+      "effect": {
+        "operation": "modify_stats",
+        "ap": 1,
+        "dp": 1,
+        "hp": 1
+      },
+      "duration": "battle-only temporary stats",
+      "test": "source Skill2 Strong Devoted Defense buffs every surviving friendly field unit when destroyed"
+    },
+    {
+      "id": "skill2_pressure_defense",
+      "name": "프레셔",
+      "trigger": "incoming_unit_attack_before_hp_damage",
+      "condition": {
+        "emptyFriendlyFieldSlots": ">= 0"
+      },
+      "target": "defending unit",
+      "effect": {
+        "operation": "reduce_damage",
+        "amount": "floor(empty friendly field slots / 2)",
+        "minimum": 0
+      },
+      "duration": "this attack",
+      "test": "source Skill2 Pressure reduces damage by half the number of empty friendly field slots, rounded down"
+    }
+  ],
+  "verification": {
+    "implementation": "The 8 handlers and their targeted test cases exist in FM-OFFLINE; verify the current Actions JS test job before promoting or widening mappings.",
+    "notIncluded": "Skill2 enum labels outside these 8; similarly named or community candidate effects; duration or resolution assumptions without card-specific evidence.",
+    "nextWork": "Attach source card IDs, source URLs, exact Skill2 original strings, and effect source-text excerpts to each mapped card row; broaden mappings only after per-card source and regression tests."
+  }
+}
