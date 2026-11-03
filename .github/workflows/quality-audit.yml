@@ -32,6 +32,7 @@ jobs:
           python scripts/quality_audit.py --self-test
           python scripts/infer_playable_costs.py --self-test
           python scripts/decode_soul_costs.py --self-test
+          python scripts/build_db.py --self-test
       - name: Download immutable source card records
         env:
           TAG: ${{ inputs.release_tag || 'fm1-carddb-27' }}
