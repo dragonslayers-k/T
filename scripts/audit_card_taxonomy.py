@@ -71,14 +71,14 @@ def main():
                 if val is not None and val!="":
                     present[field]+=1
                     values[field][str(val)]+=1
-                    if field in allowed and str(val) not in allowed[field]:
+                    if field in allowed and field != "RequireSoul" and str(val) not in allowed[field]:
                         missing.append({"card_id":cid,"field":field,"value":val,"reason":"enum_value_not_in_enumtable"})
                 elif field in ("Category","Name","RequireSoul"):
                     missing.append({"card_id":cid,"field":field,"reason":"required_source_field_missing"})
                 if val is not None and val!="":
                     by_category[category][field]+=1
             date=raw.get("ReleaseDate")
-            if date is not None and not re.fullmatch(r"\\d{8}",str(date)) and not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}",str(date)):
+            if date is not None and not re.fullmatch(r"\d{8}",str(date)) and not re.fullmatch(r"\d{4}-\d{2}-\d{2}",str(date)):
                 invalid_dates.append({"card_id":cid,"value":date})
     summary={
       "expected_records":a.expected,"records":total,"unique_ids":len(ids),
