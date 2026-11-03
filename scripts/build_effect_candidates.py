@@ -63,6 +63,17 @@ def build(connection: sqlite3.Connection) -> dict:
     CREATE INDEX IF NOT EXISTS idx_effect_clause_segment ON card_effect_clauses(segment_type);
     """)
 
+    summary_columns = {
+        row[1] for row in connection.execute(
+            "PRAGMA table_info(card_effect_candidate_summaries)"
+        )
+    }
+    if "span_integrity_status" not in summary_columns:
+        connection.execute(
+            "ALTER TABLE card_effect_candidate_summaries "
+            "ADD COLUMN span_integrity_status TEXT NOT NULL DEFAULT 'not_checked'"
+        )
+
     # A repeat run replaces only derived candidates, never original card text.
     connection.execute("DELETE FROM card_effect_clauses")
     connection.execute("DELETE FROM card_effect_candidate_summaries")
