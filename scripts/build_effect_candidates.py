@@ -12,7 +12,10 @@ import json
 import sqlite3
 from pathlib import Path
 
-from effect_pattern_audit import analyze
+try:
+    from effect_pattern_audit import analyze
+except ImportError:
+    from scripts.effect_pattern_audit import analyze
 
 
 def dump(value):
