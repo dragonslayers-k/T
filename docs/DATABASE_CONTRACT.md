@@ -25,12 +25,13 @@
 - 미상/누락은 NULL, 명시적 숫자 0은 0.
 - LP 0은 유효한 값이다.
 - RequireSoul 원본 문자열, 토큰별 코드/수량/아이콘, 정규화 결과 및 검증 상태를 함께 보존한다.
+- 지형의 RequireSoul은 LP와 별개의 지형 설치 소울 비용이며, 비지형 카드의 RequireSoul은 소환 소울 비용이다. 카드 유형과 함께 해석한다.
 - 색상/무속성/무비용 코드가 확인된 경우에만 해당 색상으로 합산한다.
 - 14종 혼합 속성 토큰은 기존 비용이 확인된 카드 38장의 비용과 교차 검증한 매핑으로 해독한다. NCS(82)/BONUS(83)는 원본 코드·아이콘을 보존하고 manual_review로 남긴다.
 - 모든 enum 값은 원본 튜플/객체와 표시 이름을 함께 보존한다.
 
 ## 검증 상태
-`extracted_unverified`, `enum_mapped`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped`. 인챈트는 정식 다섯 번째 카드 유형이며 미분류 유형이 아니다.
+`extracted_unverified`, `enum_mapped`, `enum_decoded`, `source_cross_validated`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped`. 인챈트는 정식 다섯 번째 카드 유형이며 미분류 유형이 아니다.
 원본 데이터 수집 성공은 카드 효과 구현 완료나 이미지 수동 검증 완료를 의미하지 않는다.
 
 ## 완료 기준
