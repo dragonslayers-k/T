@@ -126,11 +126,16 @@ with RAW.open(encoding="utf-8") as f,con:
   for typ,url in [("detail",detail),("list",r.get("source_list_url") or "https://fmlunatic.com/cardlist")]:
    if url:con.execute("INSERT OR IGNORE INTO source_pages(card_id,page_type,url,collected_at) VALUES(?,?,?,?)",(cid,typ,url,collected))
   processed+=1
-con.execute("""INSERT INTO card_search(card_id,name,card_type,attribute,card_text,additional_text)
- SELECT c.card_id,c.name,coalesce(c.card_type,''),coalesce(c.attribute,''),
- coalesce((SELECT group_concat(plain_text,' ') FROM card_texts t WHERE t.card_id=c.card_id AND t.text_type='card_text'),''),
- coalesce((SELECT group_concat(plain_text,' ') FROM card_texts t WHERE t.card_id=c.card_id AND t.text_type='additional_text'),'')
- FROM cards c""")
+con.execute("""WITH text_by_card AS (
+ SELECT card_id,
+  group_concat(CASE WHEN text_type='card_text' THEN plain_text END,' ') AS card_text,
+  group_concat(CASE WHEN text_type='additional_text' THEN plain_text END,' ') AS additional_text
+ FROM card_texts GROUP BY card_id
+)
+INSERT INTO card_search(card_id,name,card_type,attribute,card_text,additional_text)
+SELECT c.card_id,c.name,coalesce(c.card_type,''),coalesce(c.attribute,''),
+ coalesce(t.card_text,''),coalesce(t.additional_text,'')
+FROM cards c LEFT JOIN text_by_card t ON t.card_id=c.card_id""")
 manifest=ROOT/"raw"/"image-manifest.jsonl"
 if manifest.exists():
  with manifest.open(encoding="utf-8") as f,con:
