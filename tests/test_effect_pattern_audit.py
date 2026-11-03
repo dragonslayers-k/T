@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.effect_pattern_audit import analyze
+from scripts.effect_pattern_audit import analyze, split_clause_candidates
 
 
 class EffectPatternAuditTests(unittest.TestCase):
@@ -53,6 +53,13 @@ class EffectPatternAuditTests(unittest.TestCase):
     def test_card_reference_candidate_is_separate(self):
         parsed = analyze("상성카드 : 트라이던트")
         self.assertIn("card_reference", parsed["topic_candidates"])
+
+    def test_clause_candidate_spans_reconstruct_source_exactly(self):
+        text = "아군 AP+1.※ 적 HP-2\n다음 효과"
+        clauses = split_clause_candidates(text)
+        self.assertEqual("".join(item["text"] for item in clauses), text)
+        for item in clauses:
+            self.assertEqual(text[item["start_char"]:item["end_char"]], item["text"])
 
     def test_numeric_percent_is_preserved_as_text(self):
         parsed = analyze("공격시 AP+2 및 25% 추가 피해")
