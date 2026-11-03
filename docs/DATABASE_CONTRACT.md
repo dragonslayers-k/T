@@ -13,7 +13,7 @@
 | cards | 카드 ID, 이름, 분류, 속성, 개별 URL, 원본 JSON, 해시 |
 | card_fields | 55개 원본 필드와 정규화 표시값 |
 | card_texts | TextBase/TextExtra 원문 및 검색용 plain text |
-| card_costs | LP 값, RequireSoul 원문, 파싱 결과, 확정 여부 |
+| card_costs | LP 값, RequireSoul 원문, 파싱 결과, 토큰 해독 여부, 특수 의미 검토 상태 |
 | card_soul_cost_tokens | RequireSoul 4자리 토큰별 코드·수량·아이콘·해석 상태 |
 | card_images | 소형/대형 이미지 URL, 로컬 경로, 크기, SHA-256, 다운로드 상태 |
 | card_effects | 기본 효과 텍스트와 발동/지속 관련 데이터 |
@@ -26,8 +26,10 @@
 - LP 0은 유효한 값이다.
 - RequireSoul 원본 문자열, 토큰별 코드/수량/아이콘, 정규화 결과 및 검증 상태를 함께 보존한다.
 - 지형의 RequireSoul은 LP와 별개의 지형 설치 소울 비용이며, 비지형 카드의 RequireSoul은 소환 소울 비용이다. 카드 유형과 함께 해석한다.
-- 색상/무속성/무비용 코드가 확인된 경우에만 해당 색상으로 합산한다.
-- 14종 혼합 속성 토큰은 기존 비용이 확인된 카드 38장의 비용과 교차 검증한 매핑으로 해독한다. NCS(82)/BONUS(83)는 원본 코드·아이콘을 보존하고 manual_review로 남긴다.
+- 색상/무속성/무비용 코드와 혼합 속성 코드는 검증된 규칙에 따라 정규화한다.
+- NCS(82)는 일반 색상이나 neutral과 합산하지 않고 별도 `ncs` 자원으로 저장한다. BONUS(83)도 별도 `bonus` 토큰으로 저장한다.
+- NCS/BONUS는 토큰 정체성은 enum에서 확인되었으나, 지불·생성 규칙의 완전한 해석은 `card_costs.semantic_review=1`로 표시한다.
+- `soul_known=1`은 RequireSoul 문자열의 모든 토큰 종류를 식별·파싱했다는 뜻이며, 특수 토큰의 게임 규칙 의미까지 확정했다는 뜻은 아니다.
 - 모든 enum 값은 원본 튜플/객체와 표시 이름을 함께 보존한다.
 
 ## 검증 상태
