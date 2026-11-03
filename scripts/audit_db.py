@@ -1,54 +1,155 @@
 #!/usr/bin/env python3
-import json,sqlite3,sys
+import json, sqlite3, sys
 from pathlib import Path
-target=15350;db=Path("data/fm1_cards.sqlite")
-if not db.exists():raise SystemExit("DB missing")
-c=sqlite3.connect(db);q=lambda sql:c.execute(sql).fetchone()[0]
-manifest=Path("data/raw/image-manifest.jsonl");images=[]
-if manifest.exists():
- with manifest.open(encoding="utf-8") as f:images=[json.loads(x) for x in f if x.strip()]
-crawl_path=Path("data/raw/crawl-summary.json");crawl=json.loads(crawl_path.read_text()) if crawl_path.exists() else {}
-large=[x for x in images if x.get("image_type")=="large"];small=[x for x in images if x.get("image_type")=="small"]
-result={
- "required_cards":target,"firestore_source_count":crawl.get("source_count"),
- "unique_cards":q("select count(*) from cards"),
- "duplicate_ids":q("select count(*) from (select card_id from cards group by card_id having count(*)>1)"),
- "missing_names":q("select count(*) from cards where name is null or trim(name)=''"),
- "missing_individual_urls":q("select count(*) from cards where source_card_url is null or source_card_url=''"),
- "missing_list_urls":q("select count(*) from cards where source_list_url is null or source_list_url=''"),
- "distinct_source_fields":q("select count(distinct field_key) from card_fields"),
- "card_field_rows":q("select count(*) from card_fields"),
- "taxonomy_rows":q("select count(*) from taxonomy"),
- "cards_with_textbase":q("select count(distinct card_id) from card_fields where field_key='TextBase'"),
- "cards_with_textextra":q("select count(distinct card_id) from card_fields where field_key='TextExtra'"),
- "cards_with_image_urls":q("select count(distinct card_id) from card_images where source_url is not null and source_url<>''"),
- "image_rows_in_db":q("select count(*) from card_images"),
- "large_images_downloaded":sum(x.get("status")=="downloaded" for x in large),
- "small_images_downloaded":sum(x.get("status")=="downloaded" for x in small),
- "large_image_failures":sum(x.get("status")!="downloaded" for x in large),
- "small_image_failures":sum(x.get("status")!="downloaded" for x in small),
- "large_image_manifest_rows":len(large),"small_image_manifest_rows":len(small),
- "lp_known_cards":q("select count(*) from card_costs where lp_known=1"),
- "lp_zero_cards":q("select count(*) from card_costs where lp_known=1 and lp_value=0"),
- "soul_cost_fully_parsed":q("select count(*) from card_costs where soul_known=1"),
- "soul_cost_needs_review":q("select count(*) from card_costs where soul_known=0"),
- "soul_cost_tokens":q("select count(*) from card_soul_cost_tokens"),
- "category_counts":dict(c.execute("select card_type,count(*) from cards group by card_type")),
- "crawl_pages":crawl.get("pages"),"crawl_complete":crawl.get("complete",False),"complete":False
+
+TARGET = 15350
+EXPECTED_CATEGORIES = {
+    "지형": 289,
+    "유닛": 8633,
+    "마법": 3857,
+    "아이템": 1748,
+    "인챈트": 823,
 }
-result["cost_parse_accounted_for"]=result["soul_cost_fully_parsed"]+result["soul_cost_needs_review"]==target
-result["complete"]=(
- result["firestore_source_count"]==target and result["unique_cards"]==target and
- result["duplicate_ids"]==0 and result["missing_names"]==0 and
- result["missing_individual_urls"]==0 and result["missing_list_urls"]==0 and
- result["distinct_source_fields"]==55 and result["taxonomy_rows"]>0 and
- result["cards_with_textbase"]==target and result["cards_with_textextra"]==target and
- result["cards_with_image_urls"]==target and result["image_rows_in_db"]==target*2 and
- result["large_image_manifest_rows"]==target and result["small_image_manifest_rows"]==target and
- result["large_images_downloaded"]==target and result["small_images_downloaded"]==target and
- result["large_image_failures"]==0 and result["small_image_failures"]==0 and
- result["lp_known_cards"]==289 and result["lp_zero_cards"]==72 and
- result["cost_parse_accounted_for"] and result["crawl_complete"] is True
+db = Path("data/fm1_cards.sqlite")
+if not db.exists():
+    raise SystemExit("DB missing")
+
+con = sqlite3.connect(db)
+def scalar(sql, params=()):
+    return con.execute(sql, params).fetchone()[0]
+def grouped(sql, params=()):
+    return {row[0]: row[1] for row in con.execute(sql, params).fetchall()}
+
+manifest_path = Path("data/raw/image-manifest.jsonl")
+image_rows = []
+if manifest_path.exists():
+    with manifest_path.open(encoding="utf-8") as source:
+        image_rows = [json.loads(line) for line in source if line.strip()]
+crawl_path = Path("data/raw/crawl-summary.json")
+crawl = json.loads(crawl_path.read_text(encoding="utf-8")) if crawl_path.exists() else {}
+
+large = [x for x in image_rows if x.get("image_type") == "large"]
+small = [x for x in image_rows if x.get("image_type") == "small"]
+category_counts = grouped("SELECT card_type, COUNT(*) FROM cards GROUP BY card_type")
+cost_rows = con.execute("""
+    SELECT c.card_type,
+           COUNT(*) AS card_count,
+           SUM(CASE WHEN cc.soul_known = 1 THEN 1 ELSE 0 END) AS soul_parsed,
+           SUM(CASE WHEN cc.soul_known = 0 OR cc.soul_known IS NULL THEN 1 ELSE 0 END) AS soul_review
+    FROM cards c
+    LEFT JOIN card_costs cc ON cc.card_id = c.card_id
+    GROUP BY c.card_type
+    ORDER BY c.card_type
+""").fetchall()
+cost_by_category = {
+    row[0]: {
+        "cards": row[1],
+        "soulCostParsed": row[2] or 0,
+        "soulCostNeedsReview": row[3] or 0,
+    }
+    for row in cost_rows
+}
+
+field_presence = {}
+for field in ("RequireSoul", "RequireLP", "MuSoul", "EarnSoulList"):
+    field_presence[field] = grouped("""
+        SELECT c.card_type, COUNT(DISTINCT f.card_id)
+        FROM cards c
+        JOIN card_fields f ON f.card_id = c.card_id
+        WHERE f.field_key = ?
+        GROUP BY c.card_type
+    """, (field,))
+
+review_tokens = {
+    row[0]: {"tokenCount": row[1], "cardsAffected": row[2]}
+    for row in con.execute("""
+        SELECT c.card_type, COUNT(*), COUNT(DISTINCT t.card_id)
+        FROM cards c
+        JOIN card_soul_cost_tokens t ON t.card_id = c.card_id
+        WHERE t.parse_status = 'manual_review'
+        GROUP BY c.card_type
+        ORDER BY c.card_type
+    """).fetchall()
+}
+
+unpacked_category_counts = {k: v for k, v in category_counts.items() if k not in EXPECTED_CATEGORIES}
+missing_or_wrong_categories = {
+    name: {"expected": expected, "actual": category_counts.get(name, 0)}
+    for name, expected in EXPECTED_CATEGORIES.items()
+    if category_counts.get(name, 0) != expected
+}
+
+result = {
+    "requiredCards": TARGET,
+    "firestoreSourceCount": crawl.get("source_count"),
+    "uniqueCards": scalar("SELECT COUNT(*) FROM cards"),
+    "duplicateIds": scalar("SELECT COUNT(*) FROM (SELECT card_id FROM cards GROUP BY card_id HAVING COUNT(*) > 1)"),
+    "missingNames": scalar("SELECT COUNT(*) FROM cards WHERE name IS NULL OR TRIM(name) = ''"),
+    "missingIndividualUrls": scalar("SELECT COUNT(*) FROM cards WHERE source_card_url IS NULL OR source_card_url = ''"),
+    "missingListUrls": scalar("SELECT COUNT(*) FROM cards WHERE source_list_url IS NULL OR source_list_url = ''"),
+    "distinctSourceFields": scalar("SELECT COUNT(DISTINCT field_key) FROM card_fields"),
+    "cardFieldRows": scalar("SELECT COUNT(*) FROM card_fields"),
+    "taxonomyRows": scalar("SELECT COUNT(*) FROM taxonomy"),
+    "cardsWithTextBase": scalar("SELECT COUNT(DISTINCT card_id) FROM card_fields WHERE field_key = 'TextBase'"),
+    "cardsWithTextExtra": scalar("SELECT COUNT(DISTINCT card_id) FROM card_fields WHERE field_key = 'TextExtra'"),
+    "cardsWithImageUrls": scalar("SELECT COUNT(DISTINCT card_id) FROM card_images WHERE source_url IS NOT NULL AND source_url <> ''"),
+    "imageRowsInDb": scalar("SELECT COUNT(*) FROM card_images"),
+    "largeImagesDownloaded": sum(x.get("status") == "downloaded" for x in large),
+    "smallImagesDownloaded": sum(x.get("status") == "downloaded" for x in small),
+    "largeImageFailures": sum(x.get("status") != "downloaded" for x in large),
+    "smallImageFailures": sum(x.get("status") != "downloaded" for x in small),
+    "largeImageManifestRows": len(large),
+    "smallImageManifestRows": len(small),
+    "largeImageBytes": sum(int(x.get("byte_size") or 0) for x in large if x.get("status") == "downloaded"),
+    "smallImageBytes": sum(int(x.get("byte_size") or 0) for x in small if x.get("status") == "downloaded"),
+    "lpKnownCards": scalar("SELECT COUNT(*) FROM card_costs WHERE lp_known = 1"),
+    "lpZeroCards": scalar("SELECT COUNT(*) FROM card_costs WHERE lp_known = 1 AND lp_value = 0"),
+    "soulCostFullyParsed": scalar("SELECT COUNT(*) FROM card_costs WHERE soul_known = 1"),
+    "soulCostNeedsReview": scalar("SELECT COUNT(*) FROM card_costs WHERE soul_known = 0"),
+    "soulCostTokens": scalar("SELECT COUNT(*) FROM card_soul_cost_tokens"),
+    "categoryCounts": category_counts,
+    "expectedCategoryCounts": EXPECTED_CATEGORIES,
+    "categoryCountMismatches": missing_or_wrong_categories,
+    "unexpectedCategories": unpacked_category_counts,
+    "soulCostByCategory": cost_by_category,
+    "manualReviewTokensByCategory": review_tokens,
+    "fieldPresenceByCategory": field_presence,
+    "crawlPages": crawl.get("pages"),
+    "crawlComplete": crawl.get("complete", False),
+}
+result["categoryTotalsMatch"] = category_counts == EXPECTED_CATEGORIES
+result["costParseAccountedFor"] = (
+    result["soulCostFullyParsed"] + result["soulCostNeedsReview"] == TARGET
 )
-Path("data/audit-report.json").write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
-print(json.dumps(result,ensure_ascii=False,indent=2));c.close();sys.exit(0 if result["complete"] else 2)
+result["complete"] = (
+    result["firestoreSourceCount"] == TARGET
+    and result["uniqueCards"] == TARGET
+    and result["duplicateIds"] == 0
+    and result["missingNames"] == 0
+    and result["missingIndividualUrls"] == 0
+    and result["missingListUrls"] == 0
+    and result["distinctSourceFields"] == 55
+    and result["taxonomyRows"] > 0
+    and result["cardsWithTextBase"] == TARGET
+    and result["cardsWithTextExtra"] == TARGET
+    and result["cardsWithImageUrls"] == TARGET
+    and result["imageRowsInDb"] == TARGET * 2
+    and result["largeImageManifestRows"] == TARGET
+    and result["smallImageManifestRows"] == TARGET
+    and result["largeImagesDownloaded"] == TARGET
+    and result["smallImagesDownloaded"] == TARGET
+    and result["largeImageFailures"] == 0
+    and result["smallImageFailures"] == 0
+    and result["lpKnownCards"] == 289
+    and result["lpZeroCards"] == 72
+    and result["costParseAccountedFor"]
+    and result["categoryTotalsMatch"]
+    and not result["unexpectedCategories"]
+    and result["crawlComplete"] is True
+)
+Path("data/audit-report.json").write_text(
+    json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+)
+print(json.dumps(result, ensure_ascii=False, indent=2))
+con.close()
+sys.exit(0 if result["complete"] else 2)
