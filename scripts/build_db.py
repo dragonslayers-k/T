@@ -110,10 +110,10 @@ with RAW.open(encoding="utf-8") as f,con:
   if isinstance(obj.get("TextBase"),str) and obj["TextBase"]:
    con.execute("INSERT INTO card_effects(card_id,effect_index,effect_text,trigger_text,duration_text) VALUES(?,?,?,?,?)",(cid,0,plain_text(obj["TextBase"]),norm("TurnType",obj.get("TurnType")),str(obj.get("Duration")) if obj.get("Duration") is not None else None))
   lp=obj.get("RequireLP");lp_known=isinstance(lp,(int,float)) and norm("RequireLP",lp) is not None;soul=parse_soul(obj.get("RequireSoul"))
-  con.execute("INSERT INTO card_costs(card_id,lp_value,lp_known,soul_json,soul_known,source_text) VALUES(?,?,?,?,?,?)",(cid,float(lp) if lp_known else None,1 if lp_known else 0,j(soul),1 if soul["known"] else 0,str(obj.get("RequireSoul")) if obj.get("RequireSoul") is not None else None))
+  cost_status="manual_review" if not soul["known"] else ("source_cross_validated" if any(t["status"]=="mapped_hybrid" for t in soul["tokens"]) else "enum_decoded")\n  con.execute("INSERT INTO card_costs(card_id,lp_value,lp_known,soul_json,soul_known,source_text,verification_status) VALUES(?,?,?,?,?,?,?)",(cid,float(lp) if lp_known else None,1 if lp_known else 0,j(soul),1 if soul["known"] else 0,str(obj.get("RequireSoul")) if obj.get("RequireSoul") is not None else None,cost_status))
   for ordinal,t in enumerate(soul["tokens"]):
    con.execute("INSERT INTO card_soul_cost_tokens(card_id,ordinal,raw_token,code,count,symbol,icon_path,normalized_color,parse_status) VALUES(?,?,?,?,?,?,?,?,?)",(cid,ordinal,t["raw"],t["code"],t["count"],t["symbol"],t["icon"],t["normalized_color"],t["status"]))
-  con.execute("INSERT INTO verification(card_id,field_key,status,evidence) VALUES(?,?,?,?)",(cid,"RequireSoul","enum_decoded" if soul["known"] else "manual_review",j(soul["tokens"])))
+  con.execute("INSERT INTO verification(card_id,field_key,status,evidence) VALUES(?,?,?,?)",(cid,"RequireSoul",cost_status,j(soul["tokens"])))
   for typ,url in (r.get("source_image_urls") or {}).items():
    if url:con.execute("INSERT INTO card_images(card_id,image_type,source_url) VALUES(?,?,?)",(cid,typ,url))
   for typ,url in [("detail",detail),("list",r.get("source_list_url") or "https://fmlunatic.com/cardlist")]:
