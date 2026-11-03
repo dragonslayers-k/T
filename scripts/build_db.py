@@ -98,6 +98,7 @@ CREATE TABLE taxonomy(taxonomy_id INTEGER PRIMARY KEY,field_key TEXT NOT NULL,so
 CREATE TABLE verification(verification_id INTEGER PRIMARY KEY,card_id TEXT NOT NULL REFERENCES cards(card_id),field_key TEXT,status TEXT NOT NULL,evidence TEXT,verified_by TEXT,verified_at TEXT);
 CREATE INDEX idx_cards_name ON cards(name);CREATE INDEX idx_cards_type ON cards(card_type);CREATE INDEX idx_fields_key ON card_fields(field_key);CREATE INDEX idx_fields_value ON card_fields(normalized_value);CREATE INDEX idx_images_card ON card_images(card_id);CREATE INDEX idx_soul_token_code ON card_soul_cost_tokens(code);
 """)
+con.execute("CREATE VIRTUAL TABLE card_search USING fts5(card_id UNINDEXED,name,card_type,attribute,card_text,additional_text,tokenize='unicode61')")
 processed=0
 with RAW.open(encoding="utf-8") as f,con:
  for line in f:
@@ -125,6 +126,11 @@ with RAW.open(encoding="utf-8") as f,con:
   for typ,url in [("detail",detail),("list",r.get("source_list_url") or "https://fmlunatic.com/cardlist")]:
    if url:con.execute("INSERT OR IGNORE INTO source_pages(card_id,page_type,url,collected_at) VALUES(?,?,?,?)",(cid,typ,url,collected))
   processed+=1
+con.execute("""INSERT INTO card_search(card_id,name,card_type,attribute,card_text,additional_text)
+ SELECT c.card_id,c.name,coalesce(c.card_type,''),coalesce(c.attribute,''),
+ coalesce((SELECT group_concat(plain_text,' ') FROM card_texts t WHERE t.card_id=c.card_id AND t.text_type='card_text'),''),
+ coalesce((SELECT group_concat(plain_text,' ') FROM card_texts t WHERE t.card_id=c.card_id AND t.text_type='additional_text'),'')
+ FROM cards c""")
 manifest=ROOT/"raw"/"image-manifest.jsonl"
 if manifest.exists():
  with manifest.open(encoding="utf-8") as f,con:
@@ -141,5 +147,5 @@ with con:
    else:label=None
    status=MANUAL_STATUS.get(field_key,"site_enum_only" if key.startswith("Enum+") else "site_ui_metadata")
    con.execute("INSERT OR IGNORE INTO taxonomy(field_key,source_value_json,normalized_value,manual_mapping_status) VALUES(?,?,?,?)",(field_key,j(item),label,status))
-print(json.dumps({"database":str(DB),"rows_processed":processed,"unique_cards":con.execute("select count(*) from cards").fetchone()[0],"fields":con.execute("select count(*) from card_fields").fetchone()[0],"taxonomy":con.execute("select count(*) from taxonomy").fetchone()[0],"images":con.execute("select count(*) from card_images").fetchone()[0],"soul_cost_fully_parsed":con.execute("select count(*) from card_costs where soul_known=1").fetchone()[0],"soul_cost_needs_review":con.execute("select count(*) from card_costs where soul_known=0").fetchone()[0],"special_semantics_review":con.execute("select count(*) from card_costs where semantic_review=1").fetchone()[0],"soul_tokens":con.execute("select count(*) from card_soul_cost_tokens").fetchone()[0]},ensure_ascii=False))
+print(json.dumps({"database":str(DB),"rows_processed":processed,"unique_cards":con.execute("select count(*) from cards").fetchone()[0],"fields":con.execute("select count(*) from card_fields").fetchone()[0],"taxonomy":con.execute("select count(*) from taxonomy").fetchone()[0],"images":con.execute("select count(*) from card_images").fetchone()[0],"soul_cost_fully_parsed":con.execute("select count(*) from card_costs where soul_known=1").fetchone()[0],"soul_cost_needs_review":con.execute("select count(*) from card_costs where soul_known=0").fetchone()[0],"special_semantics_review":con.execute("select count(*) from card_costs where semantic_review=1").fetchone()[0],"soul_tokens":con.execute("select count(*) from card_soul_cost_tokens").fetchone()[0],"search_index_rows":con.execute("select count(*) from card_search").fetchone()[0]},ensure_ascii=False))
 con.close()
