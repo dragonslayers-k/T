@@ -7,7 +7,7 @@ CATEGORY_NAMES = {"1":"Land","2":"Unit","3":"Magic","4":"Item","5":"Enchant",
                   "land":"Land","unit":"Unit","magic":"Magic","item":"Item","enchant":"Enchant"}
 DETAIL_BASE = "https://fmlunatic.com/card/"
 IMPORTANT_FIELDS = (
-    "Category","SoulType","RequireSoul","RequireLP","RareType","RareUI","Episode",
+    "Name","Category","SoulType","RequireSoul","RequireLP","RareType","RareUI","Episode",
     "RaceType","CompanyType","EtcType","UnitType","Skill1","Skill2","RankType",
     "DeckLimit","BuyGrade","EnchantSlot","ReleaseDate","TextBase","TextExtra"
 )
