@@ -275,7 +275,7 @@ jobs:
           fi
           gzip -c data/raw/cards.jsonl > data/raw/cards.jsonl.gz
           python - <<'PY'
-          import hashlib, json
+          import hashlib, json, os
           from pathlib import Path
           path=Path("data/sqlite-build-summary.json")
           summary=json.loads(path.read_text(encoding="utf-8"))
@@ -285,7 +285,7 @@ jobs:
           summary["cardsJsonlGzipSha256"]=sha("data/raw/cards.jsonl.gz")
           summary["enumtableSha256"]=sha("data/raw/enumtable.json")
           summary["imageArchivePartAaSha256"]=sha("data/images.tar.gz.part-aa")
-          summary["sourceReleaseTag"]=${{ env.SOURCE_RELEASE_TAG && 'fm1-carddb-27' }}
+          summary["sourceReleaseTag"]=os.environ.get("SOURCE_RELEASE_TAG","fm1-carddb-27")
           path.write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
           print(json.dumps({k:summary[k] for k in (
               "sqliteGzipSha256","cardsJsonlGzipSha256","enumtableSha256","imageArchivePartAaSha256"
