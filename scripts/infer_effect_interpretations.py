@@ -87,7 +87,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         flavor_text=flavor_match.group(1).strip()
         t=t[:flavor_match.start()].strip()
     compact="".join(t.split())
-    if re.fullmatch(r"[.。…\s]+",t):
+    if re.fullmatch(r"[。…\s]+",t):
         return {"classification":"punctuation_artifact","triggers":[],"actors":[],"targets":[],
                 "conditions":[],"operations":[{"kind":"punctuation_artifact","executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
@@ -108,12 +108,13 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         return {"classification":"conditional_no_effect" if condition else "no_effect_marker",
                 "triggers":[],"actors":[],"targets":[],"conditions":[condition] if condition else [],
                 "operations":[{"kind":"no_effect_condition" if condition else "no_effect_marker",
-                               "conditionText":condition or None,"executable":False}],
+                               "conditionText":condition or None,"executable":False}] +
+                              ([{"kind":"suppress_effect_when_condition","conditionText":condition,"executable":False}] if condition else []),
                 "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"no_effect_marker_v1","confidence":"medium" if condition else "not_applicable"}
     if "무속성 이벤트 마법은 이벤트 마법으로 취급됩니다" in t:
         return {"classification":"card_type_treatment_rule","triggers":[],"actors":[],"targets":[],
-                "conditions":[],"operations":[{"kind":"card_type_treatment","sourceType":"neutral_event_magic",
+                "conditions":[],"operations":[{"kind":"card_category_treatment_rule","sourceType":"neutral_event_magic",
                     "treatedAs":"event_magic","executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"neutral_event_magic_type_v1","confidence":"medium"}
