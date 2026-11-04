@@ -1177,6 +1177,58 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         ops.append({"kind":"effect_activation_requirement","conditionText":t,
                     "rawText":raw_text,"executable":False})
 
+    # Legacy FM1 action phrases that use Korean predicates rather than the
+    # modern verbs covered above. Keep them as typed, source-backed candidates;
+    # never infer execution order or arithmetic from this fallback.
+    legacy_action_verbs=[
+      r"더한다",r"빼(?:낸다|준다|버린다)",r"보낸다",r"올린다",r"내린다",
+      r"이동(?:시킨다|한다)",r"착용(?:시킨다|한다)",r"투여한다",r"부여한다",
+      r"갖게s*된다",r"가지게s*된다",r"얻게s*된다",r"얻는다",
+      r"변(?:한다|하게s*된다)",r"바뀐다",r"고정(?:된다|시킨다|한다)",
+      r"증가(?:한다|시킨다)",r"감소(?:한다|시킨다)",r"상향고정",
+      r"제거한다",r"파괴한다",r"전환한다",r"회복한다",r"생성한다",
+      r"분배한다",r"나눈다",r"나누어s*준다",r"합산한다",
+      r"동일(?:해진다|하게s*된다)",r"같아진다",r"같게s*만든다",
+      r"효과가s*발생",r"효과s*발동",r"발동s*안함"
+    ]
+    has_legacy_action=any(re.search(p,t) for p in legacy_action_verbs)
+    has_game_subject=bool(re.search(
+      r"아군|적군|상대|유닛|필드|핸드|덱|슬롯|마법|아이템|장비|기술|능력|AP|DP|HP|공체|공방체|킬수|레벨|카운터|LP",
+      t,re.I))
+    if has_legacy_action and has_game_subject:
+        # Capture the broad operation family while retaining the complete clause.
+        if re.search(r"(?:AP|DP|HP|공체|공방체|공격력|방어력|체력).{0,35}(?:더한다|증가|감소|상향|고정|같아진다|된다)|(?:공체|공방체)s*[+-]s*d+",t):
+            ops.append({"kind":"legacy_combat_stat_operation_candidate",
+                        "stats":_stat_refs(t),"rawText":raw_text,"executable":False})
+        if re.search(r"덱|핸드|필드.{0,15}(?:보낸다|올린다|이동|옮긴다)|(?:보낸다|올린다).{0,15}(?:덱|핸드|필드)",t):
+            ops.append({"kind":"legacy_card_movement_candidate",
+                        "destinationText":t,"rawText":raw_text,"executable":False})
+        if re.search(r"기술.{0,20}(?:투여|부여|갖게|가지게)|(?:공격기술|방어기술|특수기술)",t):
+            ops.append({"kind":"legacy_skill_grant_or_reference_candidate",
+                        "skillText":t,"rawText":raw_text,"executable":False})
+        if re.search(r"(?:능력|종족|상태|카드).{0,20}(?:변|바뀌|전환|된다|시킨다)",t):
+            ops.append({"kind":"legacy_card_or_ability_transform_candidate",
+                        "transformationText":t,"rawText":raw_text,"executable":False})
+        if not ops:
+            ops.append({"kind":"generic_effect_operation","actionText":t,
+                        "rawText":raw_text,"executable":False})
+
+    # A list of proper card names or ability labels is not a free-form effect.
+    if not ops and (re.fullmatch(r"\([^()]{2,}\)",t) and re.search(r"[,、]",t)
+                    or re.fullmatch(r"(?:[가-힣A-Za-z0-9]+\s*[-/]\s*)+[가-힣A-Za-z0-9]+[.]?",t)):
+        return {"classification":"card_reference_list","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"related_card_or_ability_reference","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"legacy_reference_list_v1","confidence":"not_applicable"}
+    if not ops and re.search(r"(?:공격기술|방어기술|특수기술|攻擊技術|방어s*기술)",t):
+        return {"classification":"named_ability_reference_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[],
+                "operations":[{"kind":"ability_name_reference_candidate","name":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"legacy_ability_label_v1","confidence":"medium"}
+
     # Card-to-card conditions and ranges are kept separately from effect operations.
     for pat in [
       r"\d+\s*(?:~|-|∼)\s*\d+\s*(?:레벨|턴|킬|장|개)",
