@@ -53,3 +53,34 @@ The same source extract contains one genuine global-rule conflict: `gamerule.htm
 - Do not rerun the full DB29 audit merely to reproduce the same counts.
 - The next full audit should occur only after a substantive batch of source-backed decisions or parser changes is ready; it will then produce a per-domain delta from #432.
 - Do not merge PR #9 into main, publish DB30, or change immutable Release `fm1-carddb-29` as part of this work.
+
+
+## Full-audit measurements after parser work
+
+### Actions #435 — first source-note pass
+- Run: https://github.com/dragonslayers-k/T/actions/runs/41828854741
+- Low-confidence effect rows/patterns: 206 → 150.
+- Reduction: 56.
+- Other baseline counts unchanged: name-only skills 26; hybrid soul 52; special soul 779; manual conflicts 1.
+
+### Actions #437 — second rule-note and legacy-action pass
+- Run: https://github.com/dragonslayers-k/T/actions/runs/41829985712
+- Low-confidence effect rows/patterns: 206 → 86.
+- Reduction: 120 (58.3%).
+- Breakdown at #437: 8 conditional/reference candidates, 78 unparsed effect-text candidates.
+- Other baseline counts unchanged: name-only skills 26; hybrid soul 52; special soul 779; manual conflicts 1.
+
+### Actions #444 — latest full audit
+- Run: https://github.com/dragonslayers-k/T/actions/runs/41831469993
+- Low-confidence effect rows/patterns: 206 → 67.
+- Reduction: 139 (67.5%).
+- Breakdown at #444: 8 conditional/reference candidates, 59 unparsed effect-text candidates.
+- Name-only low-confidence skills: 26 (unchanged).
+- Hybrid soul payment rules: 52 (unchanged).
+- NCS/BONUS special-soul semantics: 779 (unchanged).
+- Manual rule conflicts: 1 (unchanged).
+- Manual engine verification pending: 42 (27 manual skill rules + 15 global rules).
+- Structural gates, image validation (30,700/30,700), SQLite integrity and FK checks passed.
+- Release publication was skipped; DB29 remains immutable.
+
+The effect count reduction reflects source-marker, metadata, calculation/scope-note, named-ability-reference and legacy-action candidate classification. It does not make those candidates executable. The remaining 67 must be reviewed against their original card IDs, full text and source pages; the 59 unparsed candidates include genuine formula-heavy effects and must not be hidden by generic metadata classification.
