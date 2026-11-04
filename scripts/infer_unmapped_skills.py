@@ -36,7 +36,7 @@ def is_effect_definition_body(body):
     grant_lore = re.match(r"^(?:기술부여|기술을\s*부여)\s*[\[【](.*?)[\]】]$", value)
     if grant_lore:
         lore = grant_lore.group(1)
-        return bool(EFFECT_DEFINITION_SIGNAL.sub("", lore).strip())
+        return bool(EFFECT_DEFINITION_SIGNAL.search(lore))
     return bool(EFFECT_DEFINITION_SIGNAL.search(value))
 
 
