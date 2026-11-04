@@ -165,12 +165,18 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "inferenceMethod":"numeric_range_reference_v1","confidence":"medium"}
     if re.match(r"^(?:[^:：]{2,40})\s*[:：]\s*(?:[^:：]{2,40})[.]?$",t):
         label,body=re.split(r"[:：]",t,maxsplit=1)
-        if not re.search(r"(?:AP|DP|HP|LP|공격|방어|증가|감소|부여|발동|파괴|소환|이동|회복|상태|턴|레벨|소울|데미지)",body):
+        label_key=label.strip(" *")
+        explicit_reference_label=(
+            "S(" in label_key
+            or label_key in {"무","다이아몬드","루비","깊은동굴3","아이템별 대상 능력",
+                              "피닉스의알","티라노의알","균열의방관자","균형의수호자"}
+        )
+        if explicit_reference_label and not re.search(r"(?:AP|DP|HP|LP|공격|방어|증가|감소|부여|발동|파괴|소환|이동|회복|상태|턴|레벨|소울|데미지|대미지)",body):
             return {"classification":"card_or_named_reference_candidate","triggers":[],"actors":[],
                     "targets":["card_or_named_reference"],"conditions":[],
-                    "operations":[{"kind":"label_value_reference","label":label.strip(" *"),"value":body.strip(" .。"),"executable":False}],
+                    "operations":[{"kind":"label_value_reference","label":label_key,"value":body.strip(" .。"),"executable":False}],
                     "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
-                    "inferenceMethod":"label_value_reference_v1","confidence":"medium"}
+                    "inferenceMethod":"label_value_reference_v2","confidence":"medium"}
     if (re.search(r"(?:필요|없으면|없어도 발동|발동하지|발동안함|존재시 발동|최소\s*\d+레벨|조건에 충족)",t)
             and not re.search(r"(?:증가|감소|부여|파괴|소환|이동|회복|데미지)",t)):
         return {"classification":"effect_activation_requirement","triggers":[],"actors":[],
@@ -691,7 +697,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "inferenceMethod":"element_or_type_relation_v1","confidence":"not_applicable"}
 
     # Rarity/gemstone tables and category bonuses are metadata or reference values.
-    if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜|에메랄드|토파즈|탄자나이트)(?:\s*[,/、]\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜))*\s*[:：]",t):
+    if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|레전드|아레나|이벤트|스페셜|에메랄드|토파즈|탄자나이트)(?:\s*[,/、]\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|레전드|아레나|이벤트|스페셜))*\s*[:：]",t):
         return {"classification":"rarity_or_category_reference","triggers":[],
                 "actors":[],"targets":[],"conditions":[],
                 "operations":[{"kind":"rarity_or_category_mapping","rawText":raw_text,
