@@ -876,29 +876,29 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     conditions=[]
     # Card-local annotation rules discovered in the 67-row audit queue.
     # Preserve exact formulas/conditions as non-executable candidates.
-    hero_power=re.search(r"(파이어|워터|포레스트|랜드|세인트|다크|메탈)파워\\s*히어로\\s*\\+\\s*(\\d+)",t)
+    hero_power=re.search(r"(파이어|워터|포레스트|랜드|세인트|다크|메탈)파워\s*히어로\s*\+\s*(\d+)",t)
     if hero_power:
         ops.append({"kind":"modify_hero_power","power":hero_power.group(1).lower(),
                     "operator":"+","value":int(hero_power.group(2)),
                     "rawText":raw_text,"executable":False})
-    if re.search(r"마법\\s*대상\\s*\\+\\s*\\d+",t):
-        m=re.search(r"마법\\s*대상\\s*\\+\\s*(\\d+)",t)
+    if re.search(r"마법\s*대상\s*\+\s*\d+",t):
+        m=re.search(r"마법\s*대상\s*\+\s*(\d+)",t)
         ops.append({"kind":"modify_spell_target_count","operator":"+",
                     "value":int(m.group(1)),"conditionText":t,
                     "rawText":raw_text,"executable":False})
-    grouped_delta=re.search(r"(공방체|공체|공방)\\s*([+-])\\s*(\\d+)",t)
+    grouped_delta=re.search(r"(공방체|공체|공방)\s*([+-])\s*(\d+)",t)
     if grouped_delta:
         group={"공방체":["ap","dp","hp"],"공체":["ap","hp"],"공방":["ap","dp"]}[grouped_delta.group(1)]
         ops.append({"kind":"modify_combat_stats","stats":group,
                     "operator":grouped_delta.group(2),"value":int(grouped_delta.group(3)),
                     "rawText":raw_text,"executable":False})
-    if re.search(r"HP\\s*[-+]\\s*(?:전투\\s*필드|필드)",t):
+    if re.search(r"HP\s*[-+]\s*(?:전투\s*필드|필드)",t):
         ops.append({"kind":"formula_based_stat_change","stat":"hp",
                     "formulaText":t,"rawText":raw_text,"executable":False})
-    if re.search(r"같은\\s*레벨\\s*카드\\s*수.{0,30}(?:동일|같으면)",t):
+    if re.search(r"같은\s*레벨\s*카드\s*수.{0,30}(?:동일|같으면)",t):
         ops.append({"kind":"level_count_tie_break_rule_candidate",
                     "selectionText":t,"rawText":raw_text,"executable":False})
-    if re.search(r"(?:레벨|슬롯\\s*유닛|능력).{0,25}따라\\s*다른\\s*효과",t):
+    if re.search(r"(?:레벨|슬롯\s*유닛|능력).{0,25}따라\s*다른\s*효과",t):
         ops.append({"kind":"conditional_effect_branch_reference",
                     "conditionText":t,"rawText":raw_text,"executable":False})
     if re.search(r"(?:효과|발동).{0,20}(?:조건|경우|이면|일 경우)",t) and not ops:
