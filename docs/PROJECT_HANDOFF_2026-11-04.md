@@ -358,3 +358,84 @@
 - DB29와 Release 29를 변경하지 않는다.
 - DB30 발행과 PR #9 병합은 사용자 승인 전 금지한다.
 - Actions를 반복 실행하기 전에 실질적인 코드/데이터 변화가 있는지 먼저 확인한다.
+
+
+---
+
+## 16. 2026-11-04 후속 업데이트 — #446 및 #453
+
+### #446 전체 감사 결과 (기준 릴리스 DB29, 성공)
+
+- Run: https://github.com/dragonslayers-k/T/actions/runs/41833627301
+- Commit: `3e617e51c0f364659b01c6114f444ce34dd81575`
+- 전체 경량 회귀 테스트: 성공
+- DB29 다운로드, 원본 필드 감사, 30,700 이미지 감사, SQLite 재구축, 갭 리포트, 비용/스킬 커버리지, backlog 비교, DB 무결성: 모두 성공
+- 새 Release 발행: skipped
+- 새 크롤링/probe/이미지 다운로드: skipped
+
+#446 실제 의미 검토 지표:
+| 항목 | #432 기준 | #444 | #446 |
+|---|---:|---:|---:|
+| 저신뢰 효과 | 206 | 67 | 53 |
+| 조건/참조 후보 | - | 8 | 8 |
+| 미해석 효과 문구 | - | 59 | 45 |
+| 이름 기반 저신뢰 스킬 | 26 | 26 | 26 |
+| 하이브리드 소울 | 52 | 52 | 52 |
+| NCS/BONUS 특수 소울 | 779 | 779 | 779 |
+| 매뉴얼 규칙 충돌 | 1 | 1 | 1 |
+| 엔진 검증 대기 | 42 | 42 | 42 |
+
+#446은 #432 대비 효과 저신뢰 153건 감소를 기록했고 backlog progress 상태는 `progress`다. 감소량은 정확성 증명이 아니므로 source evidence와 분류 이동을 확인해야 한다.
+
+#446 산출물:
+- Semantic progress artifact ID: `13323772511`
+- Full audit artifact ID: `13323557759`
+- Semantic review artifact ID: `13323447745`
+
+### #446 이후 추가로 검토한 잔여 53개
+
+#446의 53개 패턴에는 다음이 포함된다.
+- AP1 이상 공격 후 3턴 지속 조건의 미완성 문구
+- CWDA! 같은 미해석 단문/토큰
+- 마레마(3카운터) 카드/상태 표기
+- 독 종족 카드 범위에 특정 카드가 포함된다는 주석
+- 카드 제외/등급/에피소드/덱 사용량 제한
+- 통찰 섀도우스킬/A변환 섀도우쉬프트 참조
+- 카드 번호 기준으로 상태를 판정한다는 범위 설명
+- 순화능력 부여 조건
+- 레벨/능력에 따른 분기
+- HP 공식 및 전투 필드 공간 수 계산
+- 카드 진행 순서/카드 쌍/아이템·인첸트 구성 참조
+- 능력치 벡터/등급/상성 참조
+
+이 중 명확한 참조·메타데이터와 구조화 가능한 효과 후보를 더 분리했다. 의미가 불명확한 CWDA!, 미완성 조건문 등은 억지로 해석하지 않고 잔여 검토에 둔다.
+
+### #446 이후 parser/test 변경
+
+추가 후보:
+- `name_diversity_condition_candidate`
+- `conditional_effect_branch_reference`
+- `card_identity_scope_rule_candidate`
+- `grant_named_ability_candidate`
+- `suppress_effect_under_condition`
+- `named_ability_reference_candidate`
+- `card_progression_reference`
+- `related_card_pair_reference`
+- `card_requirement_reference`
+- `named_ability_stat_reference`
+
+또한 카드 목록/메타데이터 패턴을 보강하고, ▲/▼/★ 표식이 포함된 stat vector를 원문 값으로 보존하도록 처리했다. 모든 연산 후보는 실행 가능 상태로 승격하지 않는다.
+
+### 회귀 테스트 결과
+
+- #445: #444 이후 첫 보완 테스트 성공.
+- #449: regex escape 문제로 실패. 수정함.
+- #451: no-effect 문구와 stat-vector 기대값 두 건 실패.
+- #452: no-effect 문구는 수정됐으나 stat-vector 테스트 기대값이 이전 classification을 참조해 실패.
+- #453: 최종 수정 후 전체 경량 회귀 테스트 성공.
+- #453 Run: https://github.com/dragonslayers-k/T/actions/runs/41835294583
+- #453 commit: `4ade774e06713e7fbef123acce4ba378daceb0e9`
+
+### 다음 실행
+
+최신 parser/test 변경 묶음은 #453에서 경량 테스트를 통과했다. 다음에는 동일 DB29에 대해 전체 감사를 한 번 실행하여 53개가 실제로 얼마나 감소했는지, 분류 이동이 원문에 맞는지 확인한다. DB29 유지, Release 발행 금지, PR #9 미병합 원칙은 동일하다.
