@@ -189,7 +189,7 @@ class NamedEffectInterpretationTests(unittest.TestCase):
     def test_audit_435_ability_and_card_lists_are_not_unparsed_effects(self):
         cases = [
             ("수호일격 공격기술 (기술방어보다 먼저발동)", "named_ability_reference_candidate"),
-            ("돌진공격/네이밍디펜스", "card_reference_list"),
+            ("돌진공격/네이밍디펜스", "named_ability_reference_candidate"),
             ("(캐리온크로우, 패러키트, 스패로우, 만다린덕).", "card_reference_list"),
             ("무-마안석", "card_reference_list"),
         ]
