@@ -133,6 +133,7 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             # Inferred playable rule: a hybrid orb requires both component colors.
             token_result["status"] = "inferred_hybrid_both_colors"
             token_result["inference"] = "hybrid_code_components_each_required"
+            result["mapping_review"] = True
         elif code in SPECIAL_SOUL_CODES:
             color = SPECIAL_SOUL_CODES[code]
             # Inferred playable rule: NCS/BONUS count as flexible neutral souls.
@@ -140,6 +141,7 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             token_result["normalized_color"] = "neutral"
             token_result["status"] = "inferred_flexible_neutral"
             token_result["inference"] = "special_soul_as_flexible_neutral"
+            result["semantic_review"] = True
         else:
             known = False
             result["error_reason"] = "unsupported_token_" + code
