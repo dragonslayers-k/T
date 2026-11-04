@@ -59,62 +59,14 @@
         "description": "매뉴얼의 요약 규칙은 LP 수만큼 배치를 허용하지만 상세 준비 단계는 턴당 1장으로 기술한다. 충돌을 보존하고 실행 규칙은 보류한다.",
         "summaryRule": "LP 수만큼 배치, 최대 10장",
         "detailRule": "턴당 1장",
-        "resolution": "unresolved_manual_conflict",
-        "sourceConflicts": [
-          {
-            "statement": "지형은 LP의 수만큼 내려놓을 수 있다. 그리고 최대 10장까지만 내려놓을 수 있다.",
-            "source": {
-              "kind": "dropbox_manual",
-              "path": "/판마/Manual.zip",
-              "revision": "65f348bcc93d60972fdd5",
-              "modifiedAt": "2026-11-01T09:14:00Z",
-              "member": "gamerule.htm",
-              "section": "6-(f). 게임진행룰"
-            }
-          },
-          {
-            "statement": "지형 카드는 1턴에 1장 밖에 내려놓을 수 없습니다.",
-            "source": {
-              "kind": "dropbox_manual",
-              "path": "/판마/Manual.zip",
-              "revision": "65f348bcc93d60972fdd5",
-              "modifiedAt": "2026-11-01T09:14:00Z",
-              "member": "ready.htm",
-              "section": "7-(b). 준비단계"
-            }
-          }
-        ]
+        "resolution": "unresolved_manual_conflict"
       },
       "definition": {
         "kind": "terrain_placement_limit",
         "description": "매뉴얼의 요약 규칙은 LP 수만큼 배치를 허용하지만 상세 준비 단계는 턴당 1장으로 기술한다. 충돌을 보존하고 실행 규칙은 보류한다.",
         "summaryRule": "LP 수만큼 배치, 최대 10장",
         "detailRule": "턴당 1장",
-        "resolution": "unresolved_manual_conflict",
-        "sourceConflicts": [
-          {
-            "statement": "지형은 LP의 수만큼 내려놓을 수 있다. 그리고 최대 10장까지만 내려놓을 수 있다.",
-            "source": {
-              "kind": "dropbox_manual",
-              "path": "/판마/Manual.zip",
-              "revision": "65f348bcc93d60972fdd5",
-              "modifiedAt": "2026-11-01T09:14:00Z",
-              "member": "gamerule.htm",
-              "section": "6-(f). 게임진행룰"
-            }
-          },
-          {
-            "statement": "지형 카드는 1턴에 1장 밖에 내려놓을 수 없습니다.",
-            "source": {
-              "kind": "dropbox_manual",
-              "path": "/판마/Manual.zip",
-              "revision": "65f348bcc93d60972fdd5",
-              "modifiedAt": "2026-11-01T09:14:00Z",
-              "member": "ready.htm",
-              "section": "7-(b). 준비단계"
-            }
-          }
-        ]
+        "resolution": "unresolved_manual_conflict"
       },
       "exceptions": [],
       "source": {
@@ -125,7 +77,30 @@
         "member": "gamerule.htm",
         "section": "6-(f). 게임진행룰"
       },
-      "sourceConflicts": []
+      "sourceConflicts": [
+        {
+          "statement": "지형은 LP의 수만큼 내려놓을 수 있다. 그리고 최대 10장까지만 내려놓을 수 있다.",
+          "source": {
+            "kind": "dropbox_manual",
+            "path": "/판마/Manual.zip",
+            "revision": "65f348bcc93d60972fdd5",
+            "modifiedAt": "2026-11-01T09:14:00Z",
+            "member": "gamerule.htm",
+            "section": "6-(f). 게임진행룰"
+          }
+        },
+        {
+          "statement": "지형 카드는 1턴에 1장 밖에 내려놓을 수 없습니다.",
+          "source": {
+            "kind": "dropbox_manual",
+            "path": "/판마/Manual.zip",
+            "revision": "65f348bcc93d60972fdd5",
+            "modifiedAt": "2026-11-01T09:14:00Z",
+            "member": "ready.htm",
+            "section": "7-(b). 준비단계"
+          }
+        }
+      ]
     },
     {
       "id": "unit_neutral_soul_summon",
