@@ -114,6 +114,16 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         flavor_text=flavor_match.group(1).strip()
         t=t[:flavor_match.start()].strip()
     compact="".join(t.split())
+    if not t:
+        return {"classification":"source_marker_only","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"source_marker_only","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_marker_only_v1","confidence":"not_applicable"}
+    if re.fullmatch(r"[-–—_]{5,}",t):
+        return {"classification":"source_separator","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"source_separator","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_separator_v1","confidence":"not_applicable"}
     if t in {".","..","..."}:
         return {"classification":"source_placeholder","triggers":[],"actors":[],"targets":[],
                 "conditions":[],"operations":[{"kind":"source_placeholder","executable":False}],
@@ -456,6 +466,51 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                         "entries":[{"label":x,"cardIds":known_cards["".join(x.split())]} for x in card_list],
                         "executable":False}],"numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                     "inferenceMethod":"known_card_list_link_v1","confidence":"medium"}
+
+    # Source-linked rule notes in the #432 queue. These are explanatory constraints,
+    # calculation conventions, or target scopes; preserve them as non-executable candidates.
+    calculation_note_patterns=[
+      r"^나눈 값의 나머지는 내림합니다[.]?$",
+      r"^내림처리[.]?$",
+      r"^소수점 이하 자리수 반올림[.]?$",
+      r"^.*소수점 이하 값이 있을 경우 올림으로 처리합니다[.]?$",
+      r"^게임 룰이 덱이면 덱으로 체크, 라이프면 라이프 차이로 체크[.]?$",
+      r"^단, 조건은 필드 앞번호부터 .+의 레벨만 합[.]?$",
+      r"^일반 지형카드의 레벨은 1로 체크합니다[.]?$",
+      r"^슬롯 번호가 1이면 1, 2면 2[.]?$",
+      r"^레벨은 모두 1레벨[.]?$",
+      r"^.*핸드 카드 수와 자신의 레벨 차이로 계산됩니다[.]?$",
+      r"^.*핸드 유닛에 착용된 아이템 수도 포함[.]?$",
+      r"^.*아군 필드 마법은 .*카드 레벨 합입니다[.]?$",
+      r"^.*마법 자신의 레벨도 체크합니다[.]?$",
+      r"^.*아군 핸드/필드 카드 중 같은레벨카드 수가 동일하면, 더 높은 레벨로 체크합니다[.]?$",
+    ]
+    if any(re.search(p,t) for p in calculation_note_patterns):
+        return {"classification":"calculation_or_counting_rule_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"calculation_or_counting_rule","rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_calculation_note_v1","confidence":"medium"}
+
+    scope_note_patterns=[
+      r"^.*적군 전체를 대상으로 하는 마법입니다[.]?$",
+      r"^.*배틀필드에 있는 카드는 해당 효과 대상에서 제외됩니다[.]?$",
+      r"^.*유닛 크레바스만 효과에 포함됩니다[.]?$",
+      r"^.*에카마엘 지형은 에카마엘 상태나 마법의 대상이 됩니다[.]?$",
+      r"^.*적 필드 마법부터 체크하고, 적 필드에 마법이 없는 경우에 핸드를 체크[.]?$",
+      r"^.*아군 핸드 좌측부터의 빈공간이 대칭으로 적 필드 유닛의 대상이 되게 됩니다[.]?$",
+      r"^.*마법 발동 실패시 후속 효과도 발동 되지 않습니다[.]?$",
+      r"^.*상대 유닛 AP/DP가 0 이하로 내려가지 않습니다[.]?$",
+      r"^.*매직랜드는 매직랜드 고유값으로 판별됩니다[.]?$",
+    ]
+    if any(re.search(p,t) for p in scope_note_patterns):
+        return {"classification":"target_or_resolution_rule_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"target_or_resolution_constraint","rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_scope_note_v1","confidence":"medium"}
 
     # Source notes, credits, collection restrictions and headings are not game effects.
     metadata_patterns=[
