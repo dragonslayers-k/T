@@ -24,6 +24,23 @@ class NamedEffectInterpretationTests(unittest.TestCase):
         self.assertIn("1. 상태 적용시", by_name["운명의퍼즐"]["definition_text"])
         self.assertEqual(by_name["디스히어로"]["verification_status"], "source_text_extracted")
 
+    def test_named_effect_extractor_rejects_count_date_example_and_prose_labels(self):
+        raw = json.dumps(
+            "▶ 0개 : 효과없음<br>"
+            "▶ 1장 : 카드 한 장<br>"
+            "▶ 1~2 레벨 : 하급 상태<br>"
+            "▶ 2014-06-19 12 : 공지사항<br>"
+            "▶ EX) 아군 필드 유닛1이 빛속성이면 : 조건 예시<br>"
+            "▶ 해당 유닛은 소환시 하급 상태가 부여됩니다 : 설명<br>"
+            "★ 거대화 상태 : 레벨+3, AP×2 / HP×2<br>"
+            "▶ 1차강화능력 : 핸드에서 소각장으로 버리면 무소울 1 생성"
+        )
+        rows = extract_named_effect_definitions("c2", "테스트 카드", raw)
+        self.assertEqual(
+            {row["effect_name"] for row in rows},
+            {"거대화 상태", "1차강화능력"},
+        )
+
     def test_named_effect_reference_resolves_to_source_definition(self):
         definitions = {
             normalize_effect_name("디스히어로"): [
