@@ -19,6 +19,10 @@ class ManualSpecialAbilitySourceIntegrityTests(unittest.TestCase):
             and rule.get("source", {}).get("member") == "specialability.htm"
         ]
 
+    @staticmethod
+    def norm(value):
+        return re.sub(r"\s+", "", value).replace("·", "").replace("ㆍ", "")
+
     def test_source_snapshot_has_exact_27_numbered_skill_sections(self):
         headings = re.findall(r"(?m)^\s*(\d+)\.\s*([^\n]+)", self.source_text)
         self.assertEqual([int(number) for number, _ in headings], list(range(1, 28)))
@@ -48,14 +52,11 @@ class ManualSpecialAbilitySourceIntegrityTests(unittest.TestCase):
         self.assertTrue(all(rule.get("playableByDefault") is False for rule in non_manual))
 
     def test_each_numbered_manual_heading_resolves_to_exactly_one_catalogue_rule(self):
-        headings = re.findall(r"(?m)^\\s*(\\d+)\\.\\s*([^\\n]+)", self.source_text)
-        def norm(value):
-            return re.sub(r"\\s+", "", value).replace("·", "").replace("ㆍ", "")
-
+        headings = re.findall(r"(?m)^\s*(\d+)\.\s*([^\n]+)", self.source_text)
         for number, heading in headings:
             matches = [
                 rule for rule in self.manual_skills
-                if any(norm(alias) == norm(heading.strip()) for alias in [rule["name"], *rule["aliases"]])
+                if any(self.norm(alias) == self.norm(heading.strip()) for alias in [rule["name"], *rule["aliases"]])
             ]
             with self.subTest(section=number, heading=heading.strip()):
                 self.assertEqual(len(matches), 1, f"heading should map uniquely: {heading}")
@@ -64,7 +65,7 @@ class ManualSpecialAbilitySourceIntegrityTests(unittest.TestCase):
         aliases = {}
         for rule in self.manual_skills:
             for alias in [rule["name"], *rule["aliases"]]:
-                key = re.sub(r"\\s+", "", alias).replace("·", "").replace("ㆍ", "")
+                key = self.norm(alias)
                 previous = aliases.get(key)
                 self.assertTrue(previous is None or previous == rule["id"], f"duplicate alias {alias}: {previous}, {rule['id']}")
                 aliases[key] = rule["id"]
