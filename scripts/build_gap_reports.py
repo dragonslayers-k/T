@@ -304,6 +304,24 @@ def build(db_path: Path, out_dir: Path):
         for r in community_skills:
             f.write(json.dumps(r,ensure_ascii=False)+"\n")
 
+    named_effect_definitions=[]
+    try:
+        for r in db.execute("""SELECT definition_id,source_card_id,source_card_name,source_field,marker,
+            effect_name,definition_text,source_text_sha256,extraction_method,verification_status
+            FROM card_named_effect_definitions ORDER BY effect_name,source_card_id,definition_id"""):
+            named_effect_definitions.append(dict(r))
+    except sqlite3.OperationalError:
+        named_effect_definitions=[]
+    with (out_dir/"named-effect-definition-index.jsonl").open("w",encoding="utf-8") as f:
+        for row in named_effect_definitions:
+            f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    named_effect_reference_rows=0
+    try:
+        named_effect_reference_rows=db.execute("""SELECT COUNT(*) FROM card_effect_interpretations
+            WHERE json_extract(interpretation_json,'$.classification')='named_effect_reference'""").fetchone()[0]
+    except sqlite3.OperationalError:
+        named_effect_reference_rows=0
+
     effects=[]
     for r in db.execute("""
       SELECT i.card_id,c.name,c.card_type,cl.clause_index,cl.segment_text,
@@ -376,8 +394,11 @@ def build(db_path: Path, out_dir: Path):
       "low_confidence_effect_interpretations":sum(1 for r in effects if r["confidence"]=="low"),
       "effect_low_confidence_unique_patterns":len(effect_groups),
       "effect_review_queue_patterns":len(effect_review_queue),
+      "named_effect_definition_rows":len(named_effect_definitions),
+      "named_effect_definition_unique_names":len({x["effect_name"] for x in named_effect_definitions}),
+      "named_effect_reference_rows":named_effect_reference_rows,
       "effect_low_confidence_classification_counts":effect_classes,
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-scope-report.jsonl","field-applicability-scope-report.csv"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-scope-report.jsonl","field-applicability-scope-report.csv","named-effect-definition-index.jsonl"]
     }
     for r in field_rows:
         summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
