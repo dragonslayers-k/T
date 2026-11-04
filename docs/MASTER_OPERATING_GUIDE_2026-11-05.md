@@ -301,3 +301,19 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - #133에서 확인된 이벤트 순서: 방어 유닛이 파괴되는 공격은 `unit_destroyed`가 먼저, `unit_attack_resolved`가 뒤에 큐에 기록된다. 직접 공격은 유닛 대상 없이 attack-resolved 이벤트를 기록한다.
 - PR #28은 최신 검증 SHA `52dcca2167b5fadc977c0eef30ccd2994ca481de`에서 Actions #133 성공, open/draft/unmerged. 선택형 DB29 data pack build와 emulator는 이 run에서 skipped였으므로 실제 카드팩/에뮬레이터 통합은 별도 검증 대상으로 남는다.
 - 다음 엔진 단계는 이벤트 subscriber/dispatcher의 fail-closed 등록 계약과 중복 등록/순서/격리 테스트다. 카드 효과 실행은 해당 카드의 승인된 mapping/authority/execution tuple을 만족할 때만 연결한다.
+
+
+## Skill1 A35 누적 반영 (2026-11-05)
+
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a35-2026-11-05.md`.
+- 범위: Skill1 빈도순 302~311위 10개 후보 그룹. 괴팍한수집욕, 구원자의인정, 군주의위엄, 궁극의무기, 궁극의방어구, 권능, 그레이브파워, 그린그로우, 그린랜드, 그린코인토스.
+- A35: **10 후보 행 / 12 원문 발췌 / 12 정확 문구 변형**. 그레이브파워(다브노자에, 13010226605)는 후보 ID/라벨만 확인됐고 원문 발췌 0건으로 기록했다.
+- A1~A35 누계: **2,258 후보 행 / 2,295 원문 발췌 / 539 정확 문구 변형**.
+- 모든 원문 미확보/조건 미확정 후보는 pending/non_executable. 히어로 카운터와 능력 사용, 카드 이동/복사/생성, 코인 영구/임시 변경은 별도 규칙으로 검증한다.
+
+## APK event dispatcher 단계 착수
+
+- `createCombatEventDispatcher`를 추가해 이벤트별 subscriber 등록, 큐 drain 후 dispatch, 등록 순서 보존, handler별 event snapshot 격리를 지원한다.
+- 등록 gate는 임의의 `verified=true`가 아니라 기존 규칙 catalog의 허용 ID와 상태 tuple을 함께 확인한다: Skill1은 `manual_verified + manual + known Manual rule ID`, Skill2는 `source_card_verified + card_source + source-card-rule-implemented + known Skill2 rule ID`만 허용한다. community candidate/unknown ID는 거부한다.
+- 테스트는 candidate/unknown 등록 거부, 두 권한 채널의 정상 등록, 중복 구독 거부, 순서/sequence 보존, handler event 변형이 원본 이벤트에 전파되지 않음을 확인한다.
+- 이 단계는 subscriber infrastructure다. 아직 신규 카드 효과 handler를 등록하지 않았고 기존 공격 로직과 중복 실행하지 않는다. Actions #135 검증 중이므로 성공 전까지 통과로 보고하지 않는다.
