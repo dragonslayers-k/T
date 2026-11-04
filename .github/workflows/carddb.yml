@@ -313,6 +313,13 @@ jobs:
           manual_rule_count = db.execute(
               "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='manual'"
           ).fetchone()[0]
+          manual_skill_rule_count = db.execute(
+              "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='manual' AND source_references_json LIKE '%specialability.htm%'"
+          ).fetchone()[0]
+          manual_global_rule_count = manual_rule_count - manual_skill_rule_count
+          manual_rule_conflict_count = db.execute(
+              "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='manual' AND verification_status='manual_conflict'"
+          ).fetchone()[0]
           community_rule_count = db.execute(
               "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='community'"
           ).fetchone()[0]
@@ -375,6 +382,9 @@ jobs:
               "effectSeparatorRows": effect_separators,
               "effectSpanIntegrityErrors": effect_span_errors,
               "manualRuleCount": manual_rule_count,
+              "manualSkillRuleCount": manual_skill_rule_count,
+              "manualGlobalRuleCount": manual_global_rule_count,
+              "manualRuleConflictCount": manual_rule_conflict_count,
               "communityRuleCandidateCount": community_rule_count,
               "cardRuleMappingRows": card_rule_mapping_rows,
               "manualSkillMappingRows": manual_skill_mappings,
@@ -411,7 +421,9 @@ jobs:
               or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000
               or effect_candidate_rows != texts or effect_clause_rows < effect_candidate_rows
               or effect_span_errors != 0 or source_pages != 30700
-              or manual_rule_count != 27 or community_rule_count < 41
+              or manual_rule_count != 42 or manual_skill_rule_count != 27
+              or manual_global_rule_count != 15 or manual_rule_conflict_count != 1
+              or community_rule_count < 41
               or card_rule_mapping_rows < 15000 or manual_skill_mappings < 1000
               or community_skill_candidates < 100 or skill_inventory_rows < 100
               or community_playable_rows != 0 or unmapped_skill_rows != 0
@@ -465,6 +477,8 @@ jobs:
           cp data/sqlite-build-summary.json release-payload/
           cp data/effect-pattern-inventory.json release-payload/
           cp data/rules/fm1-skill-catalog-v1.json release-payload/
+          cp data/rules/fm1-global-gameplay-catalog-v1.json release-payload/
+          cp data/rules/manual-global-gameplay-source.txt release-payload/
           cp data/images.tar.gz.part-* release-payload/
 
       - name: Verify that the requested Release tag is unused
@@ -495,7 +509,7 @@ jobs:
             Categories: Land 289 / Unit 8,633 / Magic 3,857 / Item 1,748 / Enchant 823
             Images: 30,700 verified WebP files (small + large)
             Includes normalized SQLite, original source records, effect candidate inventory and source-versioned rule catalogue.
-            27 Manual.zip special-skill rules are mapped to source cards; 41 later community definitions remain non-executable candidates.
+            27 Manual.zip special-skill rules and 15 global gameplay rules are source-backed; one internal manual conflict is preserved as non-playable. 41 later community definitions remain non-executable candidates.
             Costs with unresolved hybrid or special semantics remain explicitly marked for review.
           files: |
             release-payload/fm1_cards.sqlite.gz
