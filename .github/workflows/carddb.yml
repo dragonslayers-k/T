@@ -68,7 +68,7 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/apply_runtime_fallbacks.py scripts/resolve_runtime_fallbacks.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py
+          python -m py_compile scripts/apply_runtime_fallbacks.py scripts/resolve_runtime_fallbacks.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/semantic_audit_status.py
           python -m unittest tests/test_runtime_fallbacks.py
           python -m unittest tests/test_runtime_fallback_resolver.py
           python -m unittest tests/test_effect_pattern_audit.py
@@ -78,6 +78,7 @@ jobs:
           python -m unittest tests/test_infer_unmapped_skills.py
           python -m unittest tests/test_card_field_coverage.py
           python -m unittest tests/test_semantic_gap_completion.py
+          python -m unittest tests/test_semantic_audit_status.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
           python scripts/quality_audit.py --self-test
@@ -251,7 +252,8 @@ jobs:
               "skill_no_special_rows","skill_inventory_unmapped_values",
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
-              "effect_interpretation_low_confidence","field_coverage_complete","semantic_completeness_pass",
+              "effect_interpretation_low_confidence","field_coverage_complete","semantic_coverage_pass","semantic_completeness_pass",
+              "semantic_review_pending","engine_verification_pending","engine_verification_complete",
               "skill_mapping_coverage_accounted_for"
           )
           print(json.dumps({key:report.get(key) for key in keys},ensure_ascii=False,indent=2))
@@ -259,8 +261,10 @@ jobs:
               raise SystemExit("Card-by-field coverage matrix was not persisted or has unresolved source mismatches")
           if not report.get("skill_mapping_coverage_accounted_for"):
               raise SystemExit("Skill1/Skill2 source rows are not fully represented in card_rule_mappings")
+          if not report.get("semantic_coverage_pass"):
+              raise SystemExit("Semantic coverage is incomplete: inspect audit-report.json")
           if not report.get("semantic_completeness_pass"):
-              raise SystemExit("Semantic inference coverage is incomplete: inspect audit-report.json")
+              print("::warning::Semantic coverage passed, but manual semantic review remains; see semantic_review_pending in audit-report.json")
           if report.get("inferred_skill_name_only_rows", 999) > 30:
               raise SystemExit("Too many skill definitions still rely on name-only inference")
           if report.get("effect_interpretation_low_confidence", 999999) > 2000:
@@ -512,6 +516,7 @@ jobs:
             data/image-audit/image-audit-summary.json
             data/image-audit/image-manifest.jsonl
             data/sqlite-build-summary.json
+            data/audit-report.json
             data/effect-pattern-inventory.json
             data/gap-reports/gap-report-summary.json
             data/gap-reports/card-field-gap-report.csv
