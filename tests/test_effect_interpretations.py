@@ -176,7 +176,7 @@ class NamedEffectInterpretationTests(unittest.TestCase):
             ("슬롯 유닛에게 숲의보호 기술을 투여한다.", "legacy_skill_grant_or_reference_candidate"),
             ("아군 유닛 전체는 장비능력으로 변한다.", "legacy_card_or_ability_transform_candidate"),
             ("아군 유닛 1의 킬수가 아군의 LP가 된 후 킬수=0", "generic_effect_operation"),
-            ("적군 필드 유닛 전체의 AP를 0으로 만든다.", "generic_effect_operation"),
+            ("적군 필드 유닛 전체의 AP를 0으로 만든다.", "legacy_combat_stat_operation_candidate"),
         ]
         for raw, expected_kind in cases:
             with self.subTest(raw=raw):
