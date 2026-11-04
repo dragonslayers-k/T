@@ -439,7 +439,7 @@ jobs:
             data/gap-reports/card-field-gap-report.csv
             data/gap-reports/card-field-gap-report.jsonl
             data/gap-reports/cost-gap-report.jsonl
-            data/gap-reports/skill-gap-report.jsonl
+            data/gap-reports/skill-gap-report.jsonl\n            data/gap-reports/inferred-skill-report.jsonl
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/effect-gap-report.jsonl
             data/rules/fm1-skill-catalog-v1.json
