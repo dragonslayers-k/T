@@ -234,7 +234,7 @@ def probe(db_path: Path, archive_path: Path, output: Path):
     evidence_path=output.parent/"skill-image-ocr-evidence-report.jsonl"
     with evidence_path.open("w",encoding="utf-8") as evidence_file:
         for evidence_row in db.execute("SELECT * FROM card_skill_ocr_evidence ORDER BY source_field,source_enum_value,card_id"):
-            evidence_file.write(json.dumps(dict(evidence_row),ensure_ascii=False)+"\\n")
+            evidence_file.write(json.dumps(dict(evidence_row),ensure_ascii=False)+"\n")
     db.close()
 
     result = {
