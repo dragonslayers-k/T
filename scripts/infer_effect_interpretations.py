@@ -758,7 +758,7 @@ def parse(text, known_skills=None, known_cards=None):
         stats=[x.lower() for x in re.findall(r"AP|DP|HP",t,re.I)]
         ops.append({"kind":"set_multiple_stats_from_rule","stats":_uniq(stats),
                     "value":1,"expressionText":t,"rawText":raw_text,"executable":False})
-    if re.search(r"레벨",t) and re.search(r"(?:좌우대칭|대칭).{0,25}(?:바뀌|변하)",t):
+    if re.search(r"레벨",t) and ("좌우대칭" in t or "대칭" in t) and ("바뀌" in t or "변하" in t):
         ops.append({"kind":"mirror_or_swap_card_levels","scopeText":t,
                     "rawText":raw_text,"executable":False})
     if re.search(r"(?:공격기술|방어기술|특수기술|기술).{0,25}(?:가진다|보유한다|얻는다)",t):
