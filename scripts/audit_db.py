@@ -49,7 +49,7 @@ result={
  "skill_community_candidate_rows":q("select count(*) from card_rule_mappings where mapping_status='community_documented_candidate'"),
  "skill_no_special_rows":q("select count(*) from card_rule_mappings where mapping_status='no_special_skill'"),
  "skill_inventory_unmapped_values":q("select count(*) from skill_enum_inventory where mapping_status='unmapped'"),
- "unmapped_skill_inventory":[dict(r) for r in c.execute("select source_field,source_enum_value,source_name,card_count,mapping_status from skill_enum_inventory where mapping_status='unmapped' order by source_field,source_name")],
+ "unmapped_skill_inventory":[{"source_field":r[0],"source_enum_value":r[1],"source_name":r[2],"card_count":r[3],"mapping_status":r[4]} for r in c.execute("select source_field,source_enum_value,source_name,card_count,mapping_status from skill_enum_inventory where mapping_status='unmapped' order by source_field,source_name")],
  "skill_mapping_coverage_accounted_for":q("select count(*) from card_rule_mappings")==q("select count(*) from card_fields where field_key in ('Skill1','Skill2')"),
  "category_counts":dict(c.execute("select card_type,count(*) from cards group by card_type")),
  "crawl_pages":crawl.get("pages"),"crawl_complete":crawl.get("complete",False),"complete":False
