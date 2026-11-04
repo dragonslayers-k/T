@@ -81,7 +81,7 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
         return result
     # Numeric enum tokens may be displayed with separators in copied text.
     # Remove only known visual separators; any other character keeps the value unresolved.
-    numeric_source = re.sub(r"[\\s,，;；+＋]", "", raw)
+    numeric_source = re.sub(r"[\s,，;；+＋]", "", raw)
     if not numeric_source.isdigit() or len(numeric_source) % 4:
         if _parse_human_readable_cost(raw, result):
             return result
