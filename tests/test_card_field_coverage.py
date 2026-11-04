@@ -44,15 +44,15 @@ class CardFieldCoverageTests(unittest.TestCase):
                 );
             """)
             db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
-                       ("c1", "카드1", "유닛", json.dumps({"Name": "카드1", "Skill1": 12}, ensure_ascii=False), "https://fmlunatic.com/card/c1"))
+                       ("c1", "카드1", "same-display-type", json.dumps({"Name": "카드1", "Category": 2, "Skill1": 12}, ensure_ascii=False), "https://fmlunatic.com/card/c1"))
             db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
-                       ("c2", "카드2", "유닛", json.dumps({"Name": "카드2"}, ensure_ascii=False), "https://fmlunatic.com/card/c2"))
+                       ("c2", "카드2", "same-display-type", json.dumps({"Name": "카드2", "Category": 2}, ensure_ascii=False), "https://fmlunatic.com/card/c2"))
             db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
-                       ("c3", "카드3", "마법", json.dumps({"Name": "카드3"}, ensure_ascii=False), "https://fmlunatic.com/card/c3"))
+                       ("c3", "카드3", "same-display-type", json.dumps({"Name": "카드3", "Category": 3}, ensure_ascii=False), "https://fmlunatic.com/card/c3"))
             db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
-                       ("c4", "카드4", "유닛", json.dumps({"Name": "카드4", "Skill1": ""}, ensure_ascii=False), "https://fmlunatic.com/card/c4"))
+                       ("c4", "카드4", "same-display-type", json.dumps({"Name": "카드4", "Category": 2, "Skill1": ""}, ensure_ascii=False), "https://fmlunatic.com/card/c4"))
             db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
-                       ("c5", "카드5", "유닛", json.dumps({"Name": "카드5", "Skill1": None}, ensure_ascii=False), "https://fmlunatic.com/card/c5"))
+                       ("c5", "카드5", "same-display-type", json.dumps({"Name": "카드5", "Category": 2, "Skill1": None}, ensure_ascii=False), "https://fmlunatic.com/card/c5"))
             db.executemany("INSERT INTO card_fields VALUES(?,?,?,?,?,?)", [
                 (1, "c1", "Name", json.dumps("카드1", ensure_ascii=False), "카드1", "extracted"),
                 (2, "c1", "Skill1", "12", "12", "extracted"),
