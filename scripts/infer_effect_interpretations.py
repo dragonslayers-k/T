@@ -233,7 +233,7 @@ def parse(text, known_skills=None):
         stats=[stat_name_map[x] for x in re.findall(r"AP|DP|HP|공격력|방어력|체력",t)]
         ops.append({"kind":"set_stat_from_field_expression","stats":_uniq(stats),
                     "expressionText":t,"rawText":t,"executable":False})
-    if re.search(r"적군\\s*하나를?\\s*아군\\s*하나의?\\s*(?:AP|DP|HP|공방체|공체|공방).{0,20}같게\\s*만든다",t):
+    if re.search(r"적군\s*하나를?\s*아군\s*하나의?\s*(?:AP|DP|HP|공방체|공체|공방).{0,20}같게\s*만든다",t):
         ops.append({"kind":"copy_combat_stats_from_unit","stats":_stat_refs(t),
                     "rawText":t,"executable":False})
     if re.search(r"(?:필드번호|필드 위치).{0,20}(?:레벨|위치|번호).{0,20}(?:된다|정한다|맞춘다|편다)",t):
@@ -252,7 +252,7 @@ def parse(text, known_skills=None):
         ops.append({"kind":"modify_stat_marks","rawText":t})
     if re.search(r"상태",t) and re.search(r"부여|추가|제거|해제|변경|전환|유지|증가|감소",t):
         ops.append({"kind":"modify_status","rawText":t})
-    if re.search(r"특수\s*공격\s*기술|공격\s*기술|방어\s*기술|특수기술|기술",t) and re.search(r"부여|추가|변경|삭제|제거|일반공격|일반방어|봉쇄|로\\s*된다|로\\s*바뀐다",t):
+    if re.search(r"특수\s*공격\s*기술|공격\s*기술|방어\s*기술|특수기술|기술",t) and re.search(r"부여|추가|변경|삭제|제거|일반공격|일반방어|봉쇄|로\s*된다|로\s*바뀐다",t):
         ops.append({"kind":"modify_skill","rawText":t})
     if re.search(r"소환|소환한|소환시|소환할|배치",t):
         ops.append({"kind":"summon_or_deploy","rawText":t})
