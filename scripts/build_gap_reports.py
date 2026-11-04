@@ -79,24 +79,27 @@ def build(db_path: Path, out_dir: Path):
 
     effects=[]
     for r in db.execute("""
-      SELECT e.card_id,c.name,c.card_type,e.effect_index,e.source_key,e.effect_text,e.trigger_text,
-             e.target_text,e.condition_text,e.duration_text,e.verification_status
-      FROM card_effects e JOIN cards c USING(card_id)
-      ORDER BY e.card_id,e.effect_index
+      SELECT i.card_id,c.name,c.card_type,cl.clause_index,cl.segment_text,
+             i.interpretation_json,i.verification_status,i.confidence,i.source_detail_url
+      FROM card_effect_interpretations i
+      JOIN card_effect_clauses cl USING(clause_id)
+      JOIN cards c USING(card_id)
+      ORDER BY i.card_id,cl.clause_index
     """):
         effects.append(dict(r))
     with (out_dir/"effect-gap-report.jsonl").open("w",encoding="utf-8") as f:
         for r in effects:
-            if r["verification_status"]!="manual_verified" and r["verification_status"]!="inferred":
+            if r["confidence"]=="low":
                 f.write(json.dumps(r,ensure_ascii=False)+"\n")
 
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
       "cost_review_rows":sum(1 for r in costs if not r["soul_known"] or r["mapping_review"] or r["semantic_review"] or (r["card_type"]=="지형" and not r["lp_known"])),
-      "unmapped_skill_card_rows":sum(1 for r in skills if r["mapping_status"]=="unmapped"),\n      "inferred_skill_card_rows":len(inferred_skills),
+      "unmapped_skill_card_rows":sum(1 for r in skills if r["mapping_status"]=="unmapped"),
+      "inferred_skill_card_rows":len(inferred_skills),
       "unmapped_skill_unique_values":len(skill_inventory),
-      "unverified_effect_rows":sum(1 for r in effects if r["verification_status"] not in ("manual_verified","inferred")),
+      "unverified_effect_rows":sum(1 for r in effects if r["confidence"]=="low"),
       "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl"]
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
