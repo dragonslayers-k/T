@@ -369,12 +369,16 @@ def build(db_path: Path, out_dir: Path):
     # retains every card occurrence rather than only five examples per token.
     soul_review_rows=[dict(r) for r in db.execute("""
       SELECT t.card_id,c.name,c.card_type,c.source_card_url,cc.source_text,
-             cc.mapping_review,cc.semantic_review,t.ordinal,t.raw_token,t.code,
-             t.count,t.symbol,t.normalized_color,t.parse_status
+             CASE WHEN t.parse_status='hybrid_identity_preserved_pending_rule' THEN 1 ELSE 0 END AS mapping_review,
+             CASE WHEN t.parse_status='special_identity_preserved_pending_rule' THEN 1 ELSE 0 END AS semantic_review,
+             t.ordinal,t.raw_token,t.code,t.count,t.symbol,t.normalized_color,t.parse_status
       FROM card_soul_cost_tokens t
       JOIN card_costs cc USING(card_id)
       JOIN cards c USING(card_id)
-      WHERE cc.mapping_review=1 OR cc.semantic_review=1
+      WHERE t.parse_status IN (
+        'hybrid_identity_preserved_pending_rule',
+        'special_identity_preserved_pending_rule'
+      )
       ORDER BY t.code,t.symbol,t.normalized_color,t.parse_status,t.card_id,t.ordinal
     """)]
     soul_review_queue=build_soul_semantic_review_queue(soul_review_rows)
