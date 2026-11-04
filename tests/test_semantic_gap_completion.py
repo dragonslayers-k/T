@@ -77,5 +77,15 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["classification"],"ability_name_reference")
         self.assertEqual(result["operations"][0]["ruleId"],"skill_first_strike")
 
+    def test_compound_stat_selector_effect(self):
+        result=parse("각인의결계: 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.")
+        self.assertTrue(any(x["kind"]=="modify_selected_combat_stat" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_generic_action_verb_effect(self):
+        result=parse("적 유닛의 다음 공격을 1회 무효화한다.")
+        self.assertTrue(any(x["kind"]=="generic_effect_operation" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
 if __name__=="__main__":
     unittest.main()
