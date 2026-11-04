@@ -233,6 +233,9 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/build_gap_reports.py --db data/fm1_cards.sqlite --out-dir data/effect-review --effects-only
+          echo "::group::Low-confidence effect queue with exact card-local source context"
+          cat data/effect-review/effect-review-queue.jsonl
+          echo "::endgroup::"
           python - <<'PY'
           import json, sqlite3
           from pathlib import Path
