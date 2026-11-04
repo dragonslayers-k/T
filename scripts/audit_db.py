@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json,sqlite3,sys
 from pathlib import Path
+from semantic_audit_status import evaluate_semantic_status
 target=15350;db=Path("data/fm1_cards.sqlite")
 if not db.exists():raise SystemExit("DB missing")
 c=sqlite3.connect(db);q=lambda sql:c.execute(sql).fetchone()[0]
@@ -71,6 +72,7 @@ result["effect_interpretation_low_confidence"]=q("select count(*) from card_effe
 result["inferred_skill_card_rows"]=q("select count(*) from card_rule_mappings where mapping_status='inferred'")
 result["unmapped_skill_card_rows_after_inference"]=q("select count(*) from card_rule_mappings where mapping_status='unmapped'")
 result["inferred_skill_name_only_rows"]=q("select count(*) from game_rule_catalog where source_authority='inferred' and confidence='low'")
+result["manual_rule_engine_test_pending"]=q("select count(*) from game_rule_catalog where source_authority='manual' and implementation_status='pending_engine_test'")
 result["effect_text_accounted_for"]=result["effect_rows"]==result["effect_source_text_rows"] and result["effect_rows_without_text"]==0 and result["effect_source_mismatches"]==0
 result["cost_parse_accounted_for"]=result["soul_cost_fully_parsed"]+result["soul_cost_needs_review"]==target
 result["skill_mapping_coverage_accounted_for"]=result["skill_mapping_coverage_accounted_for"] and result["skill_mapping_rows"]>0
@@ -87,14 +89,7 @@ result["source_snapshot_integrity_pass"]=(
  result["lp_known_cards"]==289 and result["lp_zero_cards"]==72 and
  result["cost_parse_accounted_for"] and result["skill_mapping_coverage_accounted_for"] and result["effect_text_accounted_for"] and result["crawl_complete"] is True
 )
-result["semantic_completeness_pass"]=(
- result["field_coverage_complete"] and
- result["soul_cost_needs_review"]==0 and result["soul_cost_tokens"]>0 and
- result["skill_unmapped_rows"]==0 and result["skill_inventory_unmapped_values"]==0 and
- result["unmapped_skill_card_rows_after_inference"]==0 and
- result["effect_interpretation_rows"]==result["effect_clause_rows"] and
- result["effect_interpretation_missing"]==0
-)
+result.update(evaluate_semantic_status(result))
 result["complete"]=result["source_snapshot_integrity_pass"] and result["semantic_completeness_pass"]
 Path("data/audit-report.json").write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
 print(json.dumps(result,ensure_ascii=False,indent=2));c.close();sys.exit(0 if result["source_snapshot_integrity_pass"] else 2)
