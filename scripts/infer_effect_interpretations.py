@@ -193,8 +193,29 @@ def main(path="data/fm1_cards.sqlite"):
     missing=db.execute("""SELECT COUNT(*) FROM card_effect_clauses cl LEFT JOIN card_effect_interpretations i USING(clause_id) WHERE i.clause_id IS NULL""").fetchone()[0]
     fk=len(db.execute("PRAGMA foreign_key_check").fetchall())
     low=db.execute("SELECT COUNT(*) FROM card_effect_interpretations WHERE confidence='low'").fetchone()[0]
+    low_by_class=db.execute("""
+      SELECT COALESCE(json_extract(interpretation_json,'$.classification'),'unknown') AS classification,
+             COUNT(*) AS n,COUNT(DISTINCT source_text) AS distinct_texts
+      FROM card_effect_interpretations
+      WHERE confidence='low'
+      GROUP BY classification ORDER BY n DESC
+    """).fetchall()
+    low_examples=db.execute("""
+      SELECT i.source_text,COUNT(*) AS card_count,MIN(i.card_id) AS example_card_id,
+             MIN(i.source_detail_url) AS example_url,
+             json_extract(MIN(i.interpretation_json),'$.classification') AS classification
+      FROM card_effect_interpretations i
+      WHERE i.confidence='low' AND length(trim(i.source_text))>0
+      GROUP BY i.source_text ORDER BY card_count DESC,i.source_text LIMIT 120
+    """).fetchall()
     result={"sourceClauses":len(rows),"interpretationRows":total,"statusCounts":counts,
-            "lowConfidenceRows":low,"missingInterpretations":missing,"foreignKeyErrors":fk}
+            "lowConfidenceRows":low,"missingInterpretations":missing,"foreignKeyErrors":fk,
+            "lowConfidenceByClassification":[dict(x) for x in low_by_class],
+            "lowConfidenceDistinctTexts":db.execute(
+              "SELECT COUNT(DISTINCT source_text) FROM card_effect_interpretations WHERE confidence='low'"
+            ).fetchone()[0],
+            "lowConfidenceSamples":[{"text":x[0],"cardCount":x[1],"cardId":x[2],
+                                     "url":x[3],"classification":x[4]} for x in low_examples]}
     print(json.dumps(result,ensure_ascii=False,indent=2)); db.close()
     if missing or fk or total!=len(rows): sys.exit(2)
 
