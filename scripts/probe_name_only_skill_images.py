@@ -116,10 +116,22 @@ def probe(db_path: Path, archive_path: Path, output: Path):
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     db.close()
-    print(json.dumps({k: result[k] for k in (
-        "lowConfidenceSkillKinds", "targetCardIds", "imagesOcrProcessed",
-        "skillsWithOcrNameMatch"
-    )}, ensure_ascii=False))
+    matched = []
+    for skill in skill_results:
+        for card in skill["cards"]:
+            if card["skillNameFoundByOcr"]:
+                matched.append({
+                    "skillName": skill["skillName"], "cardId": card["cardId"],
+                    "cardName": card["cardName"],
+                    "imageType": card["imageEvidence"].get("imageType"),
+                    "archivePath": card["imageEvidence"].get("archivePath"),
+                    "ocrText": card["imageEvidence"].get("ocrText", "")[:1800]
+                })
+    print(json.dumps({
+        **{k: result[k] for k in ("lowConfidenceSkillKinds", "targetCardIds",
+            "imagesOcrProcessed", "skillsWithOcrNameMatch")},
+        "matchedSkillEvidence": matched
+    }, ensure_ascii=False))
     return result
 
 
