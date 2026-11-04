@@ -95,5 +95,35 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertTrue(any(x["kind"]=="generic_effect_operation" for x in result["operations"]))
         self.assertEqual(result["confidence"],"medium")
 
+    def test_direct_hp_attack_rule(self):
+        result=parse("상대의 DP를 무시하고 HP를 직접공격한다.")
+        op=next(x for x in result["operations"] if x["kind"]=="direct_hp_damage")
+        self.assertTrue(op["ignoresDefenderDP"])
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_attack_with_ap_and_dp_formula(self):
+        result=parse("상대를 공격시 자신의 AP에 DP를 더해 공격.")
+        self.assertTrue(any(x["kind"]=="attack_with_ap_and_dp" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_dp_decrease_qualitative_rule(self):
+        result=parse("AP1 이상으로 공격시 상대의 DP도 깎는다.")
+        op=next(x for x in result["operations"] if x["kind"]=="modify_stat" and x.get("stat")=="dp")
+        self.assertEqual(op["direction"],"decrease")
+        self.assertIsNone(op["value"])
+
+    def test_special_skill_to_normal_conversion(self):
+        result=parse("AP1 이상으로 공격시 상대의 특수기술이 일반기술로 바뀐다.")
+        self.assertTrue(any(x["kind"]=="modify_skill" and x.get("operation")=="replace_special_with_normal" for x in result["operations"]))
+
+    def test_consecutive_attack_formula(self):
+        result=parse("AP1 이상으로 공격시 AP 1 감소후 x2 의 AP로 공격한다.")
+        self.assertTrue(any(x["kind"]=="sequential_attack_formula" for x in result["operations"]))
+
+    def test_faq_note_is_not_effect(self):
+        result=parse('자세한 사항은 FAQ에서 "랭크 카드 안내" 로 검색해 보세요.')
+        self.assertEqual(result["classification"],"reference_or_metadata")
+        self.assertEqual(result["confidence"],"not_applicable")
+
 if __name__=="__main__":
     unittest.main()
