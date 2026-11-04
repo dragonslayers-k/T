@@ -68,7 +68,7 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py
+          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/build_gap_reports.py
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_cost_decoding.py
           python -m unittest tests/test_effect_candidates.py
@@ -433,6 +433,13 @@ jobs:
             data/image-audit/image-manifest.jsonl
             data/sqlite-build-summary.json
             data/effect-pattern-inventory.json
+            data/gap-reports/gap-report-summary.json
+            data/gap-reports/card-field-gap-report.csv
+            data/gap-reports/card-field-gap-report.jsonl
+            data/gap-reports/cost-gap-report.jsonl
+            data/gap-reports/skill-gap-report.jsonl
+            data/gap-reports/unmapped-skill-inventory.csv
+            data/gap-reports/effect-gap-report.jsonl
             data/rules/fm1-skill-catalog-v1.json
           if-no-files-found: warn
           compression-level: 0
