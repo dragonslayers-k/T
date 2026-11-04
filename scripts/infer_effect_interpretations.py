@@ -512,6 +512,66 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"source_scope_note_v1","confidence":"medium"}
 
+    # Additional low-confidence #435 patterns with explicit rule-note wording.
+    counting_rule_patterns=[
+      r"^.*동일 수에서 자신은 제외됩니다[.]?$",
+      r"^.*듀얼 카드 카운트에서 지형은 제외됩니다.*$",
+      r"^.*지형은 1레벨로 계산[.]?$",
+      r"^.*유닛의 능력은 장비, 마법, 야수, 만능으로 총 4종류가 있습니다[.]?$",
+      r"^.*스켈톤 종족 카드이기 때문에 유닛과 마법 모두 포함합니다[.]?$",
+      r"^.*중복 효과 처리 안됨[.]?$",
+    ]
+    if any(re.search(p,t) for p in counting_rule_patterns):
+        return {"classification":"counting_or_scope_rule_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"counting_or_scope_constraint","rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_counting_scope_note_v1","confidence":"medium"}
+
+    condition_note_patterns=[
+      r"^.*가장 많은 속성의 카드수가 동일할 경우에는 효과가 없습니다[.]?$",
+      r"^.*4레벨 이상시 .*되지 않음[.]?$",
+      r"^.*맨 위 인첸트가 대지 인첸트여야 합니다[.]?$",
+      r"^.*발동시 .*존재하면 .*발동[.]?$",
+      r"^.*순속성 조건 충족하면 .*발동[.]?$",
+      r"^.*아군 백필드에 .*부족하면 발동 안함[.]?$",
+      r"^.*아군 필드에 .*없어도 .*발동함[.]?$",
+      r"^.*아군 필드에 .*있으면 .*발동 안함[.]?$",
+      r"^.*적 필드 빈공간 .*발동실패합니다[.]?$",
+      r"^.*적 필드 카드가 .*이상 이여야 발동[.]?$",
+      r"^.*적 필드 카드가 존재하지 않는 경우 발동 안함[.]?$",
+      r"^.*적 핸드 빈공간 없을 시 발동 하지 않음[.]?$",
+      r"^.*아이템 착용시에는 아무 효과가 없습니다[.]?$",
+      r"^.*영역표시는 아무런 효과도 주지 못합니다[.]?$",
+      r"^.*핸드 슬롯 1이 .*인 경우[.]?$",
+    ]
+    if any(re.search(p,t) for p in condition_note_patterns):
+        return {"classification":"effect_activation_requirement","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"activation_condition_or_no_effect","conditionText":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_condition_note_v1","confidence":"medium"}
+
+    if re.fullmatch(r"\\([^)]+(?:[,，、][^)]+)+\\)\\.?",t) and not re.search(
+            r"(?:발동|증가|감소|공격|방어|부여|파괴|소환|이동|회복|변경)",t):
+        return {"classification":"card_reference_list","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"related_card_reference_list","rawList":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"parenthesized_card_list_v1","confidence":"not_applicable"}
+
+    ability_reference_patterns=[
+      r"^(?:서먼매직기술|서먼헌터|선물하기능력|수호일격 공격기술|수호희생 방어기술|야수조련 - 야수|소속형 섀도우펌핑 능력|종족형 섀도우펌핑 능력|스피릿스톰\\s*[:：]|섀도우스킬\\(더애로우\\)|섀도우쉬프트\\(레비의의지\\)|무지개솔변환|돌진공격/네이밍디펜스|랜드브레이크기술루여|재생능력/포레스트리젠|석화공격/레벨링프레셔|저주공격/짝수저주|화염공격기술/워터프리즈|환상제어기술|환상폭발기술|헌신방어기술)\\b.*$",
+    ]
+    if any(re.search(p,t) for p in ability_reference_patterns):
+        return {"classification":"named_ability_reference_candidate","triggers":[],
+                "actors":[],"targets":["named_ability"],"conditions":[],
+                "operations":[{"kind":"ability_name_reference_candidate","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"audit_435_named_ability_reference_v1","confidence":"medium"}
+
     # Source notes, credits, collection restrictions and headings are not game effects.
     metadata_patterns=[
       r"^invalid$",
@@ -993,14 +1053,14 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     # numbers/formulas; this layer also captures legacy card verbs whose wording
     # differs across editions. It remains a non-executable candidate.
     action_patterns = [
-      ("grant_or_apply",r"부여|추가|적용|부착|부여받|발생시키|생성|만들어|얻는다|획득한다"),
-      ("remove_or_disable",r"제거|해제|무효화|무효|차단|방지|봉쇄|금지|봉인|잠금|없앤다|사라진다|막는다"),
-      ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다|변신|진화|성장"),
+      ("grant_or_apply",r"부여|추가|적용|부착|부여받|발생시키|생성|만들어|얻는다|획득한다|투여|착용시키|착용"),
+      ("remove_or_disable",r"제거|해제|무효화|무효|차단|방지|봉쇄|금지|봉인|잠금|없앤다|사라진다|막는다|삭제"),
+      ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다|변신|진화|성장|변한다|바뀐다|변화"),
       ("resource_or_cost",r"지불|소모|충전|획득|회수|빼앗|코스트|소울|유지비|소비"),
-      ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환|보내|돌려보낸다|버린다|버려진다|추방"),
+      ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환|보내|돌려보낸다|버린다|버려진다|추방|올린다|내린다"),
       ("battle_interaction",r"반격|반사|되받아|공격을 막|공격을 받|방어한다|공격한다|직접공격|타격"),
       ("state_or_duration",r"유지|지속|종료|만료|누적|중첩|초기화|마비|빙결|기절|침묵|혼란|중독|화상|공포|실명"),
-      ("stat_or_probability",r"증가|감소|상승|하락|높아진다|낮아진다|확률|수치|능력치|공방체|깎|깍|나누|곱하|절반"),
+      ("stat_or_probability",r"증가|감소|상승|하락|높아진다|낮아진다|확률|수치|능력치|공방체|깎|깍|나누|곱하|절반|더한다|합산|2배|킬수|고정"),
       ("status_or_disabled_state",r"행동불능|행동불능상태|무력화|상태가 된다|상태에 걸린다|걸린다"),
       ("calculated_stat_assignment",r"AP.{0,20}HP.{0,20}(?:된다|설정|정해)|DP.{0,20}(?:된다|설정|정해)|공방체.{0,20}(?:된다|정해)"),
     ]
