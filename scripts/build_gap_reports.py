@@ -79,6 +79,7 @@ def build(db_path: Path, out_dir: Path):
         card_id TEXT NOT NULL REFERENCES cards(card_id),
         field_key TEXT NOT NULL,
         coverage_status TEXT NOT NULL,
+        applicability_status TEXT NOT NULL,
         field_id INTEGER REFERENCES card_fields(field_id),
         source_payload_match INTEGER NOT NULL,
         source_value_sha256 TEXT,
@@ -92,7 +93,9 @@ def build(db_path: Path, out_dir: Path):
     coverage_inserts=[]
     card_field_summaries=[]
     per_field_status_counts={field:{} for field in fields}
+    per_field_applicability_counts={field:{} for field in fields}
     per_field_examples={field:{} for field in fields}
+    applicability_candidates={}
     for card in cards:
         payload=source_payloads[card["card_id"]]
         source_category=payload.get("Category")
@@ -105,19 +108,29 @@ def build(db_path: Path, out_dir: Path):
         for field in fields:
             row=present.get((card["card_id"],field))
             if row is None:
-                # The source snapshot is authoritative. An absent key is a confirmed
-                # source absence; a key present in the raw payload but absent here is
-                # a genuine ingestion/normalization gap.
+                # Source presence and semantic applicability are separate facts.
+                # The raw snapshot confirms whether a key exists; category-level
+                # absence only creates an applicability candidate, never erases absence.
                 source_has_key=field in payload
                 if source_has_key and payload[field] is None:
-                    status="source_null_confirmed"
+                    status="source_null_confirmed"; applicability="source_present_null"
                 elif source_has_key:
-                    status="missing_on_card"
-                elif (source_category,field) not in observed_type_fields:
-                    status="not_applicable_candidate"
-                    not_applicable_candidates.append(field)
+                    status="missing_on_card"; applicability="source_present_missing_normalization"
                 else:
                     status="source_absent_confirmed"
+                    if (source_category,field) not in observed_type_fields:
+                        applicability="not_applicable_candidate"
+                        not_applicable_candidates.append(field)
+                        key=(source_category,field)
+                        item=applicability_candidates.setdefault(key,{
+                            "source_category":source_category,"card_type":card["card_type"],
+                            "field_key":field,"card_count":0,"example_card_ids":[]
+                        })
+                        item["card_count"]+=1
+                        if len(item["example_card_ids"])<5:
+                            item["example_card_ids"].append(card["card_id"])
+                    else:
+                        applicability="applicable_source_absent"
                 raw=None; normalized=None; verification="not_recorded"; field_id=None
                 payload_match=1 if (not source_has_key or payload[field] is None) else 0
                 value_hash=None
@@ -132,21 +145,22 @@ def build(db_path: Path, out_dir: Path):
                 value_hash=hashlib.sha256((raw or "null").encode("utf-8")).hexdigest()
                 status=("source_null_confirmed" if value is None else
                         "source_empty_confirmed" if value=="" else "source_snapshot_verified")
-            coverage_inserts.append((card["card_id"],field,status,field_id,payload_match,value_hash))
+                applicability="source_present"
+            coverage_inserts.append((card["card_id"],field,status,applicability,field_id,payload_match,value_hash))
             per_field_status_counts[field][status]=per_field_status_counts[field].get(status,0)+1
+            per_field_applicability_counts[field][applicability]=per_field_applicability_counts[field].get(applicability,0)+1
             if len(per_field_examples[field].get(status,[]))<5:
                 per_field_examples[field].setdefault(status,[]).append(card["card_id"])
             if status=="source_snapshot_verified": verified_fields.append(field)
             elif status=="source_absent_confirmed": absent_fields.append(field)
             elif status=="source_empty_confirmed": empty_fields.append(field)
             elif status=="source_null_confirmed": null_fields.append(field)
-            elif status=="not_applicable_candidate": pass
             elif status=="missing_on_card": missing_fields.append(field)
             field_rows.append({
                 "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
-                "field_key":field,"status":status,"source_value_json":raw,
-                "normalized_value":normalized,"verification_status":verification,
-                "source_payload_match":payload_match
+                "field_key":field,"status":status,"applicability_status":applicability,
+                "source_value_json":raw,"normalized_value":normalized,
+                "verification_status":verification,"source_payload_match":payload_match
             })
         card_field_summaries.append({
             "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
@@ -158,7 +172,7 @@ def build(db_path: Path, out_dir: Path):
             "not_applicable_candidate_fields":not_applicable_candidates,
             "missing_on_card_fields":missing_fields
         })
-    db.executemany("INSERT INTO card_field_coverage VALUES(?,?,?,?,?,?)",coverage_inserts)
+    db.executemany("INSERT INTO card_field_coverage VALUES(?,?,?,?,?,?,?)",coverage_inserts)
     if len(coverage_inserts)!=len(cards)*len(fields):
         raise ValueError("Card-field coverage matrix is incomplete")
     if any(x[4]!=1 for x in coverage_inserts):
@@ -173,8 +187,19 @@ def build(db_path: Path, out_dir: Path):
     field_status_summary={
         "cards":len(cards),"fields":len(fields),
         "field_status_counts":per_field_status_counts,
+        "field_applicability_counts":per_field_applicability_counts,
         "example_card_ids_by_status":per_field_examples
     }
+    applicability_rows=sorted(applicability_candidates.values(),
+        key=lambda x:(x["source_category"],x["field_key"]))
+    with (out_dir/"field-applicability-candidate-report.jsonl").open("w",encoding="utf-8") as f:
+        for row in applicability_rows:
+            f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    with (out_dir/"field-applicability-candidate-report.csv").open("w",newline="",encoding="utf-8-sig") as f:
+        w=csv.DictWriter(f,fieldnames=["source_category","card_type","field_key","card_count","example_card_ids"])
+        w.writeheader()
+        for row in applicability_rows:
+            w.writerow({**row,"example_card_ids":";".join(row["example_card_ids"])})
     (out_dir/"card-field-status-summary.json").write_text(
         json.dumps(field_status_summary,ensure_ascii=False,indent=2),encoding="utf-8")
 
@@ -323,6 +348,9 @@ def build(db_path: Path, out_dir: Path):
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
       "field_status_counts_by_field":per_field_status_counts,
+      "field_applicability_counts_by_field":per_field_applicability_counts,
+      "field_applicability_candidate_pairs":len(applicability_rows),
+      "field_applicability_candidate_cells":sum(x["card_count"] for x in applicability_rows),
       "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),
       "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
@@ -335,7 +363,7 @@ def build(db_path: Path, out_dir: Path):
       "effect_low_confidence_unique_patterns":len(effect_groups),
       "effect_review_queue_patterns":len(effect_review_queue),
       "effect_low_confidence_classification_counts":effect_classes,
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-candidate-report.jsonl","field-applicability-candidate-report.csv"]
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
