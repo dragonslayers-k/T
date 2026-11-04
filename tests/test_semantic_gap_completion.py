@@ -151,6 +151,35 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["confidence"],"not_applicable")
 
 
+    def test_appended_flavor_text_is_separated_from_effect_rule(self):
+        result=parse("적 필드 유닛 전체 HP=적 핸드 수, AP=아군핸드 수. [믿을 수 없겠지만 모아지쿠이에 의해 처음 그 선이 그어졌을 때]")
+        self.assertIn("모아지쿠이",result["flavorText"])
+        self.assertIn("아군핸드 수",result["rawText"])
+        formulas=[x for x in result["operations"] if x["kind"]=="set_stat_formula"]
+        self.assertEqual({x["stat"] for x in formulas},{"hp","ap"})
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_derived_stat_formula_is_structured(self):
+        result=parse("적 필드 유닛 전체의 AP/HP를 아군 필드 유닛 수로 나눈다.")
+        self.assertTrue(any(x["kind"]=="divide_stat_by_expression" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_disabled_state_is_named_and_preserved(self):
+        result=parse("적군 맨 뒤의 유닛은 행동불능 상태가 된다. [힘만 믿고 설치다니 가소롭구나]")
+        self.assertTrue(any(x["kind"]=="apply_or_change_named_status" for x in result["operations"]))
+        self.assertIn("행동불능",result["rawText"])
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_bracketed_status_label_is_reference_not_unparsed_text(self):
+        result=parse("[영혼지배]상태")
+        self.assertEqual(result["classification"],"named_status_reference")
+        self.assertEqual(result["operations"][0]["statusName"],"영혼지배")
+
+    def test_element_card_pair_is_reference_not_effect(self):
+        result=parse("금-유리가면")
+        self.assertEqual(result["classification"],"card_reference_list")
+        self.assertEqual(result["operations"][0]["cardName"],"유리가면")
+
     def test_named_status_effect_is_captured_without_executable_claim(self):
         result=parse("공격시 적 유닛에게 빙결 상태를 부여한다.")
         self.assertTrue(any(x["kind"]=="apply_or_change_named_status" for x in result["operations"]))
