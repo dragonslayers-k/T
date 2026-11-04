@@ -29,8 +29,8 @@ class SkillDefinitionExtractionTests(unittest.TestCase):
 
     def test_stat_operations_are_structured_without_becoming_executable(self):
         ops = operations_from_text("아군 AP+2, DP-1")
-        self.assertIn({"kind": "modify_stat", "stat": "ap", "operator": "+", "value": 2}, ops)
-        self.assertIn({"kind": "modify_stat", "stat": "dp", "operator": "-", "value": 1}, ops)
+        self.assertIn({"kind": "modify_stat", "stat": "ap", "operator": "+", "value": 2, "executable": False}, ops)
+        self.assertIn({"kind": "modify_stat", "stat": "dp", "operator": "-", "value": 1, "executable": False}, ops)
         self.assertTrue(all(x.get("executable") is not True for x in ops))
 
 
