@@ -14,8 +14,8 @@ DB29 semantic review artifact from Actions #430, strict `source_field == "Skill1
 | 칠색음 | 3 | 3 | 2 |
 | 켄드드레인 | 3 | 1 | 1 |
 | 코인적중 | 3 | 3 | 2 |
-| 클리브 | 3 | 3 | 1 |
-| **Total** | **30** | **26** | **14** |
+| 클리브 | 3 | 3 | 2 |
+| **Total** | **30** | **26** | **15** |
 
 ## Evidence and unresolved semantics
 
@@ -48,7 +48,7 @@ Sample [생존왕](https://fmlunatic.com/card/11112425395), ID `11112425395`.
 1: "[●● 히어로]: 아군 필드에 있는 '케를랑' 1을 상위랭크로 변경하고 아군 필드에 '케를랑'이 없으면 아군 소각장에 위치한 '케를랑' 1을 삭제하고, 아군 핸드 빈공간에 '케를랑N'을 소환."
 Sample [케를랑](https://fmlunatic.com/card/13011626659), ID `13011626659`.
 - Only one source excerpt exists for three candidate rows; leave two unresolved.
-- This appears to be a hero/quest conditional with a named-unit upgrade/recovery chain, not a generic Skill1 combat handler. Need full ●● hero context, exact rank progression, and all 케를랑N card IDs before implementation.
+- This is a hero/quest conditional with a named-unit upgrade/recovery chain, not a generic combat handler. Need full ●● hero context, exact rank progression, and all 케를랑N card IDs before implementation.
 
 ### 초음파 — 3 rows / 2 excerpts / 2 variants
 - 1: "AP 1 이상 공격시, 적 행동가능 다음 유닛은 AP, DP-3."
@@ -77,15 +77,17 @@ Samples [피그대학생](https://fmlunatic.com/card/13103027106), ID `131030271
 - Define which coin profile is compared (shared tosses or stat-specific heads) and whether both players must have equal toss counts or equal heads.
 - Movement to own field implies control/ownership transfer; define slot availability, unit owner, action-disabled duration, and item/status inheritance.
 
-### 클리브 — 3 rows
-3 rows; 3 non-empty excerpts; one exact wording variant in the source artifact.
-- Candidate name is present in Skill1 mapping but the corresponding effect text is not surfaced in this batch extraction.
-- Keep as unresolved until the exact source card URL and complete effectText are recovered; do not fill from skill-name inference.
+### 클리브 — 3 rows / 2 variants
+- 2: "적 1파괴시, 적 필드 행동가능 다음 유닛 AP/DP/HP -2"
+- 1: "적 1 파괴시, 적 필드 행동가능 다음 유닛 AP/DP/HP -2."
+Samples [정원관리사](https://fmlunatic.com/card/10060124911), ID `10060124911`; [로페츤](https://fmlunatic.com/card/14061827425), ID `14061827425`.
+- Define next actionable enemy selection, whether all three stats decrease by 2, and whether the debuff is permanent or turn-limited.
+- Test stat markers/floors and behavior when no next actionable enemy exists.
 
 ## Cumulative Skill1 inventory
-- A19: 30 candidate rows / 26 non-empty excerpts / 14 exact variants.
+- A19: 30 candidate rows / 26 non-empty excerpts / 15 exact variants.
 - A1–A18: 1,945 rows / 1,957 excerpts / 308 variants.
-- A1–A19: **1,975 rows / 1,983 excerpts / 322 variants**.
+- A1–A19: **1,975 rows / 1,983 excerpts / 323 variants**.
 - Inventory metrics are not executable-rule counts; missing excerpts remain explicitly unresolved.
 
 ## Promotion gate
