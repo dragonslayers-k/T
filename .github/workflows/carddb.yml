@@ -214,6 +214,7 @@ jobs:
             data/gap-reports/inferred-skill-report.jsonl
             data/gap-reports/community-skill-report.jsonl
             data/gap-reports/cost-inference-report.jsonl
+            data/gap-reports/cost-code-inventory.json
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/gap-report-summary.json
           if-no-files-found: error
