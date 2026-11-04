@@ -1,6 +1,7 @@
 import unittest
 
 from scripts.decode_soul_costs import run
+from scripts.build_gap_reports import build_soul_semantic_review_queue
 from scripts.soul_costs import parse_require_soul
 
 
@@ -109,6 +110,42 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(result["validatedKnownCosts"], 1)
         self.assertEqual(result["validationStatus"], "matched_reference_rows")
         self.assertEqual(result["knownCostMismatches"], [])
+
+
+    def test_soul_semantic_review_queue_preserves_every_occurrence(self):
+        rows = [
+            {"card_id":"100","name":"A","card_type":"유닛","source_card_url":"https://example.test/100",
+             "source_text":"43017101","mapping_review":1,"semantic_review":0,
+             "ordinal":0,"raw_token":"4301","code":43,"count":1,"symbol":"hybrid",
+             "normalized_color":"forest+light","parse_status":"hybrid_identity_preserved_pending_rule"},
+            {"card_id":"100","name":"A","card_type":"유닛","source_card_url":"https://example.test/100",
+             "source_text":"43017101","mapping_review":1,"semantic_review":0,
+             "ordinal":1,"raw_token":"4301","code":43,"count":1,"symbol":"hybrid",
+             "normalized_color":"forest+light","parse_status":"hybrid_identity_preserved_pending_rule"},
+            {"card_id":"200","name":"B","card_type":"마법","source_card_url":"https://example.test/200",
+             "source_text":"4301","mapping_review":1,"semantic_review":0,
+             "ordinal":0,"raw_token":"4301","code":43,"count":1,"symbol":"hybrid",
+             "normalized_color":"forest+light","parse_status":"hybrid_identity_preserved_pending_rule"},
+        ]
+        result = build_soul_semantic_review_queue(rows)
+        self.assertEqual(result["pending_card_rows"], 2)
+        self.assertEqual(result["token_rows"], 3)
+        group = result["groups"][0]
+        self.assertEqual(group["card_count"], 2)
+        self.assertEqual(len(group["occurrences"]), 3)
+        self.assertFalse(group["executable"])
+
+    def test_soul_semantic_review_queue_separates_hybrid_and_special(self):
+        rows = [
+            {"card_id":"1","mapping_review":1,"semantic_review":0,"code":43,
+             "normalized_color":"forest+light","parse_status":"hybrid_identity_preserved_pending_rule"},
+            {"card_id":"2","mapping_review":0,"semantic_review":1,"code":82,
+             "normalized_color":"ncs","parse_status":"special_identity_preserved_pending_rule"},
+        ]
+        result = build_soul_semantic_review_queue(rows)
+        reasons = {g["code"]:g["review_reasons"] for g in result["groups"]}
+        self.assertEqual(reasons[43], ["hybrid_payment_rule_unverified"])
+        self.assertEqual(reasons[82], ["special_soul_payment_rule_unverified"])
 
 
 if __name__ == "__main__":
