@@ -1,5 +1,5 @@
 name: FM1 Card Database
-# Re-run full immutable DB29 coverage audit after audit-report serialization fix
+# Single PR-open check; subsequent validation is explicitly dispatched after batching changes
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
       - "data/rules/**"
       - ".github/workflows/carddb.yml"
   pull_request:
+    types: [opened, reopened, ready_for_review]
     branches: [main]
     paths:
       - "scripts/**"
@@ -21,8 +22,8 @@ on:
         description: "probe = inspect live site; audit-release = rebuild DB from an existing Release; crawl = collect a new source snapshot"
         required: true
         type: choice
-        options: [probe, audit-release, crawl]
-        default: audit-release
+        options: [tests, probe, audit-release, crawl]
+        default: tests
       source_release_tag:
         description: "Existing immutable DB Release used by audit-release mode"
         required: false
@@ -43,9 +44,9 @@ permissions:
   contents: write
 
 concurrency:
-  # One active run per event/ref; feature-branch changes are PR-tested once, not push+PR.
+  # Never cancel a DB audit or a deliberate validation run when another is queued.
   group: fm1-carddb-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   carddb:
