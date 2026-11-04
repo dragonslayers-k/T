@@ -50,7 +50,7 @@ def build_soul_semantic_review_queue(rows):
             "amount":row.get("count")
         })
         card_ids.add(card_id)
-    result=sorted(groups.values(),key=lambda x:(str(x["code"]),x["symbol"],x["candidate_color_mapping"]))
+    result=sorted(groups.values(),key=lambda x:(str(x["code"]),str(x["symbol"] or ""),str(x["candidate_color_mapping"] or "")))
     for group in result:
         group["card_count"]=len(group["card_ids"])
         group["verification_status"]="pending_source_and_engine_verification"
