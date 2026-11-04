@@ -44,8 +44,21 @@ def build(db_path: Path, out_dir: Path):
         costs.append(dict(r))
     with (out_dir/"cost-gap-report.jsonl").open("w",encoding="utf-8") as f:
         for r in costs:
-            if not r["soul_known"] or r["mapping_review"] or r["semantic_review"] or not r["lp_known"]:
+            if not r["soul_known"] or r["mapping_review"] or r["semantic_review"] or (r["card_type"]=="지형" and not r["lp_known"]):
                 f.write(json.dumps(r,ensure_ascii=False)+"\n")
+
+    skill_inventory=[]
+    for r in db.execute("""
+      SELECT source_field,source_enum_value,source_name,COUNT(*) AS card_count,
+             MIN(card_id) AS example_card_id
+      FROM card_rule_mappings WHERE mapping_status='unmapped'
+      GROUP BY source_field,source_enum_value,source_name
+      ORDER BY source_field,source_name
+    """):
+        skill_inventory.append(dict(r))
+    with (out_dir/"unmapped-skill-inventory.csv").open("w",newline="",encoding="utf-8-sig") as f:
+        w=csv.DictWriter(f,fieldnames=["source_field","source_enum_value","source_name","card_count","example_card_id"])
+        w.writeheader();w.writerows(skill_inventory)
 
     skills=[]
     for r in db.execute("""
@@ -75,10 +88,10 @@ def build(db_path: Path, out_dir: Path):
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
-      "cost_review_rows":sum(1 for r in costs if not r["soul_known"] or r["mapping_review"] or r["semantic_review"] or not r["lp_known"]),
-      "unmapped_skill_card_rows":len(skills),
+      "cost_review_rows":sum(1 for r in costs if not r["soul_known"] or r["mapping_review"] or r["semantic_review"] or (r["card_type"]=="지형" and not r["lp_known"])),
+      "unmapped_skill_card_rows":len(skills),\n      "unmapped_skill_unique_values":len(skill_inventory),
       "unverified_effect_rows":sum(1 for r in effects if r["verification_status"] not in ("manual_verified","inferred")),
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","effect-gap-report.jsonl"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl"]
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
