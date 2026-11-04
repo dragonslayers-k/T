@@ -470,7 +470,7 @@ class LegacyLowConfidenceEffectRegressionTests(unittest.TestCase):
 
     def test_administrative_purchase_notice_is_not_an_effect(self):
         parsed=parse("1장 초과로 구입하시는 경우 구입에 오류가 납니다. 번거로우시더라도 1장씩 구입을 부탁드립니다.")
-        self.assertEqual(parsed["classification"],"reference_or_metadata")
+        self.assertEqual(parsed["classification"],"administrative_or_shop_note")
         self.assertEqual(parsed["confidence"],"not_applicable")
 
     def test_faq_and_maintenance_notes_are_not_effects(self):
