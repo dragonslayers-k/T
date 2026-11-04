@@ -16,7 +16,8 @@ def cost_interpretation_status(mapping_review, semantic_review):
 def build_effect_review_queue(low_effects):
     groups={}
     for row in low_effects:
-        text=" ".join((row.get("segment_text") or "").split()) or "(empty)"
+        raw_text=" ".join((row.get("segment_text") or "").split()) or "(empty)"
+        text=raw_text.lstrip("◇◆※▶★☆◈●○").strip() or raw_text
         try:
             parsed=json.loads(row.get("interpretation_json") or "{}")
         except Exception:
@@ -24,6 +25,7 @@ def build_effect_review_queue(low_effects):
         group=groups.setdefault(text,{
             "pattern_id":hashlib.sha256(text.encode("utf-8")).hexdigest()[:16],
             "text":text,
+            "source_text_variants":[],
             "occurrences":0,
             "classification":parsed.get("classification","unknown"),
             "confidence":parsed.get("confidence","low"),
@@ -33,6 +35,8 @@ def build_effect_review_queue(low_effects):
             "review_status":"pending_manual_semantic_review"
         })
         group["occurrences"]+=1
+        if raw_text not in group["source_text_variants"]:
+            group["source_text_variants"].append(raw_text)
         method=parsed.get("inferenceMethod")
         if method and method not in group["inference_methods"]:
             group["inference_methods"].append(method)
