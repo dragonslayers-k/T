@@ -167,11 +167,11 @@ CI 스크립트에서 매뉴얼 원문 파일을 명령 인자로 잘못 붙인 
 `not_applicable_candidate`는 정규화된 표시용 카드 유형이 아니라 원본 payload의 `Category` 값으로 묶는다. 또한 해당 원본 Category 안에서 그 필드가 비어 있지 않은 값으로 한 번 이상 관측된 경우에만 적용 필드로 본다. 같은 유형 전체에서 비어 있는 필드는 적용성 후보로 남기며, 빈 문자열/JSON null이 원본에 명시된 경우에는 각각 `source_empty_confirmed`/`source_null_confirmed`로 별도 보존한다.
 
 
-## 11차: 원본 부재와 필드 적용성 후보 분리
+## 11차: 원본 부재와 필드 적용성의 분리
 
-- 55개 필드 × 15,350장 매트릭스에서 원본 키가 없다는 사실과 해당 카드 유형에 필드가 적용되지 않는다는 해석을 별도 값으로 기록하도록 수정했다.
-- `coverage_status=source_absent_confirmed`는 원본 payload에 키가 없다는 사실을 뜻한다. 별도 `applicability_status=not_applicable_candidate`는 해당 Category에서 그 필드가 한 번도 관측되지 않았다는 후보 판단이다. 두 상태를 서로 대체하지 않는다.
-- `field-applicability-candidate-report.csv/jsonl`은 카드 유형 × 필드 조합별 후보, 해당 카드 수, 예시 ID를 별도 출력한다. DB29 기준선에서는 230,815개 셀에 걸친 100개 Category×field 후보 조합이 확인됐다. 이 후보가 검토되기 전에는 필드 적용성 완료를 통과시키지 않는다.
+- 55개 필드 × 15,350장 매트릭스에서 원본 키가 없다는 사실과 해당 카드 유형에 필드가 적용되지 않는다는 해석을 별도 값으로 기록한다.
+- `coverage_status=source_absent_confirmed`는 원본 payload에 키가 없다는 사실을 뜻한다. 별도 `applicability_status=not_applicable_confirmed`는 완전한 15,350장 원본 스냅샷에서 해당 Category의 모든 카드에 그 필드가 없고, 다른 Category에서만 관측된다는 범위 근거를 뜻한다. 두 상태를 서로 대체하지 않는다.
+- DB29 기준선에서는 230,815개 셀이 원본 부재로 확인됐으며, 이 중 100개 Category×field 조합은 전체 카테고리 스냅샷에서 비적용 범위가 확인됐다. `field-applicability-scope-report.csv/jsonl`은 카테고리별 카드 수, 필드 부재 수, 예시 ID와 `source_snapshot_category_scope` 근거를 보존한다. 개별 카드의 원본 부재는 계속 별도로 표시한다.
 
 ## 12차: Manual.zip 전역 규칙 카탈로그 확장
 
