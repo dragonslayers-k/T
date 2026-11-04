@@ -77,6 +77,9 @@ jobs:
           python -m unittest tests/test_cost_decoding.py
           python -m unittest tests/test_effect_candidates.py
           python -m unittest tests/test_manual_rules.py
+          python -m unittest tests/test_manual_skill_engine_test_spec.py
+          python -m unittest tests/test_manual_specialability_source_integrity.py
+          python -m unittest tests/test_manual_engine_name_reconciliation.py
           python -m unittest tests/test_infer_unmapped_skills.py
           python -m unittest tests/test_skill2_execution_review.py
           python -m unittest tests/test_card_field_coverage.py
