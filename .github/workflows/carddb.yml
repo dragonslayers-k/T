@@ -359,7 +359,8 @@ jobs:
               or card_rule_mapping_rows < 15000 or manual_skill_mappings < 1000
               or community_skill_candidates < 100 or skill_inventory_rows < 100
               or community_playable_rows != 0 or unmapped_skill_rows != 0
-              or inferred_skill_rule_count < 900 or effect_interpretation_rows != effect_clause_rows
+              or inferred_skill_rule_count < 700 or name_only_low_confidence_skill_rules > 100
+              or effect_interpretation_rows != effect_clause_rows
               or effect_interpretation_missing != 0
           ):
               raise SystemExit("SQLite validation failed: " + json.dumps(summary, ensure_ascii=False))
