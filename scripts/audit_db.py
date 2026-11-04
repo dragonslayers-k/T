@@ -55,6 +55,7 @@ result={
  "crawl_pages":crawl.get("pages"),"crawl_complete":crawl.get("complete",False),"complete":False
 }
 result["effect_interpretation_rows"]=q("select count(*) from card_effect_interpretations")
+result["effect_clause_rows"]=q("select count(*) from card_effect_clauses")
 result["effect_interpretation_missing"]=q("select count(*) from card_effect_clauses cl left join card_effect_interpretations i on i.clause_id=cl.clause_id where i.clause_id is null")
 result["effect_interpretation_low_confidence"]=q("select count(*) from card_effect_interpretations where confidence='low'")
 result["inferred_skill_card_rows"]=q("select count(*) from card_rule_mappings where mapping_status='inferred'")
@@ -80,7 +81,7 @@ result["semantic_completeness_pass"]=(
  result["soul_cost_needs_review"]==0 and result["soul_tokens"]>0 and
  result["skill_unmapped_rows"]==0 and result["skill_inventory_unmapped_values"]==0 and
  result["unmapped_skill_card_rows_after_inference"]==0 and
- result["effect_interpretation_rows"]==result["effect_rows"]+result["effect_rows"]+result["effect_rows"] and
+ result["effect_interpretation_rows"]==result["effect_clause_rows"] and
  result["effect_interpretation_missing"]==0
 )
 result["complete"]=result["source_snapshot_integrity_pass"] and result["semantic_completeness_pass"]
