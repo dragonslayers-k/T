@@ -31,6 +31,7 @@ def build(db_path: Path, out_dir: Path):
                 try: value=json.loads(raw) if raw is not None else None
                 except Exception: value=raw
                 status=("not_applicable" if (card["card_type"],field) not in applicable
+                        else "source_absent_confirmed" if (value is None or value=="") and field=="TextExtra"
                         else "empty_source_value" if value is None or value=="" else "present_unverified")
             field_rows.append({
                 "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
