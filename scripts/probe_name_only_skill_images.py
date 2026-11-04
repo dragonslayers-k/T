@@ -247,7 +247,6 @@ def probe(db_path: Path, archive_path: Path, output: Path):
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    db.close()
     matched = []
     for skill in skill_results:
         for card in skill["cards"]:
