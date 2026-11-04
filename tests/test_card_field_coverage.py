@@ -89,6 +89,8 @@ class CardFieldCoverageTests(unittest.TestCase):
             self.assertIn("Skill1", c5_summary["source_null_confirmed_fields"])
             c3_summary = next(row for row in card_rows if row["card_id"] == "c3")
             self.assertIn("Skill1", c3_summary["not_applicable_candidate_fields"])
+            self.assertEqual(c2_summary["source_category"], 2)
+            self.assertEqual(c3_summary["source_category"], 3)
             field_summary = json.loads((root / "out" / "card-field-status-summary.json").read_text(encoding="utf-8"))
             self.assertEqual(field_summary["cards"], 5)
             self.assertEqual(field_summary["fields"], 2)
