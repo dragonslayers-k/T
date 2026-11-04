@@ -1,0 +1,205 @@
+{
+  "schema_version": "FM1-EXTERNAL-CLAIM-CAPTURE-1.1",
+  "capture_date": "2026-11-05",
+  "ruleset": "FM1; historical version uncertain unless noted",
+  "immutable_baseline": "DB29",
+  "claims": [
+    {
+      "claim_id": "EXT-NAMU-FOREST-ROOT-INVASION-01",
+      "card_name": "뿌리침투",
+      "source": {
+        "url": "https://www.namu.moe/w/판타지%20마스터즈",
+        "section": "3.6.4 숲 속성 카드",
+        "source_type": "community_wiki",
+        "capture": "search result excerpt"
+      },
+      "claim": "Community text says it is a level-1 attack magic that removes the user's first terrain and the opponent's first terrain simultaneously.",
+      "normalized_candidate": {
+        "effect": "destroy_terrain",
+        "targets": [
+          "friendly_first_terrain",
+          "opponent_first_terrain"
+        ],
+        "quantity": 1,
+        "simultaneous": true
+      },
+      "evidence_status": "community_claim",
+      "id_match_status": "pending_card_id_match",
+      "runtime_status": "non_executable",
+      "conflicts_or_gaps": [
+        "Card ID, exact DB29 TextBase/TextExtra, ruleset version and engine order not checked."
+      ]
+    },
+    {
+      "claim_id": "EXT-NAMU-FOREST-LEADER-BEAST-DOMINANCE-01",
+      "card_name": "숲의지도자",
+      "source": {
+        "url": "https://www.namu.moe/w/판타지%20마스터즈",
+        "section": "3.6.4 숲 속성 카드",
+        "source_type": "community_wiki",
+        "capture": "search result excerpt"
+      },
+      "claim": "Community text says Beast Domination, when attacking, sets AP and DP to 0 for all opposing field beasts.",
+      "normalized_candidate": {
+        "trigger": "attack",
+        "target_selector": {
+          "side": "opponent",
+          "unit_category": "beast",
+          "scope": "all_field"
+        },
+        "operations": [
+          {
+            "stat": "AP",
+            "value": 0
+          },
+          {
+            "stat": "DP",
+            "value": 0
+          }
+        ]
+      },
+      "evidence_status": "community_claim",
+      "id_match_status": "pending_card_id_match",
+      "runtime_status": "non_executable",
+      "conflicts_or_gaps": [
+        "Duration/reset semantics, skill identifier and card ID must be verified against source card and engine."
+      ]
+    },
+    {
+      "claim_id": "EXT-NAMU-FOG-COUNTER-AP-01",
+      "card_name": "짙은안개",
+      "source": {
+        "url": "https://www.namu.moe/w/판타지%20마스터즈",
+        "section": "3.6.4 숲 속성 카드",
+        "source_type": "community_wiki",
+        "capture": "search result excerpt"
+      },
+      "claim": "Community text describes a defense-magic/counter card that sets AP to 0 for all friendly and opposing units.",
+      "normalized_candidate": {
+        "trigger": "defense_magic_counter",
+        "target_selector": {
+          "side": "both",
+          "unit_category": "unit",
+          "scope": "all_field"
+        },
+        "operation": {
+          "stat": "AP",
+          "value": 0
+        }
+      },
+      "evidence_status": "community_claim",
+      "id_match_status": "pending_card_id_match",
+      "runtime_status": "non_executable",
+      "conflicts_or_gaps": [
+        "Duration, timing and whether only AP or additional stats are affected require card ID and engine check."
+      ]
+    },
+    {
+      "claim_id": "EXT-NAMU-RUINS-RECOVER-SPELL-ORDER-01",
+      "card_name": "폐허의흔적",
+      "source": {
+        "url": "https://www.namu.moe/w/판타지%20마스터즈",
+        "section": "3.6.4 숲 속성 카드",
+        "source_type": "community_wiki",
+        "capture": "search result excerpt"
+      },
+      "claim": "Community text says the number of units in the user's graveyard determines the count of opponent-used magic cards returned to the field; example: if six spells were used in order and four are recovered, spells 3 through 6 appear.",
+      "normalized_candidate": {
+        "operation": "recover_opponent_used_magic_to_field",
+        "count_formula": "graveyard_unit_count_based",
+        "ordering_example": {
+          "used_sequence": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "recover_count": 4,
+          "recovered_sequence": [
+            3,
+            4,
+            5,
+            6
+          ]
+        }
+      },
+      "evidence_status": "community_claim",
+      "id_match_status": "pending_card_id_match",
+      "runtime_status": "non_executable",
+      "conflicts_or_gaps": [
+        "Exact count threshold, source zone, target selection, and whether recover count = floor(graveyard units/5) must be confirmed; source wording says per five units but not fully formalized here."
+      ]
+    },
+    {
+      "claim_id": "EXT-NEGINOTE-MAGIC-RESOLUTION-ORDER-01",
+      "topic": "마법 발동 순서 / 디스펠",
+      "source": {
+        "url": "https://neginote.wixsite.com/fantasymasters/1",
+        "source_type": "personal_guide",
+        "capture": "search result excerpt"
+      },
+      "claim": "Guide says lower-level magic resolves earlier; if levels tie, attack-turn player's card resolves first. Dispel status alone does not make a card first.",
+      "normalized_candidate": {
+        "priority": [
+          "lower_card_level_first",
+          "if_equal_attack_turn_player_first"
+        ],
+        "dispel_does_not_override_level": true
+      },
+      "evidence_status": "community_claim",
+      "runtime_status": "non_executable",
+      "conflicts_or_gaps": [
+        "Cross-check with official manual and engine, including enchant activation phase and exceptions; guide version date unclear."
+      ]
+    },
+    {
+      "claim_id": "EXT-NEGINOTE-DISENCHANT-PRIORITY-01",
+      "topic": "디스인첸트",
+      "source": {
+        "url": "https://neginote.wixsite.com/fantasymasters/1",
+        "source_type": "personal_guide",
+        "capture": "search result excerpt"
+      },
+      "claim": "Guide says enchant cards carrying the Disenchant label destroy enchant cards and can invalidate/destroy enchant effects; states they are not neutralized by enchant cards.",
+      "normalized_candidate": {
+        "mechanic": "disenchant_enchant_interaction"
+      },
+      "evidence_status": "community_claim",
+      "runtime_status": "non_executable",
+      "conflicts_or_gaps": [
+        "Not necessarily same as DB29's shared 'first enchant per side' count rule; link to source text and verify."
+      ]
+    },
+    {
+      "claim_id": "EXT-NEGINOTE-TERRAIN-LP-01",
+      "topic": "지형 / LP",
+      "source": {
+        "url": "https://neginote.wixsite.com/fantasymasters/guide-rand",
+        "source_type": "personal_guide",
+        "capture": "search result excerpt"
+      },
+      "claim": "Guide distinguishes LP as land-placement resource and notes LP=0 special terrains may still be playable regardless of LP.",
+      "normalized_candidate": {
+        "rule": "LP_zero_special_terrain_playability"
+      },
+      "evidence_status": "community_claim",
+      "runtime_status": "non_executable",
+      "conflicts_or_gaps": [
+        "Individual terrain's printed effect and manual rules must determine applicability; don't generalize to all LP=0 terrains."
+      ]
+    }
+  ],
+  "integration_next": [
+    "Resolve exact card IDs and original TextBase/TextExtra for four named Forest card claims.",
+    "Use manual authority and engine observations to adjudicate the Neginote spell-priority claim; preserve the claim as supplemental until validated.",
+    "Add deterministic tests for spell level tie/non-tie and attack-turn side, then enchant/disenchant phase interactions.",
+    "Do not promote any claim to executable from search excerpts alone."
+  ],
+  "policy": {
+    "db29_immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  }
+}
