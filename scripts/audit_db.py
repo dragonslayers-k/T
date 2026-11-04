@@ -85,6 +85,13 @@ result["inferred_skill_name_only_rows"]=q("select count(*) from game_rule_catalo
 result["named_effect_definition_rows"]=q("select count(*) from card_named_effect_definitions")
 result["named_effect_definition_unique_names"]=q("select count(distinct effect_name) from card_named_effect_definitions")
 result["named_effect_reference_rows"]=q("select count(*) from card_effect_interpretations where json_extract(interpretation_json,'$.classification')='named_effect_reference'")
+result["skill_image_ocr_evidence_rows"]=q("select count(*) from card_skill_ocr_evidence")
+result["skill_image_ocr_exact_rows"]=q("select count(*) from card_skill_ocr_evidence where match_status='image_text_exact'")
+result["skill_image_ocr_fuzzy_candidates"]=q("select count(*) from card_skill_ocr_evidence where match_status='fuzzy_candidate'")
+result["skill_image_ocr_name_collisions"]=q("select count(*) from card_skill_ocr_evidence where match_status='name_collision'")
+result["skill_image_ocr_exact_unclassified"]=q("select count(*) from card_skill_ocr_evidence where match_status='exact_text_unclassified'")
+result["skill_image_ocr_not_found"]=q("select count(*) from card_skill_ocr_evidence where match_status='not_found'")
+result["skill_image_ocr_semantic_promotions"]=q("select count(*) from card_skill_ocr_evidence where rule_semantics_verified=1 or executable=1")
 result["manual_rule_count"]=q("select count(*) from game_rule_catalog where source_authority='manual'")
 result["manual_skill_rule_count"]=q("select count(*) from game_rule_catalog where source_authority='manual' and source_references_json like '%specialability.htm%'")
 result["manual_global_rule_count"]=result["manual_rule_count"]-result["manual_skill_rule_count"]
