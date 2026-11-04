@@ -229,5 +229,22 @@ class NamedEffectInterpretationTests(unittest.TestCase):
                 self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
 
 
+    def test_audit_444_card_local_annotations_are_structured_candidates(self):
+        cases = [
+            ("발동 후 다크파워 히어로 +1", "modify_hero_power"),
+            ("발동시 아군 핸드/필드가 모두 블라토브 유닛이면 마법 대상 +1.", "modify_spell_target_count"),
+            ("아군필드 금속 속성 유닛 전체 공체+1. 적군필드 유닛 전체 공체-1", "modify_combat_stats"),
+            ("아군 전체 HP- 전투 필드 10개의 공간 중 양쪽 모두 비어있는 공간 수.", "formula_based_stat_change"),
+            ("적 필드 카드 1의 레벨에 따라 다른 효과.", "conditional_effect_branch_reference"),
+        ]
+        for raw, expected_kind in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                kinds = {op.get("kind") for op in result["operations"]}
+                self.assertIn(expected_kind, kinds)
+                self.assertEqual(result["classification"], "effect_candidate")
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+
 if __name__ == "__main__":
     unittest.main()
