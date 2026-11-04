@@ -3,7 +3,7 @@ name: FM1 Card Database
 
 on:
   push:
-    branches: [main, feat/carddb-effect-semantic-pass]
+    branches: [main]
     paths:
       - "scripts/**"
       - "tests/**"
