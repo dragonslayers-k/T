@@ -23,6 +23,24 @@ class ManualSkillCatalogueTests(unittest.TestCase):
         self.assertEqual(len(manual), 27)
         self.assertEqual({x["source"]["member"] for x in manual}, {"specialability.htm"})
 
+    def test_every_manual_rule_has_complete_structured_definition_and_provenance(self):
+        manual = [x for x in self.catalogue["rules"] if x["authority"] == "manual"]
+        for rule in manual:
+            with self.subTest(rule=rule["id"]):
+                definition = rule.get("ruleDefinition")
+                self.assertIsInstance(definition, dict)
+                self.assertTrue(definition.get("kind"))
+                self.assertTrue(rule.get("source", {}).get("member"))
+                self.assertTrue(rule.get("source", {}).get("section"))
+                self.assertTrue(rule.get("exceptions") is not None)
+                self.assertEqual(rule.get("implementationStatus"), "pending_engine_test")
+
+    def test_legacy_definition_mirror_matches_structured_rule_definition(self):
+        manual = [x for x in self.catalogue["rules"] if x["authority"] == "manual"]
+        for rule in manual:
+            with self.subTest(rule=rule["id"]):
+                self.assertEqual(rule.get("definition"), rule.get("ruleDefinition"))
+
     def test_all_2017_community_entries_are_non_executable(self):
         community = [x for x in self.catalogue["rules"] if x["authority"] == "community"]
         self.assertGreaterEqual(len(community), 35)
