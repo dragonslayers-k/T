@@ -1,0 +1,507 @@
+{
+  "schema_version": "FM1-SKILL-CATALOG-PROMOTION-QUEUE-1.0",
+  "baseline": {
+    "db_release": "DB29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source_catalog": "data/rules/fm1-skill-catalog-v1.json",
+  "summary": {
+    "manual_rule_count": 27,
+    "community_candidate_count": 41,
+    "manual_verification_status": {
+      "manual_verified": 27
+    },
+    "manual_implementation_status": {
+      "pending_engine_test": 27
+    },
+    "community_status": {
+      "unset": 41
+    },
+    "candidate_name_already_manual": []
+  },
+  "policy": {
+    "manualArchive_authority": true,
+    "community_not_promoted_without_per_card_source": true,
+    "skill2_must_link_card_id_and_exact_source_text": true
+  },
+  "next_batch": {
+    "prioritize": [
+      "manual-verified rules with implementationStatus pending_engine_test",
+      "community candidates with card-specific DB29 source excerpts and matching card IDs",
+      "unmapped skill labels with exact source name and category"
+    ],
+    "required_fields": [
+      "skill_name_exact",
+      "card_id",
+      "source_url",
+      "source_text_excerpt",
+      "manual_or_community_authority",
+      "trigger",
+      "condition",
+      "effect",
+      "duration",
+      "edge_case_test_ids",
+      "engine_test_result"
+    ],
+    "reject_if": [
+      "no exact source text",
+      "only inferred pattern",
+      "name alias uncertain",
+      "runtime behavior not tested"
+    ]
+  },
+  "queue": [
+    {
+      "id": "normal_attack",
+      "name": "일반공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "defense_bypass",
+      "name": "방어무시",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "fatal_attack",
+      "name": "치명공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "piercing_attack",
+      "name": "관통공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "weaken_attack",
+      "name": "약화공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "petrify_attack",
+      "name": "석화공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "vampiric_attack",
+      "name": "흡혈공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "aging_attack",
+      "name": "노화공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "charge_attack",
+      "name": "돌진공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "beast_tamer",
+      "name": "야수조련",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "bravery_attack",
+      "name": "용맹공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "regeneration",
+      "name": "재생능력",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "frenzy_attack",
+      "name": "광분공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "consecutive_attack",
+      "name": "연속공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "fear_attack",
+      "name": "공포공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "charm_attack",
+      "name": "매료공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "ability_seal",
+      "name": "기술봉쇄",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "spell_suppression",
+      "name": "주문봉쇄",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "weapon_suppression",
+      "name": "무기봉쇄",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "copy_attack",
+      "name": "공격복제",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "shield_break",
+      "name": "방패파괴",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "curse_attack",
+      "name": "저주공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "defensive_use",
+      "name": "방어이용",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "taunt_attack",
+      "name": "조롱공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "confusion_attack",
+      "name": "혼란공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "stealth_attack",
+      "name": "은폐공격",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    },
+    {
+      "id": "defense_convert",
+      "name": "방어변환",
+      "verificationStatus": "manual_verified",
+      "implementationStatus": "pending_engine_test",
+      "authority": "manual",
+      "confidence": "high",
+      "source": "specialability.htm"
+    }
+  ],
+  "community_queue": [
+    {
+      "name": "자폭공격",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "강한공포",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "강한치명",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "강한은폐",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "강한돌진",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "강한흡혈",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "강한화염",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "아이템파괴",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "장거리공격",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "공체력화",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "공방어화",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "솔생성",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "야수화마법",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "관통무시",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "야수제압",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "기술간파",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "무기제압",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "주문제압",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "증폭능력",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "스컬라이징",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "네추럴힐링",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "집단공격",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "소울회수",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "돌파공격",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "장비제련",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "순화능력",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "네추럴서먼",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "킬스매쉬",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "솔블래스트",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "강철화",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "어택브레스",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "디펜브레스",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "매직인크리스",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "중급중독공격",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "소울트렌스",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "체력복제",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "일격필살",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "분기공격",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "타임어택",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "멀티어택",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    },
+    {
+      "name": "방어흡수",
+      "source": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "confidence": "medium"
+    }
+  ]
+}
