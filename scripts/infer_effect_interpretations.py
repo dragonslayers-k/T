@@ -215,21 +215,29 @@ def parse(text, known_skills=None):
                     "selection":selector.group(2),"direction":direction,
                     "value":int(amount.group(1)),"rawText":t,"executable":False})
 
-    # Broad Korean action vocabulary. The narrow patterns above retain exact numeric
-    # operations; this layer makes the remaining effect verbs searchable and typed
-    # without pretending that an unverified phrase is executable.
+    # Broad Korean action vocabulary. Exact operations above retain explicit
+    # numbers/formulas; this layer also captures legacy card verbs whose wording
+    # differs across editions. It remains a non-executable candidate.
     action_patterns = [
-      ("grant_or_apply",r"부여|추가|적용|부착|부여받|발생시키|생성"),
-      ("remove_or_disable",r"제거|해제|무효화|차단|방지|봉쇄|금지|없앤다|사라진다"),
-      ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다"),
-      ("resource_or_cost",r"지불|소모|충전|획득|회수|빼앗|코스트|소울"),
-      ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환"),
-      ("battle_interaction",r"반격|반사|되받아|공격을 막|공격을 받|방어한다"),
-      ("state_or_duration",r"유지|지속|종료|만료|누적|중첩|초기화"),
+      ("grant_or_apply",r"부여|추가|적용|부착|부여받|발생시키|생성|만들어|얻는다|획득한다"),
+      ("remove_or_disable",r"제거|해제|무효화|무효|차단|방지|봉쇄|금지|봉인|잠금|없앤다|사라진다|막는다"),
+      ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다|변신|진화|성장"),
+      ("resource_or_cost",r"지불|소모|충전|획득|회수|빼앗|코스트|소울|유지비|소비"),
+      ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환|보낸다|돌려보낸다|버린다|버려진다|추방"),
+      ("battle_interaction",r"반격|반사|되받아|공격을 막|공격을 받|방어한다|공격한다|직접공격|타격"),
+      ("state_or_duration",r"유지|지속|종료|만료|누적|중첩|초기화|마비|빙결|기절|침묵|혼란|중독|화상|공포|실명"),
+      ("stat_or_probability",r"증가|감소|상승|하락|높아진다|낮아진다|확률|수치|능력치|공방체"),
     ]
     action_candidates=[key for key,pat in action_patterns if re.search(pat,t)]
     if action_candidates and not ops:
         ops.append({"kind":"generic_effect_operation","actionCandidates":action_candidates,
+                    "rawText":t,"executable":False})
+
+    # Named status terms are useful even when the source text omits the generic
+    # word '상태'. Keep the exact term list and the original sentence.
+    status_terms=re.findall(r"마비|빙결|기절|침묵|혼란|중독|독|화상|공포|실명|구속|봉인|저주|출혈",t)
+    if status_terms and re.search(r"부여|걸린|적용|해제|제거|유지|면역|무효|상태",t):
+        ops.append({"kind":"apply_or_change_named_status","statusTerms":_uniq(status_terms),
                     "rawText":t,"executable":False})
 
     # A colon-prefixed label is often a split skill/effect heading, not a reference.
