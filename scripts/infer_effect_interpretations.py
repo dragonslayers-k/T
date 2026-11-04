@@ -50,6 +50,12 @@ def parse(text, known_skills=None, known_cards=None):
                 "operations":[{"kind":"state_persistence_constraint","rawRule":t,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"state_persistence_note_v1","confidence":"medium"}
+    if re.fullmatch(r".+상태의 조건 대상이 됩니다[.]?", t):
+        return {"classification":"state_condition_target_reference","triggers":[],"actors":[],
+                "targets":["status_condition_target"],"conditions":[t],
+                "operations":[{"kind":"status_condition_target_reference","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"status_condition_target_note_v1","confidence":"medium"}
     if ("핸드 빈공간이 없을 경우" in t or "핸드 빈공간이 없으면" in t
             or ("자신과 같은 속성의" in t and "없으면 발동하지" in t)
             or "발동시 아군 유닛" in t or ("핸드 또는 필드에" in t and "존재시 발동" in t)
@@ -156,7 +162,7 @@ def parse(text, known_skills=None, known_cards=None):
                 "operations":[{"kind":"ability_stat_profile_reference","rawRule":t,"executable":False}],
                 "numbers":re.findall(r"(?<!\d)[+-]?\d+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"ability_profile_reference_v1","confidence":"not_applicable"}
-    if re.match(r"^(?:중급|상급|하급)\s*[가-힣A-Za-z0-9]+\s*[;；:]?$",t) or re.match(r"^(?:유닛 목록|튜터능력|챕터\d+ 스페설 마법 특징)$",t):
+    if re.match(r"^(?:중급|상급|하급)\s*[가-힣A-Za-z0-9]+\s*[;；:]?$",t) or re.match(r"^(?:유닛 목록[.]?|튜터능력|챕터\d+ 스페설 마법 특징)$",t):
         return {"classification":"section_heading","triggers":[],"actors":[],"targets":[],
                 "conditions":[],"operations":[{"kind":"section_heading","rawText":raw_text,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
@@ -192,6 +198,7 @@ def parse(text, known_skills=None, known_cards=None):
       r"^아이템 착용에 있어서 제한이 전혀 없는 특징을 갖고 있는 유닛입니다",
       r"^에카마엘 유닛은 .*전용테두리로 표시됩니다",
       r"^모든 \[마일리지카드\]는",
+      r"^농민은 에피소드 농민만 해당됩니다",
       r"^좌측 히어로 창을 클릭한 후",
       r"^해당 기술은 유닛의 고유기술로서",
       r"^해당 아이템은 \d차 강화능력을 보유",
@@ -545,6 +552,9 @@ def parse(text, known_skills=None, known_cards=None):
     if re.search(r"DP\s*기호.{0,12}(?:반대로|반전|변환)",t):
         ops.append({"kind":"modify_stat_marks","target":"defender","stat":"dp",
                     "operation":"reverse_sign","rawText":raw_text,"executable":False})
+    if re.search(r"DP\s*(?:양수\s*[,，/]\s*음수|음수\s*[,，/]\s*양수)\s*기호.{0,12}(?:반대로|반전|변환|바꾼)",t):
+        ops.append({"kind":"modify_stat_marks","target":"defender","stat":"dp",
+                    "operation":"reverse_sign","rawText":raw_text,"executable":False})
     if re.search(r"(?:turn|턴).{0,16}(?:1의 자리|일의 자리|일의자리)",t,re.I):
         ops.append({"kind":"dynamic_attack_formula","formula":"turn % 10",
                     "target":"defender","rawText":raw_text,"executable":False})
@@ -776,7 +786,7 @@ def main(path="data/fm1_cards.sqlite"):
       for clause_id,cid,text,segtype,url in rows:
         parsed=parse(text,known_skills,known_cards)
         status=("not_applicable" if segtype=="separator" or parsed["classification"] in
-                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","flavor_or_lore","named_status_reference","example_or_reference","source_placeholder")
+                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","state_condition_target_reference","flavor_or_lore","named_status_reference","example_or_reference","source_placeholder")
                 else "linked_rule_reference" if parsed["classification"]=="ability_name_reference" else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
