@@ -54,13 +54,13 @@ def parse(text, known_skills=None, known_cards=None):
         return {"classification":"effect_activation_requirement","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
                 "operations":[{"kind":"activation_condition","conditionText":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"activation_requirement_note_v1","confidence":"medium"}
-    if re.match(r"^(?:실패시|성공시)\\s*[:：=]",t):
+    if re.match(r"^(?:실패시|성공시)\s*[:：=]",t):
         return {"classification":"conditional_branch_reference","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
                 "operations":[{"kind":"conditional_branch","conditionText":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"success_failure_branch_v1","confidence":"medium"}
     if re.match(r"^(?:기본효과|발동후 효과|발동 후 효과)",t):
         return {"classification":"effect_timing_rule_candidate","triggers":[],
@@ -68,11 +68,11 @@ def parse(text, known_skills=None, known_cards=None):
                 "operations":[{"kind":"effect_timing_constraint","rawRule":t,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"effect_timing_note_v1","confidence":"medium"}
-    if re.match(r"^무한턴일 때\\s*\\d+턴으로 처리",t):
+    if re.match(r"^무한턴일 때\s*\d+턴으로 처리",t):
         return {"classification":"turn_duration_override_candidate","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
                 "operations":[{"kind":"turn_duration_override","rawRule":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"infinite_turn_override_v1","confidence":"medium"}
     if re.match(r"^해당 유닛을 필드에 올리면 .+상태가 바로 발동",t):
         return {"classification":"on_play_status_trigger_candidate","triggers":["on_play"],
@@ -80,7 +80,7 @@ def parse(text, known_skills=None, known_cards=None):
                 "operations":[{"kind":"apply_status","rawRule":t,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"on_play_status_note_v1","confidence":"medium"}
-    status_delta=re.match(r"^(?P<target>[^:：]+)[:：]\\s*(?P<status>.+?)\\s*(?P<sign>[+-])\\s*(?P<turns>\\d+)\\s*턴$",t)
+    status_delta=re.match(r"^(?P<target>[^:：]+)[:：]\s*(?P<status>.+?)\s*(?P<sign>[+-])\s*(?P<turns>\d+)\s*턴$",t)
     if status_delta:
         return {"classification":"status_duration_change_candidate","triggers":[],
                 "actors":[],"targets":[status_delta.group("target").strip()],"conditions":[],
@@ -90,13 +90,13 @@ def parse(text, known_skills=None, known_cards=None):
                     "executable":False}],
                 "numbers":[status_delta.group("turns")],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"status_duration_note_v1","confidence":"medium"}
-    if re.match(r"^(?:만능|마법|장비|야수)\\s*[:：].*상태\\s*\\([^)]+\\)",t):
+    if re.match(r"^(?:만능|마법|장비|야수)\s*[:：].*상태\s*\([^)]+\)",t):
         return {"classification":"unit_ability_profile_reference","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
                 "operations":[{"kind":"ability_stat_profile_reference","rawRule":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "numbers":re.findall(r"(?<!\d)[+-]?\d+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"ability_profile_reference_v1","confidence":"not_applicable"}
-    if re.match(r"^(?:중급|상급|하급)\\s*[가-힣A-Za-z0-9]+\\s*[;；:]?$",t) or re.match(r"^(?:유닛 목록|튜터능력|챕터\\d+ 스페설 마법 특징)$",t):
+    if re.match(r"^(?:중급|상급|하급)\s*[가-힣A-Za-z0-9]+\s*[;；:]?$",t) or re.match(r"^(?:유닛 목록|튜터능력|챕터\d+ 스페설 마법 특징)$",t):
         return {"classification":"section_heading","triggers":[],"actors":[],"targets":[],
                 "conditions":[],"operations":[{"kind":"section_heading","rawText":raw_text,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
@@ -104,12 +104,12 @@ def parse(text, known_skills=None, known_cards=None):
     if known_cards and re.search(r"[:：]",t):
         label,body=re.split(r"[:：]",t,maxsplit=1)
         label_key="".join(label.split())
-        if label_key in known_cards and re.search(r"[+-]?\\d+\\s*/\\s*[+-]?\\d+\\s*/\\s*[+-]?\\d+",body):
+        if label_key in known_cards and re.search(r"[+-]?\d+\s*/\s*[+-]?\d+\s*/\s*[+-]?\d+",body):
             return {"classification":"card_stat_profile_reference","triggers":[],
                     "actors":[],"targets":[],"conditions":[],
                     "operations":[{"kind":"related_card_definition","cardName":label.strip(),
                         "cardIds":known_cards[label_key],"statText":body.strip(),"executable":False}],
-                    "numbers":re.findall(r"(?<!\\d)[+-]?\\d+",body),"rawText":raw_text,
+                    "numbers":re.findall(r"(?<!\d)[+-]?\d+",body),"rawText":raw_text,
                     "flavorText":flavor_text,"inferenceMethod":"card_stat_profile_link_v1","confidence":"medium"}
     if known_cards:
         card_list=[x.strip() for x in re.split(r"[,，、]",t) if x.strip()]
@@ -127,14 +127,14 @@ def parse(text, known_skills=None, known_cards=None):
       r"^\d+차\s*강화\s*유닛\s*특징$",
       r"^상성(?:효과|카드|유닛|아이템)\s*:?\s*$",
       r"^(?:성장목록|성장유닛|오오라 능력|변경되는 유닛 리스트)$",
-      r"^해당\\s*(?:지형|유닛|아이템|마법|카드).*(?:입니다|가지고 있습니다|확인하실 수|확인할 수|FAQ를 참조|획득 가능합니다|획득할 수 있습니다)",
+      r"^해당\s*(?:지형|유닛|아이템|마법|카드).*(?:입니다|가지고 있습니다|확인하실 수|확인할 수|FAQ를 참조|획득 가능합니다|획득할 수 있습니다)",
       r"^3차 강화 카드는 만능능력 유닛으로 아이템 착용에 있어서 제한이 없습니다",
       r"^아이템 착용에 있어서 제한이 전혀 없는 특징을 갖고 있는 유닛입니다",
       r"^에카마엘 유닛은 .*전용테두리로 표시됩니다",
-      r"^모든 \\[마일리지카드\\]는",
+      r"^모든 \[마일리지카드\]는",
       r"^좌측 히어로 창을 클릭한 후",
       r"^해당 기술은 유닛의 고유기술로서",
-      r"^해당 아이템은 \\d차 강화능력을 보유",
+      r"^해당 아이템은 \d차 강화능력을 보유",
       r"^해당 유닛은 .*을 보유하고 있습니다",
       r"^Expansion 일일퀘스트 .*보상으로 받을",
       r"^이카젠 등급은 유니크 등급과 동일하게 취급",
@@ -149,11 +149,11 @@ def parse(text, known_skills=None, known_cards=None):
       r"^.*최초로 제작하신 카드입니다",
       r"^※표시 확인",
       r"^해당 마법은 .*로 발동됩니다",
-      r"^에카마엘 유닛 \\(챕터\\)",
+      r"^에카마엘 유닛 \(챕터\)",
       r"^하급에카마엘상태$",
       r"^유닛,인첸트:HP$",
       r"^상성 안내$",
-      r"^상성(?:유닛|아이템)\\s*[:：]",
+      r"^상성(?:유닛|아이템)\s*[:：]",
       r"^(?:랭크가 있는 카드입니다|랭크 카드 안내|랭크카드 각각에 대한 설명은)",
       r"^(?:FM 도움말|고객센터|홈페이지 메인화면|이벤트 페이지를 확인)",
       r"^20\d\d년.*(?:이벤트|부스터).*(?:획득|제공)",
