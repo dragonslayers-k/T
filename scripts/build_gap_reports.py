@@ -71,7 +71,7 @@ def build(db_path: Path, out_dir: Path):
 
     costs=[]
     for r in db.execute("""
-      SELECT c.card_id,c.name,c.card_type,cc.source_text,cc.soul_json,cc.lp_value,cc.lp_known,
+      SELECT c.card_id,c.name,c.card_type,c.source_card_url,cc.source_text,cc.soul_json,cc.lp_value,cc.lp_known,
              cc.soul_known,cc.mapping_review,cc.semantic_review,cc.verification_status
       FROM cards c JOIN card_costs cc USING(card_id) ORDER BY c.card_id
     """):
@@ -82,7 +82,10 @@ def build(db_path: Path, out_dir: Path):
             r["tokenEvidence"]=[dict(x) for x in db.execute(
                 "SELECT ordinal,raw_token,code,count,symbol,normalized_color,parse_status FROM card_soul_cost_tokens WHERE card_id=? ORDER BY ordinal",
                 (r["card_id"],))]
-            r["interpretationStatus"]="inferred_hybrid_both_colors" if r["mapping_review"] else "inferred_flexible_neutral" if r["semantic_review"] else "unresolved"
+            r["reviewReason"]=[]
+            if r["mapping_review"]: r["reviewReason"].append("hybrid_color_payment_rule_unverified")
+            if r["semantic_review"]: r["reviewReason"].append("special_soul_payment_rule_unverified")
+            r["interpretationStatus"]="hybrid_identity_preserved_pending_rule" if r["mapping_review"] else "special_identity_preserved_pending_rule" if r["semantic_review"] else "unresolved"
             cost_review.append(r)
     with (out_dir/"cost-gap-report.jsonl").open("w",encoding="utf-8") as f:
         for r in cost_review:
@@ -90,6 +93,36 @@ def build(db_path: Path, out_dir: Path):
     with (out_dir/"cost-inference-report.jsonl").open("w",encoding="utf-8") as f:
         for r in cost_review:
             f.write(json.dumps(r,ensure_ascii=False)+"\n")
+
+    # Compact inventory of every decoded RequireSoul token identity, including
+    # candidate semantics and original card URLs for manual verification.
+    cost_code_inventory=[]
+    grouped=db.execute("""
+      SELECT code,symbol,normalized_color,parse_status,
+             COUNT(*) AS token_rows,SUM(count) AS total_amount,
+             COUNT(DISTINCT card_id) AS card_rows
+      FROM card_soul_cost_tokens
+      GROUP BY code,symbol,normalized_color,parse_status
+      ORDER BY code,parse_status,normalized_color
+    """).fetchall()
+    for g in grouped:
+        examples=[dict(x) for x in db.execute("""
+          SELECT t.card_id,c.name,c.source_card_url,t.raw_token,t.count
+          FROM card_soul_cost_tokens t JOIN cards c USING(card_id)
+          WHERE t.code IS ? AND COALESCE(t.symbol,'')=COALESCE(?,'')
+            AND COALESCE(t.normalized_color,'')=COALESCE(?,'')
+            AND t.parse_status=?
+          ORDER BY t.card_id LIMIT 5
+        """,(g["code"],g["symbol"],g["normalized_color"],g["parse_status"]))]
+        cost_code_inventory.append({
+            "code":g["code"],"symbol":g["symbol"],
+            "normalizedColorCandidate":g["normalized_color"],
+            "parseStatus":g["parse_status"],"tokenRows":g["token_rows"],
+            "totalAmount":g["total_amount"],"cardRows":g["card_rows"],
+            "examples":examples
+        })
+    (out_dir/"cost-code-inventory.json").write_text(
+        json.dumps(cost_code_inventory,ensure_ascii=False,indent=2),encoding="utf-8")
 
     skill_inventory=[]
     for r in db.execute("""
@@ -186,7 +219,7 @@ def build(db_path: Path, out_dir: Path):
       "low_confidence_effect_interpretations":sum(1 for r in effects if r["confidence"]=="low"),
       "effect_low_confidence_unique_patterns":len(effect_groups),
       "effect_low_confidence_classification_counts":effect_classes,
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl","cost-code-inventory.json"
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
