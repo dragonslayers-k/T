@@ -238,3 +238,22 @@ SQLite SHA-256: `9ddc0d72cb74fe2cbf1944109e88cc9bcd01082a59786ca67319945116c6a75
 - 현재 PR #9는 open / unmerged이며, feature branch는 `feat/carddb-effect-semantic-pass` 하나를 계속 사용한다.
 - 기존 Release `fm1-carddb-29`만 기준 입력으로 사용했다. #421은 Release를 발행하지 않았다.
 - 과거 브랜치/태그는 이력 보존을 위해 그대로 두고, 사용 여부 확인 없이 일괄 삭제하지 않는다. 새 branch, workflow, PR, Release를 추가하지 않는다.
+
+
+### #422~#426 후속 회귀 및 Workflow 중복 실행 방지
+
+- #422: named-effect label filter 첫 구현에서 정규식 이중 이스케이프 오류로 실패.
+- #423: 정규식 백슬래시 수정 후 경량 회귀 테스트 성공.
+- #424: #421 감사 결과 기록 문서 업데이트 커밋의 PR 경량 테스트 성공.
+- #425: 저신뢰 효과 분류 보강 중 범용 `label:value` 패턴이 기존 카드 참조·조건 분기·능력치 프로필·희귀도 파서보다 먼저 실행되어 기존 분류를 가로채는 회귀 7건 발생.
+- #426: 범용 매핑을 명시적 참조 라벨만 처리하도록 좁히고, 레전드/아레나 희귀도 라벨을 지원한 뒤 경량 회귀 테스트 성공. #426 로그에서 `tests/test_semantic_gap_completion.py` 81개 테스트 및 self-test들이 모두 통과했다.
+- #425에서 발견한 회귀는 수정되었으며, #426은 현재 parser 변경분의 경량 테스트 성공을 증명한다. 다만 전체 DB의 저신뢰 패턴 수와 named-effect 정의/참조 수는 아직 재감사 전이다.
+
+### Workflow 실행량 제어 — 추가 개선
+
+- PR `synchronize` 이벤트마다 테스트가 실행되던 구조를 변경했다. 현재 `pull_request` 자동 실행은 `opened`, `reopened`, `ready_for_review`만 허용하며, 커밋 추가마다 자동 실행하지 않는다.
+- `workflow_dispatch` 선택지에 `tests` 모드를 추가하고 기본값도 `tests`로 설정했다. 의도하지 않은 전체 DB 감사가 기본 실행되는 것을 방지한다.
+- `concurrency.cancel-in-progress=false`로 변경해 동일 이벤트/브랜치에서 새 실행이 기존 감사를 취소하지 않고 대기하도록 했다.
+- 전체 감사는 변경 사항을 묶은 뒤 `workflow_dispatch → audit-release → fm1-carddb-29 → publish_release=false`로 한 번만 수행한다. 이 모드 자체가 먼저 모든 경량 회귀 테스트를 수행하므로 별도 테스트 실행은 필요하지 않다.
+- 현재 Workflow 파일은 기존 `.github/workflows/carddb.yml` 한 개만 사용한다. 새 Workflow/브랜치/PR/Release는 만들지 않았다.
+- 변경 커밋: `1f848102708f8f356419d9de1105d1e0db89cac3`. 이 Workflow 트리거 변경은 PR이 이미 열린 상태에서 `synchronize`를 제외했으므로 추가 PR Action을 만들지 않는 것이 의도된 동작이다.
