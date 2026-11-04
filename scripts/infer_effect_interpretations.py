@@ -87,6 +87,11 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         flavor_text=flavor_match.group(1).strip()
         t=t[:flavor_match.start()].strip()
     compact="".join(t.split())
+    if t in {".","..","..."}:
+        return {"classification":"source_placeholder","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"source_placeholder","executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_placeholder_v1","confidence":"not_applicable"}
     if re.fullmatch(r"[。…\s]+",t):
         return {"classification":"punctuation_artifact","triggers":[],"actors":[],"targets":[],
                 "conditions":[],"operations":[{"kind":"punctuation_artifact","executable":False}],
