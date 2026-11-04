@@ -113,5 +113,26 @@ class NamedEffectInterpretationTests(unittest.TestCase):
                 self.assertEqual(parse(raw)["classification"], expected)
 
 
+    def test_audit_432_unparsed_notes_are_reclassified_without_execution(self):
+        cases = [
+            ("※", "source_marker_only"),
+            ("--------------------------------------------------------------------", "source_separator"),
+            ("기가스XG는 종족 소속이 없고 4글자 이름의 유닛입니다.", "reference_or_metadata"),
+            ("디멘션트리거는 1레벨 ~ 10레벨까지 랜덤한 레벨로 덱에 구성됩니다.", "reference_or_metadata"),
+            ("상점에서 %샌드웜% 로 검색하시면 해당 카드를 확인할 수 있습니다.", "reference_or_metadata"),
+            ("나눈 값의 나머지는 내림합니다.", "calculation_or_counting_rule_candidate"),
+            ("일반 지형카드의 레벨은 1로 체크합니다.", "calculation_or_counting_rule_candidate"),
+            ("아군 필드 마법은 소드그로잉 마법을 포함한 카드 레벨 합입니다.", "calculation_or_counting_rule_candidate"),
+            ("마법 발동 실패시 후속 효과도 발동 되지 않습니다.", "target_or_resolution_rule_candidate"),
+            ("적군 전체를 대상으로 하는 마법입니다.", "target_or_resolution_rule_candidate"),
+        ]
+        for raw, expected in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                self.assertEqual(result["classification"], expected)
+                self.assertTrue(result["operations"])
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+
 if __name__ == "__main__":
     unittest.main()
