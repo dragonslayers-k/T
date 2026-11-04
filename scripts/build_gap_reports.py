@@ -75,7 +75,7 @@ def build(db_path: Path, out_dir: Path):
     inferred_skills=[r for r in skills if r["mapping_status"]=="inferred"]
     with (out_dir/"inferred-skill-report.jsonl").open("w",encoding="utf-8") as f:
         for r in inferred_skills:
-            f.write(json.dumps(r,ensure_ascii=False)+"\\n")
+            f.write(json.dumps(r,ensure_ascii=False)+"\n")
 
     effects=[]
     for r in db.execute("""
