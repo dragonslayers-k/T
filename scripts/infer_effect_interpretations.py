@@ -9,12 +9,20 @@ def _uniq(values):
     return out
 
 def parse(text, known_skills=None):
-    t=(text or "").strip()
+    raw_text=(text or "").strip()
+    t=raw_text
+    # FM1 card effects often append flavor/lore in square brackets to the same
+    # source clause. Parse the rule sentence separately, but preserve the quote.
+    flavor_text=None
+    flavor_match=re.search(r"\\s+\\[([^\\]]{12,})\\]\\s*(?:By\\s*-\\s*.+)?$",t)
+    if flavor_match:
+        flavor_text=flavor_match.group(1).strip()
+        t=t[:flavor_match.start()].strip()
     compact="".join(t.split())
     if not t:
         return {"classification":"empty_separator","triggers":[],"actors":[],"targets":[],
-                "conditions":[],"operations":[],"numbers":[],"rawText":text or "",
-                "inferenceMethod":"empty_text_v1","confidence":"not_applicable"}
+                "conditions":[],"operations":[],"numbers":[],"rawText":raw_text,
+                "flavorText":flavor_text,"inferenceMethod":"empty_text_v1","confidence":"not_applicable"}
 
     # Source notes, credits, collection restrictions and headings are not game effects.
     metadata_patterns=[
@@ -30,6 +38,9 @@ def parse(text, known_skills=None):
       r"^상성(?:유닛|아이템)\s*[:：]",
       r"^◈\s*",
       r"^자세한 사항은 FAQ에서",
+      r"^(?:자세한 내용|더 자세한 내용).*(?:고객센터|홈페이지|FAQ|검색창|검색하여)",
+      r"^(?:고객센터|홈페이지 메인화면).*(?:FAQ|검색창|검색하여)",
+
       r"^\d+차 강화 카드는 .+ 유닛입니다",
       r"^따라서,?\s*아이템 착용에 있어서 제한",
       r"^(?:만능능력|에카마엘 유닛|에카마엘상태)$",
@@ -53,7 +64,28 @@ def parse(text, known_skills=None):
     if known_skills and compact in known_skills:
         return {"classification":"ability_name_reference","triggers":[],"actors":[],"targets":[],
                 "conditions":[],"operations":[{"kind":"skill_reference","ruleId":known_skills[compact]}],
-                "numbers":[],"rawText":t,"inferenceMethod":"catalogue_name_link_v2","confidence":"medium"}
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"catalogue_name_link_v2","confidence":"medium"}
+
+    # A bracketed status label is a status reference, not a free-form effect.
+    status_ref=re.fullmatch(r"\\[([^\\]]+)\\]\\s*상태",t)
+    if status_ref:
+        return {"classification":"named_status_reference","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"status_reference","statusName":status_ref.group(1),"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"bracketed_status_reference_v1","confidence":"medium"}
+
+    # Legacy card databases sometimes store elemental/card pair labels as a list,
+    # e.g. '금-유리가면'. These are references rather than game-effect sentences.
+    card_ref=re.fullmatch(r"(금|물|불|빛|숲|암|흑|대지|철|목|수|화|광)\\s*[-–—]\\s*(.+)",t)
+    if card_ref:
+        return {"classification":"card_reference_list","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"related_card_reference","label":card_ref.group(1),
+                     "cardName":card_ref.group(2).strip(),"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"element_card_reference_v1","confidence":"not_applicable"}
 
     triggers=[]
     for key,pat in [
@@ -231,7 +263,9 @@ def parse(text, known_skills=None):
       ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환|보내|돌려보낸다|버린다|버려진다|추방"),
       ("battle_interaction",r"반격|반사|되받아|공격을 막|공격을 받|방어한다|공격한다|직접공격|타격"),
       ("state_or_duration",r"유지|지속|종료|만료|누적|중첩|초기화|마비|빙결|기절|침묵|혼란|중독|화상|공포|실명"),
-      ("stat_or_probability",r"증가|감소|상승|하락|높아진다|낮아진다|확률|수치|능력치|공방체"),
+      ("stat_or_probability",r"증가|감소|상승|하락|높아진다|낮아진다|확률|수치|능력치|공방체|깎|깍|나누|곱하|절반"),
+      ("status_or_disabled_state",r"행동불능|행동불능상태|무력화|상태가 된다|상태에 걸린다|걸린다"),
+      ("calculated_stat_assignment",r"AP.{0,20}HP.{0,20}(?:된다|설정|정해)|DP.{0,20}(?:된다|설정|정해)|공방체.{0,20}(?:된다|정해)"),
     ]
     action_candidates=[key for key,pat in action_patterns if re.search(pat,t)]
     if action_candidates:
@@ -243,6 +277,46 @@ def parse(text, known_skills=None):
     status_terms=re.findall(r"마비|빙결|기절|침묵|혼란|중독|독|화상|공포|실명|구속|봉인|저주|출혈",t)
     if status_terms and re.search(r"부여|걸린|적용|해제|제거|유지|면역|무효|상태",t):
         ops.append({"kind":"apply_or_change_named_status","statusTerms":_uniq(status_terms),
+                    "rawText":t,"executable":False})
+
+    # Preserve formula-like stat assignments and arithmetic as explicit, non-executable
+    # candidates. This covers legacy descriptions such as HP=hand size, a stat becoming
+    # the count of field units, or combat stats being divided by a computed value.
+    stat_name_map={"AP":"ap","공격력":"ap","DP":"dp","방어력":"dp","HP":"hp","체력":"hp","LP":"lp"}
+    for m in re.finditer(r"(AP|DP|HP|LP|공격력|방어력|체력)\\s*=\\s*([^,;。]+)",t):
+        rhs=m.group(2).strip()
+        if not re.fullmatch(r"[★▲▼]?\\s*[+-]?\\d+",rhs):
+            stat_token=m.group(1)
+            ops.append({"kind":"set_stat_formula","stat":stat_name_map[stat_token],
+                        "formulaText":rhs,"rawText":t,"executable":False})
+    if re.search(r"(?:나눈다|나눈다\\.|나누어|나눠|곱한다|곱하여|곱해|곱한|차이만큼|수로\\s*깎|수로\\s*감소|깎는다|깍는다)",t):
+        referenced_stats=[stat_name_map[x] for x in re.findall(
+            r"AP|DP|HP|LP|공격력|방어력|체력",t)]
+        if referenced_stats:
+            operation_kind=("divide_stat_by_expression" if re.search(r"나누",t)
+                            else "multiply_or_scale_stat" if re.search(r"곱",t)
+                            else "formula_based_stat_change")
+            ops.append({"kind":operation_kind,"stats":_uniq(referenced_stats),
+                        "formulaText":t,"rawText":t,"executable":False})
+    if re.search(r"(?:AP|DP|HP|공격력|방어력|체력).{0,35}(?:절반|반이 된다|반으로|짝수는)",t):
+        referenced_stats=[stat_name_map[x] for x in re.findall(
+            r"AP|DP|HP|공격력|방어력|체력",t)]
+        ops.append({"kind":"halve_selected_stats","stats":_uniq(referenced_stats),
+                    "selectionText":t,"rawText":t,"executable":False})
+    if re.search(r"(?:AP|DP|HP|공방체|공방|공체).{0,35}(?:깎|깍|감소|낮추|나누|절반|된다|바뀐다)",t):
+        referenced_stats=[stat_name_map[x] for x in re.findall(
+            r"AP|DP|HP|공격력|방어력|체력",t)]
+        ops.append({"kind":"formula_based_combat_stat_rule","stats":_uniq(referenced_stats),
+                    "formulaText":t,"rawText":t,"executable":False})
+    if re.search(r"지형.{0,30}(?:변화|바뀐다|변경|된다)",t):
+        ops.append({"kind":"transform_terrain","formulaText":t,"rawText":t,"executable":False})
+
+    # Separate named state changes from numeric operations. These are still candidates
+    # until a rule is independently verified.
+    named_states=re.findall(
+        r"한파|행동불능|영혼지배|마비|빙결|기절|침묵|혼란|중독|독|화상|공포|실명|구속|봉인|저주|출혈",t)
+    if named_states and re.search(r"상태|걸린다|된다|부여|적용|해제|제거|면역|무효",t):
+        ops.append({"kind":"apply_or_change_named_status","statusTerms":_uniq(named_states),
                     "rawText":t,"executable":False})
 
     # A colon-prefixed label is often a split skill/effect heading, not a reference.
@@ -309,7 +383,8 @@ def parse(text, known_skills=None):
         classification="effect_candidate"; confidence="medium"
     return {"classification":classification,"triggers":triggers,"actors":actors,
             "targets":targets,"conditions":conditions,"operations":ops,
-            "numbers":nums,"rawText":t,"inferenceMethod":"keyword_pattern_v3",
+            "numbers":nums,"rawText":raw_text,"flavorText":flavor_text,
+            "mechanicText":t,"inferenceMethod":"keyword_pattern_v4",
             "confidence":confidence}
 
 def main(path="data/fm1_cards.sqlite"):
@@ -342,7 +417,7 @@ def main(path="data/fm1_cards.sqlite"):
       for clause_id,cid,text,segtype,url in rows:
         parsed=parse(text,known_skills)
         status=("not_applicable" if segtype=="separator" or parsed["classification"] in
-                ("reference_or_flavor","card_reference_list","section_heading","flavor_or_lore")
+                ("reference_or_flavor","card_reference_list","section_heading","flavor_or_lore","named_status_reference")
                 else "linked_rule_reference" if parsed["classification"]=="ability_name_reference" else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
