@@ -179,6 +179,13 @@ jobs:
             --top 500 \
             --summary-only
 
+      - name: Generate card-level gap reports
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: |
+          set -euo pipefail
+          python scripts/build_gap_reports.py --db data/fm1_cards.sqlite --out-dir data/gap-reports
+          cat data/gap-reports/gap-report-summary.json
+
       - name: Audit complete card, soul-cost, and skill mapping coverage
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: |
