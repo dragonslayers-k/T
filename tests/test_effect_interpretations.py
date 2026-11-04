@@ -214,5 +214,20 @@ class NamedEffectInterpretationTests(unittest.TestCase):
                 self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
 
 
+    def test_audit_437_remaining_effect_examples_get_candidate_operations(self):
+        cases = [
+            "적군 장비/야수 중 HP가 AP보다 높은 유닛 1을 핸드로 보낸다.",
+            "아군 적군 장비 유닛에게 저주과를 착용시킨다.",
+            "적군의 1번 유니트를 맨 뒷자리로 보낸다.",
+            "아군 유닛 전체는 장비능력으로 변한다.",
+        ]
+        for raw in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                self.assertEqual(result["classification"], "effect_candidate")
+                self.assertTrue(result["operations"])
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+
 if __name__ == "__main__":
     unittest.main()
