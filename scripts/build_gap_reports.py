@@ -195,6 +195,7 @@ def build(db_path: Path, out_dir: Path):
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
+    db.commit()
     db.close()
     return summary
 
