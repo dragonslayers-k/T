@@ -129,6 +129,55 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "conditions":[],"operations":[{"kind":"administrative_note","rawText":raw_text,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"admin_note_v1","confidence":"not_applicable"}
+    if re.match(r"^20\d{2}-\d{2}-\d{2}.*리콜전.*효과입니다",t):
+        return {"classification":"historical_card_effect_reference","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"historical_effect_version_note","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"historical_effect_note_v1","confidence":"not_applicable"}
+    if any(token in t for token in ("이벤트 특별보상 카드입니다","기념 응원 카드입니다","연속 퀘스트의 마지막 보상","이벤트의 미션")):
+        return {"classification":"event_or_acquisition_metadata","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"event_or_acquisition_note","rawText":raw_text,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"event_acquisition_note_v1","confidence":"not_applicable"}
+    if ("LP는 랜드포인트를 뜻" in t or "고는 짐이나 과인처럼" in t
+            or ("표기" in t and "아이콘" in t)):
+        return {"classification":"card_glossary_metadata","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"card_glossary_or_ui_note","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"card_glossary_metadata_v1","confidence":"not_applicable"}
+    if (t.startswith("[") and len(t)>=40
+            and not re.search(r"(?:표기되어|표기됩니다|아이콘|증가|감소|공격|방어|발동|파괴|부여|소환|이동|회복|데미지)",t)):
+        return {"classification":"flavor_or_lore","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"flavor_text","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":t.lstrip("["),
+                "inferenceMethod":"bracketed_lore_fragment_v1","confidence":"not_applicable"}
+    if re.fullmatch(r"(?:강한돌진공격|강한은폐공격|강한화염공격|강한흡혈공격|잠수능력|초음파공격)",t):
+        return {"classification":"named_ability_reference_candidate","triggers":[],"actors":[],
+                "targets":["named_ability"],"conditions":[],
+                "operations":[{"kind":"ability_name_reference_candidate","name":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"named_ability_label_v2","confidence":"medium"}
+    if re.match(r"^\d+(?:~\d+)?\s*[:：]\s*[^:：]+$",t) and not re.search(r"(?:AP|DP|HP|增加|减少|공격|방어|발동)",t):
+        return {"classification":"numeric_range_reference_candidate","triggers":[],"actors":[],
+                "targets":["card_or_level_reference"],"conditions":[t.split(":",1)[0].strip()],
+                "operations":[{"kind":"numeric_range_reference","rawText":raw_text,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"numeric_range_reference_v1","confidence":"medium"}
+    if re.match(r"^(?:[^:：]{2,40})\s*[:：]\s*(?:[^:：]{2,40})[.]?$",t):
+        label,body=re.split(r"[:：]",t,maxsplit=1)
+        if not re.search(r"(?:AP|DP|HP|LP|공격|방어|증가|감소|부여|발동|파괴|소환|이동|회복|상태|턴|레벨|소울|데미지)",body):
+            return {"classification":"card_or_named_reference_candidate","triggers":[],"actors":[],
+                    "targets":["card_or_named_reference"],"conditions":[],
+                    "operations":[{"kind":"label_value_reference","label":label.strip(" *"),"value":body.strip(" .。"),"executable":False}],
+                    "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"label_value_reference_v1","confidence":"medium"}
+    if (re.search(r"(?:필요|없으면|없어도 발동|발동하지|발동안함|존재시 발동|최소\s*\d+레벨|조건에 충족)",t)
+            and not re.search(r"(?:증가|감소|부여|파괴|소환|이동|회복|데미지)",t)):
+        return {"classification":"effect_activation_requirement","triggers":[],"actors":[],
+                "targets":[],"conditions":[t],
+                "operations":[{"kind":"activation_condition","conditionText":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"activation_requirement_v3","confidence":"medium"}
     if t.startswith("[") and t.endswith("]") and len(t)>=40:
         return {"classification":"flavor_or_lore","triggers":[],"actors":[],"targets":[],
                 "conditions":[],"operations":[{"kind":"flavor_text","rawText":raw_text,"executable":False}],
@@ -280,7 +329,8 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "operations":[{"kind":"activation_restriction","conditionText":t,"executable":False}],
                 "numbers":re.findall("[0-9]+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"activation_restriction_v2","confidence":"medium"}
-    if "상성효과" in t and (":" in t or "：" in t):
+    if (("상성효과" in t or re.search(r"상성(?:은|이)?\s*(?:존재|효과)",t))
+            and not re.search(r"(?:증가|감소|공격|방어|부여|파괴|이동|회복)",t)):
         return {"classification":"matchup_effect_reference_candidate","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
                 "operations":[{"kind":"matchup_effect_reference","rawRule":t,"executable":False}],
@@ -1112,8 +1162,8 @@ def main(path="data/fm1_cards.sqlite"):
       for clause_id,cid,text,segtype,url in rows:
         parsed=parse(text,known_skills,known_cards,known_named_effects,known_named_effect_fragments)
         status=("not_applicable" if segtype=="separator" or parsed["classification"] in
-                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","state_condition_target_reference","flavor_or_lore","named_status_reference","named_effect_reference","named_effect_definition","named_effect_definition_body","administrative_or_shop_note","punctuation_artifact","parenthetical_reference_note","parenthetical_rule_note","no_effect_marker","trigger_timing_metadata","ability_type_metadata","equip_condition_metadata","card_type_metadata","example_or_reference","source_placeholder")
-                else "linked_rule_reference" if parsed["classification"]=="ability_name_reference" else "inferred")
+                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","state_condition_target_reference","flavor_or_lore","named_status_reference","named_effect_reference","named_effect_definition","named_effect_definition_body","administrative_or_shop_note","historical_card_effect_reference","event_or_acquisition_metadata","card_glossary_metadata","punctuation_artifact","parenthetical_reference_note","parenthetical_rule_note","no_effect_marker","trigger_timing_metadata","ability_type_metadata","equip_condition_metadata","card_type_metadata","example_or_reference","source_placeholder")
+                else "linked_rule_reference" if parsed["classification"] in ("ability_name_reference","named_ability_reference_candidate","matchup_effect_reference_candidate","card_or_named_reference_candidate","numeric_range_reference_candidate") else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
            parsed["confidence"],parsed["inferenceMethod"]))

@@ -41,6 +41,26 @@ class NamedEffectInterpretationTests(unittest.TestCase):
             {"거대화 상태", "1차강화능력"},
         )
 
+    def test_low_confidence_reference_and_metadata_patterns_are_preserved(self):
+        cases = [
+            ("2006-09-21 리콜전 [하이딩어택] 효과입니다.", "historical_card_effect_reference"),
+            ("FM 콜로세움 이벤트 특별보상 카드입니다.", "event_or_acquisition_metadata"),
+            ("LP는 랜드포인트를 뜻하며, 지형을 올릴 수 있는 포인트입니다.", "card_glossary_metadata"),
+            ("라(EP3)와 상성 효과", "matchup_effect_reference_candidate"),
+            ("강한돌진공격", "named_ability_reference_candidate"),
+            ("4~5 : 악령퇴치자A", "numeric_range_reference_candidate"),
+            ("묘지가 0이면 발동안함.", "effect_activation_requirement"),
+        ]
+        for raw, expected in cases:
+            with self.subTest(raw=raw):
+                self.assertEqual(parse(raw)["classification"], expected)
+
+    def test_unclosed_lore_fragment_is_not_a_low_confidence_effect(self):
+        raw = "[자신들을 지옥의 상인이라 얘기하던 그 무리를 처음에는 우리 모두 믿지 못하였다. 그러나 그들이 건네는 무기들은 그 하나하나가 놀라운 것들뿐이었다."
+        result = parse(raw)
+        self.assertEqual(result["classification"], "flavor_or_lore")
+        self.assertFalse(any(op.get("executable") for op in result["operations"]))
+
     def test_named_effect_reference_resolves_to_source_definition(self):
         definitions = {
             normalize_effect_name("디스히어로"): [
