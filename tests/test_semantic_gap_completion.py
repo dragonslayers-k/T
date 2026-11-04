@@ -1,6 +1,7 @@
 import unittest
 from scripts.infer_unmapped_skills import extract_definitions, operations_from_text
 from scripts.infer_effect_interpretations import parse
+from scripts.import_community_skill_reference import extract_skill_definitions
 from scripts.infer_unmapped_skills import infer_one
 import sqlite3, json
 
@@ -56,6 +57,13 @@ class SkillExtractionTests(unittest.TestCase):
         definition=json.loads(db.execute("SELECT definition_json FROM game_rule_catalog").fetchone()[0])
         self.assertIn("가장 높은 수치",definition["rawEffectText"])
         db.close()
+
+class CommunityReferenceTests(unittest.TestCase):
+    def test_split_line_community_skill_heading(self):
+        page="각인의결계\\n\\n: 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 3 감소시킨다.\\n다른 기술: 별도 정의"
+        found=extract_skill_definitions(page,{"각인의결계":"각인의결계"})
+        self.assertTrue(found.get("각인의결계"))
+        self.assertIn("가장 높은 수치를 3 감소",found["각인의결계"][0])
 
 class EffectInterpretationTests(unittest.TestCase):
     def test_grouped_stats(self):
