@@ -462,7 +462,7 @@ class LegacyLowConfidenceEffectRegressionTests(unittest.TestCase):
 
     def test_mirrored_card_levels_are_structured(self):
         parsed=parse("아군 적군 필드 유닛 카드의 레벨이 좌우대칭으로 바뀐다.")
-        self.assertTrue(any(x["kind"]=="mirror_or_swap_card_levels" for x in parsed["operations"]))
+        self.assertTrue(any(x["kind"]=="mirror_or_swap_card_levels" for x in parsed["operations"]), msg=json.dumps(parsed,ensure_ascii=False))
 
     def test_granted_named_attack_skill_is_structured(self):
         parsed=parse("아군 유닛 전체는 저주공격기술을 가진다.")
