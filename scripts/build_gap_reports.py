@@ -3,6 +3,16 @@
 import argparse, csv, hashlib, json, sqlite3
 from pathlib import Path
 
+def cost_interpretation_status(mapping_review, semantic_review):
+    if mapping_review and semantic_review:
+        return "hybrid_and_special_identity_preserved_pending_rule"
+    if mapping_review:
+        return "hybrid_identity_preserved_pending_rule"
+    if semantic_review:
+        return "special_identity_preserved_pending_rule"
+    return "unresolved"
+
+
 def build(db_path: Path, out_dir: Path):
     db=sqlite3.connect(db_path)
     db.row_factory=sqlite3.Row
@@ -145,7 +155,7 @@ def build(db_path: Path, out_dir: Path):
             r["reviewReason"]=[]
             if r["mapping_review"]: r["reviewReason"].append("hybrid_color_payment_rule_unverified")
             if r["semantic_review"]: r["reviewReason"].append("special_soul_payment_rule_unverified")
-            r["interpretationStatus"]="hybrid_identity_preserved_pending_rule" if r["mapping_review"] else "special_identity_preserved_pending_rule" if r["semantic_review"] else "unresolved"
+            r["interpretationStatus"]=cost_interpretation_status(r["mapping_review"],r["semantic_review"])
             cost_review.append(r)
     with (out_dir/"cost-gap-report.jsonl").open("w",encoding="utf-8") as f:
         for r in cost_review:
