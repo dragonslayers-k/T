@@ -313,7 +313,7 @@ def build(db_path: Path, out_dir: Path):
     effect_review_queue=build_effect_review_queue(low_effects)
     with (out_dir/"effect-review-queue.jsonl").open("w",encoding="utf-8") as f:
         for item in effect_review_queue:
-            f.write(json.dumps(item,ensure_ascii=False)+"\\n")
+            f.write(json.dumps(item,ensure_ascii=False)+chr(10))
 
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
