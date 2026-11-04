@@ -12,13 +12,6 @@ def build(db_path: Path, out_dir: Path):
     present={(r["card_id"],r["field_key"]):r for r in db.execute(
         "SELECT field_id,card_id,field_key,source_value_json,normalized_value,verification_status FROM card_fields"
     )}
-    applicable=set()
-    for r in db.execute("""
-      SELECT DISTINCT c.card_type,cf.field_key
-      FROM card_fields cf JOIN cards c USING(card_id)
-      WHERE cf.source_value_json IS NOT NULL AND trim(cf.source_value_json)<>'""'
-    """):
-        applicable.add((r[0],r[1]))
     db.executescript("""
       CREATE TABLE IF NOT EXISTS card_field_coverage(
         card_id TEXT NOT NULL REFERENCES cards(card_id),
@@ -39,11 +32,14 @@ def build(db_path: Path, out_dir: Path):
         payload=json.loads(card["raw_payload_json"])
         for field in fields:
             row=present.get((card["card_id"],field))
-            expected_applicable=(card["card_type"],field) in applicable
             if row is None:
-                status="missing_on_card" if expected_applicable else "not_applicable"
+                # The source snapshot is authoritative. An absent key is a confirmed
+                # source absence; a key present in the raw payload but absent here is
+                # a genuine ingestion/normalization gap.
+                source_has_key=field in payload
+                status="missing_on_card" if source_has_key else "source_absent_confirmed"
                 raw=None; normalized=None; verification="not_recorded"; field_id=None
-                payload_match=0 if field in payload else 1
+                payload_match=0 if source_has_key else 1
                 value_hash=None
             else:
                 raw=row["source_value_json"]; normalized=row["normalized_value"]
@@ -54,8 +50,7 @@ def build(db_path: Path, out_dir: Path):
                 if not payload_match:
                     raise ValueError(f"Normalized field differs from immutable raw payload: {card['card_id']} {field}")
                 value_hash=hashlib.sha256((raw or "null").encode("utf-8")).hexdigest()
-                status=("not_applicable" if not expected_applicable
-                        else "source_absent_confirmed" if value is None or value=="" else "source_snapshot_verified")
+                status=("source_absent_confirmed" if value is None or value=="" else "source_snapshot_verified")
             coverage_inserts.append((card["card_id"],field,status,field_id,payload_match,value_hash))
             field_rows.append({
                 "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
