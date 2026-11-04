@@ -24,7 +24,7 @@ def parse(text, known_skills=None, known_cards=None):
     raw_text=(text or "").strip()
     t=raw_text
     # Strip visual source markers only from the analysis copy; preserve rawText.
-    t=re.sub(r"^[◇◆※▶★☆◈●○]+\\s*","",t).strip()
+    t=re.sub(r"^[◇◆※▶★☆◈●○]+\s*","",t).strip()
     # FM1 card effects often append flavor/lore in square brackets to the same
     # source clause. Parse the rule sentence separately, but preserve the quote.
     flavor_text=None
