@@ -70,6 +70,14 @@ def parse(text, known_skills=None):
                 "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t),
                 "rawText":t,"inferenceMethod":"source_metadata_patterns_v2","confidence":"not_applicable"}
 
+    # A lone ellipsis is a source placeholder rather than an omitted parse.
+    if re.fullmatch(r"(?:\.\.\.|…|⋯)",t):
+        return {"classification":"source_placeholder","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"source_text_placeholder","rawText":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"source_placeholder_v1","confidence":"not_applicable"}
+
     # Exact skill names are linked to the rule catalogue; they are not re-parsed as prose.
     if known_skills and compact in known_skills:
         return {"classification":"ability_name_reference","triggers":[],"actors":[],"targets":[],
@@ -101,7 +109,7 @@ def parse(text, known_skills=None):
                     "inferenceMethod":"arrow_card_sequence_v1","confidence":"not_applicable"}
 
     # A bracketed status label is a status reference, not a free-form effect.
-    status_ref=re.fullmatch(r"\[([^\]]+)\]\s*상태",t)
+    status_ref=re.fullmatch(r"\[([^\]]+)\]\s*상태\s*[:：]?",t)
     if status_ref:
         return {"classification":"named_status_reference","triggers":[],"actors":[],
                 "targets":[],"conditions":[],"operations":[
@@ -366,6 +374,14 @@ def parse(text, known_skills=None):
         ops.append({"kind":"apply_or_change_named_status","statusTerms":_uniq(status_terms),
                     "rawText":t,"executable":False})
 
+    # Explicit "no effect" clauses are condition gates, not unparsed prose.
+    if re.search(r"(?:경우|때|이상|이하|초과|미만).{0,100}효과\s*없음|효과\s*없음.{0,100}(?:경우|때|이상|이하|초과|미만)",t):
+        ops.append({"kind":"suppress_effect_when_condition","conditionText":t,
+                    "rawText":t,"executable":False})
+    if re.search(r"핸드에.{0,35}(?:없는 경우|없을 경우)|AP나 HP가 발동 후 0이하",t):
+        ops.append({"kind":"effect_activation_restriction","conditionText":t,
+                    "rawText":t,"executable":False})
+
     # Preserve formula-like stat assignments and arithmetic as explicit, non-executable
     # candidates. This covers legacy descriptions such as HP=hand size, a stat becoming
     # the count of field units, or combat stats being divided by a computed value.
@@ -376,7 +392,7 @@ def parse(text, known_skills=None):
             stat_token=m.group(1)
             ops.append({"kind":"set_stat_formula","stat":stat_name_map[stat_token],
                         "formulaText":rhs,"rawText":t,"executable":False})
-    if re.search(r"(?:나눈다|나눈다\.|나누어|나눠|곱한다|곱하여|곱해|곱한|차이만큼|수로\s*깎|수로\s*감소|깎는다|깍는다)",t):
+    if re.search(r"(?:나눈다|나눈다\.|나누어|나눠|나눔|곱한다|곱하여|곱해|곱한|차이만큼|수로\s*깎|수로\s*감소|깎는다|깍는다)",t):
         referenced_stats=[stat_name_map[x] for x in re.findall(
             r"AP|DP|HP|LP|공격력|방어력|체력",t)]
         if referenced_stats:
