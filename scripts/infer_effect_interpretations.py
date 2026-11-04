@@ -112,6 +112,44 @@ def parse(text, known_skills=None):
         ops.append({"kind":"equip_or_unequip","rawText":t})
     if re.search(r"오오라|오라|아레아",t):
         ops.append({"kind":"aura_or_area_effect","rawText":t})
+    # Compound stat selectors such as "AP/DP/HP 중 가장 높은 수치" were
+    # missed by the simple AP+N / DP-N patterns. Preserve the selector and amount.
+    selector = re.search(r"(AP\\s*[/·,및]\\s*DP(?:\\s*[/·,및]\\s*HP)?|공방체|공방|공체).{0,35}?(최고|최저|가장 높은|가장 낮은|중 하나|각각)",t)
+    direction = "decrease" if re.search(r"감소|낮추|하락|내리",t) else "increase" if re.search(r"증가|높이|상승|올리",t) else None
+    amount = re.search(r"(?:최고|최저|가장 높은|가장 낮은|중 하나|각각)?.{0,20}?(\\d+)\\s*(?:만큼|씩)?\\s*(?:영구히|영구적으로)?\\s*(?:감소|증가|낮춘|높인|내린|올린)",t)
+    if selector and direction and amount:
+        ops.append({"kind":"modify_selected_combat_stat","selector":selector.group(0),
+                    "selection":selector.group(2),"direction":direction,
+                    "value":int(amount.group(1)),"rawText":t,"executable":False})
+
+    # Broad Korean action vocabulary. The narrow patterns above retain exact numeric
+    # operations; this layer makes the remaining effect verbs searchable and typed
+    # without pretending that an unverified phrase is executable.
+    action_patterns = [
+      ("grant_or_apply",r"부여|추가|적용|부착|부여받|발생시키|생성"),
+      ("remove_or_disable",r"제거|해제|무효화|차단|방지|봉쇄|금지|없앤다|사라진다"),
+      ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다"),
+      ("resource_or_cost",r"지불|소모|충전|획득|회수|빼앗|코스트|소울"),
+      ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환"),
+      ("battle_interaction",r"반격|반사|되받아|공격을 막|공격을 받|방어한다"),
+      ("state_or_duration",r"유지|지속|종료|만료|누적|중첩|초기화"),
+    ]
+    action_candidates=[key for key,pat in action_patterns if re.search(pat,t)]
+    if action_candidates and not ops:
+        ops.append({"kind":"generic_effect_operation","actionCandidates":action_candidates,
+                    "rawText":t,"executable":False})
+
+    # A colon-prefixed label is often a split skill/effect heading, not a reference.
+    # Record the label and body as an effect definition when the body contains an
+    # action phrase, rather than classifying the whole clause as an opaque reference.
+    if not ops and re.search(r"[:：].{1,}",t):
+        label, body = re.split(r"[:：]",t,maxsplit=1)
+        body=body.strip()
+        body_actions=[key for key,pat in action_patterns if re.search(pat,body)]
+        if body_actions:
+            ops.append({"kind":"labeled_effect_definition","label":label.strip(),
+                        "bodyText":body,"actionCandidates":body_actions,"executable":False})
+
     # Card-to-card conditions and ranges are kept separately from effect operations.
     conditions=[]
     for pat in [
