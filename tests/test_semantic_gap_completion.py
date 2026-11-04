@@ -262,6 +262,18 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["operations"][0]["entries"][0]["cardIds"],["card-a"])
         self.assertFalse(result["operations"][0]["executable"])
 
+    def test_source_metadata_marker_is_not_counted_as_effect_and_raw_text_is_preserved(self):
+        result=parse("▶ 해당 지형은 매직랜드입니다.")
+        self.assertEqual(result["classification"],"reference_or_metadata")
+        self.assertEqual(result["confidence"],"not_applicable")
+        self.assertEqual(result["rawText"],"▶ 해당 지형은 매직랜드입니다.")
+
+    def test_terrain_activation_order_is_retained_as_non_executable_rule_candidate(self):
+        result=parse("▶ 매직랜드는 백필드에 다수 존재하더라도 맨 앞의 매직랜드만 발동합니다.")
+        self.assertEqual(result["classification"],"terrain_activation_rule_candidate")
+        self.assertEqual(result["confidence"],"medium")
+        self.assertFalse(result["operations"][0]["executable"])
+
     def test_activation_requirement_is_structured_not_low_confidence(self):
         result=parse("▶ 아군 필드 유닛 1이상 필요")
         self.assertEqual(result["classification"],"effect_activation_requirement")
