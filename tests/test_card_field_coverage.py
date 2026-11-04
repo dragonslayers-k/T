@@ -16,7 +16,7 @@ class CardFieldCoverageTests(unittest.TestCase):
             db.executescript("""
                 PRAGMA foreign_keys=ON;
                 CREATE TABLE cards(
-                    card_id TEXT PRIMARY KEY, name TEXT, card_type TEXT, raw_payload_json TEXT
+                    card_id TEXT PRIMARY KEY, name TEXT, card_type TEXT, raw_payload_json TEXT, source_card_url TEXT
                 );
                 CREATE TABLE card_fields(
                     field_id INTEGER PRIMARY KEY, card_id TEXT, field_key TEXT,
@@ -43,10 +43,10 @@ class CardFieldCoverageTests(unittest.TestCase):
                     verification_status TEXT, confidence TEXT, source_detail_url TEXT
                 );
             """)
+            db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
+                       ("c1", "카드1", "유닛", json.dumps({"Name": "카드1", "Skill1": 12}, ensure_ascii=False), "https://fmlunatic.com/card/c1"))
             db.execute("INSERT INTO cards VALUES(?,?,?,?)",
-                       ("c1", "카드1", "유닛", json.dumps({"Name": "카드1", "Skill1": 12}, ensure_ascii=False)))
-            db.execute("INSERT INTO cards VALUES(?,?,?,?)",
-                       ("c2", "카드2", "유닛", json.dumps({"Name": "카드2"}, ensure_ascii=False)))
+                       ("c2", "카드2", "유닛", json.dumps({"Name": "카드2"}, ensure_ascii=False), "https://fmlunatic.com/card/c2"))
             db.executemany("INSERT INTO card_fields VALUES(?,?,?,?,?,?)", [
                 (1, "c1", "Name", json.dumps("카드1", ensure_ascii=False), "카드1", "extracted"),
                 (2, "c1", "Skill1", "12", "12", "extracted"),
