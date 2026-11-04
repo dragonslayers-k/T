@@ -178,7 +178,7 @@ def build(db_path: Path, out_dir: Path):
             "source_absent_confirmed_fields":absent_fields,
             "source_empty_confirmed_fields":empty_fields,
             "source_null_confirmed_fields":null_fields,
-            "not_applicable_candidate_fields":not_applicable_candidates,
+            "not_applicable_confirmed_fields":not_applicable_fields,
             "missing_on_card_fields":missing_fields
         })
     db.executemany("""INSERT INTO card_field_coverage
