@@ -46,6 +46,14 @@ def build_effect_review_queue(low_effects):
             group["confidence_variants"].append(confidence)
         group["classification_conflict"]=len(group["classification_variants"])>1
         group["confidence_conflict"]=len(group["confidence_variants"])>1
+        if group["classification_conflict"]:
+            group["classification"]="mixed"
+        if group["confidence_conflict"]:
+            confidence_rank={"low":0,"medium":1,"high":2,"not_applicable":3}
+            group["confidence"]=min(
+                group["confidence_variants"],
+                key=lambda value:confidence_rank.get(value,0)
+            )
         group["occurrences"]+=1
         if raw_text not in group["source_text_variants"]:
             group["source_text_variants"].append(raw_text)
