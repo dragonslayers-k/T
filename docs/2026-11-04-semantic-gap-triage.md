@@ -257,3 +257,24 @@ SQLite SHA-256: `9ddc0d72cb74fe2cbf1944109e88cc9bcd01082a59786ca67319945116c6a75
 - 전체 감사는 변경 사항을 묶은 뒤 `workflow_dispatch → audit-release → fm1-carddb-29 → publish_release=false`로 한 번만 수행한다. 이 모드 자체가 먼저 모든 경량 회귀 테스트를 수행하므로 별도 테스트 실행은 필요하지 않다.
 - 현재 Workflow 파일은 기존 `.github/workflows/carddb.yml` 한 개만 사용한다. 새 Workflow/브랜치/PR/Release는 만들지 않았다.
 - 변경 커밋: `1f848102708f8f356419d9de1105d1e0db89cac3`. 이 Workflow 트리거 변경은 PR이 이미 열린 상태에서 `synchronize`를 제외했으므로 추가 PR Action을 만들지 않는 것이 의도된 동작이다.
+
+
+### 스킬 출처 증거의 카드별 분리 및 Skill2 전용 검토 보고서
+
+#421의 기존 `inferred-skill-report.jsonl`를 다시 살펴보면서 중요한 provenance 결함을 확인했다. 기존 추론기는 한 스킬 이름에 속한 여러 카드의 원문 예시를 그룹으로 모은 뒤, 그 그룹 전체 예시를 해당 스킬을 가진 모든 카드의 `card_rule_mappings.evidence_references_json`에 복사하고 있었다. 따라서 카드 A의 원문이 카드 B의 증거처럼 보일 수 있었다.
+
+추가로 `extract_definitions`가 `기술부여 [풍미 문구]`, `능력부여 [풍미 문구]`처럼 스킬을 부여하는 카드의 설명을 스킬 자체의 효과 정의로 오인한 사례도 발견했다. #421의 Skill2 예시 36개 효과 변형에는 이런 비규칙 문구가 일부 섞여 있었다.
+
+다음 수정으로 이 문제를 바로잡았다.
+
+- `infer_unmapped_skills.py`: 각 `card_rule_mappings` 행에는 해당 카드 ID와 일치하는 원문 발췌만 기록한다. 자기 카드 원문이 없으면 `card_text_evidence_missing`과 confidence `low`로 남긴다. 다른 카드의 예시를 복사하지 않는다.
+- `import_community_skill_reference.py`: 커뮤니티 정의를 가져올 때 기존 카드별 원문 증거를 덮어쓰지 않고 병합한다.
+- `extract_definitions`: 실제 게임 규칙 신호가 없는 기술/능력 부여 설명과 풍미 문구를 효과 정의 후보에서 제외한다. 실제 규칙 문장에 풍미 문구가 뒤따르는 경우는 규칙 신호가 있으므로 보존한다.
+- `build_gap_reports.py`: 스킬 보고서에 `source_card_url`을 포함하고, 카드별 원문 증거 있음/없음 수치를 감사 보고서에 추가한다.
+- 별도 Skill2 실행 카탈로그 8종을 일반 스킬 규칙으로 자동 병합하지 않는다. `skill2-execution-review.jsonl` 및 summary를 생성해 각 Skill2 카드 행, 해당 카드의 원문, URL, 실행 규칙 정의를 나란히 검토하도록 했다. 보고서의 상태는 `card_source_excerpt_available_pending_semantic_review` 또는 `card_source_excerpt_missing`이며, 자동으로 `source_card_verified`로 승격하지 않는다.
+
+#421의 기존 집계에서 Skill2 8종은 총 377개 카드 행이었다(기선제압 181, 헌신방어 66, 격노 20, 홀리오오라 2, 얼라이디펜스 44, 레이셜디펜스 35, 강한헌신방어 28, 프레셔 1). 기존 그룹 증거의 36개 고유 문구 변형은 카드별 근거 검증 전 기준치일 뿐이며, 새 보고서로 카드별 증거를 다시 산출해야 한다.
+
+새 보고서와 테스트는 다음 전체 감사에서 생성된다. 이 결과를 검토한 뒤에만 Skill2 규칙을 SQLite의 검증된 규칙 카탈로그/카드 매핑에 통합할지 결정한다. 현재 단계에서는 기존 DB 규칙 매핑을 임의로 승격하지 않는다.
+
+- 주요 코드 커밋: `11cdb5b9e08607b437ed57940a947b608e2ca89e`, `a3c53a53501d3b9baac5441eaf130cacd4bf6658`, `a84d7ef1941cfd581e6d492481d0709dbad0c308`, `65dc031edc494789eee704ee4891b26e540ea8b4`, `a467286239da359b9c7ade27f44b0ac483d88d1a`.
