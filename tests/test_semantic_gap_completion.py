@@ -262,6 +262,28 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["operations"][0]["entries"][0]["cardIds"],["card-a"])
         self.assertFalse(result["operations"][0]["executable"])
 
+    def test_activation_requirement_is_structured_not_low_confidence(self):
+        result=parse("▶ 아군 필드 유닛 1이상 필요")
+        self.assertEqual(result["classification"],"effect_activation_requirement")
+        self.assertEqual(result["confidence"],"medium")
+        self.assertFalse(result["operations"][0]["executable"])
+
+    def test_failed_condition_is_structured_as_branch(self):
+        result=parse("▶ 실패시 : 적 필드에 3레벨 이하 마법이 존재하지 않을시")
+        self.assertEqual(result["classification"],"conditional_branch_reference")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_status_duration_text_is_preserved_as_candidate(self):
+        result=parse("빈공간:제물상태-1턴")
+        self.assertEqual(result["classification"],"status_duration_change_candidate")
+        self.assertEqual(result["operations"][0]["turnDelta"],-1)
+        self.assertFalse(result["operations"][0]["executable"])
+
+    def test_known_card_stat_label_is_not_treated_as_effect(self):
+        result=parse("탈렌티움 : +3 / 0 / +3",known_cards={"탈렌티움":["card-x"]})
+        self.assertEqual(result["classification"],"card_stat_profile_reference")
+        self.assertEqual(result["operations"][0]["cardIds"],["card-x"])
+
     def test_exact_known_card_name_is_a_reference(self):
         result=parse("와일드엘리펀",known_cards={"와일드엘리펀":["card-b"]})
         self.assertEqual(result["classification"],"card_name_reference")
