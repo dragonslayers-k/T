@@ -40,6 +40,8 @@ def build(db_path: Path, out_dir: Path):
         payload=json.loads(card["raw_payload_json"])
         verified_fields=[]
         absent_fields=[]
+        empty_fields=[]
+        null_fields=[]
         not_applicable_candidates=[]
         missing_fields=[]
         for field in fields:
@@ -49,7 +51,9 @@ def build(db_path: Path, out_dir: Path):
                 # source absence; a key present in the raw payload but absent here is
                 # a genuine ingestion/normalization gap.
                 source_has_key=field in payload
-                if source_has_key:
+                if source_has_key and payload[field] is None:
+                    status="source_null_confirmed"
+                elif source_has_key:
                     status="missing_on_card"
                 elif (card["card_type"],field) not in observed_type_fields:
                     status="not_applicable_candidate"
@@ -57,7 +61,7 @@ def build(db_path: Path, out_dir: Path):
                 else:
                     status="source_absent_confirmed"
                 raw=None; normalized=None; verification="not_recorded"; field_id=None
-                payload_match=0 if source_has_key else 1
+                payload_match=1 if (not source_has_key or payload[field] is None) else 0
                 value_hash=None
             else:
                 raw=row["source_value_json"]; normalized=row["normalized_value"]
@@ -68,13 +72,16 @@ def build(db_path: Path, out_dir: Path):
                 if not payload_match:
                     raise ValueError(f"Normalized field differs from immutable raw payload: {card['card_id']} {field}")
                 value_hash=hashlib.sha256((raw or "null").encode("utf-8")).hexdigest()
-                status=("source_absent_confirmed" if value is None or value=="" else "source_snapshot_verified")
+                status=("source_null_confirmed" if value is None else
+                        "source_empty_confirmed" if value=="" else "source_snapshot_verified")
             coverage_inserts.append((card["card_id"],field,status,field_id,payload_match,value_hash))
             per_field_status_counts[field][status]=per_field_status_counts[field].get(status,0)+1
             if len(per_field_examples[field].get(status,[]))<5:
                 per_field_examples[field].setdefault(status,[]).append(card["card_id"])
             if status=="source_snapshot_verified": verified_fields.append(field)
             elif status=="source_absent_confirmed": absent_fields.append(field)
+            elif status=="source_empty_confirmed": empty_fields.append(field)
+            elif status=="source_null_confirmed": null_fields.append(field)
             elif status=="not_applicable_candidate": pass
             elif status=="missing_on_card": missing_fields.append(field)
             field_rows.append({
@@ -87,6 +94,8 @@ def build(db_path: Path, out_dir: Path):
             "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
             "source_snapshot_verified_fields":verified_fields,
             "source_absent_confirmed_fields":absent_fields,
+            "source_empty_confirmed_fields":empty_fields,
+            "source_null_confirmed_fields":null_fields,
             "not_applicable_candidate_fields":not_applicable_candidates,
             "missing_on_card_fields":missing_fields
         })
