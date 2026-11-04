@@ -17,7 +17,7 @@ class RequireSoulTests(unittest.TestCase):
         self.assertTrue(parsed["mapping_review"])
         self.assertEqual(parsed["colors"]["iron"], 1)
         self.assertEqual(parsed["colors"]["light"], 1)
-        self.assertEqual(parsed["tokens"][0]["status"], "mapping_review")
+        self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
 
     def test_ncs_and_bonus_are_separate_semantic_review_tokens(self):
         parsed = parse_require_soul("82018302")
