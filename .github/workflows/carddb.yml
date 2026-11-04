@@ -69,7 +69,7 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/apply_runtime_fallbacks.py scripts/resolve_runtime_fallbacks.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/audit_raw_field_applicability.py scripts/semantic_audit_status.py
+          python -m py_compile scripts/apply_runtime_fallbacks.py scripts/resolve_runtime_fallbacks.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/audit_raw_field_applicability.py scripts/semantic_audit_status.py scripts/semantic_backlog_progress.py
           python -m unittest tests/test_runtime_fallbacks.py
           python -m unittest tests/test_runtime_fallback_resolver.py
           python -m unittest tests/test_effect_pattern_audit.py
@@ -84,6 +84,7 @@ jobs:
           python -m unittest tests/test_effect_interpretations.py
           python -m unittest tests/test_semantic_gap_completion.py
           python -m unittest tests/test_semantic_audit_status.py
+          python -m unittest tests/test_semantic_backlog_progress.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
           python scripts/quality_audit.py --self-test
@@ -243,6 +244,7 @@ jobs:
             data/gap-reports/cost-code-inventory.json
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/gap-report-summary.json
+            data/gap-reports/semantic-backlog-progress.json
             data/gap-reports/name-only-skill-source-probe.json
             data/gap-reports/name-only-skill-image-probe.json
           if-no-files-found: error
@@ -294,6 +296,16 @@ jobs:
           if report.get("effect_interpretation_low_confidence", 999999) > 2000:
               print("::warning::Effect clauses still need semantic review; see effect-gap-report.jsonl and semantic_review_pending. Structural audit results are retained without promoting uncertain interpretations.")
           PY
+
+      - name: Compare semantic backlog with immutable audit #432 baseline
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: |
+          set -euo pipefail
+          python scripts/semantic_backlog_progress.py \
+            --report data/audit-report.json \
+            --baseline data/semantic-backlog-baseline-fm1-carddb-29.json \
+            --out data/gap-reports/semantic-backlog-progress.json
+          cat data/gap-reports/semantic-backlog-progress.json
 
       - name: Verify SQLite counts, references, images, costs, and search
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
