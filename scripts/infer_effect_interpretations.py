@@ -189,10 +189,10 @@ def parse(text, known_skills=None, known_cards=None):
     # Source notes, credits, collection restrictions and headings are not game effects.
     metadata_patterns=[
       r"^invalid$",
-      r"^디스(?:히어로|인첸트|인챈트)",
+      r"^디스(?:히어로|인첸트|인챈트)(?: 카드)?[.]?$",
       r"^상성효과[.]?$",
       r"^(?:유닛 목록|마법 목록|아이템 목록|인첸트 목록|인챈트 목록|기본형 마법 소개|복제공식에 관한 안내)[.]?$",
-      r"^.*카드는 .*이벤트.*(?:얻으실 수|제공|보상|받을 수)",
+      r"^.*카드는 .*이벤트 카드",
       r"^.*카드는 확장앨범 .*재료카드",
       r"^.*퀘스트.*(?:완료하면|받을 수|완료해야)",
       r"^.*(?:소속|종족)은 큰 이미지의",
@@ -309,7 +309,7 @@ def parse(text, known_skills=None, known_cards=None):
                 "inferenceMethod":"source_placeholder_v1","confidence":"not_applicable"}
 
     # Activation-only notes are gates, not executable effect operations.
-    if any(x in t for x in ("발동하지 않습니다","발동되지 않습니다","효과 없음","효과가 없습니다","발동합니다","발동됩니다")) and not any(
+    if any(x in t for x in ("발동하지","발동되지","발동합니다","발동됩니다","발동.")) and not any(
             x in t for x in ("AP+","AP-","DP+","DP-","HP+","HP-","공방체","공체","공방","증가시킨다","감소시킨다","파괴한다","이동시킨다","회복시킨다","변환시킨다")):
         return {"classification":"effect_activation_requirement","triggers":[],"actors":[],
                 "targets":[],"conditions":[t],
