@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from scripts.infer_unmapped_skills import card_specific_evidence, extract_definitions, operations_from_text
