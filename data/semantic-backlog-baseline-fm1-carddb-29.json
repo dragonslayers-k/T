@@ -1,0 +1,17 @@
+{
+  "baseline_name": "fm1-carddb-29 semantic backlog after Actions #432",
+  "baseline_run": 432,
+  "baseline_commit": "fb3647896029bf06452e34df3eb826f2524d45b1",
+  "counts": {
+    "effect_interpretation_low_confidence": 206,
+    "name_only_skill_rules": 26,
+    "hybrid_soul_payment_rules": 52,
+    "special_soul_payment_rules": 779,
+    "manual_rule_conflicts": 1
+  },
+  "notes": [
+    "These are pending-review counts, not parser failures.",
+    "A lower count is only a progress signal; it is not proof of semantic correctness.",
+    "Never lower a count by suppressing source rows or changing uncertain items to executable."
+  ]
+}
