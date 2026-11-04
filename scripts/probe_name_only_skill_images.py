@@ -15,7 +15,7 @@ from difflib import SequenceMatcher
 
 
 def normalize_text(value):
-    return re.sub(r"[\\W_]+", "", value or "", flags=re.UNICODE).casefold()
+    return re.sub(r"[\W_]+", "", value or "", flags=re.UNICODE).casefold()
 
 
 def contains_skill_name(ocr_text, skill_name):
