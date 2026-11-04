@@ -238,3 +238,32 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - DB29·Release 29는 불변, DB30 미발행, PR #9와 PR #28 미병합 원칙을 유지한다.
 
 다음 상태 보고는 T/APK 각각의 HEAD SHA, PR 상태, Actions run ID/conclusion, 후보 원문 누계, 의미 검증 수, 실행 handler 수, 통과 테스트 수, 미확인 backlog를 구분한다. Actions 성공은 실제 실행된 job 단계의 성공으로만 보고한다.
+
+
+## 2026-11-05 추가 갱신 — Skill1 A31 / APK 전투 이벤트 연결
+
+### Skill1 A31 완료
+
+- 기준 산출물: CardDB Actions #430의 semantic-review artifact `13312586416` 안의 `gap-reports/inferred-skill-report.jsonl`. 원본에서 `source_field == Skill1`만 추출했고 Skill2는 제외했다.
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a31-2026-11-05.md`
+- 범위: 빈도순 262~271위 10개 Skill1 그룹. 퍼니쉬먼트, 페이탈더스트, 포레스트콜링, 플라워그로우, 피어스윕, 혼돈의꿈, 혼령매료, 황폐화, 흡혈확산, 히어로크라잉.
+- A31: 20 후보 행 / 23 원문 발췌 / 14 정확 문구 변형.
+- A1~A31: **2,218 후보 행 / 2,247 원문 발췌 / 491 정확 문구 변형**.
+- 포레스트콜링은 공격 시 히어로 카운터와 히어로 능력 사용 효과를 분리한다. 혼령매료의 애머시스트 능력부여 설명은 전투 효과에서 제외한다. 나머지 후보도 조건·대상·순서·지속 검증 전까지 pending/non_executable이다.
+- 이 누계는 원문 후보 인벤토리이며 의미 검증이나 APK 실행 구현 완료량이 아니다.
+
+### APK PR #28 — 전투 이벤트 실흐름 연결
+
+- PR #28의 기존 event queue/zone transfer 기반 위에 실제 게임 state의 `combatEventQueue`를 초기화하도록 연결했다.
+- 유닛 파괴 성공 시 `unit_destroyed` 이벤트를 1회 기록한다. 소유자, 원인(effect/combat), 원본 공격자, 대상 인스턴스, 파괴 당시 필드 위치, 파괴 전 스탯 snapshot, 장착 아이템 요약을 보존한다.
+- 직접 공격과 유닛 간 공격 종료 시 `unit_attack_resolved` 이벤트를 기록한다. 공격자/대상 snapshot, 피해량, 직접 공격 여부, 방어 유닛 생존 여부를 payload로 남긴다.
+- 영역 이동 검증 실패 시 파괴 이벤트를 발행하지 않고 원본 유닛을 보존한다. 이벤트는 현재 관찰/기록 기반이며 카드 효과 구독·실행을 자동 활성화하지 않는다.
+- Actions #131은 새 회귀 테스트의 lazy queue 가정 오류로 실패(118 pass / 1 fail)했다. 실패 원인은 게임 규칙 변경이 아니라, transfer 거부 경로에서 queue가 아직 생성되지 않았는데 테스트가 queue를 직접 참조한 것이다. 테스트를 optional queue 검사로 수정했고 Actions #132에서 재검증 중이다.
+- #132 성공 전까지 이 변경은 테스트 완료로 보고하지 않는다. PR #28은 open/draft/unmerged 유지.
+
+### 즉시 다음 작업
+
+1. Actions #132의 JS 테스트, converter, Android 빌드 및 package 검증 결과 확인. 실패 시 최초 실패 테스트/step만 수정.
+2. 통과 후 공격 이벤트의 경계 케이스(직접 공격, 무효 비용, 방어 유닛 파괴, 대상 없음) 회귀 테스트를 보강한다.
+3. 이벤트 subscriber/handler를 분리하고, source-card verified 상태의 카드 규칙만 등록하는 fail-closed gate를 추가한다.
+4. Skill1 A32는 원본 artifact에서 Skill1 전용 빈도순 272~281위로 이어간다. A31의 2,218/2,247/491 누계를 기준으로 갱신한다.
