@@ -29,7 +29,7 @@ class ManualSkillCatalogueTests(unittest.TestCase):
 
 
     def test_global_gameplay_catalogue_preserves_soul_cost_coin_and_manual_conflict(self):
-        global_rules = [x for x in self.catalogue["rules"] if x["source"]["member"] != "specialability.htm"]
+        global_rules = [x for x in self.catalogue["rules"] if x["authority"] == "manual" and x["source"].get("member") != "specialability.htm"]
         by_id = {x["id"]: x for x in global_rules}
         self.assertIn("unit_neutral_soul_maintenance", by_id)
         self.assertIn("coin_single_roll_shared", by_id)
