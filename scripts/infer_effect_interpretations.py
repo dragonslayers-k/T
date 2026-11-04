@@ -1191,7 +1191,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
       r"제거한다",r"파괴한다",r"전환한다",r"전환된다",r"회복한다",r"생성한다",
       r"분배한다",r"나눈다",r"나누어\s*준다",r"합산한다",r"더해진다",r"더해준다",
       r"동일(?:해진다|하게\s*된다)",r"같아진다",r"같게\s*만든다",
-      r"만든다",r"한다",r"된다",r"시킨다",r"걸린다",r"착용된다",
+      r"만든다",r"한다",r"된다",r"된 후",r"시킨다",r"걸린다",r"착용된다",
       r"효과가\s*발생",r"효과\s*발동",r"발동\s*안함"
     ]
     has_legacy_action=any(re.search(p,t) for p in legacy_action_verbs)
