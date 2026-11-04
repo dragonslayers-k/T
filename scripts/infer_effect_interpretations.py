@@ -554,13 +554,15 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"source_condition_note_v1","confidence":"medium"}
 
-    if re.fullmatch(r"\([^)]+(?:[,，、][^)]+)+\)\.?",t) and not re.search(
+    if t.startswith("(") and t.endswith(").") and not re.search(
             r"(?:발동|증가|감소|공격|방어|부여|파괴|소환|이동|회복|변경)",t):
-        return {"classification":"card_reference_list","triggers":[],"actors":[],
-                "targets":[],"conditions":[],"operations":[
-                    {"kind":"related_card_reference_list","rawList":t,"executable":False}],
-                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
-                "inferenceMethod":"parenthesized_card_list_v1","confidence":"not_applicable"}
+        entries=[x.strip() for x in t[1:-2].split(",") if x.strip()]
+        if len(entries)>=2:
+            return {"classification":"card_reference_list","triggers":[],"actors":[],
+                    "targets":[],"conditions":[],"operations":[
+                        {"kind":"related_card_reference_list","entries":entries,"executable":False}],
+                    "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"parenthesized_card_list_v1","confidence":"not_applicable"}
 
     ability_reference_patterns=[
       r"^(?:서먼매직기술|서먼헌터|선물하기능력|수호일격 공격기술|수호희생 방어기술|야수조련 - 야수|소속형 섀도우펌핑 능력|종족형 섀도우펌핑 능력|스피릿스톰\s*[:：]|섀도우스킬\(더애로우\)|섀도우쉬프트\(레비의의지\)|무지개솔변환|돌진공격/네이밍디펜스|랜드브레이크기술루여|재생능력/포레스트리젠|석화공격/레벨링프레셔|저주공격/짝수저주|화염공격기술/워터프리즈|환상제어기술|환상폭발기술|헌신방어기술)\b.*$",
