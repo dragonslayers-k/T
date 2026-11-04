@@ -209,6 +209,8 @@ jobs:
         with:
           name: fm1-carddb-semantic-review-${{ env.SOURCE_RELEASE_TAG }}-${{ github.run_number }}
           path: |
+            data/gap-reports/card-field-card-summary.jsonl
+            data/gap-reports/card-field-status-summary.json
             data/gap-reports/effect-gap-report.jsonl
             data/gap-reports/effect-low-confidence-summary.json
             data/gap-reports/inferred-skill-report.jsonl
