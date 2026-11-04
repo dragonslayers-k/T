@@ -56,3 +56,25 @@ This index records card-source observations only. It does not approve Manual aut
 | 연합공격 | exact card excerpts from #430 artifact | card text observation, not Manual | blocked pending semantics |
 
 Next: compare relevant Manual.zip material and reliable historical/version-specific evidence. If Manual does not define a mechanic, retain card text as versioned evidence and do not implement until authoritative evidence resolves semantics. Only then turn design questions into executable engine assertions.
+
+
+## Manual.zip cross-check — general rules only; no direct mechanic match
+
+The captured specialability.htm source in Manual.zip contains a 27-entry special-skill list. The current Manual-authority catalogue names are:
+
+일반공격, 방어무시, 치명공격, 관통공격, 약화공격, 석화공격, 흡혈공격, 노화공격, 돌진공격, 야수조련, 용맹공격, 재생능력, 광분공격, 연속공격, 공포공격, 매료공격, 기술봉쇄, 주문봉쇄, 무기봉쇄, 공격복제, 방패파괴, 저주공격, 방어이용, 조롱공격, 혼란공격, 은폐공격, 방어변환.
+
+The three indexed Skill1 mechanics—화염공격, 환상봉인, 연합공격—do not appear as entries in that 27-item list. Therefore Manual.zip does not directly confirm their individual effects in this captured section. Keep them inferred/card-source based and do not grant Manual authority.
+
+Manual does provide shared context that can inform future test design, without resolving these skills:
+- “추가공격데미지” is added to the attacker’s AP from AP/DP/HP/level and is described as damage of the same kind as a normal attack.
+- A special attack effect that affects the opponent generally requires the attacker’s AP to be at least 1.
+- An exception is an effect that changes the attacker’s own stats.
+- Special attack skills apply when coins are tossed and the unit attacks.
+
+These shared principles are not enough to decide the disputed mechanics:
+- For 화염공격, the source does not state whether the DP/HP reduction is itself additional attack damage or a separate post-attack effect.
+- For 환상봉인, the state-bearing target and timing of setting AP/DP to zero are not specified by this general section.
+- For 연합공격, the phrase “same ability” and whether the attacker is included in the count remain unspecified.
+
+**Evidence conclusion:** retain each mechanic as inferred, keep the source excerpts and variants, and pursue card/version-specific or reliable historical documentation. Do not implement or promote these three skills solely from the Manual’s general attack rules.
