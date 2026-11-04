@@ -180,6 +180,60 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["classification"],"card_reference_list")
         self.assertEqual(result["operations"][0]["cardName"],"유리가면")
 
+    def test_source_placeholder_is_not_a_low_confidence_effect(self):
+        result=parse("…")
+        self.assertEqual(result["classification"],"source_placeholder")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_item_buildup_lore_is_reference_metadata(self):
+        result=parse("아이템빌드업(우산준비) [스토리 설명]")
+        self.assertEqual(result["classification"],"reference_or_metadata")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_card_progression_arrow_is_reference(self):
+        result=parse("악령의알 -> 슬레지어 -> 고스트로드")
+        self.assertEqual(result["classification"],"card_progression_reference")
+        self.assertEqual(result["operations"][0]["stages"],["악령의알","슬레지어","고스트로드"])
+
+    def test_element_card_mapping_is_reference(self):
+        result=parse("암흑 : 데스네이션.")
+        self.assertEqual(result["classification"],"card_reference_list")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_rarity_and_category_values_are_references(self):
+        result=parse("언커먼, 커먼 : +3")
+        self.assertEqual(result["classification"],"rarity_or_category_reference")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_no_effect_clause_is_a_conditional_gate(self):
+        result=parse("6턴 이상 or 0턴 - 효과 없음.")
+        self.assertTrue(any(x["kind"]=="suppress_effect_when_condition" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_hybrid_status_heading_with_colon_is_reference(self):
+        result=parse("[용의위압] 상태 :")
+        self.assertEqual(result["classification"],"named_status_reference")
+
+    def test_divide_by_field_space_rule(self):
+        result=parse("적 필드 유닛 1,2의 공체를 적 필드 빈공간 수로 나눔.")
+        self.assertTrue(any(x["kind"]=="divide_stat_by_expression" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_copy_stat_value_between_two_units(self):
+        result=parse("적 필드 유닛 1의 AP는 적 필드 유닛 2의 DP와 동일해지고, 적 필드 유닛 2의 AP는 적 필드 유닛 1의 DP와 동일해진다.")
+        self.assertTrue(any(x["kind"]=="copy_stat_value" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_zero_multiplier_stat_effect(self):
+        result=parse("적군 야수유닛 전체의 AP를 *0 로 만든다.")
+        self.assertTrue(any(x["kind"]=="multiply_stat" and x["multiplier"]==0 for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_stat_technique_becomes_another_technique(self):
+        result=parse("적군 유닛의 특수기술이 일반기술로 된다.")
+        self.assertTrue(any(x["kind"]=="modify_skill" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
     def test_named_status_effect_is_captured_without_executable_claim(self):
         result=parse("공격시 적 유닛에게 빙결 상태를 부여한다.")
         self.assertTrue(any(x["kind"]=="apply_or_change_named_status" for x in result["operations"]))
