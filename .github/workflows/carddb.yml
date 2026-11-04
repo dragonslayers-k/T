@@ -223,8 +223,8 @@ jobs:
           path: |
             data/gap-reports/card-field-card-summary.jsonl
             data/gap-reports/card-field-status-summary.json
-            data/gap-reports/field-applicability-candidate-report.jsonl
-            data/gap-reports/field-applicability-candidate-report.csv
+            data/gap-reports/field-applicability-scope-report.jsonl
+            data/gap-reports/field-applicability-scope-report.csv
             data/gap-reports/effect-gap-report.jsonl
             data/gap-reports/effect-low-confidence-summary.json
             data/gap-reports/effect-review-queue.jsonl
@@ -259,7 +259,7 @@ jobs:
               "skill_no_special_rows","skill_inventory_unmapped_values",
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
-              "effect_interpretation_low_confidence","field_coverage_matrix_integrity","field_coverage_applicability_complete","field_coverage_applicability_candidate_pairs","field_coverage_complete","semantic_coverage_pass","semantic_completeness_pass",
+              "effect_interpretation_low_confidence","field_coverage_matrix_integrity","field_coverage_applicability_complete","field_coverage_applicability_candidate_pairs","field_coverage_applicability_not_applicable_pairs","field_coverage_applicability_candidates","field_coverage_not_applicable","field_coverage_complete","semantic_coverage_pass","semantic_completeness_pass",
               "semantic_review_pending","engine_verification_pending","engine_verification_complete","complete",
               "skill_mapping_coverage_accounted_for"
           )
@@ -267,7 +267,7 @@ jobs:
           if not report.get("field_coverage_matrix_integrity"):
               raise SystemExit("Card-by-field coverage matrix was not persisted or has source payload mismatches")
           if not report.get("field_coverage_applicability_complete"):
-              print("::warning::Field applicability candidates remain; see field-applicability-candidate-report.csv (candidate pairs: %s)" % report.get("field_coverage_applicability_candidate_pairs"))
+              print("::warning::Field applicability candidates remain; see field-applicability-scope-report.csv (candidate pairs: %s)" % report.get("field_coverage_applicability_candidate_pairs"))
           if not report.get("skill_mapping_coverage_accounted_for"):
               raise SystemExit("Skill1/Skill2 source rows are not fully represented in card_rule_mappings")
           if not report.get("semantic_coverage_pass"):
