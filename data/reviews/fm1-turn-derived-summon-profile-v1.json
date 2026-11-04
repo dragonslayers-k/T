@@ -1,0 +1,44 @@
+{
+  "schema_version": "FM1-TURN-DERIVED-SUMMON-PROFILE-1.0",
+  "source_db_release": "fm1-carddb-29",
+  "source_db_release_immutable": true,
+  "rule_id": "fm1_turn_derived_sand_shaping_summon",
+  "card_id": "9010731883",
+  "card_name": "모래의형상화",
+  "card_type": "마법",
+  "source_detail_url": "https://fmlunatic.com/card/9010731883",
+  "source_TextBase": "아군 백필드 대지지형 1 파괴 후 속박상태가 2턴 부여된 모래형상 유닛 1을 아군 필드 다음 위치에 소환. [이 건조한 모래에도 한번 쓸 수 있을 만큼은 생명의 기운이 남아 있지.]",
+  "source_TextExtra": "★ 속박 상태 : 매턴 소울코스트시에 상대 필드 맨뒤로 이동.<br>★ 모래형상 유닛(야수, 골렘, 돌진공격).<br>* 소환유소울 : 턴의 일의자리수.<br>* 소환무소울 : 턴의 십의자리수.<br>* AP : 소각장 유닛수.<br>* DP : 핸드 유닛수.<br>* HP : 백필드 지형수.<br>▶ 해당 소환 유닛의 최대레벨은 10레벨입니다.",
+  "structured_summon_condition": "자신의 백필드 대지 지형 1장을 파괴한 후 속박상태가 2턴 부여된 모래형상 유닛 1장을 자신의 필드 다음 위치에 소환",
+  "generated_unit_profile": {
+    "unit_class": [
+      "야수",
+      "골렘"
+    ],
+    "attack_ability": "돌진공격",
+    "soul_costs": {
+      "colored_soul": "턴의 일의자리수",
+      "neutral_soul": "턴의 십의자리수"
+    },
+    "stats": {
+      "AP": "소각장 유닛수",
+      "DP": "핸드 유닛수",
+      "HP": "백필드 지형수"
+    },
+    "max_level": 10,
+    "binding_status": {
+      "duration_turns": 2,
+      "effect": "매턴 소울코스트시에 상대 필드 맨뒤로 이동"
+    }
+  },
+  "unresolved_engine_questions": [
+    "Turn digit extraction and turn-number base",
+    "Snapshot timing and ownership/card type for the ash/hand/terrain counts",
+    "Level assignment and meaning of max level 10",
+    "Terrain destruction failure and no free summon position behavior",
+    "Binding movement order and expiration timing"
+  ],
+  "engine_verified": false,
+  "runtime_status": "non_executable",
+  "executable": false
+}

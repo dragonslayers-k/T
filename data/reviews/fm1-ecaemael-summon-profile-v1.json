@@ -1,0 +1,115 @@
+{
+  "schema_version": "FM1-ECAEMAEL-SUMMON-PROFILE-1.0",
+  "source_db_release": "fm1-carddb-29",
+  "source_db_release_immutable": true,
+  "rule_id": "fm1_ecaemael_chapter_summon_profile",
+  "source_authority": "DB29 original card TextExtra",
+  "card_count": 7,
+  "cards": [
+    {
+      "card_id": "10102025324",
+      "name": "키뇨엘",
+      "card_type": "유닛",
+      "source_detail_url": "https://fmlunatic.com/card/10102025324",
+      "text_base": "",
+      "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+    },
+    {
+      "card_id": "10102025325",
+      "name": "라드비엘",
+      "card_type": "유닛",
+      "source_detail_url": "https://fmlunatic.com/card/10102025325",
+      "text_base": "",
+      "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+    },
+    {
+      "card_id": "10102025326",
+      "name": "쿠두루스엘",
+      "card_type": "유닛",
+      "source_detail_url": "https://fmlunatic.com/card/10102025326",
+      "text_base": "",
+      "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+    },
+    {
+      "card_id": "10102025327",
+      "name": "피드엘",
+      "card_type": "유닛",
+      "source_detail_url": "https://fmlunatic.com/card/10102025327",
+      "text_base": "",
+      "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+    },
+    {
+      "card_id": "10102025328",
+      "name": "올피리엘",
+      "card_type": "유닛",
+      "source_detail_url": "https://fmlunatic.com/card/10102025328",
+      "text_base": "",
+      "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+    },
+    {
+      "card_id": "10102025329",
+      "name": "산치엘",
+      "card_type": "유닛",
+      "source_detail_url": "https://fmlunatic.com/card/10102025329",
+      "text_base": "",
+      "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+    },
+    {
+      "card_id": "10102025330",
+      "name": "마이엘",
+      "card_type": "유닛",
+      "source_detail_url": "https://fmlunatic.com/card/10102025330",
+      "text_base": "",
+      "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+    }
+  ],
+  "shared_source_text": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1.",
+  "structured_pool_filter": {
+    "chapter_range_inclusive": [
+      1,
+      3
+    ],
+    "same_level_as_summoner_or_reference_profile": true,
+    "same_attribute": true,
+    "selection": "random",
+    "include_rank_cards": true,
+    "exclude_event_grade": true,
+    "other_exclusions": "원문에 일부 카드 제외 문구가 있으나 제외 ID 목록 미제공"
+  },
+  "terrain_count_effect": {
+    "count_source": "아군 백필드 에카마엘 지형 수",
+    "state": "하급에카마엘상태",
+    "odd_count": {
+      "stat": "AP",
+      "delta": 1
+    },
+    "even_count": {
+      "stat": "HP",
+      "delta": 1
+    },
+    "zero_count_behavior": "unverified",
+    "max_count": "not verified by card TextExtra; Inven 2017 community source mentions max 5 but not sufficient as sole authority"
+  },
+  "community_sources": [
+    {
+      "source_id": "inven_fm1_skill_reference_2017",
+      "url": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "lines": "727-728; 771-773",
+      "claim": "mentions Ecaemael race/terrain-related skills and a terrain count of up to five",
+      "use": "terminology/limit cross-reference only; not authority for candidate pool or executable engine behavior"
+    }
+  ],
+  "unresolved_engine_questions": [
+    "Full candidate unit card ID list filtered to 1–3 chapter, same level and attribute",
+    "Exact IDs excluded by 'some cards are excluded'",
+    "Rank/event grade mapping to DB29 enum values",
+    "Random distribution and duplicate candidate weights",
+    "Zero Ecaemael terrain behavior",
+    "Whether count can exceed five and whether Inven's max-five note is authoritative for this card profile",
+    "Stat update timing and whether HP/AP bonus is re-evaluated or applied once"
+  ],
+  "verification_status": "source_text_structured_pool_unresolved",
+  "engine_verified": false,
+  "runtime_status": "non_executable",
+  "executable": false
+}
