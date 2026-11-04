@@ -63,7 +63,9 @@ def build_soul_semantic_review_queue(rows):
     }
 
 
-def build_effect_review_queue(low_effects):
+def build_effect_review_queue(low_effects, source_context_by_card=None):
+    """Group low-confidence clauses while retaining each card's raw source context."""
+    source_context_by_card=source_context_by_card or {}
     groups={}
     for row in low_effects:
         raw_text=" ".join((row.get("segment_text") or "").split()) or "(empty)"
@@ -113,9 +115,15 @@ def build_effect_review_queue(low_effects):
         card_type=row.get("card_type")
         if card_type and card_type not in group["card_types"]:
             group["card_types"].append(card_type)
+        source_context=source_context_by_card.get(str(row["card_id"]),{})
         card={"card_id":row["card_id"],"name":row.get("name"),
               "card_type":card_type,"clause_index":row.get("clause_index"),
-              "url":row.get("source_detail_url")}
+              "url":row.get("source_detail_url") or source_context.get("source_card_url"),
+              "source_card_url":source_context.get("source_card_url") or row.get("source_detail_url"),
+              "source_text_fields":{
+                  "TextBase":source_context.get("TextBase"),
+                  "TextExtra":source_context.get("TextExtra")
+              }}
         if not any(x["card_id"]==card["card_id"] and x["clause_index"]==card["clause_index"]
                    for x in group["cards"]):
             group["cards"].append(card)
@@ -152,7 +160,7 @@ def build(db_path: Path, out_dir: Path):
     db=sqlite3.connect(db_path)
     db.row_factory=sqlite3.Row
     out_dir.mkdir(parents=True,exist_ok=True)
-    cards=db.execute("SELECT card_id,name,card_type,raw_payload_json FROM cards ORDER BY card_id").fetchall()
+    cards=db.execute("SELECT card_id,name,card_type,source_card_url,raw_payload_json FROM cards ORDER BY card_id").fetchall()
     fields=[r[0] for r in db.execute("SELECT DISTINCT field_key FROM card_fields ORDER BY field_key")]
     present={(r["card_id"],r["field_key"]):r for r in db.execute(
         "SELECT field_id,card_id,field_key,source_value_json,normalized_value,verification_status FROM card_fields"
@@ -160,6 +168,20 @@ def build(db_path: Path, out_dir: Path):
     # Determine applicability from non-empty values in the raw source Category.
     # Explicit empty/null values remain separate statuses; they do not prove applicability.
     source_payloads={card["card_id"]:json.loads(card["raw_payload_json"]) for card in cards}
+    source_effect_context_by_card={
+        card["card_id"]:{
+            "source_card_url":card["source_card_url"],
+            "TextBase":{
+                "source_key_present":"TextBase" in source_payloads[card["card_id"]],
+                "source_value":source_payloads[card["card_id"]].get("TextBase")
+            },
+            "TextExtra":{
+                "source_key_present":"TextExtra" in source_payloads[card["card_id"]],
+                "source_value":source_payloads[card["card_id"]].get("TextExtra")
+            }
+        }
+        for card in cards
+    }
     source_categories={card_id:payload.get("Category") for card_id,payload in source_payloads.items()}
     observed_type_fields=set()
     for (card_id,field),row in present.items():
@@ -507,7 +529,7 @@ def build(db_path: Path, out_dir: Path):
     (out_dir/"effect-low-confidence-summary.json").write_text(
       json.dumps(effect_low_summary,ensure_ascii=False,indent=2),encoding="utf-8")
 
-    effect_review_queue=build_effect_review_queue(low_effects)
+    effect_review_queue=build_effect_review_queue(low_effects,source_effect_context_by_card)
     with (out_dir/"effect-review-queue.jsonl").open("w",encoding="utf-8") as f:
         for item in effect_review_queue:
             f.write(json.dumps(item,ensure_ascii=False)+chr(10))

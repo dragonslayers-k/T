@@ -36,6 +36,39 @@ class EffectReviewQueueTests(unittest.TestCase):
         self.assertFalse(queue[0]["classification_conflict"])
         self.assertFalse(queue[0]["confidence_conflict"])
 
+    def test_review_queue_keeps_each_cards_raw_textbase_and_textextra_context(self):
+        from scripts.build_gap_reports import build_effect_review_queue
+        rows = [
+            {"card_id":"c1","name":"카드A","card_type":"마법","clause_index":0,
+             "segment_text":"효과 조각","source_detail_url":"https://example.test/c1",
+             "interpretation_json":json.dumps({"classification":"effect_candidate","confidence":"low"})},
+            {"card_id":"c2","name":"카드B","card_type":"유닛","clause_index":1,
+             "segment_text":"효과 조각","source_detail_url":"https://example.test/c2",
+             "interpretation_json":json.dumps({"classification":"effect_candidate","confidence":"low"})}
+        ]
+        source_context = {
+            "c1": {
+                "source_card_url":"https://example.test/c1",
+                "TextBase":{"source_key_present":True,"source_value":"  원문 TextBase A\\n"},
+                "TextExtra":{"source_key_present":True,"source_value":"원문 TextExtra A"}
+            },
+            "c2": {
+                "source_card_url":"https://example.test/c2",
+                "TextBase":{"source_key_present":True,"source_value":""},
+                "TextExtra":{"source_key_present":False,"source_value":None}
+            }
+        }
+        queue = build_effect_review_queue(rows, source_context)
+        self.assertEqual(len(queue), 1)
+        by_id = {row["card_id"]:row for row in queue[0]["cards"]}
+        self.assertEqual(by_id["c1"]["source_text_fields"]["TextBase"]["source_value"], "  원문 TextBase A\\n")
+        self.assertEqual(by_id["c1"]["source_text_fields"]["TextExtra"]["source_value"], "원문 TextExtra A")
+        self.assertTrue(by_id["c2"]["source_text_fields"]["TextBase"]["source_key_present"])
+        self.assertEqual(by_id["c2"]["source_text_fields"]["TextBase"]["source_value"], "")
+        self.assertFalse(by_id["c2"]["source_text_fields"]["TextExtra"]["source_key_present"])
+        self.assertEqual(by_id["c2"]["source_text_fields"]["TextExtra"]["source_value"], None)
+        self.assertEqual(by_id["c2"]["source_card_url"], "https://example.test/c2")
+
     def test_same_text_keeps_conflicting_interpretation_variants_visible(self):
         from scripts.build_gap_reports import build_effect_review_queue
         rows = [
