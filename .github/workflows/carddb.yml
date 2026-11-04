@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 360
     env:
       MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release' || 'tests') }}
-      SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-28' }}
+      SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || 'fm1-carddb-29' }}
     steps:
@@ -177,6 +177,28 @@ jobs:
             --out data/effect-pattern-inventory.json \
             --top 500 \
             --summary-only
+
+      - name: Audit complete card, soul-cost, and skill mapping coverage
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        run: |
+          set -euo pipefail
+          python scripts/audit_db.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path("data/audit-report.json").read_text(encoding="utf-8"))
+          keys=(
+              "unique_cards","soul_cost_fully_parsed","soul_cost_needs_review",
+              "soul_mapping_review","soul_semantic_review","soul_manual_review",
+              "skill_mapping_rows","skill_source_rows","skill_unmapped_rows",
+              "skill_manual_verified_rows","skill_community_candidate_rows",
+              "skill_no_special_rows","skill_inventory_unmapped_values",
+              "skill_mapping_coverage_accounted_for"
+          )
+          print(json.dumps({key:report.get(key) for key in keys},ensure_ascii=False,indent=2))
+          if not report.get("skill_mapping_coverage_accounted_for"):
+              raise SystemExit("Skill1/Skill2 source rows are not fully represented in card_rule_mappings")
+          PY
 
       - name: Verify SQLite counts, references, images, costs, and search
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
