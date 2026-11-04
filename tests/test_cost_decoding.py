@@ -44,6 +44,15 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(p["colors"]["ncs"], 3)
         self.assertEqual(p["colors"]["bonus"], 1)
 
+
+    def test_manual_neutral_soul_phrase_is_decoded(self):
+        for raw in ("무속성 2", "무속성 소울 2", "2 무속성", "2 무속성 소울"):
+            with self.subTest(raw=raw):
+                parsed = parse_require_soul(raw)
+                self.assertTrue(parsed["known"], parsed)
+                self.assertEqual(parsed["colors"]["neutral"], 2)
+                self.assertEqual(parsed["tokens"][0]["status"], "text_decoded")
+
     def test_unknown_text_cost_is_not_partially_accepted(self):
         p = parse_require_soul("숲 2, 미지의소울 1")
         self.assertFalse(p["known"])
