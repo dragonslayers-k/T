@@ -284,7 +284,7 @@ def build(db_path: Path, out_dir: Path):
 
     skills=[]
     for r in db.execute("""
-      SELECT m.card_id,c.name,c.card_type,m.source_field,m.source_enum_value,m.source_name,
+      SELECT m.card_id,c.name,c.card_type,c.source_card_url,m.source_field,m.source_enum_value,m.source_name,
              m.mapping_status,m.rule_id,m.confidence,m.evidence_references_json
       FROM card_rule_mappings m JOIN cards c USING(card_id)
       WHERE m.mapping_status IN ('unmapped','inferred','community_documented_candidate')
