@@ -20,9 +20,11 @@ def _stat_refs(text):
             if stat not in found: found.append(stat)
     return found
 
-def parse(text, known_skills=None):
+def parse(text, known_skills=None, known_cards=None):
     raw_text=(text or "").strip()
     t=raw_text
+    # Strip visual source markers only from the analysis copy; preserve rawText.
+    t=re.sub(r"^[◇◆※▶★☆◈●○]+\\s*","",t).strip()
     # FM1 card effects often append flavor/lore in square brackets to the same
     # source clause. Parse the rule sentence separately, but preserve the quote.
     flavor_text=None
@@ -96,6 +98,27 @@ def parse(text, known_skills=None):
                 "conditions":[],"operations":[{"kind":"skill_reference","ruleId":known_skills[compact]}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"catalogue_name_link_v2","confidence":"medium"}
+
+    # Exact card names and known card-name pairs are references, not effects.
+    if known_cards and compact in known_cards:
+        return {"classification":"card_name_reference","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"related_card_reference","cardName":t,
+                     "cardIds":known_cards[compact],"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"known_card_name_link_v1","confidence":"medium"}
+    if known_cards and re.search(r"[:：]",t):
+        label,body=re.split(r"[:：]",t,maxsplit=1)
+        label_key="".join(label.split()); body_key="".join(body.split())
+        if label_key in known_cards and body_key in known_cards:
+            return {"classification":"card_reference_list","triggers":[],"actors":[],
+                    "targets":[],"conditions":[],"operations":[
+                        {"kind":"related_card_reference","entries":[
+                            {"label":label.strip(),"cardIds":known_cards[label_key]},
+                            {"label":body.strip(),"cardIds":known_cards[body_key]}],
+                         "executable":False}],
+                    "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"known_card_pair_link_v1","confidence":"medium"}
 
     # Explanatory examples, flavor-only build-up labels, and acquisition/display
     # notes are reference material rather than executable in-game effects.
@@ -445,7 +468,7 @@ def parse(text, known_skills=None):
         label_is_condition=bool(re.search(
             r"(?:레벨|턴|킬|랭크|장|개|소울|코인|점수|포인트|수치|경우|이상|이하|초과|미만)",label))
         if body:
-            body_result=parse(body,known_skills)
+            body_result=parse(body,known_skills,known_cards)
             if body_result["confidence"]!="low":
                 ops.append({"kind":"labeled_effect_definition","label":label,
                             "bodyText":body,"derivedOperations":body_result["operations"],
@@ -521,6 +544,10 @@ def main(path="data/fm1_cards.sqlite"):
     """)
     db.execute("DELETE FROM card_effect_interpretations")
     known_skills={}
+    known_cards={}
+    for cid,card_name in db.execute("SELECT card_id,name FROM cards WHERE name IS NOT NULL"):
+        key="".join(str(card_name).split())
+        if key: known_cards.setdefault(key,[]).append(str(cid))
     for rid,canonical,aliases_json in db.execute("SELECT rule_id,canonical_name,aliases_json FROM game_rule_catalog"):
         for label in [canonical]+(json.loads(aliases_json or "[]")):
             known_skills["".join(str(label).split())]=rid
@@ -532,9 +559,9 @@ def main(path="data/fm1_cards.sqlite"):
     counts={}
     with db:
       for clause_id,cid,text,segtype,url in rows:
-        parsed=parse(text,known_skills)
+        parsed=parse(text,known_skills,known_cards)
         status=("not_applicable" if segtype=="separator" or parsed["classification"] in
-                ("reference_or_flavor","card_reference_list","section_heading","flavor_or_lore","named_status_reference")
+                ("reference_or_flavor","card_reference_list","card_name_reference","section_heading","flavor_or_lore","named_status_reference")
                 else "linked_rule_reference" if parsed["classification"]=="ability_name_reference" else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
