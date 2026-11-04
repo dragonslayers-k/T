@@ -267,3 +267,16 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 2. 통과 후 공격 이벤트의 경계 케이스(직접 공격, 무효 비용, 방어 유닛 파괴, 대상 없음) 회귀 테스트를 보강한다.
 3. 이벤트 subscriber/handler를 분리하고, source-card verified 상태의 카드 규칙만 등록하는 fail-closed gate를 추가한다.
 4. Skill1 A32는 원본 artifact에서 Skill1 전용 빈도순 272~281위로 이어간다. A31의 2,218/2,247/491 누계를 기준으로 갱신한다.
+
+
+## 상태 정정 및 누적 갱신 — A32 / APK #132 (2026-11-05)
+
+이 항목은 위 A31 시점의 “#132 재검증 중” 문구를 최신 결과로 대체한다.
+
+- A32 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a32-2026-11-05.md`. Skill1 빈도순 272~281위 10개 단일 후보 그룹을 카드 ID별 원문으로 기록했다.
+- A32: 10 후보 행 / 10 원문 발췌 / 10 정확 문구 변형.
+- A1~A32 최신 누계: **2,228 후보 행 / 2,257 원문 발췌 / 501 정확 문구 변형**.
+- APK Actions #132 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41937261537. JS 규칙 테스트, Python converter 검사, Android Debug APK build, APK application ID/signature/ZIP 검증, artifact upload 전 단계 성공.
+- #131 실패(118 pass / 1 fail)는 queue lazy-init 상태를 가정한 테스트 assertion 오류였으며, assertion 수정 후 #132에서 성공했다. 취소된 #130은 실패로 집계하지 않는다.
+- APK PR #28 최신 확인 SHA `81ef0d872917ad8aa1122e9609020e006cdd68d6`, open/draft/unmerged. #132는 emulator/실제 대전/DB29 카드팩 통합 테스트를 실행하지 않았으므로 이 세 항목은 미검증이다.
+- 다음 Skill1 배치는 A33, 원본 빈도순 282~291위. Skill1/Skill2 분리 및 카드별 근거/비실행 게이트 유지.
