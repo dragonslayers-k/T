@@ -59,6 +59,18 @@ def parse(text, known_skills=None, known_cards=None):
                 "operations":[{"kind":"activation_restriction","conditionText":t,"executable":False}],
                 "numbers":re.findall("[0-9]+",t),"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"activation_restriction_v2","confidence":"medium"}
+    if "상성효과" in t and (":" in t or "：" in t):
+        return {"classification":"matchup_effect_reference_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"matchup_effect_reference","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"matchup_effect_reference_v1","confidence":"medium"}
+    if t.startswith("1)") and "아군 핸드/필드 카드종류수 이하" in t:
+        return {"classification":"effect_activation_requirement","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"activation_condition","conditionText":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"card_count_requirement_v1","confidence":"medium"}
     if "아군 필드 빈공간 수가" in t and (":" in t or "：" in t):
         return {"classification":"conditional_branch_reference","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
@@ -152,7 +164,7 @@ def parse(text, known_skills=None, known_cards=None):
     if known_cards and re.search(r"[:：]",t):
         label,body=re.split(r"[:：]",t,maxsplit=1)
         label_key="".join(label.split())
-        if label_key in known_cards and re.search(r"[+-]?\d+\s*/\s*[+-]?\d+\s*/\s*[+-]?\d+",body):
+        if label_key in known_cards and re.search(r"[=+*-]?\s*\d+\s*/\s*[=+*-]?\s*\d+\s*/\s*[=+*-]?\s*\d+",body):
             return {"classification":"card_stat_profile_reference","triggers":[],
                     "actors":[],"targets":[],"conditions":[],
                     "operations":[{"kind":"related_card_definition","cardName":label.strip(),
@@ -204,22 +216,35 @@ def parse(text, known_skills=None, known_cards=None):
       r"^상성(?:유닛|아이템)\s*[:：]",
       r"^(?:랭크가 있는 카드입니다|랭크 카드 안내|랭크카드 각각에 대한 설명은)",
       r"^(?:FM 도움말|고객센터|홈페이지 메인화면|이벤트 페이지를 확인)",
-      r"^20\\d\\d년.*(?:이벤트|부스터).*(?:획득|제공|유닛|카드)",
+      r"^20\d\d년.*(?:이벤트|부스터).*(?:획득|제공|유닛|카드)",
       r"^에카마엘과 관련하여 특별한 효과를 발휘합니다[.]?$",
-      r"^표시 확인\\)?$",
+      r"^표시 확인\)?$",
       r"^필드 슬롯 번호[.]?$",
       r"^기술방어보다 먼저 발동하는 기술 목록",
       r"^기호 소개[.]?$",
       r"^상성$",
+      r"^표시 확인\\)?$",
+      r"^필드 슬롯 번호[.]?$",
+      r"^기술방어보다 먼저 발동하는 기술 목록",
+      r"^기호 소개[.]?$",
       r"^고정기호\\s*[:：]",
       r"^.*카드는 디스펠 타입의 카드입니다",
       r"^나만의 카드를 GET 이벤트로 지급된 특수 카드입니다",
       r"^.*이벤트.*(?:특수 카드|유닛|카드)[.]?$",
-      r"^.*\\[.*\\]\\s*By\\s*[-:]",
       r"^\\d+점\\s*[=：]",
       r"^\\d+(?:~\\d+)?\\s*[:：=]\\s*(?:효과없음|Free|N Rank|C~B Rank|A~S Rank|Rare|Unique|Legend)",
-      r"^.*상성효과\\s*[:：]\\s*(?:하단 참조|방어고정)",
+      r"^\\*?\\s*(?:AP|DP|HP)\\s*[:：]",
+      r"^.*상성효과\\s*[:：]\\s*하단 참조",
       r"^By\\s*[-:].*",
+      r"^고정기호\s*[:：]",
+      r"^.*카드는 디스펠 타입의 카드입니다",
+      r"^나만의 카드를 GET 이벤트로 지급된 특수 카드입니다",
+      r"^.*이벤트.*(?:특수 카드|유닛|카드)[.]?$",
+      r"^.*\[.*\]\s*By\s*[-:]",
+      r"^\d+점\s*[=：]",
+      r"^\d+(?:~\d+)?\s*[:：=]\s*(?:효과없음|Free|N Rank|C~B Rank|A~S Rank|Rare|Unique|Legend)",
+      r"^.*상성효과\s*[:：]\s*(?:하단 참조|방어고정)",
+      r"^By\s*[-:].*",
       r"^20\d\d년.*(?:이벤트|부스터).*(?:획득|제공)",
       r"^상성(?:유닛|아이템)\s*[:：]",
       r"^◈\s*",
