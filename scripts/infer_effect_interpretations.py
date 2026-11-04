@@ -189,6 +189,8 @@ def parse(text, known_skills=None, known_cards=None):
     # Source notes, credits, collection restrictions and headings are not game effects.
     metadata_patterns=[
       r"^invalid$",
+      r"^.*구입.*오류.*$",
+      r"^.*FAQ\s*검색.*$",
       r"^상성효과[.]?$",
       r"^디스히어로 카드$",
       r"^디스인첸트 카드$",
@@ -756,7 +758,7 @@ def parse(text, known_skills=None, known_cards=None):
         stats=[x.lower() for x in re.findall(r"AP|DP|HP",t,re.I)]
         ops.append({"kind":"set_multiple_stats_from_rule","stats":_uniq(stats),
                     "value":1,"expressionText":t,"rawText":raw_text,"executable":False})
-    if re.search(r"(?:레벨|유닛 카드).{0,35}(?:좌우대칭|대칭).{0,25}(?:바뀌|변하)",t):
+    if re.search(r"레벨",t) and re.search(r"(?:좌우대칭|대칭).{0,25}(?:바뀌|변하)",t):
         ops.append({"kind":"mirror_or_swap_card_levels","scopeText":t,
                     "rawText":raw_text,"executable":False})
     if re.search(r"(?:공격기술|방어기술|특수기술|기술).{0,25}(?:가진다|보유한다|얻는다)",t):
