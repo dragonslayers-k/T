@@ -742,6 +742,34 @@ def parse(text, known_skills=None, known_cards=None):
                     ops.append({"kind":"labeled_effect_definition","label":label,
                                 "bodyText":body,"actionCandidates":body_actions,"executable":False})
 
+    # Legacy compact formulas and shorthand found in the low-confidence review queue.
+    # Keep every derived operation explicitly non-executable until independently tested.
+    for m in re.finditer(r"\b(AP|DP|HP)\s*(?:[xX×])\s*(\d+(?:\.\d+)?)",t,re.I):
+        stat=m.group(1).lower()
+        if not any(x.get("kind")=="multiply_stat" and x.get("stat")==stat for x in ops):
+            ops.append({"kind":"multiply_stat","stat":stat,"multiplier":float(m.group(2)),
+                        "rawText":raw_text,"executable":False})
+    if re.search(r"(?:카드이름수|이름수).{0,30}(?:공/체|공방체|공체).{0,20}(?:된다|변한다|정해진다)",t):
+        ops.append({"kind":"set_combat_stats_from_expression","statGroup":["ap","hp"],
+                    "expressionText":t,"rawText":raw_text,"executable":False})
+    if re.search(r"(?:AP|DP|HP).{0,20}(?:와|및|,).{0,20}(?:AP|DP|HP).{0,25}(?:1로 변|1이 된다|1로 만든)",t,re.I):
+        stats=[x.lower() for x in re.findall(r"AP|DP|HP",t,re.I)]
+        ops.append({"kind":"set_multiple_stats_from_rule","stats":_uniq(stats),
+                    "value":1,"expressionText":t,"rawText":raw_text,"executable":False})
+    if re.search(r"(?:레벨|유닛 카드).{0,35}(?:좌우대칭|대칭).{0,25}(?:바뀌|변하)",t):
+        ops.append({"kind":"mirror_or_swap_card_levels","scopeText":t,
+                    "rawText":raw_text,"executable":False})
+    if re.search(r"(?:공격기술|방어기술|특수기술|기술).{0,25}(?:가진다|보유한다|얻는다)",t):
+        ops.append({"kind":"grant_or_reference_skill","skillText":t,
+                    "rawText":raw_text,"executable":False})
+    if re.search(r"대미지|데미지|피해",t) and not any(x.get("kind")=="deal_damage" for x in ops):
+        ops.append({"kind":"deal_damage","rawText":raw_text,"executable":False})
+    if re.search(r"(?:취급된다|취급됩니다|로 취급)",t):
+        ops.append({"kind":"card_category_treatment_rule","rawText":raw_text,"executable":False})
+    if re.search(r"(?:없으면|없는 경우|없을 경우).{0,50}(?:발동 안|발동하지|효과가 없|아무런 효과)",t):
+        ops.append({"kind":"effect_activation_requirement","conditionText":t,
+                    "rawText":raw_text,"executable":False})
+
     # Card-to-card conditions and ranges are kept separately from effect operations.
     for pat in [
       r"\d+\s*(?:~|-|∼)\s*\d+\s*(?:레벨|턴|킬|장|개)",
@@ -756,6 +784,11 @@ def parse(text, known_skills=None, known_cards=None):
     ops=_uniq([json.dumps(x,ensure_ascii=False,sort_keys=True) for x in ops])
     ops=[json.loads(x) for x in ops]
 
+    if not ops and re.search(
+        r"(?:FAQ\s*검색|구입에\s*오류|카드상점에서|상시구매|판매됩니다|정기점검|수정될\s*예정|수정되었습니다|불편을\s*드려|이벤트\s*카드입니다|카드는.{0,35}받을\s*수|종족은.{0,35}표시|카드의\s*종류는|유닛의\s*이름은|이름은\s*\d+글자|카드\s*버그|툴팁.{0,20}수정|디스히어로(?:카드)?(?:\s*\[[^]]*\])?|운명의퍼즐)",
+        t,re.I):
+        classification="reference_or_metadata"; confidence="not_applicable"
+        ops=[{"kind":"source_note_or_card_metadata","rawText":raw_text,"executable":False}]
     if not ops:
         if re.match(r"^\s*(?:invalid$|▶|※|★|☆|illustrated|해당 카드는|카드타입)",t,re.I):
             classification="reference_or_flavor"; confidence="not_applicable"
