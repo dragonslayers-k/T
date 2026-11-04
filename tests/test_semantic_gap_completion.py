@@ -321,5 +321,35 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["classification"],"effect_selection_rule_candidate")
         self.assertEqual(result["confidence"],"medium")
 
+    def test_hand_space_activation_restriction_is_not_unparsed(self):
+        result=parse("▶ 핸드 빈공간이 없을 경우 의문공격은 발동하지 않습니다.")
+        self.assertEqual(result["classification"],"effect_activation_requirement")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_field_space_count_branch_is_structured(self):
+        result=parse("아군 필드 빈공간 수가 1 : 유닛1")
+        self.assertEqual(result["classification"],"conditional_branch_reference")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_quoted_status_label_is_reference(self):
+        result=parse('☆"영혼각인" 상태')
+        self.assertEqual(result["classification"],"named_status_reference")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_exclusive_effect_selection_is_structured(self):
+        result=parse("▶ ①과 ②중 조건에 맞는 하나의 효과만 발동. 관련 스페셜은 에피소드 카드도 포함.")
+        self.assertEqual(result["classification"],"effect_selection_rule_candidate")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_legacy_event_note_is_not_an_effect(self):
+        result=parse("※ 2009년 여름 대박 부스터 이벤트 카드.")
+        self.assertEqual(result["classification"],"reference_or_metadata")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_status_duration_with_trailing_period_is_candidate(self):
+        result=parse("빈공간 : 상태 -1턴.")
+        self.assertEqual(result["classification"],"status_duration_change_candidate")
+        self.assertEqual(result["operations"][0]["turnDelta"],-1)
+
 if __name__=="__main__":
     unittest.main()
