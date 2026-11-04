@@ -136,9 +136,9 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             result["mapping_review"] = True
         elif code in SPECIAL_SOUL_CODES:
             color = SPECIAL_SOUL_CODES[code]
-            # Inferred playable rule: NCS/BONUS count as flexible neutral souls.
-            result["colors"]["neutral"] += amount
-            token_result["normalized_color"] = "neutral"
+            # Keep source identity; the APK converter applies the inferred neutral payment rule.
+            result["colors"][color] += amount
+            token_result["normalized_color"] = color
             token_result["status"] = "inferred_flexible_neutral"
             token_result["inference"] = "special_soul_as_flexible_neutral"
             result["semantic_review"] = True
