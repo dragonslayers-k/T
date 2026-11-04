@@ -77,6 +77,7 @@ jobs:
           python -m unittest tests/test_effect_candidates.py
           python -m unittest tests/test_manual_rules.py
           python -m unittest tests/test_infer_unmapped_skills.py
+          python -m unittest tests/test_skill2_execution_review.py
           python -m unittest tests/test_card_field_coverage.py
           python -m unittest tests/test_name_only_skill_image_probe.py
           python -m unittest tests/test_effect_interpretations.py
@@ -232,6 +233,9 @@ jobs:
             data/gap-reports/effect-review-queue.jsonl
             data/gap-reports/inferred-skill-report.jsonl
             data/gap-reports/community-skill-report.jsonl
+            data/gap-reports/skill2-execution-review.jsonl
+            data/gap-reports/skill2-execution-review-summary.json
+            data/rules/fm1-skill2-execution-catalog-v1.json
             data/gap-reports/cost-inference-report.jsonl
             data/gap-reports/cost-code-inventory.json
             data/gap-reports/unmapped-skill-inventory.csv
@@ -557,6 +561,9 @@ jobs:
             data/gap-reports/skill-gap-report.jsonl
             data/gap-reports/inferred-skill-report.jsonl
             data/gap-reports/community-skill-report.jsonl
+            data/gap-reports/skill2-execution-review.jsonl
+            data/gap-reports/skill2-execution-review-summary.json
+            data/rules/fm1-skill2-execution-catalog-v1.json
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/effect-gap-report.jsonl
             data/rules/fm1-skill-catalog-v1.json

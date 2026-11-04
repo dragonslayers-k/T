@@ -52,6 +52,32 @@ def build_effect_review_queue(low_effects):
     return sorted(groups.values(),key=lambda x:(-x["occurrences"],x["text"]))
 
 
+def build_skill2_execution_review_rows(skill_rows, rules):
+    """Join Skill2 candidate rules to card-local source excerpts without promoting verification."""
+    by_name={rule.get("name"):rule for rule in rules if rule.get("name")}
+    review=[]
+    for source in skill_rows:
+        if source.get("source_field")!="Skill2" or source.get("source_name") not in by_name:
+            continue
+        try:
+            refs=json.loads(source.get("evidence_references_json") or "[]")
+        except Exception:
+            refs=[]
+        local=next((x for x in refs if x.get("kind") in ("card_text_inference","card_text_evidence_missing")),{})
+        count=int(local.get("evidenceCount") or 0)
+        row=dict(source)
+        row["execution_rule"]=by_name[source["source_name"]]
+        row["card_local_evidence_count"]=count
+        row["card_local_evidence_references"]=local.get("references",[])
+        row["community_evidence_references"]=[x for x in refs if x.get("kind")=="community_reference"]
+        row["verification_status"]=(
+            "card_source_excerpt_available_pending_semantic_review" if count
+            else "card_source_excerpt_missing"
+        )
+        review.append(row)
+    return sorted(review,key=lambda x:(x["source_name"],x["card_id"]))
+
+
 def build(db_path: Path, out_dir: Path):
     db=sqlite3.connect(db_path)
     db.row_factory=sqlite3.Row
@@ -304,7 +330,30 @@ def build(db_path: Path, out_dir: Path):
         for r in community_skills:
             f.write(json.dumps(r,ensure_ascii=False)+"\n")
 
-    named_effect_definitions=[]
+    skill2_catalog_path=Path("data/rules/fm1-skill2-execution-catalog-v1.json")
+    skill2_catalog=json.loads(skill2_catalog_path.read_text(encoding="utf-8")) if skill2_catalog_path.exists() else {"rules":[]}
+    skill2_review=build_skill2_execution_review_rows(skills,skill2_catalog.get("rules",[]))
+    with (out_dir/"skill2-execution-review.jsonl").open("w",encoding="utf-8") as f:
+        for row in skill2_review:
+            f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    skill2_review_by_rule={}
+    for row in skill2_review:
+        item=skill2_review_by_rule.setdefault(row["source_name"],{"card_rows":0,"rows_with_card_local_evidence":0,"rows_missing_card_local_evidence":0})
+        item["card_rows"]+=1
+        item["rows_with_card_local_evidence"]+=int(row["card_local_evidence_count"]>0)
+        item["rows_missing_card_local_evidence"]+=int(row["card_local_evidence_count"]==0)
+    skill2_review_summary={
+        "catalog_rule_count":len(skill2_catalog.get("rules",[])),
+        "candidate_card_rows":len(skill2_review),
+        "card_rows_with_local_source_evidence":sum(x["rows_with_card_local_evidence"] for x in skill2_review_by_rule.values()),
+        "card_rows_missing_local_source_evidence":sum(x["rows_missing_card_local_evidence"] for x in skill2_review_by_rule.values()),
+        "by_skill":skill2_review_by_rule,
+        "verification_policy":"Source excerpts are candidates only; no card mapping is promoted to source_card_verified by this report."
+    }
+    (out_dir/"skill2-execution-review-summary.json").write_text(
+        json.dumps(skill2_review_summary,ensure_ascii=False,indent=2),encoding="utf-8")
+
+        named_effect_definitions=[]
     try:
         for r in db.execute("""SELECT definition_id,source_card_id,source_card_name,source_field,marker,
             effect_name,definition_text,source_text_sha256,extraction_method,verification_status
@@ -397,8 +446,12 @@ def build(db_path: Path, out_dir: Path):
       "named_effect_definition_rows":len(named_effect_definitions),
       "named_effect_definition_unique_names":len({x["effect_name"] for x in named_effect_definitions}),
       "named_effect_reference_rows":named_effect_reference_rows,
+      "skill2_execution_candidate_rows":len(skill2_review),
+      "skill2_execution_candidate_rules":len(skill2_review_by_rule),
+      "skill2_execution_rows_with_card_local_evidence":skill2_review_summary["card_rows_with_local_source_evidence"],
+      "skill2_execution_rows_missing_card_local_evidence":skill2_review_summary["card_rows_missing_local_source_evidence"],
       "effect_low_confidence_classification_counts":effect_classes,
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-scope-report.jsonl","field-applicability-scope-report.csv","named-effect-definition-index.jsonl"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-scope-report.jsonl","field-applicability-scope-report.csv","named-effect-definition-index.jsonl","skill2-execution-review.jsonl","skill2-execution-review-summary.json"]
     }
     for r in field_rows:
         summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
