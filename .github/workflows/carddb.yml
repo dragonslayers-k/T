@@ -244,7 +244,6 @@ jobs:
             data/gap-reports/cost-code-inventory.json
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/gap-report-summary.json
-            data/gap-reports/semantic-backlog-progress.json
             data/gap-reports/name-only-skill-source-probe.json
             data/gap-reports/name-only-skill-image-probe.json
           if-no-files-found: error
@@ -306,6 +305,15 @@ jobs:
             --baseline data/semantic-backlog-baseline-fm1-carddb-29.json \
             --out data/gap-reports/semantic-backlog-progress.json
           cat data/gap-reports/semantic-backlog-progress.json
+
+      - name: Upload semantic backlog progress report
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-carddb-semantic-progress-${{ env.SOURCE_RELEASE_TAG }}-${{ github.run_number }}
+          path: data/gap-reports/semantic-backlog-progress.json
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Verify SQLite counts, references, images, costs, and search
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
