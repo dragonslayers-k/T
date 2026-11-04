@@ -55,7 +55,7 @@ jobs:
     timeout-minutes: 360
     env:
       # Full audits are explicit: workflow_dispatch inputs or a push commit tagged [full-db-audit]. PRs stay on lightweight tests.
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
@@ -102,7 +102,7 @@ jobs:
           node-version: "22"
 
       - name: Install crawler dependencies
-        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'probe' || inputs.mode == 'crawl') }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && (inputs.mode == 'probe' || inputs.mode == 'crawl')) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]')) }}
         run: |
           set -euo pipefail
           npm ci
@@ -119,7 +119,7 @@ jobs:
         run: npm run crawl
 
       - name: Download original small and large card images
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl' }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]')) }}
         env:
           IMAGE_CONCURRENCY: "6"
         run: npm run download-images
@@ -146,7 +146,7 @@ jobs:
           tar -tzf data/images.tar.gz >/dev/null
 
       - name: Archive freshly downloaded images
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl' }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]')) }}
         run: |
           set -euo pipefail
           test -s data/raw/cards.jsonl
