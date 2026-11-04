@@ -150,5 +150,21 @@ class EffectInterpretationTests(unittest.TestCase):
         result=parse("ex) 해당 마법과 관련 있는 스페셜 유닛이 필드에 있는 경우 ②번 효과가 발동.")
         self.assertEqual(result["confidence"],"not_applicable")
 
+
+    def test_named_status_effect_is_captured_without_executable_claim(self):
+        result=parse("공격시 적 유닛에게 빙결 상태를 부여한다.")
+        self.assertTrue(any(x["kind"]=="apply_or_change_named_status" for x in result["operations"]))
+        self.assertFalse(any(x.get("executable") is True for x in result["operations"]))
+
+    def test_legacy_trigger_receive_attack(self):
+        result=parse("공격을 받을 때 상대에게 피해를 되돌려준다.")
+        self.assertIn("on_receive_attack",result["triggers"])
+
+    def test_legacy_move_and_disable_verbs_are_typed(self):
+        result=parse("적 유닛을 소각장으로 보내고 특수기술을 봉인한다.")
+        op=next(x for x in result["operations"] if x["kind"]=="generic_effect_operation")
+        self.assertIn("move_or_select",op["actionCandidates"])
+        self.assertIn("remove_or_disable",op["actionCandidates"])
+
 if __name__=="__main__":
     unittest.main()
