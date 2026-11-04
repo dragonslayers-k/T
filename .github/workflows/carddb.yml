@@ -87,6 +87,8 @@ jobs:
           python -m unittest tests/test_semantic_audit_status.py
           python -m unittest tests/test_semantic_backlog_progress.py
           python -m unittest tests/test_external_reference_review.py
+          python -m unittest tests/test_disenchant_shared_rule.py
+          python -m unittest tests/test_summon_profile_review.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
           python scripts/quality_audit.py --self-test
