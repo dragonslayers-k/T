@@ -17,7 +17,8 @@ class RequireSoulTests(unittest.TestCase):
         self.assertTrue(parsed["mapping_review"])
         self.assertEqual(parsed["colors"]["iron"], 1)
         self.assertEqual(parsed["colors"]["light"], 1)
-        self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
+        self.assertEqual(parsed["tokens"][0]["status"], "hybrid_identity_preserved_pending_rule")
+        self.assertEqual(parsed["tokens"][0]["inference"], "hybrid_color_pair_payment_rule_unverified")
 
     def test_ncs_and_bonus_are_separate_semantic_review_tokens(self):
         parsed = parse_require_soul("82018302")
@@ -26,6 +27,8 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["ncs"], 1)
         self.assertEqual(parsed["colors"]["bonus"], 2)
         self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertEqual(parsed["tokens"][0]["status"], "special_identity_preserved_pending_rule")
+        self.assertEqual(parsed["tokens"][1]["status"], "special_identity_preserved_pending_rule")
 
     def test_korean_text_cost(self):
         p = parse_require_soul("숲 2, 물 1")
