@@ -290,3 +290,14 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - A1~A33 누계: **2,238 후보 행 / 2,269 원문 발췌 / 513 정확 문구 변형**.
 - 거대화/거짓된풍요의 히어로 카운터와 능력 발동, 경국지색의 미확인 `xC1`, 개화하는소질 원문 누락은 각각 별도 미해결 항목이다. 근거 없는 자동 승격 금지.
 - APK PR #28 검증 기준은 Actions #132 성공 및 SHA `81ef0d872917ad8aa1122e9609020e006cdd68d6`다. 다음 단계는 이벤트 경계 회귀 테스트와 source-verified 구독자 gate이며, 실제 에뮬레이터/DB29 통합은 별도 미검증 상태다.
+
+
+## A34 및 APK Actions #133 통과 갱신 (2026-11-05)
+
+- A34 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a34-2026-11-05.md` — Skill1 빈도순 292~301위 10개 그룹.
+- A34: 10 후보 행 / 14 원문 발췌 / 14 정확 문구 변형.
+- A1~A34 최신 누계: **2,248 후보 행 / 2,283 원문 발췌 / 527 정확 문구 변형**. 근거 인벤토리 수치이며 의미 검증/실행 구현 완료량이 아니다.
+- APK Actions #133 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41937577446. JS 122개 규칙 테스트(기존 119 + attack event 경계 3), converter, Android Debug APK 빌드, application ID/signature/ZIP 검증, APK artifact 업로드 성공.
+- #133에서 확인된 이벤트 순서: 방어 유닛이 파괴되는 공격은 `unit_destroyed`가 먼저, `unit_attack_resolved`가 뒤에 큐에 기록된다. 직접 공격은 유닛 대상 없이 attack-resolved 이벤트를 기록한다.
+- PR #28은 최신 검증 SHA `52dcca2167b5fadc977c0eef30ccd2994ca481de`에서 Actions #133 성공, open/draft/unmerged. 선택형 DB29 data pack build와 emulator는 이 run에서 skipped였으므로 실제 카드팩/에뮬레이터 통합은 별도 검증 대상으로 남는다.
+- 다음 엔진 단계는 이벤트 subscriber/dispatcher의 fail-closed 등록 계약과 중복 등록/순서/격리 테스트다. 카드 효과 실행은 해당 카드의 승인된 mapping/authority/execution tuple을 만족할 때만 연결한다.
