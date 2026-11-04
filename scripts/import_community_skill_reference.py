@@ -55,6 +55,10 @@ def extract_skill_definitions(page, names):
         if current:
             if line.startswith(("댓글","목록","추천","비추천","신고","로그인","회원가입")):
                 flush(); current=None; body=[]; continue
+            if line.lstrip().startswith((":", "：")):
+                continuation=re.sub(r"^[\s:：/／]+","",line).strip()
+                if continuation: body.append(continuation)
+                continue
             # A new definition heading closes the previous one, even when that
             # following name is not among the residual skills being searched.
             if re.match(r"^.{1,48}?\s*[:：]\s*.+$",clean):
