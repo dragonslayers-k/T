@@ -922,7 +922,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     if re.search(r"순화능력.{0,20}(?:갖는다|가진다|보유한다)",t):
         ops.append({"kind":"grant_named_ability_candidate","abilityName":"순화능력",
                     "conditionText":t,"rawText":raw_text,"executable":False})
-    if re.search(r"아무 효과도? 없(?:습니다|다)",t):
+    if re.search(r"아무 효과(?:도|가)? 없(?:습니다|다)",t):
         ops.append({"kind":"suppress_effect_under_condition",
                     "conditionText":t,"rawText":raw_text,"executable":False})
     if re.match(r"^(?:무지개발산공격|스피릿스톰|섀도우스킬\(|섀도우쉬프트\(|전쟁의주인|혼돈의주관자)",t):
