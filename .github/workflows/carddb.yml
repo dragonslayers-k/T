@@ -227,6 +227,7 @@ jobs:
             data/gap-reports/card-field-status-summary.json
             data/gap-reports/field-applicability-scope-report.jsonl
             data/gap-reports/field-applicability-scope-report.csv
+            data/gap-reports/named-effect-definition-index.jsonl
             data/gap-reports/effect-gap-report.jsonl
             data/gap-reports/effect-low-confidence-summary.json
             data/gap-reports/effect-review-queue.jsonl
@@ -261,7 +262,8 @@ jobs:
               "skill_no_special_rows","skill_inventory_unmapped_values",
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
-              "effect_interpretation_low_confidence","field_coverage_matrix_integrity","field_coverage_applicability_complete","field_coverage_applicability_candidate_pairs","field_coverage_applicability_not_applicable_pairs","field_coverage_applicability_candidates","field_coverage_not_applicable","field_coverage_complete","semantic_coverage_pass","semantic_completeness_pass",
+              "effect_interpretation_low_confidence","field_coverage_matrix_integrity","field_coverage_applicability_complete","field_coverage_applicability_candidate_pairs","field_coverage_applicability_not_applicable_pairs","field_coverage_applicability_candidates","field_coverage_not_applicable","field_coverage_complete",
+              "named_effect_definition_rows","named_effect_definition_unique_names","named_effect_reference_rows","semantic_coverage_pass","semantic_completeness_pass",
               "semantic_review_pending","engine_verification_pending","engine_verification_complete","complete",
               "skill_mapping_coverage_accounted_for"
           )
