@@ -20,8 +20,24 @@ class ManualSkillCatalogueTests(unittest.TestCase):
 
     def test_contains_27_manual_baseline_skills(self):
         manual = [x for x in self.catalogue["rules"] if x["authority"] == "manual"]
-        self.assertEqual(len(manual), 27)
-        self.assertEqual({x["source"]["member"] for x in manual}, {"specialability.htm"})
+        skill_manual = [x for x in manual if x["source"]["member"] == "specialability.htm"]
+        global_manual = [x for x in manual if x["source"]["member"] != "specialability.htm"]
+        self.assertEqual(len(skill_manual), 27)
+        self.assertEqual(len(global_manual), 15)
+        self.assertEqual(len(manual), 42)
+
+
+
+    def test_global_gameplay_catalogue_preserves_soul_cost_coin_and_manual_conflict(self):
+        global_rules = [x for x in self.catalogue["rules"] if x["source"]["member"] != "specialability.htm"]
+        by_id = {x["id"]: x for x in global_rules}
+        self.assertIn("unit_neutral_soul_maintenance", by_id)
+        self.assertIn("coin_single_roll_shared", by_id)
+        conflict = by_id["terrain_placement_limit_conflict"]
+        self.assertEqual(conflict["verificationStatus"], "manual_conflict")
+        self.assertFalse(conflict["playableByDefault"])
+        self.assertEqual(len(conflict["sourceConflicts"]), 2)
+        self.assertEqual(by_id["unit_neutral_soul_summon"]["ruleDefinition"]["sourceSymbol"], "MU")
 
     def test_every_manual_rule_has_complete_structured_definition_and_provenance(self):
         manual = [x for x in self.catalogue["rules"] if x["authority"] == "manual"]
@@ -87,7 +103,9 @@ class ManualSkillCatalogueTests(unittest.TestCase):
         self.assertIn(("기술봉쇄","ability_seal","manual_verified"),rows)
         self.assertIn(("주문봉쇄","spell_suppression","manual_verified"),rows)
         self.assertIn(("헌신방어",None,"unmapped"),rows)
-        self.assertEqual(result["manualRuleCount"],27)
+        self.assertEqual(result["manualRuleCount"],42)
+        self.assertEqual(result["manualSkillRuleCount"],27)
+        self.assertEqual(result["manualGlobalRuleCount"],15)
         self.assertEqual(result["communityCandidateRuleCount"],41)
         self.assertEqual(result["playableCommunityCandidates"],0)
         self.assertEqual(db.execute("PRAGMA foreign_key_check").fetchall(),[])
