@@ -53,6 +53,14 @@ class RequireSoulTests(unittest.TestCase):
         self.assertFalse(parse_require_soul("0101")["known"])
         self.assertFalse(parse_require_soul("")["known"])
 
+    def test_numeric_tokens_with_copy_separators_are_decoded(self):
+        p = parse_require_soul("5102, 4101 + 7101")
+        self.assertTrue(p["known"])
+        self.assertEqual(p["source_format"], "numeric_enum")
+        self.assertEqual(p["colors"]["iron"], 2)
+        self.assertEqual(p["colors"]["forest"], 1)
+        self.assertEqual(p["colors"]["light"], 1)
+
     def test_unknown_code_stays_unresolved(self):
         parsed = parse_require_soul("9901")
         self.assertFalse(parsed["known"])
