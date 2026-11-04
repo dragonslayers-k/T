@@ -314,7 +314,7 @@ def parse(text, known_skills=None, known_cards=None):
         return {"classification":"effect_activation_requirement","triggers":[],"actors":[],
                 "targets":[],"conditions":[t],
                 "operations":[{"kind":"effect_activation_requirement","conditionText":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)\\d+(?:\\.\\d+)?",t),"rawText":raw_text,
+                "numbers":[],"rawText":raw_text,
                 "flavorText":flavor_text,"inferenceMethod":"activation_gate_note_v2","confidence":"medium"}
 
     # Exact skill names are linked to the rule catalogue; they are not re-parsed as prose.
