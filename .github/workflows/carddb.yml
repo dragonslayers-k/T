@@ -235,10 +235,12 @@ jobs:
               "skill_no_special_rows","skill_inventory_unmapped_values",
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
-              "effect_interpretation_low_confidence","semantic_completeness_pass",
+              "effect_interpretation_low_confidence","field_coverage_complete","semantic_completeness_pass",
               "skill_mapping_coverage_accounted_for"
           )
           print(json.dumps({key:report.get(key) for key in keys},ensure_ascii=False,indent=2))
+          if not report.get("field_coverage_complete"):
+              raise SystemExit("Card-by-field coverage matrix was not persisted or has unresolved source mismatches")
           if not report.get("skill_mapping_coverage_accounted_for"):
               raise SystemExit("Skill1/Skill2 source rows are not fully represented in card_rule_mappings")
           if not report.get("semantic_completeness_pass"):
