@@ -189,6 +189,7 @@ jobs:
           set -euo pipefail
           python scripts/build_gap_reports.py --db data/fm1_cards.sqlite --out-dir data/gap-reports
           cat data/gap-reports/gap-report-summary.json
+          cat data/gap-reports/effect-low-confidence-summary.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -207,6 +208,7 @@ jobs:
           name: fm1-carddb-semantic-review-${{ env.SOURCE_RELEASE_TAG }}-${{ github.run_number }}
           path: |
             data/gap-reports/effect-gap-report.jsonl
+            data/gap-reports/effect-low-confidence-summary.json
             data/gap-reports/inferred-skill-report.jsonl
             data/gap-reports/community-skill-report.jsonl
             data/gap-reports/cost-inference-report.jsonl
