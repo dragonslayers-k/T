@@ -12,7 +12,7 @@ def main(db_path="data/fm1_cards.sqlite"):
     db.execute("PRAGMA foreign_keys=ON")
     rows=db.execute("""
       SELECT source_field,source_enum_value,source_name,card_count
-      FROM skill_enum_inventory WHERE mapping_status IN ('unmapped','inferred') OR (mapping_status='inferred' AND rule_id IN (SELECT rule_id FROM game_rule_catalog WHERE confidence='low'))
+      FROM skill_enum_inventory WHERE mapping_status='unmapped' OR (mapping_status='inferred' AND rule_id IN (SELECT rule_id FROM game_rule_catalog WHERE confidence='low'))
       ORDER BY source_field,source_enum_value
     """).fetchall()
     done=0; evidence_backed=0; name_only=0
@@ -84,12 +84,12 @@ def main(db_path="data/fm1_cards.sqlite"):
         db.execute("""
           UPDATE card_rule_mappings SET rule_id=?,mapping_status='inferred',
             confidence=?,evidence_references_json=?
-          WHERE source_field=? AND source_name=? AND mapping_status='unmapped'
+          WHERE source_field=? AND source_name=? AND mapping_status IN ('unmapped','inferred')
         """,(rid,confidence,json.dumps([source],ensure_ascii=False),field,name))
         db.execute("""
           UPDATE skill_enum_inventory SET mapping_status='inferred',rule_id=?,
             mapped_card_count=card_count
-          WHERE source_field=? AND source_name=? AND mapping_status='unmapped'
+          WHERE source_field=? AND source_name=? AND mapping_status IN ('unmapped','inferred')
         """,(rid,field,name))
         done+=1
         if body: evidence_backed+=1
