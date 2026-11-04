@@ -68,7 +68,7 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/build_gap_reports.py
+          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/build_gap_reports.py
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_cost_decoding.py
           python -m unittest tests/test_effect_candidates.py
@@ -173,6 +173,7 @@ jobs:
           python scripts/build_db.py
           python scripts/build_effect_candidates.py --db data/fm1_cards.sqlite
           python scripts/import_manual_rules.py --db data/fm1_cards.sqlite --catalogue data/rules/fm1-skill-catalog-v1.json
+          python scripts/infer_unmapped_skills.py --db data/fm1_cards.sqlite
           python scripts/effect_pattern_audit.py \
             --db data/fm1_cards.sqlite \
             --out data/effect-pattern-inventory.json \
