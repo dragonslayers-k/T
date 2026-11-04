@@ -76,6 +76,11 @@ def extract_named_effect_definitions(card_id, card_name, raw_text):
 def parse(text, known_skills=None, known_cards=None, known_named_effects=None, known_named_effect_fragments=None):
     raw_text=(text or "").strip()
     t=raw_text
+    if not raw_text:
+        return {"classification":"empty_source_text","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"empty_source_text","executable":False}],
+                "numbers":[],"rawText":"","flavorText":None,
+                "inferenceMethod":"empty_source_text_v1","confidence":"not_applicable"}
     # Strip visual source markers only from the analysis copy; preserve rawText.
     t=re.sub(r"^[◇◆※▶★☆◈●○]+\s*","",t).strip()
     t=re.sub(r"^\*\s+","",t).strip()

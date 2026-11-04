@@ -51,6 +51,14 @@ class NamedEffectInterpretationTests(unittest.TestCase):
         self.assertEqual(kinds.count("multiply_stat"), 2)
         self.assertTrue(all(x.get("executable") is False for x in result["operations"]))
 
+    def test_empty_and_whitespace_only_text_is_not_a_low_confidence_effect(self):
+        for raw in ("", "\\n", " \\n\\t "):
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                self.assertEqual(result["classification"], "empty_source_text")
+                self.assertEqual(result["confidence"], "not_applicable")
+                self.assertFalse(any(op.get("executable") for op in result["operations"]))
+
     def test_known_unparsed_categories_are_preserved(self):
         cases = [
             ("무속성 이벤트 마법은 이벤트 마법으로 취급됩니다.", "card_type_treatment_rule"),
@@ -60,6 +68,8 @@ class NamedEffectInterpretationTests(unittest.TestCase):
             ("[오래된 전쟁과 영웅에 대한 이야기로 구성된 풍미 문구이며 실제 효과가 아닌 배경 설명입니다.]", "flavor_or_lore"),
             (".", "source_placeholder"),
             ("…", "punctuation_artifact"),
+            ("", "empty_source_text"),
+            ("\n", "empty_source_text"),
         ]
         for raw, expected in cases:
             with self.subTest(raw=raw):
