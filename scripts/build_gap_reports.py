@@ -180,7 +180,7 @@ def build(db_path: Path, out_dir: Path):
       VALUES(?,?,?,?,?,?,?)""",coverage_inserts)
     if len(coverage_inserts)!=len(cards)*len(fields):
         raise ValueError("Card-field coverage matrix is incomplete")
-    if any(x[4]!=1 for x in coverage_inserts):
+    if any(x[5]!=1 for x in coverage_inserts):
         raise ValueError("At least one normalized source field does not match its raw card payload")
     with (out_dir/"card-field-gap-report.csv").open("w",newline="",encoding="utf-8-sig") as f:
         w=csv.DictWriter(f,fieldnames=list(field_rows[0]) if field_rows else ["card_id","field_key","status"])
@@ -356,7 +356,7 @@ def build(db_path: Path, out_dir: Path):
       "field_applicability_counts_by_field":per_field_applicability_counts,
       "field_applicability_candidate_pairs":len(applicability_rows),
       "field_applicability_candidate_cells":sum(x["card_count"] for x in applicability_rows),
-      "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),
+      "source_payload_mismatches":sum(1 for x in coverage_inserts if x[5]!=1),
       "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
       "unresolved_cost_rows":sum(1 for r in costs if not r["soul_known"] or (r["card_type"]=="지형" and not r["lp_known"])),
