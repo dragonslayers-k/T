@@ -25,11 +25,16 @@
         "아이템은 유닛 장착형이며 유닛 능력에 따른 장착 제한 설명",
         "인챈트는 슬롯에 일정 턴 존재하며 유닛/마법에 능력을 부여하는 지속형 카드 설명",
         "주요 문서 본문은 종족/소속, 8개 속성, 속성별 카드 목록과 일부 개별 카드 문서로 연결되는 내부 링크 색인을 포함한다.",
-        "본문의 카드 사례 설명에는 카드 사용 조건과 리콜 전후 변경 이력이 함께 기록된 예시가 있어, 현재 원문과 역사적 텍스트를 분리해 대조할 필요가 있다."
+        "본문의 카드 사례 설명에는 카드 사용 조건과 리콜 전후 변경 이력이 함께 기록된 예시가 있어, 현재 원문과 역사적 텍스트를 분리해 대조할 필요가 있다.",
+        "속성 하위 문서의 7개 항목과 메인 문서의 무속성 포함 8속성 서술은 서로 다른 편집/시기 맥락으로 관리한다.",
+        "종족·소속 문서의 명칭은 별도 색인이며, 카드 속성(attribute)·종족(race)·소속(affiliation)을 분리해야 한다.",
+        "개별 카드 검색 색인 사례: 스터두라엘(금속 유니트/휴먼/머시너리), 번창하는숲(핸드 지형 소각 후 트리언트 소환), 샤와타의그물(숲 스페셜), '무' 동음이의어 본문 내 숲 시크릿 유닛."
       ],
       "limitations": [
         "커뮤니티 편집 내용이며 공식 매뉴얼과 동일한 권위로 취급하지 않음",
-        "일반 전투 계산 설명을 특수 기술·예외의 완전한 엔진 규칙으로 승격하지 않음"
+        "일반 전투 계산 설명을 특수 기술·예외의 완전한 엔진 규칙으로 승격하지 않음",
+        "검색 색인으로 확인한 개별 카드 설명은 원본 DB29 card ID, 리콜 버전, current TextBase/TextExtra와 대조 전이며 카드 원본 필드의 덮어쓰기 근거가 아니다.",
+        "페이지 URL을 열었을 때 cache miss가 발생할 수 있으므로 search-index retrieval과 full page open success를 구분한다."
       ],
       "related_pages": [
         {
@@ -139,6 +144,51 @@
           "kind": "individual_card",
           "retrieval_status": "cache_miss"
         }
+      ],
+      "retrieved_card_pages": [
+        {
+          "name": "판타지 마스터즈 main / 3.6",
+          "url": "https://www.namu.moe/w/판타지_마스터즈",
+          "status": "search_index_body_retrieved",
+          "observed": "five card types, 3.6 card list, sample card descriptions, attribute-era narrative"
+        },
+        {
+          "name": "판타지 마스터즈/속성",
+          "url": "https://m.namu.moe/w/판타지%20마스터즈/속성",
+          "status": "search_index_body_retrieved",
+          "revision_label": "2026-08-05",
+          "observed": "seven attribute sections; community balance/concept descriptions"
+        },
+        {
+          "name": "판타지 마스터즈/종족과 소속",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/종족과%20소속",
+          "status": "search_index_partial_body_retrieved",
+          "observed": "race/faction name index; generic links and some lore/affiliation content"
+        },
+        {
+          "name": "스터두라엘",
+          "url": "https://www.namu.moe/w/스터두라엘",
+          "status": "search_index_body_retrieved",
+          "observed": "metal unit, human race, mercenary affiliation, epic, episode and two ability descriptions"
+        },
+        {
+          "name": "번창하는숲",
+          "url": "https://namu.moe/w/번창하는숲",
+          "status": "search_index_body_retrieved",
+          "observed": "forest rare card, hand land sacrifice and summon Trient count; historic deck strategy"
+        },
+        {
+          "name": "샤와타의그물",
+          "url": "https://www.namu.moe/w/샤와타의그물",
+          "status": "search_index_body_retrieved",
+          "observed": "forest special card, episode 15 album reward, restrictions and lore"
+        },
+        {
+          "name": "무 (disambiguation)",
+          "url": "https://namu.moe/w/무",
+          "status": "search_index_body_retrieved",
+          "observed": "contains forest secret unit card entry; do not conflate card name with neutral attribute"
+        }
       ]
     },
     {
@@ -242,6 +292,23 @@
         "게시 시점의 규칙/카드 버전과 DB29 원문 기준의 동일성이 검증되지 않았다."
       ],
       "use_policy": "기술명 및 원문 목록의 독립 교차참조에만 사용. DB29 카드 원문보다 우선하지 않으며 단독으로 executable=true를 설정하지 않음."
+    },
+    {
+      "id": "gamechosun_fm1_2002_overview",
+      "requested_url": "https://www.gamechosun.co.kr/webzine/article/view.php?from=articlelist&no=13712",
+      "kind": "historical_game_press_article",
+      "published_at": "2002-09-14 (article archive metadata/legacy guide reference; confirm exact date from source before precise citation)",
+      "status": "search_index_excerpt_retrieved_full_page_cache_miss",
+      "facts_observed": [
+        "초기 FM1 소개에 공격 턴/방어 턴과 방어선·직접 공격 시 서고 카드 손실 설명이 포함된다.",
+        "초기 기사에서는 7개 속성(암흑·불·물·숲·금속·대지·빛)을 소개한다."
+      ],
+      "limitations": [
+        "역사적 소개 기사이며 대격변 이후 무속성 독립과 후대 카드/룰을 반영하지 않을 수 있음",
+        "검색 색인 발췌만 확인했고 본문 직접 열기에서 cache miss 발생",
+        "공식 매뉴얼 및 DB29 카드 원문을 대체하지 않음"
+      ],
+      "use_policy": "초기 게임 구조/당시 속성 분류의 역사적 맥락만 사용; current engine rules의 단독 근거로 사용하지 않음"
     }
   ]
 }
