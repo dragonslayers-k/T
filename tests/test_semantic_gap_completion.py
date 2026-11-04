@@ -36,6 +36,31 @@ class EffectGapRegressionTests(unittest.TestCase):
         parsed = parse("▶ 유닛 목록.")
         self.assertEqual(parsed["classification"], "section_heading")
 
+    def test_activation_only_clause_is_structured_as_a_gate(self):
+        parsed = parse("▶ 필드 유닛이 2장 이상일 경우에는 1,2 모두 불속성이여야 발동.")
+        self.assertEqual(parsed["classification"], "effect_activation_requirement")
+        self.assertTrue(all(op.get("executable") is False for op in parsed["operations"]))
+
+    def test_dishero_label_is_reference_metadata(self):
+        parsed = parse("◇ 디스히어로 카드")
+        self.assertEqual(parsed["classification"], "reference_or_metadata")
+        self.assertEqual(parsed["confidence"], "not_applicable")
+
+    def test_event_acquisition_note_is_metadata(self):
+        parsed = parse("밀짚모자 카드는 09 SUMMER BIG EVENT 를 통해 얻으실 수 있는 이벤트 카드 입니다.")
+        self.assertEqual(parsed["classification"], "reference_or_metadata")
+
+    def test_legacy_three_stat_vector_is_structured_but_non_executable(self):
+        parsed = parse("AP3 이하 적군 유니트는 =0/-2/0")
+        op = next(x for x in parsed["operations"] if x["kind"] == "set_combat_stats_vector")
+        self.assertEqual(op["values"], ["=0", "-2", "0"])
+        self.assertFalse(op["executable"])
+
+    def test_catalogue_item_stat_vector_is_not_executable_effect(self):
+        parsed = parse("★ 체인플레이트 ●●○○, +1 / +2 / +1")
+        self.assertTrue(any(x["kind"] == "combat_stat_vector_reference" for x in parsed["operations"]))
+        self.assertFalse(any(x.get("executable") is True for x in parsed["operations"]))
+
     def test_defense_convert_positive_negative_dp_marks_are_structured(self):
         parsed = parse("방어변환 : AP 1 이상 공격시, 상대를 공격한 후 상대의 DP 양수,음수기호를 변환시킨다.")
         self.assertEqual(parsed["confidence"], "medium")
