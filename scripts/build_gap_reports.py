@@ -98,7 +98,7 @@ def build(db_path: Path, out_dir: Path):
     per_field_status_counts={field:{} for field in fields}
     per_field_applicability_counts={field:{} for field in fields}
     per_field_examples={field:{} for field in fields}
-    applicability_candidates={}
+    applicability_scope={}
     for card in cards:
         payload=source_payloads[card["card_id"]]
         source_category=payload.get("Category")
@@ -106,7 +106,7 @@ def build(db_path: Path, out_dir: Path):
         absent_fields=[]
         empty_fields=[]
         null_fields=[]
-        not_applicable_candidates=[]
+        not_applicable_fields=[]
         missing_fields=[]
         for field in fields:
             row=present.get((card["card_id"],field))
@@ -122,12 +122,18 @@ def build(db_path: Path, out_dir: Path):
                 else:
                     status="source_absent_confirmed"
                     if (source_category,field) not in observed_type_fields:
-                        applicability="not_applicable_candidate"
-                        not_applicable_candidates.append(field)
+                        # All cards in this source category were present in the complete
+                        # 15,350-card snapshot and none carries this field. Record the
+                        # raw absence and the category-scoped N/A conclusion separately.
+                        applicability="not_applicable_confirmed"
+                        not_applicable_fields.append(field)
                         key=(source_category,field)
-                        item=applicability_candidates.setdefault(key,{
+                        item=applicability_scope.setdefault(key,{
                             "source_category":source_category,"card_type":card["card_type"],
-                            "field_key":field,"card_count":0,"example_card_ids":[]
+                            "field_key":field,"card_count":0,"cards_with_field_in_category":0,
+                            "source_snapshot_card_count":len(cards),
+                            "verification_status":"source_snapshot_category_scope",
+                            "example_card_ids":[]
                         })
                         item["card_count"]+=1
                         if len(item["example_card_ids"])<5:
@@ -195,13 +201,13 @@ def build(db_path: Path, out_dir: Path):
         "field_applicability_counts":per_field_applicability_counts,
         "example_card_ids_by_status":per_field_examples
     }
-    applicability_rows=sorted(applicability_candidates.values(),
+    applicability_rows=sorted(applicability_scope.values(),
         key=lambda x:(x["source_category"],x["field_key"]))
-    with (out_dir/"field-applicability-candidate-report.jsonl").open("w",encoding="utf-8") as f:
+    with (out_dir/"field-applicability-scope-report.jsonl").open("w",encoding="utf-8") as f:
         for row in applicability_rows:
             f.write(json.dumps(row,ensure_ascii=False)+"\n")
-    with (out_dir/"field-applicability-candidate-report.csv").open("w",newline="",encoding="utf-8-sig") as f:
-        w=csv.DictWriter(f,fieldnames=["source_category","card_type","field_key","card_count","example_card_ids"])
+    with (out_dir/"field-applicability-scope-report.csv").open("w",newline="",encoding="utf-8-sig") as f:
+        w=csv.DictWriter(f,fieldnames=["source_category","card_type","field_key","card_count","cards_with_field_in_category","source_snapshot_card_count","verification_status","example_card_ids"])
         w.writeheader()
         for row in applicability_rows:
             w.writerow({**row,"example_card_ids":";".join(row["example_card_ids"])})
@@ -355,8 +361,10 @@ def build(db_path: Path, out_dir: Path):
       "field_applicability_counts":{},
       "field_status_counts_by_field":per_field_status_counts,
       "field_applicability_counts_by_field":per_field_applicability_counts,
-      "field_applicability_candidate_pairs":len(applicability_rows),
-      "field_applicability_candidate_cells":sum(x["card_count"] for x in applicability_rows),
+      "field_applicability_candidate_pairs":0,
+      "field_applicability_candidate_cells":0,
+      "field_applicability_not_applicable_pairs":len(applicability_rows),
+      "field_applicability_not_applicable_cells":sum(x["card_count"] for x in applicability_rows),
       "source_payload_mismatches":sum(1 for x in coverage_inserts if x[5]!=1),
       "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
@@ -369,7 +377,7 @@ def build(db_path: Path, out_dir: Path):
       "effect_low_confidence_unique_patterns":len(effect_groups),
       "effect_review_queue_patterns":len(effect_review_queue),
       "effect_low_confidence_classification_counts":effect_classes,
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-candidate-report.jsonl","field-applicability-candidate-report.csv"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-scope-report.jsonl","field-applicability-scope-report.csv"]
     }
     for r in field_rows:
         summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
