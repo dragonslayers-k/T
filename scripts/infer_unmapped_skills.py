@@ -71,7 +71,28 @@ def main(db_path="data/fm1_cards.sqlite"):
             if re.search(r"소환",body): definition["operations"].append({"kind":"summon","target":"text_defined"})
             if re.search(r"부여",body): definition["operations"].append({"kind":"grant_status_or_skill","target":"text_defined"})
         if not definition["operations"]:
-            definition["operations"]=[{"kind":"unparsed_operation","note":"원문 보존; 실행 연산은 추가 검증 필요"}]
+            if "아레아" in name:
+                family="elemental_field_aura"
+            elif "펌프킨" in name:
+                family="pumpkin_archetype_effect"
+            elif "눈덩이" in name:
+                family="snowball_archetype_effect"
+            elif "그레이브" in name:
+                family="graveyard_interaction"
+            elif "코스트다운" in name:
+                family="cost_reduction"
+            elif "서먼" in name:
+                family="summon_interaction"
+            elif "파이어" in name or "화염" in name:
+                family="fire_attack_or_damage"
+            elif "타워" in name or "트랩" in name:
+                family="field_structure_or_trap"
+            else:
+                family="named_special_effect_unclassified"
+            definition["nameBasedGuess"]={"semanticFamily":family,"confidence":"low",
+                "note":"기술명 어휘에서 추정한 범주이며 수치·대상·발동 조건은 원문 근거 부족"}
+            definition["operations"]=[{"kind":"name_based_semantic_candidate","semanticFamily":family,
+                "value":"unknown","executable":False}]
         authority="inferred"
         confidence="medium" if body else "low"
         source={"kind":"card_text_inference" if body else "name_only_inference",
