@@ -186,6 +186,20 @@ class NamedEffectInterpretationTests(unittest.TestCase):
                 self.assertEqual(result["classification"], "effect_candidate")
                 self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
 
+    def test_audit_435_passive_effect_predicates_are_structured(self):
+        cases = [
+            ("아군 짝수번째 유닛과 적군 홀수번째 유닛은 행동 불능이 된다.", "legacy_status_application_candidate"),
+            ("아군 유닛 1의 킬수가 아군의 LP가 된 후 킬수=0", "legacy_counter_to_resource_conversion_candidate"),
+            ("아군 필드 마법 유닛 수 만큼 적군 핸드 유닛에게 저주과 착용한다.", "legacy_card_movement_candidate"),
+        ]
+        for raw, expected_kind in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                kinds = {op.get("kind") for op in result["operations"]}
+                self.assertIn(expected_kind, kinds)
+                self.assertEqual(result["classification"], "effect_candidate")
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
     def test_audit_435_ability_and_card_lists_are_not_unparsed_effects(self):
         cases = [
             ("수호일격 공격기술 (기술방어보다 먼저발동)", "named_ability_reference_candidate"),
