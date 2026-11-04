@@ -82,6 +82,9 @@ result["effect_interpretation_low_confidence"]=q("select count(*) from card_effe
 result["inferred_skill_card_rows"]=q("select count(*) from card_rule_mappings where mapping_status='inferred'")
 result["unmapped_skill_card_rows_after_inference"]=q("select count(*) from card_rule_mappings where mapping_status='unmapped'")
 result["inferred_skill_name_only_rows"]=q("select count(*) from game_rule_catalog where source_authority='inferred' and confidence='low'")
+result["named_effect_definition_rows"]=q("select count(*) from card_named_effect_definitions")
+result["named_effect_definition_unique_names"]=q("select count(distinct effect_name) from card_named_effect_definitions")
+result["named_effect_reference_rows"]=q("select count(*) from card_effect_interpretations where json_extract(interpretation_json,'$.classification')='named_effect_reference'")
 result["manual_rule_count"]=q("select count(*) from game_rule_catalog where source_authority='manual'")
 result["manual_skill_rule_count"]=q("select count(*) from game_rule_catalog where source_authority='manual' and source_references_json like '%specialability.htm%'")
 result["manual_global_rule_count"]=result["manual_rule_count"]-result["manual_skill_rule_count"]
