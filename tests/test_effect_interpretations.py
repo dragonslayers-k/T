@@ -52,7 +52,7 @@ class NamedEffectInterpretationTests(unittest.TestCase):
         self.assertTrue(all(x.get("executable") is False for x in result["operations"]))
 
     def test_empty_and_whitespace_only_text_is_not_a_low_confidence_effect(self):
-        for raw in ("", "\\n", " \\n\\t "):
+        for raw in ("", " ", chr(10), " " + chr(10) + chr(9)):
             with self.subTest(raw=raw):
                 result = parse(raw)
                 self.assertEqual(result["classification"], "empty_source_text")
