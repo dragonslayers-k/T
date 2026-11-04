@@ -130,17 +130,20 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             for color in colors:
                 result["colors"][color] += amount
             token_result["normalized_color"] = "+".join(colors)
-            # Inferred playable rule: a hybrid orb requires both component colors.
-            token_result["status"] = "inferred_hybrid_both_colors"
-            token_result["inference"] = "hybrid_code_components_each_required"
+            # Preserve the decoded color pair but do not assert whether both colors
+            # are required or whether either color can pay it. This needs a known-cost
+            # reference or reproducible game test before the rule is finalized.
+            token_result["status"] = "hybrid_identity_preserved_pending_rule"
+            token_result["inference"] = "hybrid_color_pair_payment_rule_unverified"
             result["mapping_review"] = True
         elif code in SPECIAL_SOUL_CODES:
             color = SPECIAL_SOUL_CODES[code]
-            # Keep source identity; the APK converter applies the inferred neutral payment rule.
+            # NCS/BONUS are retained as distinct resource identities. Do not
+            # silently treat either as neutral until its payment rule is verified.
             result["colors"][color] += amount
             token_result["normalized_color"] = color
-            token_result["status"] = "inferred_flexible_neutral"
-            token_result["inference"] = "special_soul_as_flexible_neutral"
+            token_result["status"] = "special_identity_preserved_pending_rule"
+            token_result["inference"] = "special_soul_payment_rule_unverified"
             result["semantic_review"] = True
         else:
             known = False
