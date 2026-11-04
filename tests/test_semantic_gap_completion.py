@@ -44,6 +44,8 @@ class EffectReviewQueueTests(unittest.TestCase):
         self.assertEqual(set(queue[0]["confidence_variants"]), {"medium","low"})
         self.assertTrue(queue[0]["classification_conflict"])
         self.assertTrue(queue[0]["confidence_conflict"])
+        self.assertEqual(queue[0]["classification"], "mixed")
+        self.assertEqual(queue[0]["confidence"], "low")
 
 
 class SoulCostGapStatusTests(unittest.TestCase):
