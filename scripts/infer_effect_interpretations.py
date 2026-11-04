@@ -309,8 +309,8 @@ def parse(text, known_skills=None, known_cards=None):
                 "inferenceMethod":"source_placeholder_v1","confidence":"not_applicable"}
 
     # Activation-only notes are gates, not executable effect operations.
-    if (any(x in t for x in ("발동하지 않습니다","발동되지 않습니다","효과 없음","효과가 없습니다","발동합니다","발동됩니다"))
-            and not any(x in t for x in ("AP+","AP-","DP+","DP-","HP+","HP-","공방체","공체","공방","증가시킨다","감소시킨다","파괴한다","이동시킨다","회복시킨다","변환시킨다")):
+    if any(x in t for x in ("발동하지 않습니다","발동되지 않습니다","효과 없음","효과가 없습니다","발동합니다","발동됩니다")) and not any(
+            x in t for x in ("AP+","AP-","DP+","DP-","HP+","HP-","공방체","공체","공방","증가시킨다","감소시킨다","파괴한다","이동시킨다","회복시킨다","변환시킨다")):
         return {"classification":"effect_activation_requirement","triggers":[],"actors":[],
                 "targets":[],"conditions":[t],
                 "operations":[{"kind":"effect_activation_requirement","conditionText":t,"executable":False}],
