@@ -5,6 +5,21 @@ from scripts.import_community_skill_reference import extract_skill_definitions
 from scripts.infer_unmapped_skills import infer_one
 import sqlite3, json
 
+class SoulCostGapStatusTests(unittest.TestCase):
+    def test_hybrid_and_special_review_reasons_are_both_preserved(self):
+        from scripts.build_gap_reports import cost_interpretation_status
+        self.assertEqual(
+            cost_interpretation_status(1, 1),
+            "hybrid_and_special_identity_preserved_pending_rule",
+        )
+
+    def test_individual_review_statuses_remain_distinct(self):
+        from scripts.build_gap_reports import cost_interpretation_status
+        self.assertEqual(cost_interpretation_status(1, 0), "hybrid_identity_preserved_pending_rule")
+        self.assertEqual(cost_interpretation_status(0, 1), "special_identity_preserved_pending_rule")
+        self.assertEqual(cost_interpretation_status(0, 0), "unresolved")
+
+
 class SkillExtractionTests(unittest.TestCase):
     def test_split_skill_heading_and_body(self):
         text="각인의결계\n\n: 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다."
