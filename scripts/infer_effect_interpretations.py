@@ -14,7 +14,7 @@ def parse(text, known_skills=None):
     # FM1 card effects often append flavor/lore in square brackets to the same
     # source clause. Parse the rule sentence separately, but preserve the quote.
     flavor_text=None
-    flavor_match=re.search(r"\\s+\\[([^\\]]{12,})\\]\\s*(?:By\\s*-\\s*.+)?$",t)
+    flavor_match=re.search(r"\s+\[([^\]]{12,})\]\s*(?:By\s*-\s*.+)?$",t)
     if flavor_match:
         flavor_text=flavor_match.group(1).strip()
         t=t[:flavor_match.start()].strip()
@@ -68,7 +68,7 @@ def parse(text, known_skills=None):
                 "inferenceMethod":"catalogue_name_link_v2","confidence":"medium"}
 
     # A bracketed status label is a status reference, not a free-form effect.
-    status_ref=re.fullmatch(r"\\[([^\\]]+)\\]\\s*상태",t)
+    status_ref=re.fullmatch(r"\[([^\]]+)\]\s*상태",t)
     if status_ref:
         return {"classification":"named_status_reference","triggers":[],"actors":[],
                 "targets":[],"conditions":[],"operations":[
@@ -78,7 +78,7 @@ def parse(text, known_skills=None):
 
     # Legacy card databases sometimes store elemental/card pair labels as a list,
     # e.g. '금-유리가면'. These are references rather than game-effect sentences.
-    card_ref=re.fullmatch(r"(금|물|불|빛|숲|암|흑|대지|철|목|수|화|광)\\s*[-–—]\\s*(.+)",t)
+    card_ref=re.fullmatch(r"(금|물|불|빛|숲|암|흑|대지|철|목|수|화|광)\s*[-–—]\s*(.+)",t)
     if card_ref:
         return {"classification":"card_reference_list","triggers":[],"actors":[],
                 "targets":[],"conditions":[],"operations":[
@@ -283,13 +283,13 @@ def parse(text, known_skills=None):
     # candidates. This covers legacy descriptions such as HP=hand size, a stat becoming
     # the count of field units, or combat stats being divided by a computed value.
     stat_name_map={"AP":"ap","공격력":"ap","DP":"dp","방어력":"dp","HP":"hp","체력":"hp","LP":"lp"}
-    for m in re.finditer(r"(AP|DP|HP|LP|공격력|방어력|체력)\\s*=\\s*([^,;。]+)",t):
+    for m in re.finditer(r"(AP|DP|HP|LP|공격력|방어력|체력)\s*=\s*([^,;。]+)",t):
         rhs=m.group(2).strip()
-        if not re.fullmatch(r"[★▲▼]?\\s*[+-]?\\d+",rhs):
+        if not re.fullmatch(r"[★▲▼]?\s*[+-]?\d+",rhs):
             stat_token=m.group(1)
             ops.append({"kind":"set_stat_formula","stat":stat_name_map[stat_token],
                         "formulaText":rhs,"rawText":t,"executable":False})
-    if re.search(r"(?:나눈다|나눈다\\.|나누어|나눠|곱한다|곱하여|곱해|곱한|차이만큼|수로\\s*깎|수로\\s*감소|깎는다|깍는다)",t):
+    if re.search(r"(?:나눈다|나눈다\.|나누어|나눠|곱한다|곱하여|곱해|곱한|차이만큼|수로\s*깎|수로\s*감소|깎는다|깍는다)",t):
         referenced_stats=[stat_name_map[x] for x in re.findall(
             r"AP|DP|HP|LP|공격력|방어력|체력",t)]
         if referenced_stats:
