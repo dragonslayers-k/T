@@ -90,7 +90,7 @@ class CardFieldCoverageTests(unittest.TestCase):
             c3_summary = next(row for row in card_rows if row["card_id"] == "c3")
             self.assertIn("Skill1", c3_summary["not_applicable_candidate_fields"])
             field_summary = json.loads((root / "out" / "card-field-status-summary.json").read_text(encoding="utf-8"))
-            self.assertEqual(field_summary["cards"], 3)
+            self.assertEqual(field_summary["cards"], 5)
             self.assertEqual(field_summary["fields"], 2)
             self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_absent_confirmed"], 1)
             self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_empty_confirmed"], 1)
