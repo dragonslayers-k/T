@@ -7,6 +7,8 @@ class SemanticAuditStatusTests(unittest.TestCase):
     def base_report(self):
         return {
             "field_coverage_complete": True,
+            "field_coverage_applicability_complete": True,
+            "field_coverage_applicability_candidate_pairs": 0,
             "soul_cost_needs_review": 0,
             "soul_cost_tokens": 24166,
             "skill_unmapped_rows": 0,
@@ -35,6 +37,7 @@ class SemanticAuditStatusTests(unittest.TestCase):
         self.assertTrue(result["semantic_coverage_pass"])
         self.assertFalse(result["semantic_completeness_pass"])
         self.assertEqual(result["semantic_review_pending"], {
+            "field_applicability_category_pairs": 0,
             "effect_interpretation_low_confidence": 1249,
             "name_only_skill_rules": 24,
             "hybrid_soul_payment_rules": 52,
@@ -48,6 +51,18 @@ class SemanticAuditStatusTests(unittest.TestCase):
         self.assertTrue(result["semantic_coverage_pass"])
         self.assertTrue(result["semantic_completeness_pass"])
         self.assertTrue(result["engine_verification_complete"])
+
+
+
+    def test_unresolved_applicability_candidates_fail_semantic_coverage(self):
+        report = self.base_report()
+        report["field_coverage_complete"] = False
+        report["field_coverage_applicability_complete"] = False
+        report["field_coverage_applicability_candidate_pairs"] = 100
+        result = evaluate_semantic_status(report)
+        self.assertFalse(result["semantic_coverage_pass"])
+        self.assertFalse(result["semantic_completeness_pass"])
+        self.assertEqual(result["semantic_review_pending"]["field_applicability_category_pairs"], 100)
 
     def test_missing_interpretations_fail_coverage(self):
         report = self.base_report()
