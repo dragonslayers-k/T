@@ -249,5 +249,23 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertIn("move_or_select",op["actionCandidates"])
         self.assertIn("remove_or_disable",op["actionCandidates"])
 
+    def test_leading_diamond_marker_does_not_break_skill_link(self):
+        result=parse("◇디스히어로",{"디스히어로":"rule_dis_hero"})
+        self.assertEqual(result["classification"],"ability_name_reference")
+        self.assertEqual(result["operations"][0]["ruleId"],"rule_dis_hero")
+        self.assertEqual(result["rawText"],"◇디스히어로")
+
+    def test_known_card_name_pair_is_reference_not_unparsed_effect(self):
+        result=parse("공녀의기사 : 와일드엘리펀",known_cards={
+            "공녀의기사":["card-a"],"와일드엘리펀":["card-b"]})
+        self.assertEqual(result["classification"],"card_reference_list")
+        self.assertEqual(result["operations"][0]["entries"][0]["cardIds"],["card-a"])
+        self.assertFalse(result["operations"][0]["executable"])
+
+    def test_exact_known_card_name_is_a_reference(self):
+        result=parse("와일드엘리펀",known_cards={"와일드엘리펀":["card-b"]})
+        self.assertEqual(result["classification"],"card_name_reference")
+        self.assertEqual(result["operations"][0]["cardIds"],["card-b"])
+
 if __name__=="__main__":
     unittest.main()
