@@ -38,6 +38,16 @@ def parse(text, known_skills=None):
       r"^상성(?:유닛|아이템)\s*[:：]",
       r"^◈\s*",
       r"^자세한 사항은 FAQ에서",
+      r"^아이템빌드업\\s*\\(",
+      r"^이후 .*수정될 예정이오니",
+      r"^카드 큰이미지 오류가 수정되었습니다",
+      r"^자세한 내용은 이벤트 페이지를 확인",
+      r"^.*카드는 .*스토리모드.*퀘스트.*(?:완료|받을 수)",
+      r"^.*카드는 .*퀘스트.*완료하면 받을 수",
+      r"^종족은 큰 이미지의 중앙 부분",
+      r"^타입은 고급검색에서 검색할 수",
+      r"^용의인장 카드는 게임내 MAP",
+
       r"^(?:자세한 내용|더 자세한 내용).*(?:고객센터|홈페이지|FAQ|검색창|검색하여)",
       r"^(?:고객센터|홈페이지 메인화면).*(?:FAQ|검색창|검색하여)",
 
@@ -67,6 +77,29 @@ def parse(text, known_skills=None):
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"catalogue_name_link_v2","confidence":"medium"}
 
+    # Explanatory examples, flavor-only build-up labels, and acquisition/display
+    # notes are reference material rather than executable in-game effects.
+    if re.match(r"^(?:예\\)|예시\\))",t):
+        return {"classification":"example_or_reference","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"effect_explanation_example","exampleText":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?%?",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"example_prefix_v1","confidence":"not_applicable"}
+
+    # Text arrows denote evolution/build-up sequences in this source catalogue.
+    # They are preserved as related-card references, not interpreted as effects.
+    if re.search(r"(?:->|→|⇒)",t) and not re.search(
+        r"(?:공격|방어|효과|발동|증가|감소|부여|파괴|이동|회복)",t):
+        stages=[x.strip(" .。") for x in re.split(r"\\s*(?:->|→|⇒)\\s*",t) if x.strip()]
+        if len(stages)>=2:
+            return {"classification":"card_progression_reference","triggers":[],
+                    "actors":[],"targets":[],"conditions":[],
+                    "operations":[{"kind":"card_progression_reference","stages":stages,
+                                   "executable":False}],
+                    "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"arrow_card_sequence_v1","confidence":"not_applicable"}
+
     # A bracketed status label is a status reference, not a free-form effect.
     status_ref=re.fullmatch(r"\[([^\]]+)\]\s*상태",t)
     if status_ref:
@@ -86,6 +119,32 @@ def parse(text, known_skills=None):
                      "cardName":card_ref.group(2).strip(),"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"element_card_reference_v1","confidence":"not_applicable"}
+
+    # Element-to-card and type-to-card rows are catalogue relations.
+    # Only classify these as references when no game-action verb is present.
+    relation_rows=re.findall(
+        r"(암흑|암|불|물|숲|금속|대지|빛|철|목|수|화|광|지형|유닛|마법|아이템)\\s*[:：-]\\s*([^,;■◇◆]+)",
+        t)
+    if relation_rows and not re.search(
+        r"(?:증가|감소|공격|방어|발동|파괴|부여|적용|변경|된다|시킨다|회복|이동)",t):
+        return {"classification":"card_reference_list","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[
+                    {"kind":"related_card_reference","entries":[
+                        {"label":a,"value":b.strip(" .。")} for a,b in relation_rows],
+                     "executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?%?",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"element_or_type_relation_v1","confidence":"not_applicable"}
+
+    # Rarity/gemstone tables and category bonuses are metadata or reference values.
+    if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜|에메랄드|토파즈|탄자나이트)(?:\\s*[,/、]\\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜))*\\s*[:：]",t):
+        return {"classification":"rarity_or_category_reference","triggers":[],
+                "actors":[],"targets":[],"conditions":[],
+                "operations":[{"kind":"rarity_or_category_mapping","rawText":t,
+                               "executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?%?",t),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"rarity_category_reference_v1","confidence":"not_applicable"}
 
     triggers=[]
     for key,pat in [
@@ -133,6 +192,34 @@ def parse(text, known_skills=None):
     if re.search(r"공방체|공체|공방|공격력|방어력|체력",t) and re.search(r"증가|감소|변경|상승|하락|올리|내리|영구",t):
         ops.append({"kind":"modify_combat_stats","statGroup":re.findall(r"공방체|공체|공방|공격력|방어력|체력",t),
                     "direction":"text_defined","rawText":t})
+    # Exact legacy stat copying, assignments, and multipliers.
+    # These candidates retain raw formula text and are never executable by default.
+    stat_ref_pattern=r"(AP|DP|HP|LP|공격력|방어력|체력)"
+    stat_copy=re.search(
+        r"(AP|DP|HP|공격력|방어력|체력)\\s*(?:은|는|을|를)?\\s*(?:적\\s*필드\\s*유닛\\s*\\d+의?\\s*)?(AP|DP|HP|공격력|방어력|체력)와?\\s*동일해?지",
+        t)
+    if stat_copy:
+        ops.append({"kind":"copy_stat_value","targetStat":stat_name_map.get(stat_copy.group(1),stat_copy.group(1).lower()),
+                    "sourceStat":stat_name_map.get(stat_copy.group(2),stat_copy.group(2).lower()),
+                    "rawText":t,"executable":False})
+    for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\\s*(?:는|을|를)?\\s*([^,;。]+?)\\s*(?:와|과)?\\s*(?:같게|동일하게)\\s*(?:만든다|한다)",t):
+        ops.append({"kind":"set_stat_from_expression","stat":stat_name_map.get(m.group(1)),
+                    "expressionText":m.group(2).strip(),"rawText":t,"executable":False})
+    for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\\s*(?:를|을)?\\s*\\*\\s*(\\d+(?:\\.\\d+)?)\\s*(?:로)?\\s*(?:만든다|한다)",t):
+        ops.append({"kind":"multiply_stat","stat":stat_name_map.get(m.group(1)),
+                    "multiplier":float(m.group(2)),"rawText":t,"executable":False})
+    if re.search(r"(?:AP|DP|HP|공격력|방어력|체력).{0,35}(?:적 필드 유닛|아군 필드 유닛|적군 전체|아군 전체).{0,25}(?:동일|같게|만큼)",t):
+        stats=[stat_name_map[x] for x in re.findall(r"AP|DP|HP|공격력|방어력|체력",t)]
+        ops.append({"kind":"set_stat_from_field_expression","stats":_uniq(stats),
+                    "expressionText":t,"rawText":t,"executable":False})
+    if re.search(r"(?:필드번호|필드 위치).{0,20}(?:레벨|위치|번호).{0,20}(?:된다|정한다|맞춘다|편다)",t):
+        ops.append({"kind":"set_field_position_from_expression","expressionText":t,
+                    "rawText":t,"executable":False})
+    if re.search(r"행동가능한 아군\\s*\\d+의?\\s*AP.{0,20}적군의?\\s*AP.{0,8}더한다",t):
+        ops.append({"kind":"add_stat_from_target_expression","stat":"ap",
+                    "sourceExpression":"friendly_unit.ap + enemy.ap",
+                    "rawText":t,"executable":False})
+
     # Coin formulas: preserve exact source formula rather than approximating arithmetic.
     coin_tokens=re.findall(r"(?:[+-]?\s*\d*C\d+|[+-]?\s*C\d+|AC[+-]?\d+|HC[+-]?\d+|[+-]\d+%)",t)
     if coin_tokens or re.search(r"코인|동전|코인수|코인 수|코인확률|코인 확률",t):
