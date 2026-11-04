@@ -127,24 +127,24 @@ def parse(text, known_skills=None):
         ops.append({"kind":"attack_with_ap_and_dp","formula":"attacker.ap + attacker.dp",
                     "rawText":t,"executable":False})
     if re.search(r"상대의?\s*DP.{0,12}(?:깎|감소|낮추|내리)",t):
-        amount_match=re.search(r"DP.{0,8}?([+-]?\\d+)",t)
+        amount_match=re.search(r"DP.{0,8}?([+-]?\d+)",t)
         ops.append({"kind":"modify_stat","target":"defender","stat":"dp",
                     "direction":"decrease","value":int(amount_match.group(1)) if amount_match else None,
                     "valueSource":"text" if amount_match else "unspecified_in_source",
                     "rawText":t,"executable":False})
-    if re.search(r"(?:상대의\\s*)?AP.{0,12}(?:와|및|/)\\s*(?:상대의\\s*)?HP.{0,12}(?:바뀐다|교환|서로)",t):
+    if re.search(r"(?:상대의\s*)?AP.{0,12}(?:와|및|/)\s*(?:상대의\s*)?HP.{0,12}(?:바뀐다|교환|서로)",t):
         ops.append({"kind":"swap_stats","target":"defender","stats":["ap","hp"],
                     "rawText":t,"executable":False})
-    if re.search(r"상대의?\\s*AP.{0,12}(?:로|를 사용해)\\s*공격",t):
+    if re.search(r"상대의?\s*AP.{0,12}(?:로|를 사용해)\s*공격",t):
         ops.append({"kind":"attack_using_target_stat","stat":"defender.ap",
                     "rawText":t,"executable":False})
-    consecutive=re.search(r"AP\\s*(\\d+)\\s*감소\\s*후.{0,12}(?:x|×)\\s*(\\d+).{0,12}AP.{0,8}공격",t,re.I)
+    consecutive=re.search(r"AP\s*(\d+)\s*감소\s*후.{0,12}(?:x|×)\s*(\d+).{0,12}AP.{0,8}공격",t,re.I)
     if consecutive:
         ops.append({"kind":"sequential_attack_formula","firstOperation":{"kind":"modify_stat","stat":"ap",
                     "operator":"-","value":int(consecutive.group(1))},
                     "secondOperation":{"kind":"attack","stat":"ap","multiplier":int(consecutive.group(2))},
                     "rawText":t,"executable":False})
-    if re.search(r"특수\\s*기술.{0,16}(?:일반\\s*기술|일반공격기술).{0,8}(?:바뀐다|변경|전환)",t):
+    if re.search(r"특수\s*기술.{0,16}(?:일반\s*기술|일반공격기술).{0,8}(?:바뀐다|변경|전환)",t):
         ops.append({"kind":"modify_skill","target":"defender","operation":"replace_special_with_normal",
                     "rawText":t,"executable":False})
 
