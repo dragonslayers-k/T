@@ -1,0 +1,16 @@
+{
+  "id": "fm1-runtime-fallback-pack-template-v1",
+  "description": "Template only: add reviewed card-specific fallback entries. Do not infer values without evidence/rationale.",
+  "rules": [
+    {
+      "card_id": "REPLACE_WITH_REAL_CARD_ID",
+      "field_key": "REPLACE_WITH_RUNTIME_FIELD",
+      "value": null,
+      "fallback_kind": "inferred",
+      "rationale": "Document the gameplay need and why this value is the least harmful fallback.",
+      "confidence": "low",
+      "evidence": ["source URL or analysis reference"],
+      "allow_source_override": false
+    }
+  ]
+}
