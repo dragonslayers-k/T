@@ -22,8 +22,8 @@ def clean_line(s): return re.sub(r"^[★☆▶※◈●○◆◇■\s]+","",s.st
 def extract_definitions(name, text):
     labels=[name]+ALIASES.get(name,[])
     source=html.unescape(text or "")
-    source=re.sub(r"(?i)<br\\s*/?>","\\n",source)
-    source=re.sub(r"(?i)</(?:p|div|li|tr|h[1-6])\\s*>","\\n",source)
+    source=re.sub(r"(?i)<br\s*/?>","\n",source)
+    source=re.sub(r"(?i)</(?:p|div|li|tr|h[1-6])\s*>","\n",source)
     source=re.sub(r"<[^>]+>","",source)
     lines=source.splitlines()
     found=[]
@@ -38,8 +38,8 @@ def extract_definitions(name, text):
             if not clean[pos].isspace(): consumed+=1
             pos+=1
         rest=clean[pos:].strip()
-        rest=re.sub(r"^(?:[/／\\-]\\s*)+","",rest).strip()
-        rest=re.sub(r"^[:：]\\s*","",rest).strip()
+        rest=re.sub(r"^(?:[/／-]\s*)+","",rest).strip()
+        rest=re.sub(r"^[:：]\s*","",rest).strip()
         parts=[rest] if rest else []
         if not parts:
             # Some FM1 descriptions put the rule body on the next visual line,
@@ -51,10 +51,10 @@ def extract_definitions(name, text):
                     if parts: break
                     continue
                 if re.match(r"^◈",nxt): break
-                nxt=re.sub(r"^[★☆▶※●○◆◇■\\s]+","",nxt).strip()
-                nxt=re.sub(r"^[/:：\\-]+","",nxt).strip()
+                nxt=re.sub(r"^[★☆▶※●○◆◇■\s]+","",nxt).strip()
+                nxt=re.sub(r"^[/:：-]+","",nxt).strip()
                 if not nxt: continue
-                if re.match(r"^.{1,48}?\\s*[:：]\\s*.+$",nxt): break
+                if re.match(r"^.{1,48}?\s*[:：]\s*.+$",nxt): break
                 parts.append(nxt)
         body=" ".join(parts).strip()
         if body:
