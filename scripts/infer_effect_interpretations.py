@@ -62,12 +62,16 @@ def parse(text, known_skills=None):
     if not ops:
         if re.match(r"^\s*(?:invalid$|▶|※|★|☆|illustrated|해당 카드는|카드타입|상성카드|연계카드|보유LP는|더블클릭|.*랭크가 있는 카드입니다|.*랭크 카드 안내)",t,re.I):
             classification="reference_or_flavor"
+            confidence="not_applicable"
+            ops=[]
         elif not t.strip():
             classification="empty_separator"
+            confidence="not_applicable"
+            ops=[]
         else:
             classification="unparsed_effect_text"
-        confidence="low"
-        ops=[{"kind":"unparsed_operation","rawText":t}]
+            confidence="low"
+            ops=[{"kind":"unparsed_operation","rawText":t}]
     else:
         classification="effect_candidate"
         confidence="medium"
