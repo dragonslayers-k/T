@@ -69,7 +69,7 @@ def build_skill2_execution_review_rows(skill_rows, rules):
         row["execution_rule"]=by_name[source["source_name"]]
         row["card_local_evidence_count"]=count
         row["card_local_evidence_references"]=local.get("references",[])
-        row["community_evidence_references"]=[x for x in refs if x.get("kind")=="community_reference"]
+        row["other_evidence_references"]=[x for x in refs if x is not local]
         row["verification_status"]=(
             "card_source_excerpt_available_pending_semantic_review" if count
             else "card_source_excerpt_missing"
@@ -353,7 +353,7 @@ def build(db_path: Path, out_dir: Path):
     (out_dir/"skill2-execution-review-summary.json").write_text(
         json.dumps(skill2_review_summary,ensure_ascii=False,indent=2),encoding="utf-8")
 
-        named_effect_definitions=[]
+    named_effect_definitions=[]
     try:
         for r in db.execute("""SELECT definition_id,source_card_id,source_card_name,source_field,marker,
             effect_name,definition_text,source_text_sha256,extraction_method,verification_status
