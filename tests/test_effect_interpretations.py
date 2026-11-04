@@ -58,7 +58,7 @@ class NamedEffectInterpretationTests(unittest.TestCase):
             ("1~2레벨 - 머슈룸맨", "level_tier_mapping"),
             ("1장 초과로 구입하시는 경우 구입에 오류가 납니다.", "administrative_or_shop_note"),
             ("[오래된 전쟁과 영웅에 대한 이야기로 구성된 풍미 문구이며 실제 효과가 아닌 배경 설명입니다.]", "flavor_or_lore"),
-            (".", "punctuation_artifact"),
+            (".", "source_placeholder"),
         ]
         for raw, expected in cases:
             with self.subTest(raw=raw):
