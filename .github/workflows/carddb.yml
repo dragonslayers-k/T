@@ -173,6 +173,7 @@ jobs:
           python scripts/build_db.py
           python scripts/build_effect_candidates.py --db data/fm1_cards.sqlite
           python scripts/import_manual_rules.py --db data/fm1_cards.sqlite --catalogue data/rules/fm1-skill-catalog-v1.json
+            data/rules/manual-specialability-source.txt
           python scripts/infer_unmapped_skills.py data/fm1_cards.sqlite
           python scripts/import_community_skill_reference.py data/fm1_cards.sqlite
           python scripts/infer_effect_interpretations.py data/fm1_cards.sqlite
@@ -448,6 +449,7 @@ jobs:
             data/gap-reports/cost-inference-report.jsonl
             data/gap-reports/skill-gap-report.jsonl
             data/gap-reports/inferred-skill-report.jsonl
+            data/gap-reports/community-skill-report.jsonl
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/effect-gap-report.jsonl
             data/rules/fm1-skill-catalog-v1.json
