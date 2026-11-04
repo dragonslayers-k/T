@@ -78,6 +78,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     t=raw_text
     # Strip visual source markers only from the analysis copy; preserve rawText.
     t=re.sub(r"^[◇◆※▶★☆◈●○]+\s*","",t).strip()
+    t=re.sub(r"^\*\s+","",t).strip()
     # FM1 card effects often append flavor/lore in square brackets to the same
     # source clause. Parse the rule sentence separately, but preserve the quote.
     flavor_text=None
@@ -86,10 +87,138 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         flavor_text=flavor_match.group(1).strip()
         t=t[:flavor_match.start()].strip()
     compact="".join(t.split())
-    if not t:
-        return {"classification":"empty_separator","triggers":[],"actors":[],"targets":[],
-                "conditions":[],"operations":[],"numbers":[],"rawText":raw_text,
-                "flavorText":flavor_text,"inferenceMethod":"empty_text_v1","confidence":"not_applicable"}
+    if re.fullmatch(r"[.。…\s]+",t):
+        return {"classification":"punctuation_artifact","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"punctuation_artifact","executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"punctuation_artifact_v1","confidence":"not_applicable"}
+    if any(token in t for token in ("구입에 오류","구매를 부탁","툴팁이 다음주 수정","설명이 수정되었습니다","상시구매란?","카드상점에서 상시구매")):
+        return {"classification":"administrative_or_shop_note","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"administrative_note","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"admin_note_v1","confidence":"not_applicable"}
+    if t.startswith("[") and t.endswith("]") and len(t)>=40:
+        return {"classification":"flavor_or_lore","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"flavor_text","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":t[1:-1],
+                "inferenceMethod":"bracketed_lore_v1","confidence":"not_applicable"}
+    no_effect=re.search(r"효과\s*없음",t)
+    if no_effect:
+        condition=t[:no_effect.start()].strip(" .。,:：")
+        return {"classification":"conditional_no_effect" if condition else "no_effect_marker",
+                "triggers":[],"actors":[],"targets":[],"conditions":[condition] if condition else [],
+                "operations":[{"kind":"no_effect_condition" if condition else "no_effect_marker",
+                               "conditionText":condition or None,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"no_effect_marker_v1","confidence":"medium" if condition else "not_applicable"}
+    if "무속성 이벤트 마법은 이벤트 마법으로 취급됩니다" in t:
+        return {"classification":"card_type_treatment_rule","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"card_type_treatment","sourceType":"neutral_event_magic",
+                    "treatedAs":"event_magic","executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"neutral_event_magic_type_v1","confidence":"medium"}
+    if "무속성 마법은 시스카이의 대상이 되지 않습니다" in t:
+        return {"classification":"target_exclusion_rule","triggers":[],"actors":[],"targets":["neutral_magic"],
+                "conditions":[],"operations":[{"kind":"exclude_target","targetType":"neutral_magic",
+                    "against":"시스카이","executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"neutral_magic_target_exclusion_v1","confidence":"medium"}
+    status_definition=re.match(r"^(?P<name>[^:：]{2,40}상태)\s*[:：]\s*(?P<body>.+)$",t)
+    if status_definition:
+        status_name=status_definition.group("name").strip()
+        body=status_definition.group("body").strip()
+        operations=[]
+        level=re.search(r"레벨\s*([+-])\s*(\d+)",body)
+        if level:
+            operations.append({"kind":"modify_level","operator":level.group(1),"value":int(level.group(2)),"executable":False})
+        for stat_match in re.finditer(r"\b(AP|DP|HP)\s*[×xX*]\s*(\d+)",body,re.I):
+            operations.append({"kind":"multiply_stat","stat":stat_match.group(1).lower(),
+                               "multiplier":int(stat_match.group(2)),"executable":False})
+        if operations:
+            defs=(known_named_effects or {}).get(normalize_effect_name(status_name),[])
+            return {"classification":"named_status_definition","triggers":[],"actors":[],
+                    "targets":["unit"],"conditions":[],"operations":[
+                        {"kind":"named_status_definition","statusName":status_name,
+                         "definitionText":body,"definitionIds":[x["definition_id"] for x in defs],
+                         "sourceCardIds":_uniq([x["source_card_id"] for x in defs]),"executable":False}
+                    ]+operations,
+                    "numbers":re.findall(r"(?<!\d)\d+",body),"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"named_status_formula_v1","confidence":"medium"}
+    normalized_name=normalize_effect_name(t)
+    named_defs=(known_named_effects or {}).get(normalized_name,[])
+    if named_defs and len(normalized_name)>=4 and not re.search(r"[:：]",t):
+        return {"classification":"named_effect_reference","triggers":[],"actors":[],
+                "targets":["named_effect"],"conditions":[],
+                "operations":[{"kind":"named_effect_reference","effectName":t,
+                    "definitionIds":[x["definition_id"] for x in named_defs],
+                    "definitionCardIds":_uniq([x["source_card_id"] for x in named_defs]),
+                    "definitionTexts":_uniq([x["definition_text"] for x in named_defs]),
+                    "executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"cross_field_named_effect_reference_v1","confidence":"medium"}
+    if normalized_name in (known_named_effect_fragments or {}):
+        fragments=(known_named_effect_fragments or {})[normalized_name]
+        return {"classification":"named_effect_definition_body","triggers":[],"actors":[],
+                "targets":["named_effect_definition"],"conditions":[],
+                "operations":[{"kind":"named_effect_definition_body","effectNames":_uniq([x["effect_name"] for x in fragments]),
+                    "definitionIds":_uniq([x["definition_id"] for x in fragments]),
+                    "sourceCardIds":_uniq([x["source_card_id"] for x in fragments]),"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"named_effect_definition_body_v1","confidence":"medium"}
+    named_definition=re.match(r"^(?P<name>[^:：]{2,40})\s*[:：]\s*(?P<body>.+)$",t)
+    if named_definition:
+        label=named_definition.group("name").strip()
+        defs=(known_named_effects or {}).get(normalize_effect_name(label),[])
+        if defs:
+            return {"classification":"named_effect_definition","triggers":[],"actors":[],
+                    "targets":["named_effect_definition"],"conditions":[],
+                    "operations":[{"kind":"named_effect_definition","effectName":label,
+                        "definitionText":named_definition.group("body").strip(),
+                        "definitionIds":[x["definition_id"] for x in defs],
+                        "sourceCardIds":_uniq([x["source_card_id"] for x in defs]),"executable":False}],
+                    "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"named_effect_definition_v1","confidence":"medium"}
+    metadata=re.match(r"^(?P<label>시점|능력|장착가능한 유닛|카드종류)\s*[:：]\s*(?P<value>.+)$",t)
+    if metadata:
+        kind={"시점":"trigger_timing_metadata","능력":"ability_type_metadata",
+              "장착가능한 유닛":"equip_condition_metadata","카드종류":"card_type_metadata"}[metadata.group("label")]
+        return {"classification":kind,"triggers":[],"actors":[],"targets":[],
+                "conditions":[metadata.group("value").strip()],
+                "operations":[{"kind":kind,"value":metadata.group("value").strip(),"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"card_metadata_label_v1","confidence":"medium"}
+    if re.search(r"조건을 먼저 체크한 뒤",t):
+        return {"classification":"condition_evaluation_order","triggers":[],"actors":[],
+                "targets":[],"conditions":[t],
+                "operations":[{"kind":"condition_evaluation_order","rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"condition_order_note_v1","confidence":"medium"}
+    if re.search(r"가장 많은 카드로 체크하지 않기 때문에",t):
+        return {"classification":"card_counting_rule","triggers":[],"actors":[],
+                "targets":[],"conditions":[t],
+                "operations":[{"kind":"card_counting_rule","rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"card_counting_note_v1","confidence":"medium"}
+    tier=re.match(r"^(?P<range>\d+(?:~\d+)?레벨(?:\s*이상)?)\s*[-–:：]\s*(?P<name>.+)$",t)
+    if tier:
+        return {"classification":"level_tier_mapping","triggers":[],"actors":[],
+                "targets":["level_tier"],"conditions":[tier.group("range")],
+                "operations":[{"kind":"level_tier_mapping","levelRange":tier.group("range"),
+                               "mappedName":tier.group("name").strip(),"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"level_tier_mapping_v1","confidence":"medium"}
+    if t.startswith("(") and t.endswith(")") and len(t)>3:
+        if any(x in t for x in ("발동안함","발동하지","조건","일 경우","이면","없으면")):
+            classification="parenthetical_activation_condition"
+        elif any(x in t for x in ("수정되었습니다","이미 안내되어","같이 발매된")):
+            classification="parenthetical_reference_note"
+        else:
+            classification="parenthetical_rule_note"
+        return {"classification":classification,"triggers":[],"actors":[],
+                "targets":[],"conditions":[t[1:-1]],
+                "operations":[{"kind":classification,"rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"parenthetical_note_v1","confidence":"medium"}
 
     if re.search(r"^매직랜드는 .*맨 앞의 매직랜드만 발동",t):
         return {"classification":"terrain_activation_rule_candidate","triggers":["terrain_activation"],
