@@ -82,6 +82,7 @@ result["effect_interpretation_rows"]=q("select count(*) from card_effect_interpr
 result["effect_clause_rows"]=q("select count(*) from card_effect_clauses")
 result["effect_interpretation_missing"]=q("select count(*) from card_effect_clauses cl left join card_effect_interpretations i on i.clause_id=cl.clause_id where i.clause_id is null")
 result["effect_interpretation_low_confidence"]=q("select count(*) from card_effect_interpretations where confidence='low'")
+result["effect_semantic_review_pending"]=q("select count(*) from card_effect_interpretations where json_extract(interpretation_json,'$.semantic_review_status')='pending'")
 result["inferred_skill_card_rows"]=q("select count(*) from card_rule_mappings where mapping_status='inferred'")
 result["unmapped_skill_card_rows_after_inference"]=q("select count(*) from card_rule_mappings where mapping_status='unmapped'")
 result["inferred_skill_name_only_rows"]=q("select count(*) from game_rule_catalog where source_authority='inferred' and confidence='low'")

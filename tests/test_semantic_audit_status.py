@@ -18,6 +18,7 @@ class SemanticAuditStatusTests(unittest.TestCase):
             "effect_clause_rows": 48281,
             "effect_interpretation_missing": 0,
             "effect_interpretation_low_confidence": 0,
+            "effect_semantic_review_pending": 0,
             "inferred_skill_name_only_rows": 0,
             "soul_mapping_review": 0,
             "soul_semantic_review": 0,
@@ -28,6 +29,7 @@ class SemanticAuditStatusTests(unittest.TestCase):
         report = self.base_report()
         report.update({
             "effect_interpretation_low_confidence": 1249,
+            "effect_semantic_review_pending": 0,
             "inferred_skill_name_only_rows": 24,
             "soul_mapping_review": 52,
             "soul_semantic_review": 779,
@@ -39,12 +41,21 @@ class SemanticAuditStatusTests(unittest.TestCase):
         self.assertEqual(result["semantic_review_pending"], {
             "field_applicability_category_pairs": 0,
             "effect_interpretation_low_confidence": 1249,
+            "effect_semantic_review_pending": 0,
             "name_only_skill_rules": 24,
             "hybrid_soul_payment_rules": 52,
             "special_soul_payment_rules": 779,
         })
         self.assertFalse(result["engine_verification_complete"])
         self.assertEqual(result["engine_verification_pending"], 27)
+
+    def test_non_low_confidence_candidates_still_block_semantic_completion(self):
+        report=self.base_report()
+        report["effect_semantic_review_pending"]=16
+        result=evaluate_semantic_status(report)
+        self.assertTrue(result["semantic_coverage_pass"])
+        self.assertFalse(result["semantic_completeness_pass"])
+        self.assertEqual(result["semantic_review_pending"]["effect_semantic_review_pending"],16)
 
     def test_zero_pending_reviews_means_semantic_completion(self):
         result = evaluate_semantic_status(self.base_report())

@@ -169,14 +169,14 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"card_local_acquisition_note_v1","confidence":"not_applicable"}
     if re.fullmatch(r"cwda!",t,re.I):
-        return {"classification":"source_annotation_pending","triggers":[],"actors":[],
+        return {"classification":"source_annotation_pending","semantic_review_status":"pending","triggers":[],"actors":[],
                 "targets":[],"conditions":[],
                 "operations":[{"kind":"unresolved_source_annotation","rawText":raw_text,
                                "meaning":"unresolved","executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"opaque_source_annotation_v1","confidence":"medium"}
     if re.fullmatch(r"상",t):
-        return {"classification":"incomplete_source_fragment","triggers":[],"actors":[],
+        return {"classification":"incomplete_source_fragment","semantic_review_status":"pending","triggers":[],"actors":[],
                 "targets":[],"conditions":[],
                 "operations":[{"kind":"incomplete_source_fragment","rawText":raw_text,
                                "adjacent_source_context_required":True,"executable":False}],
@@ -184,7 +184,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "inferenceMethod":"single_token_source_fragment_v1","confidence":"medium"}
     area_counter=re.fullmatch(r"(?P<area>[^()]{2,30})\s*\(\s*(?P<count>\d+)\s*카운터\s*\)",t)
     if area_counter:
-        return {"classification":"named_area_counter_reference_candidate","triggers":[],
+        return {"classification":"named_area_counter_reference_candidate","semantic_review_status":"pending","triggers":[],
                 "actors":[],"targets":["named_area_or_terrain"],"conditions":[],
                 "operations":[{"kind":"named_area_counter_reference",
                     "areaName":area_counter.group("area").strip(),
@@ -199,7 +199,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         for label in labels:
             definitions.extend((known_named_effects or {}).get(normalize_effect_name(label),[]))
         definition_ids=_uniq([x["definition_id"] for x in definitions])
-        return {"classification":"named_effect_reference_candidate","triggers":[],
+        return {"classification":"named_effect_reference_candidate","semantic_review_status":"pending","triggers":[],
                 "actors":[],"targets":["named_effect"],"conditions":[],
                 "operations":[{"kind":"named_effect_reference_candidate",
                     "effectName":"디스인첸트 카드","definitionIds":definition_ids,
@@ -211,7 +211,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     unit_profile=re.fullmatch(r"(?P<name>[^()]{2,40}\s*유닛)\s*\((?P<traits>[^()]+)\)[.]?",t)
     if unit_profile:
         traits=[x.strip() for x in re.split(r"[,，、]",unit_profile.group("traits")) if x.strip()]
-        return {"classification":"named_summon_unit_profile_reference","triggers":[],
+        return {"classification":"named_summon_unit_profile_reference","semantic_review_status":"pending","triggers":[],
                 "actors":[],"targets":["summoned_unit"],"conditions":[],
                 "operations":[{"kind":"named_summon_unit_profile_reference",
                     "profileName":unit_profile.group("name").strip(),"traits":traits,
@@ -223,7 +223,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         t)
     if continuation:
         target_types=[x.strip() for x in re.split(r"[/,，·]",continuation.group("target")) if x.strip()]
-        return {"classification":"effect_condition_continuation_candidate","triggers":["on_attack"],
+        return {"classification":"effect_condition_continuation_candidate","semantic_review_status":"pending","triggers":["on_attack"],
                 "actors":["attacking_unit"],"targets":["enemy_unit"],"conditions":[
                     f'{continuation.group("stat")} >= {continuation.group("minimum")}',
                     {"targetTypeAnyOf":target_types}],
@@ -236,7 +236,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"card_local_split_effect_condition_v1","confidence":"medium"}
     if re.search(r"이름\s*종류\s*수",t) and re.search(r"특\s*별\s*효과가\s*발동",t):
-        return {"classification":"conditional_effect_branch_reference","triggers":["on_spell_activation"],
+        return {"classification":"conditional_effect_branch_reference","semantic_review_status":"pending","triggers":["on_spell_activation"],
                 "actors":["friendly"],"targets":["card_attached_item_or_effect"],
                 "conditions":["distinct_name_count"],"operations":[
                     {"kind":"conditional_effect_branch_reference",
@@ -248,7 +248,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "confidence":"medium"}
     if re.fullmatch(r"(?:실패시|성공시)[.]?",t):
         branch="failure" if t.startswith("실패시") else "success"
-        return {"classification":"conditional_branch_reference","triggers":[],
+        return {"classification":"conditional_branch_reference","semantic_review_status":"pending","triggers":[],
                 "actors":[],"targets":[],"conditions":[branch],
                 "operations":[{"kind":"conditional_branch_header","branch":branch,
                                "branchConditionsMustBeResolvedFromCardLocalTextExtra":True,
@@ -265,7 +265,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "inferenceMethod":"card_local_state_exclusion_note_v1","confidence":"not_applicable"}
     conditional_profile=re.fullmatch(r"조건에\s*따른\s*(?P<name>.+?)의\s*능력[.]?",t)
     if conditional_profile:
-        return {"classification":"conditional_unit_profile_reference","triggers":[],
+        return {"classification":"conditional_unit_profile_reference","semantic_review_status":"pending","triggers":[],
                 "actors":[],"targets":["conditional_summoned_unit"],"conditions":[t],
                 "operations":[{"kind":"conditional_unit_profile_reference",
                     "unitName":conditional_profile.group("name").strip(),
@@ -276,7 +276,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     if variant and known_cards:
         base_ids=known_cards.get("".join(variant.group("base").split()),[])
         if base_ids:
-            return {"classification":"named_card_variant_reference","triggers":[],
+            return {"classification":"named_card_variant_reference","semantic_review_status":"pending","triggers":[],
                     "actors":[],"targets":["card_variant"],"conditions":[],
                     "operations":[{"kind":"named_card_variant_reference",
                         "baseCardName":variant.group("base"),"baseCardIds":base_ids,
@@ -299,7 +299,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     comma_list=re.fullmatch(r"(?P<names>[가-힣A-Za-z0-9]+(?:\s*,\s*[가-힣A-Za-z0-9]+){4,})[.]?",t)
     if comma_list:
         names=[x.strip() for x in re.split(r"[,，]",comma_list.group("names")) if x.strip()]
-        return {"classification":"card_reference_list","triggers":[],"actors":[],
+        return {"classification":"card_reference_list","semantic_review_status":"pending","triggers":[],"actors":[],
                 "targets":["card_or_summon_reference"],"conditions":[],
                 "operations":[{"kind":"related_card_reference_list","entries":[
                     {"name":name,"cardIds":(known_cards or {}).get("".join(name.split()),[])}

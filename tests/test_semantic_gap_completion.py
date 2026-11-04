@@ -119,7 +119,7 @@ class EffectReviewOnlyReportTests(unittest.TestCase):
             db.execute("INSERT INTO card_effect_clauses VALUES(1,'c1',0,'저신뢰 효과 조각')")
             db.execute("INSERT INTO card_effect_interpretations VALUES(1,'c1',?,?,?,?)",(
                 "https://fmlunatic.com/card/c1",
-                json.dumps({"classification":"unparsed_effect_text","confidence":"low"},ensure_ascii=False),
+                json.dumps({"classification":"unparsed_effect_text","confidence":"low","semantic_review_status":"pending"},ensure_ascii=False),
                 "inferred","low"
             ))
             db.commit()
@@ -128,6 +128,12 @@ class EffectReviewOnlyReportTests(unittest.TestCase):
             queue=[json.loads(line) for line in (out_dir/"effect-review-queue.jsonl").read_text(encoding="utf-8").splitlines()]
             self.assertEqual(summary["low_confidence_rows"],1)
             self.assertEqual(summary["unique_text_patterns"],1)
+            self.assertEqual(summary["semantic_review_pending_rows"],1)
+            self.assertEqual(summary["semantic_review_pending_patterns"],1)
+            pending_queue=[json.loads(line) for line in (out_dir/"semantic-review-pending-queue.jsonl").read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(len(pending_queue),1)
+            pending_card=pending_queue[0]["cards"][0]
+            self.assertEqual(pending_card["source_text_fields"]["TextBase"]["source_value"],"원문 TextBase\n그대로")
             self.assertEqual(len(queue),1)
             card=queue[0]["cards"][0]
             self.assertEqual(card["source_text_fields"]["TextBase"]["source_value"],"원문 TextBase\n그대로")

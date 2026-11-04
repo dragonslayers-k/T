@@ -159,6 +159,16 @@ def build_effect_review_report(db_path: Path, out_dir: Path):
       ORDER BY i.card_id,cl.clause_index
     """)]
     queue=build_effect_review_queue(low_effects,source_context_by_card)
+    pending_effects=[dict(row) for row in db.execute("""
+      SELECT i.card_id,c.name,c.card_type,cl.clause_index,cl.segment_text,
+             i.interpretation_json,i.verification_status,i.confidence,i.source_detail_url
+      FROM card_effect_interpretations i
+      JOIN card_effect_clauses cl USING(clause_id)
+      JOIN cards c USING(card_id)
+      WHERE json_extract(i.interpretation_json,'$.semantic_review_status')='pending'
+      ORDER BY i.card_id,cl.clause_index
+    """)]
+    pending_queue=build_effect_review_queue(pending_effects,source_context_by_card)
     classes={}
     for row in low_effects:
         try:
@@ -173,6 +183,21 @@ def build_effect_review_report(db_path: Path, out_dir: Path):
     with (out_dir/"effect-review-queue.jsonl").open("w",encoding="utf-8") as f:
         for row in queue:
             f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    with (out_dir/"semantic-review-pending-report.jsonl").open("w",encoding="utf-8") as f:
+        for row in pending_effects:
+            f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    with (out_dir/"semantic-review-pending-queue.jsonl").open("w",encoding="utf-8") as f:
+        for row in pending_queue:
+            f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    pending_classes={}
+    for row in pending_effects:
+        try:
+            parsed=json.loads(row.get("interpretation_json") or "{}")
+        except Exception:
+            parsed={}
+        key=parsed.get("classification","unknown")
+        pending_classes[key]=pending_classes.get(key,0)+1
+    pending_card_ids={str(card["card_id"]) for pattern in pending_queue for card in pattern["cards"]}
     card_rows=[card for pattern in queue for card in pattern["cards"]]
     distinct_cards={str(card["card_id"]) for card in card_rows}
     missing_urls=sum(1 for card in card_rows if not card.get("source_card_url"))
@@ -189,6 +214,10 @@ def build_effect_review_report(db_path: Path, out_dir: Path):
         "source":"immutable card snapshot supplied to the focused effect-review run",
         "low_confidence_rows":len(low_effects),
         "unique_text_patterns":len(queue),
+        "semantic_review_pending_rows":len(pending_effects),
+        "semantic_review_pending_patterns":len(pending_queue),
+        "semantic_review_pending_card_ids":len(pending_card_ids),
+        "semantic_review_pending_classification_counts":dict(sorted(pending_classes.items())),
         "classification_counts":dict(sorted(classes.items())),
         "distinct_card_ids":len(distinct_cards),
         "card_occurrences_in_queue":len(card_rows),

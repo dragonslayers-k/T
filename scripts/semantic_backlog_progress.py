@@ -56,6 +56,9 @@ def build_progress(report: dict, baseline: dict) -> dict:
         "current_semantic_coverage_pass": bool(report.get("semantic_coverage_pass")),
         "current_semantic_completeness_pass": bool(report.get("semantic_completeness_pass")),
         "current_engine_verification_complete": bool(report.get("engine_verification_complete")),
+        "current_unbaselined_effect_semantic_review_pending": int(
+            (report.get("semantic_review_pending") or {}).get(
+                "effect_semantic_review_pending",report.get("effect_semantic_review_pending",0)) or 0),
         "metrics": metrics,
         "metrics_reduced": reduced,
         "metrics_increased": increased,

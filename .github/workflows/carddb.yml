@@ -237,6 +237,9 @@ jobs:
           echo "::group::Low-confidence effect queue with exact card-local source context"
           cat data/effect-review/effect-review-queue.jsonl
           echo "::endgroup::"
+          echo "::group::Semantic-review-pending queue (not low-confidence only)"
+          cat data/effect-review/semantic-review-pending-queue.jsonl
+          echo "::endgroup::"
           python - <<'PY'
           import json, sqlite3
           from pathlib import Path
@@ -253,7 +256,10 @@ jobs:
           result={"integrity":integrity,"cards":cards,"unique_ids":unique_ids,
                   "effect_clauses":clauses,"missing_interpretations":missing,"foreign_key_errors":fk,
                   "low_confidence_rows":summary["low_confidence_rows"],
-                  "unique_text_patterns":summary["unique_text_patterns"]}
+                  "unique_text_patterns":summary["unique_text_patterns"],
+                  "semantic_review_pending_rows":summary["semantic_review_pending_rows"],
+                  "semantic_review_pending_patterns":summary["semantic_review_pending_patterns"],
+                  "semantic_review_pending_card_ids":summary["semantic_review_pending_card_ids"]}
           print(json.dumps(result,ensure_ascii=False,indent=2))
           if integrity!="ok" or cards!=15350 or unique_ids!=15350 or missing or fk:
               raise SystemExit("Focused effect-review source build validation failed")
@@ -318,6 +324,8 @@ jobs:
             data/effect-review/effect-review-queue.jsonl
             data/effect-review/effect-gap-report.jsonl
             data/effect-review/effect-review-summary.json
+            data/effect-review/semantic-review-pending-report.jsonl
+            data/effect-review/semantic-review-pending-queue.jsonl
           if-no-files-found: error
           compression-level: 6
           retention-days: 7
@@ -341,7 +349,7 @@ jobs:
               "skill_no_special_rows","skill_inventory_unmapped_values",
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
-              "effect_interpretation_low_confidence","field_coverage_matrix_integrity","field_coverage_applicability_complete","field_coverage_applicability_candidate_pairs","field_coverage_applicability_not_applicable_pairs","field_coverage_applicability_candidates","field_coverage_not_applicable","field_coverage_complete",
+              "effect_interpretation_low_confidence","effect_semantic_review_pending","field_coverage_matrix_integrity","field_coverage_applicability_complete","field_coverage_applicability_candidate_pairs","field_coverage_applicability_not_applicable_pairs","field_coverage_applicability_candidates","field_coverage_not_applicable","field_coverage_complete",
               "named_effect_definition_rows","named_effect_definition_unique_names","named_effect_reference_rows",
               "skill_image_ocr_evidence_rows","skill_image_ocr_exact_rows","skill_image_ocr_fuzzy_candidates",
               "skill_image_ocr_name_collisions","skill_image_ocr_exact_unclassified","skill_image_ocr_not_found",
