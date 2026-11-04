@@ -1,5 +1,5 @@
 name: FM1 Card Database
-# Single PR-open check; subsequent validation is explicitly dispatched after batching changes
+# PR-open checks plus batched DB29 audit commits; do not audit on every small edit
 
 on:
   push:
