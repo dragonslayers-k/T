@@ -1,6 +1,7 @@
 import unittest
 
-from scripts.infer_unmapped_skills import extract_definitions, operations_from_text
+from scripts.infer_unmapped_skills import card_specific_evidence, extract_definitions, operations_from_text
+from scripts.import_community_skill_reference import merge_evidence_references
 
 
 class SkillDefinitionExtractionTests(unittest.TestCase):
@@ -26,6 +27,26 @@ class SkillDefinitionExtractionTests(unittest.TestCase):
         )
         self.assertEqual(len(rows), 1)
         self.assertIn("피해를 돌려준다", rows[0]["body"])
+
+    def test_card_specific_evidence_never_leaks_sibling_card_excerpts(self):
+        refs = [
+            {"cardId":"card-a","url":"https://example.test/a","effectText":"A rule"},
+            {"cardId":"card-b","url":"https://example.test/b","effectText":"B rule"},
+            {"cardId":"card-a","url":"https://example.test/a","effectText":"A variant"},
+        ]
+        selected = card_specific_evidence(refs,"card-a")
+        self.assertEqual([x["effectText"] for x in selected],["A rule","A variant"])
+        self.assertTrue(all(x["cardId"]=="card-a" for x in selected))
+
+    def test_community_evidence_merge_preserves_card_local_provenance(self):
+        existing = json.dumps([{"kind":"card_text_inference","cardId":"card-a","evidenceCount":1}])
+        source = {"kind":"community_reference","url":"https://example.test/community","title":"Community"}
+        merged = json.loads(merge_evidence_references(existing,source))
+        self.assertEqual(len(merged),2)
+        self.assertEqual(merged[0]["kind"],"card_text_inference")
+        self.assertEqual(merged[1]["kind"],"community_reference")
+        merged_again = json.loads(merge_evidence_references(json.dumps(merged),source))
+        self.assertEqual(len(merged_again),2)
 
     def test_stat_operations_are_structured_without_becoming_executable(self):
         ops = operations_from_text("아군 AP+2, DP-1")

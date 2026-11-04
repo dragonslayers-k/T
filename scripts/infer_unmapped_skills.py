@@ -97,6 +97,12 @@ def operations_from_text(body):
     # Keep one copy of every operation.
     return [json.loads(x) for x in dict.fromkeys(json.dumps(x,ensure_ascii=False,sort_keys=True) for x in ops)]
 
+def card_specific_evidence(references, card_id):
+    """Return only source excerpts belonging to the mapped card, never sibling-card evidence."""
+    key=str(card_id)
+    return [dict(row) for row in references if str(row.get("cardId"))==key]
+
+
 def lexical_family(name):
     rules=[
       (r"동전|코인","coin_or_combat_coin_manipulation"),
@@ -200,12 +206,28 @@ def infer_one(db, field, enum_value, name, card_count):
          json.dumps(definition,ensure_ascii=False,sort_keys=True),"inferred",confidence,
          "inferred","inferred_pending_validation",json.dumps([source],ensure_ascii=False,sort_keys=True),
          "[]",0,3))
-    refs_json=json.dumps([source],ensure_ascii=False,sort_keys=True)
-    db.execute("""
-      UPDATE card_rule_mappings SET rule_id=?,mapping_status='inferred',
-        confidence=?,evidence_references_json=?
+    mapping_rows=db.execute("""
+      SELECT card_id FROM card_rule_mappings
       WHERE source_field=? AND source_enum_value=? AND source_name=?
-    """,(rid,confidence,refs_json,field,str(enum_value),name))
+      ORDER BY card_id
+    """,(field,str(enum_value),name)).fetchall()
+    for (mapped_card_id,) in mapping_rows:
+        local_refs=card_specific_evidence(refs,mapped_card_id)
+        local_source={
+            "kind":"card_text_inference" if local_refs else "card_text_evidence_missing",
+            "sourceField":field,"sourceEnumValue":str(enum_value),"sourceName":name,
+            "cardId":str(mapped_card_id),"groupCardCount":card_count,
+            "evidenceCount":len(local_refs),
+            "uniqueEffectVariants":len({norm(x["effectText"]) for x in local_refs}),
+            "references":local_refs
+        }
+        local_confidence=confidence if local_refs else "low"
+        refs_json=json.dumps([local_source],ensure_ascii=False,sort_keys=True)
+        db.execute("""
+          UPDATE card_rule_mappings SET rule_id=?,mapping_status='inferred',
+            confidence=?,evidence_references_json=?
+          WHERE card_id=? AND source_field=? AND source_enum_value=? AND source_name=?
+        """,(rid,local_confidence,refs_json,mapped_card_id,field,str(enum_value),name))
     db.execute("""
       UPDATE skill_enum_inventory SET rule_id=?,mapping_status='inferred',
         mapped_card_count=card_count
@@ -249,11 +271,24 @@ def main(db_path="data/fm1_cards.sqlite"):
     total_inventory=db.execute("SELECT COUNT(*) FROM skill_enum_inventory").fetchone()[0]
     total_map_rows=db.execute("SELECT COUNT(*) FROM card_rule_mappings").fetchone()[0]
     fk=len(db.execute("PRAGMA foreign_key_check").fetchall())
+    local_evidence_rows=db.execute("""
+      SELECT COUNT(*) FROM card_rule_mappings
+      WHERE mapping_status='inferred'
+        AND COALESCE(json_extract(evidence_references_json,'$[0].evidenceCount'),0)>0
+    """).fetchone()[0]
+    local_evidence_missing_rows=db.execute("""
+      SELECT COUNT(*) FROM card_rule_mappings
+      WHERE mapping_status='inferred'
+        AND COALESCE(json_extract(evidence_references_json,'$[0].evidenceCount'),0)=0
+    """).fetchone()[0]
     result={"processedSkillKinds":done,"evidenceBackedSkillKinds":evidence_backed,
             "nameOnlyLowConfidenceSkillKinds":name_only,"remainingUnmappedKinds":remaining,
             "remainingLowConfidenceSkillKinds":low,"remainingUnmappedCardRows":remaining_rows,
             "persistedMappingRows":persisted_rows,"inventoryRows":total_inventory,
-            "cardMappingRows":total_map_rows,"foreignKeyErrors":fk}
+            "cardMappingRows":total_map_rows,
+            "cardSpecificEvidenceRows":local_evidence_rows,
+            "cardSpecificEvidenceMissingRows":local_evidence_missing_rows,
+            "foreignKeyErrors":fk}
     print(json.dumps(result,ensure_ascii=False,indent=2)); db.close()
     if remaining or remaining_rows or fk or total_inventory==0 or total_map_rows==0: sys.exit(2)
 

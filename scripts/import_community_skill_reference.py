@@ -68,6 +68,14 @@ def extract_skill_definitions(page, names):
     flush()
     return found
 
+def merge_evidence_references(existing_json, source):
+    refs=json.loads(existing_json or "[]")
+    key=(source.get("kind"),source.get("url"),source.get("title"))
+    if not any((x.get("kind"),x.get("url"),x.get("title"))==key for x in refs):
+        refs.append(source)
+    return json.dumps(refs,ensure_ascii=False,sort_keys=True)
+
+
 def main(path="data/fm1_cards.sqlite"):
     db=sqlite3.connect(path); db.execute("PRAGMA foreign_keys=ON")
     rows=db.execute("""
@@ -107,9 +115,14 @@ def main(path="data/fm1_cards.sqlite"):
           implementation_status='community_candidate_pending_validation',
           source_references_json=?,catalogue_version=2 WHERE rule_id=?""",
           (json.dumps(parsed,ensure_ascii=False,sort_keys=True),json.dumps(refs,ensure_ascii=False),rid))
-        db.execute("""UPDATE card_rule_mappings SET mapping_status='community_documented_candidate',
-          confidence='medium',evidence_references_json=? WHERE source_field=? AND source_name=? AND rule_id=?""",
-          (json.dumps([source],ensure_ascii=False),field,name,rid))
+        mapping_rows=db.execute("""SELECT card_id,evidence_references_json FROM card_rule_mappings
+          WHERE source_field=? AND source_name=? AND rule_id=? ORDER BY card_id""",(field,name,rid)).fetchall()
+        for card_id,existing_refs in mapping_rows:
+            merged_refs=merge_evidence_references(existing_refs,source)
+            db.execute("""UPDATE card_rule_mappings SET mapping_status='community_documented_candidate',
+              confidence='medium',evidence_references_json=?
+              WHERE card_id=? AND source_field=? AND source_name=? AND rule_id=?""",
+              (merged_refs,card_id,field,name,rid))
         db.execute("""UPDATE skill_enum_inventory SET mapping_status='community_documented_candidate',
           rule_id=? WHERE source_field=? AND source_name=? AND rule_id=?""",(rid,field,name,rid))
         upgraded+=1; total_evidence+=len(matches)
