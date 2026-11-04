@@ -1,0 +1,109 @@
+{
+  "schema_version": "FM1-REFERENCE-SOURCE-REGISTRY-1.0",
+  "scope": "DB29 semantic review only; supplemental context, never overwrites card source",
+  "authority_policy": {
+    "priority": [
+      "original_card_source_TextBase_TextExtra",
+      "official_manual_archive",
+      "engine_reproduction",
+      "community_reference"
+    ],
+    "community_sources_are_supplemental": true,
+    "community_sources_cannot_alone_set_executable": true,
+    "fantasy_masters_1_and_2_must_not_be_conflated": true
+  },
+  "sources": [
+    {
+      "id": "namuwiki_fantasy_masters",
+      "requested_url": "https://namu.wiki/w/판타지_마스터즈",
+      "resolved_url": "https://www.namu.moe/w/판타지%20마스터즈",
+      "kind": "community_wiki",
+      "status": "search_index_content_retrieved_original_domain_blocked",
+      "facts_observed": [
+        "카드 종류: 지형·유닛·아이템·마법·인챈트",
+        "유닛 AP/DP/HP 및 전투 계산 설명",
+        "아이템은 유닛 장착형이며 유닛 능력에 따른 장착 제한 설명",
+        "인챈트는 슬롯에 일정 턴 존재하며 유닛/마법에 능력을 부여하는 지속형 카드 설명"
+      ],
+      "limitations": [
+        "커뮤니티 편집 내용이며 공식 매뉴얼과 동일한 권위로 취급하지 않음",
+        "일반 전투 계산 설명을 특수 기술·예외의 완전한 엔진 규칙으로 승격하지 않음"
+      ],
+      "related_pages": [
+        {
+          "id": "namu_factions_races",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/종족과%20소속",
+          "use": "종족·소속 명칭 보조 색인"
+        },
+        {
+          "id": "namu_dark_terrain_cards",
+          "url": "https://dark.namu.moe/w/판타지%20마스터즈/암흑%20속성%20카드/지형",
+          "use": "지형 카드 사례·속성·LP 보조 색인"
+        },
+        {
+          "id": "namu_mudolda_card",
+          "url": "https://www.namu.moe/w/뮬도다",
+          "use": "개별 카드 항목 예시"
+        }
+      ]
+    },
+    {
+      "id": "jlplace_original_fanma_guide",
+      "requested_url": "https://m.blog.naver.com/jlplace/220468684977",
+      "alternate_url": "https://blog.naver.com/PostView.naver?blogId=jlplace&logNo=220468684977",
+      "kind": "personal_original_game_guide",
+      "status": "not_retrieved_robots_or_access_block",
+      "use_policy": "본문 확보 전에는 어떤 규칙·수치도 이 문서에서 인용하거나 추정하지 않음",
+      "required_follow_up": "본문 텍스트 또는 캡처 확보 후 문단·페이지 단위로 카드 원문과 대조"
+    },
+    {
+      "id": "neginote_fantasy_masters_guide",
+      "requested_url": "https://neginote.wixsite.com/fantasymasters/main-guide",
+      "kind": "community_guide",
+      "status": "content_retrieved",
+      "pages": [
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/main-guide",
+          "title": "가이드북",
+          "facts": [
+            "5개 카드 유형",
+            "11개 등급 체계",
+            "기본 카드 유형 설명"
+          ]
+        },
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/guide-rand",
+          "title": "지형",
+          "facts": [
+            "LP와 지형 배치 관계",
+            "유소울/무소울 및 듀얼 지형 설명",
+            "지형별 코스트 설명"
+          ]
+        },
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/guide-units",
+          "title": "유니트",
+          "facts": [
+            "유닛 구성요소: 레벨, PT(AP/DP/HP), 코인, 능력, 기술, 종족·소속",
+            "랭크별 차이",
+            "별침으로 표현되는 업그레이드 유닛 유형"
+          ]
+        },
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/guide-magic",
+          "title": "마법",
+          "facts": [
+            "레벨",
+            "공격턴/방어턴 사용 구분",
+            "유지턴"
+          ]
+        }
+      ],
+      "limitations": [
+        "개인 가이드이며 공식 매뉴얼이 아님",
+        "카드 원문·엔진 검증보다 우선하지 않음",
+        "아이템·인챈트 상세 페이지는 이번 조회에서 본문 확보 실패"
+      ]
+    }
+  ]
+}

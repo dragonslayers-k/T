@@ -1,0 +1,3053 @@
+{
+  "schema_version": "FM1-DB29-SEMANTIC-REVIEW-REFERENCE-ADJUDICATION-1.0",
+  "source_release": "fm1-carddb-29",
+  "baseline_queue": "data/reviews/fm1-carddb-29-semantic-review-pending-460.json",
+  "baseline_run": 41842288785,
+  "reference_registry": "data/reviews/fm1-reference-source-registry-2026-11-04.json",
+  "policy": {
+    "source_card_text_remains_unchanged": true,
+    "community_reference_is_supplemental": true,
+    "external_reference_never_overrides_card_local_source": true,
+    "no_community_only_rule_is_executable": true,
+    "uncertain_aliases_and_formulae_remain_pending": true,
+    "no_db30_or_main_merge": true
+  },
+  "summary": {
+    "input_rows": 54,
+    "distinct_card_ids": 54,
+    "disposition_counts": {
+      "named_card_list_reference_only": 8,
+      "card_local_summon_profile_formula_candidate": 9,
+      "card_local_reference_definition_extracted": 23,
+      "card_local_condition_and_status_definition_extracted": 1,
+      "opaque_source_annotation_pending": 1,
+      "terrain_counter_and_replacement_candidate_name_mismatch": 7,
+      "explicit_card_local_threshold_branch_candidate": 1,
+      "incomplete_original_fragment": 1,
+      "card_local_failure_conditions_extracted": 1,
+      "named_card_variant_mapping_pending": 2
+    },
+    "records_with_original_text_preserved": true,
+    "all_non_executable": true,
+    "naver_post_body_retrieved": false
+  },
+  "records": [
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "classification": "card_reference_list",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "14012227224",
+        "name": "엘리트아이바",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227224",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "코스튬체인지(고유기술) : 적1 파괴시, 아이템 미장착한 아군 행동가능 다음유닛 1에게 지정아이템을 랜덤 장착 후, 자신의 일러스트를 교체하고 공격기술을 코스튬리턴으로 영구히 변경<br>▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상<br><br>코스튬리턴 : 적 1 파괴시, 적 다음 행동가능유닛 1에게 \"저주받은단검\" (-3/-1/-3) 장착시킨후, 자신의 일러스트를 교체하고, 공격기술을 코스튬체인지로 영구히 추가 변경<br><br>콜드윈터 : 자신 파괴시, 자신이 4레벨이하이면 상대에게 동사상태를 1턴, 5레벨이상이면 상대에게 동사상태를 2턴간 부여<br>★ 동사 상태 : 소울 코스트시, 자신의 유소울이나 NCS소울을 1 제거후 유지비를 1 증가시키고 AP-2."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "코스튬체인지 문맥의 지정 아이템 목록이다. 아이템 이름·카드 ID 대응 및 랜덤 장착 대상 범위를 확인한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "블러드본랜스",
+            "루비소드",
+            "레드아이스링",
+            "네추럴링",
+            "생명의물약",
+            "번개의모래",
+            "그리핀석상"
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "classification": "card_reference_list",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "14012227225",
+        "name": "불량학생메사",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227225",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "코스튬체인지(고유기술) : 적1 파괴시, 아이템 미장착한 아군 행동가능 다음유닛 1에게 지정아이템을 랜덤 장착 후, 자신의 일러스트를 교체하고 공격기술을 코스튬리턴으로 영구히 변경<br>▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상<br><br>코스튬리턴 : 적 1 파괴시, 적 다음 행동가능유닛 1에게 \"저주받은단검\" (-3/-1/-3) 장착시킨후, 자신의 일러스트를 교체하고, 공격기술을 코스튬체인지로 영구히 추가 변경<br><br>콜드윈터 : 자신 파괴시, 자신이 4레벨이하이면 상대에게 동사상태를 1턴, 5레벨이상이면 상대에게 동사상태를 2턴간 부여<br>★ 동사 상태 : 소울 코스트시, 자신의 유소울이나 NCS소울을 1 제거후 유지비를 1 증가시키고 AP-2."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "코스튬체인지 문맥의 지정 아이템 목록이다. 아이템 이름·카드 ID 대응 및 랜덤 장착 대상 범위를 확인한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "블러드본랜스",
+            "루비소드",
+            "레드아이스링",
+            "네추럴링",
+            "생명의물약",
+            "번개의모래",
+            "그리핀석상"
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "classification": "card_reference_list",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "14012227226",
+        "name": "비서루티카",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227226",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "코스튬체인지(고유기술) : 적1 파괴시, 아이템 미장착한 아군 행동가능 다음유닛 1에게 지정아이템을 랜덤 장착 후, 자신의 일러스트를 교체하고 공격기술을 코스튬리턴으로 영구히 변경<br>▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상<br><br>코스튬리턴 : 적 1 파괴시, 적 다음 행동가능유닛 1에게 \"저주받은단검\" (-3/-1/-3) 장착시킨후, 자신의 일러스트를 교체하고, 공격기술을 코스튬체인지로 영구히 추가 변경<br><br>콜드윈터 : 자신 파괴시, 자신이 4레벨이하이면 상대에게 동사상태를 1턴, 5레벨이상이면 상대에게 동사상태를 2턴간 부여<br>★ 동사 상태 : 소울 코스트시, 자신의 유소울이나 NCS소울을 1 제거후 유지비를 1 증가시키고 AP-2."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "코스튬체인지 문맥의 지정 아이템 목록이다. 아이템 이름·카드 ID 대응 및 랜덤 장착 대상 범위를 확인한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "블러드본랜스",
+            "루비소드",
+            "레드아이스링",
+            "네추럴링",
+            "생명의물약",
+            "번개의모래",
+            "그리핀석상"
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "classification": "card_reference_list",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "14012227227",
+        "name": "간호사디드",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227227",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "코스튬체인지(고유기술) : 적1 파괴시, 아이템 미장착한 아군 행동가능 다음유닛 1에게 지정아이템을 랜덤 장착 후, 자신의 일러스트를 교체하고 공격기술을 코스튬리턴으로 영구히 변경<br>▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상<br><br>코스튬리턴 : 적 1 파괴시, 적 다음 행동가능유닛 1에게 \"저주받은단검\" (-3/-1/-3) 장착시킨후, 자신의 일러스트를 교체하고, 공격기술을 코스튬체인지로 영구히 추가 변경<br><br>콜드윈터 : 자신 파괴시, 자신이 4레벨이하이면 상대에게 동사상태를 1턴, 5레벨이상이면 상대에게 동사상태를 2턴간 부여<br>★ 동사 상태 : 소울 코스트시, 자신의 유소울이나 NCS소울을 1 제거후 유지비를 1 증가시키고 AP-2."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "코스튬체인지 문맥의 지정 아이템 목록이다. 아이템 이름·카드 ID 대응 및 랜덤 장착 대상 범위를 확인한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "블러드본랜스",
+            "루비소드",
+            "레드아이스링",
+            "네추럴링",
+            "생명의물약",
+            "번개의모래",
+            "그리핀석상"
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "classification": "card_reference_list",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "14012227228",
+        "name": "마법소녀길단",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227228",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "코스튬체인지(고유기술) : 적1 파괴시, 아이템 미장착한 아군 행동가능 다음유닛 1에게 지정아이템을 랜덤 장착 후, 자신의 일러스트를 교체하고 공격기술을 코스튬리턴으로 영구히 변경<br>▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상<br><br>코스튬리턴 : 적 1 파괴시, 적 다음 행동가능유닛 1에게 \"저주받은단검\" (-3/-1/-3) 장착시킨후, 자신의 일러스트를 교체하고, 공격기술을 코스튬체인지로 영구히 추가 변경<br><br>콜드윈터 : 자신 파괴시, 자신이 4레벨이하이면 상대에게 동사상태를 1턴, 5레벨이상이면 상대에게 동사상태를 2턴간 부여<br>★ 동사 상태 : 소울 코스트시, 자신의 유소울이나 NCS소울을 1 제거후 유지비를 1 증가시키고 AP-2."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "코스튬체인지 문맥의 지정 아이템 목록이다. 아이템 이름·카드 ID 대응 및 랜덤 장착 대상 범위를 확인한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "블러드본랜스",
+            "루비소드",
+            "레드아이스링",
+            "네추럴링",
+            "생명의물약",
+            "번개의모래",
+            "그리핀석상"
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "classification": "card_reference_list",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "14012227229",
+        "name": "반라의테미란",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227229",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "코스튬체인지(고유기술) : 적1 파괴시, 아이템 미장착한 아군 행동가능 다음유닛 1에게 지정아이템을 랜덤 장착 후, 자신의 일러스트를 교체하고 공격기술을 코스튬리턴으로 영구히 변경<br>▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상<br><br>코스튬리턴 : 적 1 파괴시, 적 다음 행동가능유닛 1에게 \"저주받은단검\" (-3/-1/-3) 장착시킨후, 자신의 일러스트를 교체하고, 공격기술을 코스튬체인지로 영구히 추가 변경<br><br>콜드윈터 : 자신 파괴시, 자신이 4레벨이하이면 상대에게 동사상태를 1턴, 5레벨이상이면 상대에게 동사상태를 2턴간 부여<br>★ 동사 상태 : 소울 코스트시, 자신의 유소울이나 NCS소울을 1 제거후 유지비를 1 증가시키고 AP-2."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "코스튬체인지 문맥의 지정 아이템 목록이다. 아이템 이름·카드 ID 대응 및 랜덤 장착 대상 범위를 확인한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "블러드본랜스",
+            "루비소드",
+            "레드아이스링",
+            "네추럴링",
+            "생명의물약",
+            "번개의모래",
+            "그리핀석상"
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "classification": "card_reference_list",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "14012227230",
+        "name": "학생회장엔체",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227230",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "코스튬체인지(고유기술) : 적1 파괴시, 아이템 미장착한 아군 행동가능 다음유닛 1에게 지정아이템을 랜덤 장착 후, 자신의 일러스트를 교체하고 공격기술을 코스튬리턴으로 영구히 변경<br>▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상<br><br>코스튬리턴 : 적 1 파괴시, 적 다음 행동가능유닛 1에게 \"저주받은단검\" (-3/-1/-3) 장착시킨후, 자신의 일러스트를 교체하고, 공격기술을 코스튬체인지로 영구히 추가 변경<br><br>콜드윈터 : 자신 파괴시, 자신이 4레벨이하이면 상대에게 동사상태를 1턴, 5레벨이상이면 상대에게 동사상태를 2턴간 부여<br>★ 동사 상태 : 소울 코스트시, 자신의 유소울이나 NCS소울을 1 제거후 유지비를 1 증가시키고 AP-2."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "코스튬체인지 문맥의 지정 아이템 목록이다. 아이템 이름·카드 ID 대응 및 랜덤 장착 대상 범위를 확인한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "블러드본랜스",
+            "루비소드",
+            "레드아이스링",
+            "네추럴링",
+            "생명의물약",
+            "번개의모래",
+            "그리핀석상"
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "10102025324",
+        "name": "키뇨엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025324",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": "1~3 챕터 유닛",
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": true,
+          "excludes_event_grade": true,
+          "terrain_count_bonus": true,
+          "explicit_bonus_rule": "홀수일 때 AP+1, 짝수일 때 HP+1",
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "10102025325",
+        "name": "라드비엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025325",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": "1~3 챕터 유닛",
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": true,
+          "excludes_event_grade": true,
+          "terrain_count_bonus": true,
+          "explicit_bonus_rule": "홀수일 때 AP+1, 짝수일 때 HP+1",
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "10102025326",
+        "name": "쿠두루스엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025326",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": "1~3 챕터 유닛",
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": true,
+          "excludes_event_grade": true,
+          "terrain_count_bonus": true,
+          "explicit_bonus_rule": "홀수일 때 AP+1, 짝수일 때 HP+1",
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "10102025327",
+        "name": "피드엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025327",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": "1~3 챕터 유닛",
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": true,
+          "excludes_event_grade": true,
+          "terrain_count_bonus": true,
+          "explicit_bonus_rule": "홀수일 때 AP+1, 짝수일 때 HP+1",
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "10102025328",
+        "name": "올피리엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025328",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": "1~3 챕터 유닛",
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": true,
+          "excludes_event_grade": true,
+          "terrain_count_bonus": true,
+          "explicit_bonus_rule": "홀수일 때 AP+1, 짝수일 때 HP+1",
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "10102025329",
+        "name": "산치엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025329",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": "1~3 챕터 유닛",
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": true,
+          "excludes_event_grade": true,
+          "terrain_count_bonus": true,
+          "explicit_bonus_rule": "홀수일 때 AP+1, 짝수일 때 HP+1",
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "10102025330",
+        "name": "마이엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025330",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": "1~3 챕터 유닛",
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": true,
+          "excludes_event_grade": true,
+          "terrain_count_bonus": true,
+          "explicit_bonus_rule": "홀수일 때 AP+1, 짝수일 때 HP+1",
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "5bbd71cd5e652d02",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드",
+      "source_text_variants": [
+        "◇디스인첸트 카드",
+        "◇ 디스인첸트 카드"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "3062730277",
+        "name": "화룡의분노",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/3062730277",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 백필드 지형 1 파괴 후 적 필드 유닛1 파괴 / 아군 핸드 필드에 레드드래곤 있거나 아군 필드 6레벨이상 드래곤 존재시 적 파괴를 1,2로 증가. By - vsi2138 ◇디스인첸트 카드"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>▶ 파괴 : 해당 카드 소각장 이동, 유닛은 HP=0 처리이므로 ▲*HP는 파괴 안됨."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "5bbd71cd5e652d02",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드",
+      "source_text_variants": [
+        "◇디스인첸트 카드",
+        "◇ 디스인첸트 카드"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "4111730687",
+        "name": "지축변경",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4111730687",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 백필드 생성 유소울이 모두 대지 속성이면 남은 무소울과 이름 수가 일치하는 적 필드 유닛을 모두 소멸 시키고, 백필드 지형 1 파괴 ◇ 디스인첸트 카드"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "ac59fb25a5696940",
+      "classification": "effect_condition_continuation_candidate",
+      "source_text": "AP1이상으로 공격시, 상대 유닛이 장비/야수면 3턴간",
+      "source_text_variants": [
+        "AP1이상으로 공격시, 상대 유닛이 장비/야수면 3턴간"
+      ],
+      "inference_methods": [
+        "card_local_split_effect_condition_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "8111923702",
+        "name": "라이트닝버그",
+        "card_type": "유닛",
+        "clause_index": 2,
+        "source_detail_url": "https://fmlunatic.com/card/8111923702",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "중급중독공격<br><br>AP1이상으로 공격시, 상대 유닛이 장비/야수면 3턴간 <br>중급 중독 부여.(중급중독상태 : HP-3)<br><br><br>만능능력<br><br>3차 강화 카드는 만능능력 유닛입니다. <br><br>따라서, 아이템 착용에 있어서 제한이 전혀 없는 특징을 갖고 있는 유닛입니다. <br><br>또한 3차 강화 카드는 자기 레벨 미만의 아이템을 장착할 때 소울을 지불하지 않습니다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "원문 문맥과 카드별 사용 범위를 확인한 뒤 표준 규칙·메타데이터·참조·조건 중 하나로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_condition_and_status_definition_extracted",
+        "structured_candidate": {
+          "kind": "conditional_status_application",
+          "trigger": "attack",
+          "attacker_ap_min": 1,
+          "target_unit_abilities": [
+            "장비",
+            "야수"
+          ],
+          "duration_turns": 3,
+          "status_name": "중급중독",
+          "status_effect": "HP-3",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛 능력 분류 및 AP/DP/HP 용어의 보조 확인."
+          }
+        ],
+        "next_action": "장비/야수 판정 기준, 공격 AP 적용 시점, 상태 부여 후 3턴 지속·HP-3 처리 시점을 엔진 검증한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "f41dfd55352a6ebd",
+      "classification": "source_annotation_pending",
+      "source_text": "cwda!",
+      "source_text_variants": [
+        "cwda!"
+      ],
+      "inference_methods": [
+        "opaque_source_annotation_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "13010233113",
+        "name": "펭귄여왕투척",
+        "card_type": "마법",
+        "clause_index": 2,
+        "source_detail_url": "https://fmlunatic.com/card/13010233113",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 핸드 펭귄 종족 유닛1에게 속박상태 1턴 부여하여 적 필드 맨뒤 행동가능 이동 후, 이동 유닛을 제외한 적 필드유닛 전체에게 이동 슬롯+1 만큼 HP 데미지. ※ 발동시, 이동 유닛이 \"아나스타샤\"면 행동불능으로 이동하고 HP 데미지수치를 1 증가시킨다. "
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 아군 핸드 펭귄 종족 유닛 1이상 필요<br>★ 속박 상태 : 매턴 소울코스트시에 상대 필드 맨뒤로 이동.<br>cwda!"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "cwda!의 의미가 원문만으로 확인되지 않았다. 약어를 추정하거나 실행 규칙으로 승격하지 않는다.",
+      "external_reference_review": {
+        "disposition": "opaque_source_annotation_pending",
+        "structured_candidate": {
+          "kind": "opaque_source_annotation",
+          "raw_token": "cwda!",
+          "meaning": null
+        },
+        "secondary_source_assessment": [],
+        "next_action": "cwda! 토큰의 원저자 주석·커뮤니티 설명 또는 매뉴얼 근거를 찾기 전까지 해석 금지.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "f9049299119cb6b0",
+      "classification": "named_area_counter_reference_candidate",
+      "source_text": "다크마레아(3카운터) [끝없이 해골이 쏟아지는 도시.]",
+      "source_text_variants": [
+        "※ 다크마레아(3카운터) [끝없이 해골이 쏟아지는 도시.]"
+      ],
+      "inference_methods": [
+        "named_area_counter_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "16112610278",
+        "name": "스컬시티",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610278",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 다크마레마 히어로 포인트를 1증가시킨다. ※ 다크마레아(3카운터) [끝없이 해골이 쏟아지는 도시.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "※ 다크아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [스컬시티]1을 [해골도시]1로 변경시킨다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "external_reference_review": {
+        "disposition": "terrain_counter_and_replacement_candidate_name_mismatch",
+        "structured_candidate": {
+          "kind": "terrain_area_counter_replacement",
+          "counter_label_in_TextBase": "다크마레아(3카운터)",
+          "counter_label_in_TextExtra": "다크아레아(3카운터)",
+          "requires_lp_minimum": 1,
+          "lp_cost": 1,
+          "terrain_replacement": [
+            "스컬시티",
+            "해골도시"
+          ],
+          "label_mismatch": true,
+          "source_authority": "card_local_TextBase_and_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "지형 카드 및 LP 개념의 맥락만 제공. 특정 마레마/아레아 이름과 카운터 전환 규칙을 검증하지 않음."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "LP와 지형 카드의 일반 관계만 보조 확인."
+          }
+        ],
+        "next_action": "TextBase와 TextExtra의 표기를 카드별로 보존하고 명칭·카운터 감소·지형 교체를 공식 원문 또는 엔진으로 확인한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "839e622dec75b37a",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인챈트 카드 [누가 더 빠르게 시전하는 자가 큰 영향을 미치지.]",
+      "source_text_variants": [
+        "◇디스인챈트 카드 [누가 더 빠르게 시전하는 자가 큰 영향을 미치지.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "4062530566",
+        "name": "스펠카운터",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4062530566",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적군 필드마법 1 파괴. 실패시 남은 물소울 3개 이상이면 물소울과 지형 1 파괴 후 아군 핸드에 재생성. ◇디스인챈트 카드 [누가 더 빠르게 시전하는 자가 큰 영향을 미치지.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 재생성시 아군 백필드 지형1을 파괴합니다.<br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>※ 재생성 효과를 갖고있는 디스인첸트 디스펠은 인첸트 파괴시, 마법 성공으로 체크합니다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "cf496fbe1a4ad7b0",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [과연 그 회담에서 어떠한 일이 있었는지는 아무도 모른다. 그들은 그 후에도 만난 적이 없다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [과연 그 회담에서 어떠한 일이 있었는지는 아무도 모른다. 그들은 그 후에도 만난 적이 없다.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "12070432965",
+        "name": "숙명",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432965",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드 유닛 1, 2에게 랭크결박 상태를 2턴간 부여한 후, 아군 필드 유닛 전체의 AP/HP를 적 필드 상태없는 유닛 수만큼 증가. ◇ 디스인첸트 카드 [과연 그 회담에서 어떠한 일이 있었는지는 아무도 모른다. 그들은 그 후에도 만난 적이 없다.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>★ 랭크결박 상태 : 상태 부여된 유닛의 랭크에 따라 AP 감소 후 일반공격기술 부여.<br>N랭크, 랭크없음 : AP 감소없음.<br>C랭크 : AP-1.<br>B랭크 : AP-2.<br>A랭크 : AP-3.<br>S랭크 : AP-4. <br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "a89c167e47d6d1a6",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [그 열매들은 마법의 힘을 흡수하여 맺은 것입니다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [그 열매들은 마법의 힘을 흡수하여 맺은 것입니다.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "4121530702",
+        "name": "이그조스트리",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4121530702",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적군 필드마법 1파괴. 성공 시 파괴된 마법 레벨이 아군 적군 필드유닛 1의 코인 수가 된다. ◇ 디스인첸트 카드 [그 열매들은 마법의 힘을 흡수하여 맺은 것입니다.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "ac99e5a38665171f",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [그가 호수 앞에 있을 것이 니 숨통을 끊게. 그리하면 방어결계가 무너진다네.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드 [그가 호수 앞에 있을 것이 니 숨통을 끊게. 그리하면 방어결계가 무너진다네.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "4072130593",
+        "name": "성직자암살",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4072130593",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적군 필드마법 1 파괴, 실패 시 아군 핸드 아이템 카드 1 을 파괴하고 핸드에 재생성 ◇디스인첸트 카드 [그가 호수 앞에 있을 것이 니 숨통을 끊게. 그리하면 방어결계가 무너진다네.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>※ 재생성 효과를 갖고있는 디스인첸트 디스펠은 인첸트 파괴시, 마법 성공으로 체크합니다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "7824c438fd6b1a5c",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [그대의 악행을 아무리 숨기려고 해도 하늘의 눈은 피할 수 없소.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [그대의 악행을 아무리 숨기려고 해도 하늘의 눈은 피할 수 없소.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "4111730690",
+        "name": "천계의심판",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4111730690",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드마법 1을 파괴 후, 적 필드 다음 위치에 저스티스 1을 소환. ◇ 디스인첸트 카드 [그대의 악행을 아무리 숨기려고 해도 하늘의 눈은 피할 수 없소.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "★ 저스티스 : 턴의 일의자리 수 만큼 아군 적군 같은 수로 HP 데미지.<br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "de567b286c4932e6",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [깊은 바다의 위험한 뱀과 시선을 마주쳐버렸다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [깊은 바다의 위험한 뱀과 시선을 마주쳐버렸다.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "12070432961",
+        "name": "청사의시선",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432961",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 핸드 물속성 카드 수와 동일한 유소울 또는 NCS 소울을 가진 적 필드 유닛의 특수기술을 일반 공격기술로 변경하고, AP/HP를 2 감소시킨다. ◇ 디스인첸트 카드 [깊은 바다의 위험한 뱀과 시선을 마주쳐버렸다.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "315583fe67130afe",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [끌고가봐. 내가 애송이 도둑이라고 생각하는 건 아니겠지? 감시를 게을리 하지 말라고.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [끌고가봐. 내가 애송이 도둑이라고 생각하는 건 아니겠지? 감시를 게을리 하지 말라고.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "12070432959",
+        "name": "연행",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432959",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드 마법1을 행동불능 상태로 적 필드 맨 뒤에 이동시키고, 마법이 이동한 필드 슬롯이 5번이면 적 필드 유닛 1을 파괴한다. ◇ 디스인첸트 카드 [끌고가봐. 내가 애송이 도둑이라고 생각하는 건 아니겠지? 감시를 게을리 하지 말라고.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "e413b817f58df766",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [늪지에선 항상 조심해야하네. 지난 번에는 거대한 괴물 뱀이 지나가던 여행자를 질식시켜서 잡아 먹었다는군.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [늪지에선 항상 조심해야하네. 지난 번에는 거대한 괴물 뱀이 지나가던 여행자를 질식시켜서 잡아 먹었다는군.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "12070432963",
+        "name": "숨막히는공격",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432963",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 적군 핸드 카드 1의 레벨을 영구히 1 증가시킨 후 아군 다음 턴 생성하는 숲소울을 3 증가. ◇ 디스인첸트 카드 [늪지에선 항상 조심해야하네. 지난 번에는 거대한 괴물 뱀이 지나가던 여행자를 질식시켜서 잡아 먹었다는군.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "1c167e2486441070",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [마법을 모두 흡수했다.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드 [마법을 모두 흡수했다.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "7020731304",
+        "name": "매직블랙홀",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/7020731304",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적군 마법1을 파괴한다. 성공시 적군 마법 레벨만큼의 적 유닛의 체력에 -C1을 부여한다. 실패시 적군수 만큼의 아군 유닛은 AP-1 ◇디스인첸트 카드 [마법을 모두 흡수했다.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "83d8fccfa54ce720",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [모래 마법의 장막.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드 [모래 마법의 장막.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "7020731319",
+        "name": "회오리장막",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/7020731319",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적군 필드마법 1을 파괴. 성공시 아군 필드유닛 전체 코인 1 증가. 실패시 지형이 아닌 아군 핸드카드 1을 \"모래언덕\" 으로 교체. ◇디스인첸트 카드 [모래 마법의 장막.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "ac655a5a0d2e8f7c",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [새로운 생명의 찬란함이란 얼마나 고귀한 것인가!]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [새로운 생명의 찬란함이란 얼마나 고귀한 것인가!]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "12070432969",
+        "name": "고귀한생명",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432969",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 필드 \"고귀한생명\" 마법 1을 제외한 마법 카드 1의 레벨 이상인 적 필드 유닛 1을 파괴한 후, 해당 마법 카드 1을 \"홀리레인\" 으로 교체한다. ◇ 디스인첸트 카드 [새로운 생명의 찬란함이란 얼마나 고귀한 것인가!]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>★ 홀리레인 마법 : 아군 필드 유닛 전체 HP+1, 적 필드 유닛 전체 HP-1.<br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "b940d63fea79ba65",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [생존을 위해서라면 도마뱀조차도 뜨거운 태양별에 상관하지 않는다. 생존이란 긴장이다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [생존을 위해서라면 도마뱀조차도 뜨거운 태양별에 상관하지 않는다. 생존이란 긴장이다.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "12070432967",
+        "name": "사막의감시",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432967",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 LP가 1이 되고, 변경된 LP 수치의 절대값+1 만큼 아군 필드 유닛 1,2의 AP/HP가 최대 6까지 증가한다. ◇ 디스인첸트 카드 [생존을 위해서라면 도마뱀조차도 뜨거운 태양별에 상관하지 않는다. 생존이란 긴장이다.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ LP는 랜드포인트를 뜻하며, 지형을 올릴 수 있는 포인트입니다.<br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "e24af7068b6972ba",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [신령스러운 새요. 동방에서는 신조라하고 이곳에서는 칠색조라 하오. 그 울음은 천리를 가고 깃털은 불과 물을 가리지 않고 빛난다오. 나는 그 새를 찾고 있소.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [신령스러운 새요. 동방에서는 신조라하고 이곳에서는 칠색조라 하오. 그 울음은 천리를 가고 깃털은 불과 물을 가리지 않고 빛난다오. 나는 그 새를 찾고 있소.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "14012233385",
+        "name": "칠색조의가호",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012233385",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드 50 덱포인트 이상인 마법 1을 파괴한다.◇ 디스인첸트 카드 [신령스러운 새요. 동방에서는 신조라하고 이곳에서는 칠색조라 하오. 그 울음은 천리를 가고 깃털은 불과 물을 가리지 않고 빛난다오. 나는 그 새를 찾고 있소.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "dc1c1158b89fec26",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [죽음은 모든 이에게 공평하다. 앞으로 닥칠 일을 미리 두려워할 필요는 없지.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [죽음은 모든 이에게 공평하다. 앞으로 닥칠 일을 미리 두려워할 필요는 없지.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "6120631255",
+        "name": "킬링타임",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/6120631255",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드 홀수번째 유닛에게 턴의 일의 자리 수만큼 각각 HP 데미지를 준다. ◇ 디스인첸트 카드 [죽음은 모든 이에게 공평하다. 앞으로 닥칠 일을 미리 두려워할 필요는 없지.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "021bd824961a80e4",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드 [흡혈귀에게 아내를 빼앗긴 그는 그 후로 미친듯이 훈련을 거듭했다. 오로지 복수를 위해서.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [흡혈귀에게 아내를 빼앗긴 그는 그 후로 미친듯이 훈련을 거듭했다. 오로지 복수를 위해서.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "12070432957",
+        "name": "복수의준비",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432957",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드에 위치하는 2번째 마법을 파괴한 후, 파괴한 마법 카드의 레벨만큼 적 필드 유닛 1부터 방체 단계별 데미지를 준다. ◇ 디스인첸트 카드 [흡혈귀에게 아내를 빼앗긴 그는 그 후로 미친듯이 훈련을 거듭했다. 오로지 복수를 위해서.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>▶ 방체 단계별데미지 : 최대 0까지 방체 단계별 감소, DP 수치 따라 데미지 가감."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "e5a1a195f573cc15",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드.",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드."
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "4111730684",
+        "name": "불가침조약",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4111730684",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드 6레벨 이하 특수기술보유 유닛은 행동불능. ◇ 디스인첸트 카드. ※ 발동시 아군 백필드 생성 유소울이 모두 금속이 아니면 대상을 4레벨이하 특수기술유닛 전체로 변경. "
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "0e5b31a93f6d48f2",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드. [그리핀과의 사투.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드. [그리핀과의 사투.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "9020431914",
+        "name": "그리핀출몰",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/9020431914",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 필드 최저레벨 유닛 1과 적 필드 최고레벨 유닛 1을 제외한 아군적군 필드 유닛 모두 파괴 후 아군 필드 해당 유닛과 적 필드 해당 유닛의 레벨 차이만큼 아군 필드 해당 유닛 물리데미지. ◇ 디스인첸트 카드. [그리핀과의 사투.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>▶ 아군 적군 필드 유닛 1이상 필요."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "c0399da6ece0425c",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드. [배를 돌리지 않으면 곧 불길에 닿게 될 것입니다!]",
+      "source_text_variants": [
+        "◇디스인첸트 카드. [배를 돌리지 않으면 곧 불길에 닿게 될 것입니다!]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "4062530563",
+        "name": "파이어플래쉬",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4062530563",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드마법 1 파괴. 실패시 아군 남은 불소울이 2개 이상이면 소각 후, 아군 필드 유닛 1파괴, 핸드 재생성, ◇디스인첸트 카드. [배를 돌리지 않으면 곧 불길에 닿게 될 것입니다!]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>※ 재생성 효과를 갖고있는 디스인첸트 디스펠은 인첸트 파괴시, 마법 성공으로 체크합니다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "bd862ece40b0c729",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트 카드. [이 밤이 지나면 저 성안은 하얀 눈에 뒤덮여 아무것도 보이지 않게 될 겁니다.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드. [이 밤이 지나면 저 성안은 하얀 눈에 뒤덮여 아무것도 보이지 않게 될 겁니다.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "3062730281",
+        "name": "프로즌노바",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/3062730281",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적 필드 유닛 전체 자신의 유지비+1만큼 각각 공체가 감소한다. ◇디스인첸트 카드. [이 밤이 지나면 저 성안은 하얀 눈에 뒤덮여 아무것도 보이지 않게 될 겁니다.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>▶ 유지비 : ○으로 표시, 소울코스트마다 유지비만큼 무소울 지불, 남은 소울 부족시 대신 덱/라이프 소모."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "369637133f626c14",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트카드. [다함께 공격하여 침입자를 내쫓을 수가 있었다네.]",
+      "source_text_variants": [
+        "◇ 디스인첸트카드. [다함께 공격하여 침입자를 내쫓을 수가 있었다네.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "5090730915",
+        "name": "그룹차징",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/5090730915",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군필드 숲속성 유닛 1,2,3의 AP합으로 적 필드 유닛 1부터 공방체 단계별 데미지를 준다. ◇ 디스인첸트카드. [다함께 공격하여 침입자를 내쫓을 수가 있었다네.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "e6d9caade4df19f0",
+      "classification": "named_effect_reference_candidate",
+      "source_text": "디스인첸트카드. [성난 바람이 부정한 기운을 몰아 내고 태양 빛은 어두운 기운을 물리쳤다. 만물에 새로운 세상을 말리듯 사방천지의 생명이 살아 숨 쉬고 있었다.]",
+      "source_text_variants": [
+        "◇디스인첸트카드. [성난 바람이 부정한 기운을 몰아 내고 태양 빛은 어두운 기운을 물리쳤다. 만물에 새로운 세상을 말리듯 사방천지의 생명이 살아 숨 쉬고 있었다.]"
+      ],
+      "inference_methods": [
+        "disenchant_named_mechanic_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "15042933603",
+        "name": "시스카이",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/15042933603",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "적군 핸드 마법 전체는 각 속성의 기본형 마법으로 교체된다.◇디스인첸트카드. [성난 바람이 부정한 기운을 몰아 내고 태양 빛은 어두운 기운을 물리쳤다. 만물에 새로운 세상을 말리듯 사방천지의 생명이 살아 숨 쉬고 있었다.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "기본형 마법 소개 <br>* 암흑 : 라이프드레인. <br>* 불 : 파이어월. <br>* 물 : 눈보라. <br>* 숲 : 함정. <br>* 금속 : 백일몽. <br>* 대지 : 모래지옥. <br>* 빛 : 홀리힐. <br>* 이벤트 : 마법눈덩이..<br>▶무속성 마법은 시스카이의 대상이 되지 않습니다..<br>▶무속성 이벤트 마법은 이벤트 마법으로 취급됩니다.<br><br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카드별 TextExtra에 공통 디스인첸트 규칙 설명이 존재한다. 공통 규칙 참조와 카드 고유 TextBase 효과를 분리하고 적용 예외를 확인한다.",
+      "external_reference_review": {
+        "disposition": "card_local_reference_definition_extracted",
+        "structured_candidate": {
+          "kind": "enchantment_disenchant_reference",
+          "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+          "trigger_phase": "인첸트 발동 페이즈",
+          "count_basis": "필드에 존재하는 디스인첸트 카드 수",
+          "target_sides": [
+            "아군 필드",
+            "적군 필드"
+          ],
+          "target_selection": "각 필드의 첫번째 인첸트부터 순서대로",
+          "operation": "인첸트 카드 파괴",
+          "source_authority": "card_local_TextExtra",
+          "source_verified_as_transcription": true,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "인챈트가 슬롯에 지속하며 유닛/마법에 능력을 부여하는 카드 유형이라는 배경만 보강. 디스인첸트의 정확한 처리 순서는 카드 TextExtra가 근거."
+          }
+        ],
+        "next_action": "원문 정의를 공통 규칙 참조로 연결하고, 다중 디스인첸트·빈 인첸트 슬롯·양측 처리 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "5fe169892b95ee55",
+      "classification": "card_reference_list",
+      "source_text": "롯트, 장생수, 맨이터롯트N, 이모탈트리, 손드트리, 뮤턴트엔트, 에인션트엔트.",
+      "source_text_variants": [
+        "◆ 롯트, 장생수, 맨이터롯트N, 이모탈트리, 손드트리, 뮤턴트엔트, 에인션트엔트."
+      ],
+      "inference_methods": [
+        "comma_separated_card_name_list_v1"
+      ],
+      "confidence": "not_applicable",
+      "source_card": {
+        "card_id": "13112727128",
+        "name": "사케크리에",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/13112727128",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "★ 자연의분노 : AP1이상 공격시, 아군 백필드 \"가을의물든숲\"1을 \"요정의숲\"1로 교체한 후 상대 유닛 레벨과 동일한 레벨인 플랜트 종족 유닛을 아군 필드 다음 위치에 소환한다.(아군 백필드 지형 교체 조건을 만족하지 못하면 롯트 소환).<br>◆ 롯트, 장생수, 맨이터롯트N, 이모탈트리, 손드트리, 뮤턴트엔트, 에인션트엔트.<br><br>★ 섀도우스킬(아바타카피) : ○○○ - 자신에게 아바타카피 방어기술을 추가로 부여한다.<br>★ 아바타카피 : 자신 파괴시, 아군 필드 맨 뒤 유닛 1을 동일 이름인 스페셜 유닛으로 교체.<br>★ 섀도우오라(봉인) : ○○ - 자신의 유지비를 1 영구히 증가시킨 후 적 필드의 봉인상태가 없고, 레전드등급이 아닌 최고 덱포인트를 가진 유닛 1에게 봉인상태 영구 부여.(10렙이상 발동불가)<br>★ 봉인상태 : 상태 부여된 유닛의 기술을 일반공격으로 변경하고, 섀도우와 상태부여능력, 강화능력을 영구히 제거한다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "목록이 연결되는 발동 기술과 소환 조건을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "named_card_list_reference_only",
+        "structured_candidate": {
+          "kind": "named_card_reference_list",
+          "names": [
+            "롯트",
+            "장생수",
+            "맨이터롯트N",
+            "이모탈트리",
+            "손드트리",
+            "뮤턴트엔트",
+            "에인션트엔트."
+          ],
+          "card_id_resolution": "pending_exact_name_to_card_id",
+          "random_selection_or_eligibility": "pending"
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "아이템은 유닛 장착형 카드 유형이라는 일반적 배경만 보강."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "아이템/유닛 유형 구분의 보조 자료. 각 카드 ID와 장착 가능 여부는 미확인."
+          }
+        ],
+        "next_action": "목록 이름을 DB 전체 카드명과 정확 매칭하고 동명이인·랭크·등급·카드 유형을 분리한 뒤 랜덤 장착 pool을 확정한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "327f4c47871c6609",
+      "classification": "named_area_counter_reference_candidate",
+      "source_text": "머스마레마(3카운터) [투스샌드웜이 지나간 자리.]",
+      "source_text_variants": [
+        "※ 머스마레마(3카운터) [투스샌드웜이 지나간 자리.]"
+      ],
+      "inference_methods": [
+        "named_area_counter_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "16112610283",
+        "name": "지나간자리",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610283",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 머스마레마 히어로 포인트를 1증가시킨다. ※ 머스마레마(3카운터) [투스샌드웜이 지나간 자리.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "※ 어스아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [지나간자리]1을 [솟아난호수]1로 변경시킨다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "external_reference_review": {
+        "disposition": "terrain_counter_and_replacement_candidate_name_mismatch",
+        "structured_candidate": {
+          "kind": "terrain_area_counter_replacement",
+          "counter_label_in_TextBase": "머스마레마(3카운터)",
+          "counter_label_in_TextExtra": "어스아레아(3카운터)",
+          "requires_lp_minimum": 1,
+          "lp_cost": 1,
+          "terrain_replacement": [
+            "지나간자리",
+            "솟아난호수"
+          ],
+          "label_mismatch": true,
+          "source_authority": "card_local_TextBase_and_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "지형 카드 및 LP 개념의 맥락만 제공. 특정 마레마/아레아 이름과 카운터 전환 규칙을 검증하지 않음."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "LP와 지형 카드의 일반 관계만 보조 확인."
+          }
+        ],
+        "next_action": "TextBase와 TextExtra의 표기를 카드별로 보존하고 명칭·카운터 감소·지형 교체를 공식 원문 또는 엔진으로 확인한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "97934a59c18dd67c",
+      "classification": "named_area_counter_reference_candidate",
+      "source_text": "메탈아레아(3카운터) [실험체를 피해 차원이동중...]",
+      "source_text_variants": [
+        "※ 메탈아레아(3카운터) [실험체를 피해 차원이동중...]"
+      ],
+      "inference_methods": [
+        "named_area_counter_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "16112610282",
+        "name": "초복합연구실",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610282",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 메탈마레마 히어로 포인트를 1증가시킨다. ※ 메탈아레아(3카운터) [실험체를 피해 차원이동중...]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "※ 메탈아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [초복합연구실]1을 [이동식연구소]1로 변경시킨다. "
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "external_reference_review": {
+        "disposition": "terrain_counter_and_replacement_candidate_name_mismatch",
+        "structured_candidate": {
+          "kind": "terrain_area_counter_replacement",
+          "counter_label_in_TextBase": "메탈아레아(3카운터)",
+          "counter_label_in_TextExtra": "메탈아레아(3카운터)",
+          "requires_lp_minimum": 1,
+          "lp_cost": 1,
+          "terrain_replacement": [
+            "초복합연구실",
+            "이동식연구소"
+          ],
+          "label_mismatch": false,
+          "source_authority": "card_local_TextBase_and_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "지형 카드 및 LP 개념의 맥락만 제공. 특정 마레마/아레아 이름과 카운터 전환 규칙을 검증하지 않음."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "LP와 지형 카드의 일반 관계만 보조 확인."
+          }
+        ],
+        "next_action": "TextBase와 TextExtra의 표기를 카드별로 보존하고 명칭·카운터 감소·지형 교체를 공식 원문 또는 엔진으로 확인한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "14f9984f95b70270",
+      "classification": "named_summon_unit_profile_reference",
+      "source_text": "모래형상 유닛(야수, 골렘, 돌진공격).",
+      "source_text_variants": [
+        "★ 모래형상 유닛(야수, 골렘, 돌진공격)."
+      ],
+      "inference_methods": [
+        "named_summon_profile_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "9010731883",
+        "name": "모래의형상화",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/9010731883",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 백필드 대지지형 1 파괴 후 속박상태가 2턴 부여된 모래형상 유닛 1을 아군 필드 다음 위치에 소환. [이 건조한 모래에도 한번 쓸 수 있을 만큼은 생명의 기운이 남아 있지.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "★ 속박 상태 : 매턴 소울코스트시에 상대 필드 맨뒤로 이동.<br>★ 모래형상 유닛(야수, 골렘, 돌진공격).<br>* 소환유소울 : 턴의 일의자리수.<br>* 소환무소울 : 턴의 십의자리수.<br>* AP : 소각장 유닛수.<br>* DP : 핸드 유닛수.<br>* HP : 백필드 지형수.<br>▶ 해당 소환 유닛의 최대레벨은 10레벨입니다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "소환 유닛/카드군의 구성 방식, 상태 효과, 비용 및 능력치 계산식을 카드별 원문으로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "summoned_unit_profile",
+          "pool_scope": null,
+          "same_level": true,
+          "same_attribute": true,
+          "selection": "random",
+          "includes_rank_cards": false,
+          "excludes_event_grade": false,
+          "terrain_count_bonus": false,
+          "explicit_bonus_rule": null,
+          "exceptions_note": "일부 카드는 제외되어 있다고 원문에 기재되나 제외 목록은 별도 확인 필요",
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "에카마엘이 소속 명칭으로 사용됨을 보조 확인. 랜덤 풀·매칭·보너스 계산은 카드 원문만 근거."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛의 레벨·PT·코인·능력·기술·종족/소속 필드 구조를 보조 확인."
+          }
+        ],
+        "next_action": "에카마엘 소환 풀의 카드 ID 후보를 추출하고 이벤트 등급 제외·랭크 포함·일부 제외 목록을 카드 속성과 대조한다. 홀짝 보너스는 엔진 테스트 전까지 비실행.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "351525db0d5b2cbb",
+      "classification": "conditional_effect_branch_reference",
+      "source_text": "발동시 이름종류수에 따라 특 별 효과가 발동한다(특이사항)",
+      "source_text_variants": [
+        "※ 발동시 이름종류수에 따라 특 별 효과가 발동한다(특이사항)"
+      ],
+      "inference_methods": [
+        "name_diversity_branch_marker_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "13071033261",
+        "name": "녹음의습격",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/13071033261",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 핸드필드 플랜트 종족유닛의 이름종류수보다 레벨이 낮은 적 필드유닛 중 공방체합이 가장 높은 유닛 1 \"가시풀\" 장착하고 종족을 플랜트로 영구변경하여 아군 필드 맨뒤에 행동가능으로 이동시킨다. ※ 발동시 이름종류수에 따라 특 별 효과가 발동한다(특이사항)"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "★ 가시풀 : ●●, 일반공격 +3 / 0 / +2 -5%<br>▶ 아군 필드 유닛 1이상 필요<br>※ 발동시 핸드 / 필드 플랜트 종족 유닛의 이름 수 종류가 5이상이면 <br>장착 아이템인 가시풀의 일반공격 부여를 제거하고 <br>6이상이면 추가로 가시풀의 AP/HP 증가 수치를 1 증가시킨다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "원문 문맥과 카드별 사용 범위를 확인한 뒤 표준 규칙·메타데이터·참조·조건 중 하나로 확정한다.",
+      "external_reference_review": {
+        "disposition": "explicit_card_local_threshold_branch_candidate",
+        "structured_candidate": {
+          "kind": "name_diversity_threshold_branch",
+          "base_condition": "핸드/필드 플랜트 종족 유닛 이름 종류 수",
+          "threshold_5": true,
+          "threshold_6": true,
+          "threshold_5_operation": "가시풀의 일반공격 부여 제거",
+          "threshold_6_operation": "가시풀 AP/HP 증가 수치 1 증가",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namu_factions_races",
+            "relevance": "플랜트가 종족 분류에 포함되는 용어 맥락만 보강."
+          }
+        ],
+        "next_action": "이름 종류 수 중복 제거 기준, 핸드/필드 범위, 5와 6 이상 분기 누적 여부를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "3c2d6ddb4a94f1f3",
+      "classification": "incomplete_source_fragment",
+      "source_text": "상",
+      "source_text_variants": [
+        "상"
+      ],
+      "inference_methods": [
+        "single_token_source_fragment_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "9071541048",
+        "name": "고대의검",
+        "card_type": "아이템",
+        "clause_index": 4,
+        "source_detail_url": "https://fmlunatic.com/card/9071541048",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "소울트렌스기술부여 ※ 아이템빌드업(응축부여) [누구도 무릎을 꿇을 수밖에 없는 위엄. 그 위엄의 증거요. 그 힘의 형상이라. 마지막까지 검을 손에 쥔 그대여, 진정한 승리를 느낄수 있을 것이리라.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "소울트렌스<br><br>AP1이상으로 공격시, 상대 유닛의 무소울 수만큼 AP를 더해서 공격.<br><br>상※ 아이템빌드업(응축부여) : 장착한 유닛에게 응축상태를 2턴간 부여한다.<br>(아이템 장착시 1턴이 적용되어 다음턴에 유지비1이 유소울1로 변경되어 총 1개의 유지비만 변경되게 됩니다).<br><br>★ 응축상태 : 소울코스트시 자신의 유지비 1개를 유소울로 바꾼다.<br><br>성카드 : 고대의기사<br>상성효과 : DP+1"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "단독 토큰과 인접 TextExtra의 연결을 확인할 때까지 미완전 원문으로 유지한다.",
+      "external_reference_review": {
+        "disposition": "incomplete_original_fragment",
+        "structured_candidate": {
+          "kind": "incomplete_text_fragment",
+          "raw_fragment": "상",
+          "meaning": null
+        },
+        "secondary_source_assessment": [],
+        "next_action": "같은 카드의 TextBase/TextExtra 및 원본 상세 페이지에서 앞뒤 문맥을 확보하기 전까지 의미 부여 금지.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "301c96ab44070fed",
+      "classification": "conditional_branch_reference",
+      "source_text": "실패시.",
+      "source_text_variants": [
+        "※ 실패시."
+      ],
+      "inference_methods": [
+        "standalone_success_failure_branch_header_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "14030533415",
+        "name": "황제의일갈",
+        "card_type": "마법",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/14030533415",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "덱포인트가 50이상이고 150 이하인 적 소각장 맨 위 마법1을 아군 필드 다음 위치에 소환한다. ※ 실패시 아군 필드 유지비가 1 이상인 유닛 1의 유지비 1을 영구히 제거한다. [승패는 병가지상사거늘, 지나치게 가혹한 벌은 사기를 꺾을뿐.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": " ※ 실패시.<br>1. 적 소각장에 해당 마법이 없을 경우. <br>2. 아군 필드에 빈공간이 없어 해당 마법이 다음 위치에 소환되지 않은 경우.<br>"
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "원문 문맥과 카드별 사용 범위를 확인한 뒤 표준 규칙·메타데이터·참조·조건 중 하나로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_failure_conditions_extracted",
+        "structured_candidate": {
+          "kind": "summon_failure_conditions",
+          "failure_conditions": [
+            "적 소각장에 해당 마법이 없음",
+            "아군 필드에 빈 공간이 없어 다음 위치 소환 불가"
+          ],
+          "source_authority": "card_local_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [],
+        "next_action": "소환 성공 판정과 실패 분기에서 유지비 제거 효과가 적용되는 순서를 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "ac958ad20571c5bd",
+      "classification": "named_card_variant_reference",
+      "source_text": "에네퍼브렌C",
+      "source_text_variants": [
+        "※ 에네퍼브렌C"
+      ],
+      "inference_methods": [
+        "card_name_c_variant_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "14022627282",
+        "name": "에네퍼브렌",
+        "card_type": "유닛",
+        "clause_index": 4,
+        "source_detail_url": "https://fmlunatic.com/card/14022627282",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "타나셔스 : 방어시, 상대에게 상태가 부여되어 있으면 AP/HP를 2 감소시키고 데미지 받는다.<br><br>★ 섀도우오라(야수의습격) : ●●++(연속 사용시 2소울 증가) - 표적 상태가 걸려있지 않은 적 최고레벨 유닛 1에게 표적 상태를 1턴 부여하고, 일반공격으로 변경한뒤, 자신을 섀도우오라(망각의미로)를 가진 에네퍼브렌C로 교체한다.<br><br>※ 에네퍼브렌C  <br>★ 섀도우오라(망각의미로) : ●●++(연속 사용시 2소울 증가)중급망각 상태가 걸려있지 않은 적 최고레벨 유닛 1에게 중급망각 상태를 1턴 부여한다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "원문 문맥과 카드별 사용 범위를 확인한 뒤 표준 규칙·메타데이터·참조·조건 중 하나로 확정한다.",
+      "external_reference_review": {
+        "disposition": "named_card_variant_mapping_pending",
+        "structured_candidate": {
+          "kind": "card_variant_reference",
+          "variant_name": "에네퍼브렌C",
+          "source_authority": "card_local_TextExtra",
+          "card_id_resolution": "pending"
+        },
+        "secondary_source_assessment": [],
+        "next_action": "C형 카드의 별도 카드 ID 및 원문을 대조하고 변이 전후 기술·상태·능력치 차이를 구조화한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "2e0e433bbc59c599",
+      "classification": "named_card_variant_reference",
+      "source_text": "여왕엘류이드C",
+      "source_text_variants": [
+        "※ 여왕엘류이드C"
+      ],
+      "inference_methods": [
+        "card_name_c_variant_reference_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "14022627281",
+        "name": "여왕엘류이드",
+        "card_type": "유닛",
+        "clause_index": 6,
+        "source_detail_url": "https://fmlunatic.com/card/14022627281",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": ""
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "크리스탈스톰 : 적 1 파괴시, 미러크리스탈 1을 아군필드 맨 뒤에 행동불능으로 생성한다.<br><br>★ 미러크리스탈(마법) : 아군 필드 유닛 1에게 혼란공격기술 부여후 적 필드유닛 1,2의 공격 코인을 xC1로 교체 <br><br>★ 섀도우오라(변화) : ●+++(연속 사용시 3소울 증가) - 아군 필드 마법 1을 파괴하고, 적 최고레벨 유닛 1에게 변이 상태를 1턴간 부여하고, 자신을 섀도우오라(불안정한힘)를 가진 여왕엘류이드C로 교체.<br><br>※ 여왕엘류이드C<br>섀도우오라(불안정한힘) : ●●++(연속 사용시 2소울 증가)아군 필드 마법 1을 파괴하고, 적 최고레벨 유닛 1에게 하급불안정 상태를 1턴간 부여한다.<br><br>★ 섀도우오라(환상) : ●+++(연속 사용시 3소울 증가)<br>아군 핸드 환영의군대가 아닌 핸드카드 1을 환영의군대로 변경하고, 중급망각 상태가 부여되지 않은 적 유닛 1에게 중급망각 상태를 3턴간 부여한다.<br>(핸드 카드가 없거나, 모두 환영의군대이면 발동하지 않음)."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "원문 문맥과 카드별 사용 범위를 확인한 뒤 표준 규칙·메타데이터·참조·조건 중 하나로 확정한다.",
+      "external_reference_review": {
+        "disposition": "named_card_variant_mapping_pending",
+        "structured_candidate": {
+          "kind": "card_variant_reference",
+          "variant_name": "여왕엘류이드C",
+          "source_authority": "card_local_TextExtra",
+          "card_id_resolution": "pending"
+        },
+        "secondary_source_assessment": [],
+        "next_action": "C형 카드의 별도 카드 ID 및 원문을 대조하고 변이 전후 기술·상태·능력치 차이를 구조화한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "28386de8f17ad3ee",
+      "classification": "named_area_counter_reference_candidate",
+      "source_text": "워터마레마(3카운터) [강력한 바다 영수와 고대 문명.]",
+      "source_text_variants": [
+        "※ 워터마레마(3카운터) [강력한 바다 영수와 고대 문명.]"
+      ],
+      "inference_methods": [
+        "named_area_counter_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "16112610280",
+        "name": "생환의도시",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610280",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 워터마레마 히어로 포인트를 1증가시킨다. ※ 워터마레마(3카운터) [강력한 바다 영수와 고대 문명.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "※ 워터아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [생환의도시]1을 [갑골위문명]1로 변경시킨다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "external_reference_review": {
+        "disposition": "terrain_counter_and_replacement_candidate_name_mismatch",
+        "structured_candidate": {
+          "kind": "terrain_area_counter_replacement",
+          "counter_label_in_TextBase": "워터마레마(3카운터)",
+          "counter_label_in_TextExtra": "워터아레아(3카운터)",
+          "requires_lp_minimum": 1,
+          "lp_cost": 1,
+          "terrain_replacement": [
+            "생환의도시",
+            "갑골위문명"
+          ],
+          "label_mismatch": true,
+          "source_authority": "card_local_TextBase_and_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "지형 카드 및 LP 개념의 맥락만 제공. 특정 마레마/아레아 이름과 카운터 전환 규칙을 검증하지 않음."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "LP와 지형 카드의 일반 관계만 보조 확인."
+          }
+        ],
+        "next_action": "TextBase와 TextExtra의 표기를 카드별로 보존하고 명칭·카운터 감소·지형 교체를 공식 원문 또는 엔진으로 확인한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "bfa9cd5ed2238e2c",
+      "classification": "conditional_unit_profile_reference",
+      "source_text": "조건에 따른 이서리얼의 능력.",
+      "source_text_variants": [
+        "▶ 조건에 따른 이서리얼의 능력."
+      ],
+      "inference_methods": [
+        "conditional_unit_profile_heading_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "11050432579",
+        "name": "추억",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/11050432579",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "아군 필드 유닛이 모두 마법학교 소속 유닛이면, 조건부 이서리얼1을 아군 필드 다음 위치에 소환. ※ 발동시 아군 핸드/필드/소각장에 \"메를린\"이 존재하면 이서리얼 1에게 그로잉 상태 무한턴 부여 후 아군 소각장의 \"메를린\" 1을 아군 필드 맨뒤로 이동. "
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "▶ 아군 필드 마법학교 유닛 1 이상 필요<br>▶ 조건에 따른 이서리얼의 능력.<br>기술 : 기선제압.<br>유소울 : 아군 필드 마법학교 유닛 수.<br>무소울 : 아군 핸드 마법학교 유닛 수+2.<br>AP : 아군 필드 마법학교 유닛 수 + 아군 백필드 지형 절반(내림).<br>DP : 아군 핸드 마법학교 유닛 수.<br>HP : 아군 필드 마법학교 유닛 수 + 아군 백필드 지형 절반(내림).<br>공격코인 : 아군 필드 마법학교 유닛 수 / +C1~3.<br>방어코인 : 없음.<br>체력코인 : 아군 필드 마법학교 유닛 수 / +C1~3.<br>일러스트 : 아군 핸드 필드에 메를린이 없는 경우 이서리얼 일러스트로, 메를린이 있는 경우 이서리얼샷 일러스트로 변경.<br><br>해당 유닛은 소환시 그로잉 상태가 부여되지 않습니다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "원문 문맥과 카드별 사용 범위를 확인한 뒤 표준 규칙·메타데이터·참조·조건 중 하나로 확정한다.",
+      "external_reference_review": {
+        "disposition": "card_local_summon_profile_formula_candidate",
+        "structured_candidate": {
+          "kind": "conditional_summoned_unit_profile",
+          "skill": "기선제압",
+          "soul_formula": "아군 필드 마법학교 유닛 수",
+          "neutral_soul_formula": "아군 핸드 마법학교 유닛 수 + 2",
+          "ap_formula": "아군 필드 마법학교 유닛 수 + floor(아군 백필드 지형 수 / 2)",
+          "dp_formula": "아군 핸드 마법학교 유닛 수",
+          "hp_formula": "아군 필드 마법학교 유닛 수 + floor(아군 백필드 지형 수 / 2)",
+          "attack_coin_formula": "아군 필드 마법학교 유닛 수 / +C1~3",
+          "hp_coin_formula": "아군 필드 마법학교 유닛 수 / +C1~3",
+          "initial_growing_state": false,
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "유닛 구성요소·능력치 용어만 보조 확인. 구체 공식은 카드 TextExtra만 근거."
+          }
+        ],
+        "next_action": "메를린 존재 여부에 따른 이동·일러스트 분기, 코인 산식, 지형 수 반올림 규칙을 엔진 테스트한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "772e1ef990796eef",
+      "classification": "named_area_counter_reference_candidate",
+      "source_text": "파이어마레마(3카운터) [강자만의 질서, 강자만의 왕국.]",
+      "source_text_variants": [
+        "※ 파이어마레마(3카운터) [강자만의 질서, 강자만의 왕국.]"
+      ],
+      "inference_methods": [
+        "named_area_counter_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "16112610279",
+        "name": "강자의왕국",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610279",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 파이어아레마 히어로 포인트를 1증가시킨다. ※ 파이어마레마(3카운터) [강자만의 질서, 강자만의 왕국.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "※ 파이어아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [강자의왕국]1을 [고블린왕국]1로 변경시킨다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "external_reference_review": {
+        "disposition": "terrain_counter_and_replacement_candidate_name_mismatch",
+        "structured_candidate": {
+          "kind": "terrain_area_counter_replacement",
+          "counter_label_in_TextBase": "파이어마레마(3카운터)",
+          "counter_label_in_TextExtra": "파이어아레아(3카운터)",
+          "requires_lp_minimum": 1,
+          "lp_cost": 1,
+          "terrain_replacement": [
+            "강자의왕국",
+            "고블린왕국"
+          ],
+          "label_mismatch": true,
+          "source_authority": "card_local_TextBase_and_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "지형 카드 및 LP 개념의 맥락만 제공. 특정 마레마/아레아 이름과 카운터 전환 규칙을 검증하지 않음."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "LP와 지형 카드의 일반 관계만 보조 확인."
+          }
+        ],
+        "next_action": "TextBase와 TextExtra의 표기를 카드별로 보존하고 명칭·카운터 감소·지형 교체를 공식 원문 또는 엔진으로 확인한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "6b241c7fecddb732",
+      "classification": "named_area_counter_reference_candidate",
+      "source_text": "포레스마레마 (3카운터) [세계수의 아래 울창한 안식처.]",
+      "source_text_variants": [
+        "※ 포레스마레마 (3카운터) [세계수의 아래 울창한 안식처.]"
+      ],
+      "inference_methods": [
+        "named_area_counter_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "16112610281",
+        "name": "숲의안식처",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610281",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 포레스마레마 히어로 포인트를 1증가시킨다. ※ 포레스마레마 (3카운터) [세계수의 아래 울창한 안식처.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "※ 포레스아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [숲의안식처]1을 [세계수의그늘]1로 변경시킨다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "external_reference_review": {
+        "disposition": "terrain_counter_and_replacement_candidate_name_mismatch",
+        "structured_candidate": {
+          "kind": "terrain_area_counter_replacement",
+          "counter_label_in_TextBase": "포레스마레마 (3카운터)",
+          "counter_label_in_TextExtra": "포레스아레아(3카운터)",
+          "requires_lp_minimum": 1,
+          "lp_cost": 1,
+          "terrain_replacement": [
+            "숲의안식처",
+            "세계수의그늘"
+          ],
+          "label_mismatch": true,
+          "source_authority": "card_local_TextBase_and_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "지형 카드 및 LP 개념의 맥락만 제공. 특정 마레마/아레아 이름과 카운터 전환 규칙을 검증하지 않음."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "LP와 지형 카드의 일반 관계만 보조 확인."
+          }
+        ],
+        "next_action": "TextBase와 TextExtra의 표기를 카드별로 보존하고 명칭·카운터 감소·지형 교체를 공식 원문 또는 엔진으로 확인한다.",
+        "runtime_status": "non_executable"
+      }
+    },
+    {
+      "pattern_id": "9a33edf7012c9271",
+      "classification": "named_area_counter_reference_candidate",
+      "source_text": "폴리아레아(3카운터) [구름이 운반하는 공중도시.]",
+      "source_text_variants": [
+        "※ 폴리아레아(3카운터) [구름이 운반하는 공중도시.]"
+      ],
+      "inference_methods": [
+        "named_area_counter_label_v1"
+      ],
+      "confidence": "medium",
+      "source_card": {
+        "card_id": "16112610284",
+        "name": "클라우드시티",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610284",
+        "TextBase": {
+          "source_key_present": true,
+          "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 홀리마레마 히어로 포인트를 1증가시킨다. ※ 폴리아레아(3카운터) [구름이 운반하는 공중도시.]"
+        },
+        "TextExtra": {
+          "source_key_present": true,
+          "source_value": "※ 홀리아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [클라우드시티]1을 [구름도시]1로 변경시킨다."
+        }
+      },
+      "review_status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "external_reference_review": {
+        "disposition": "terrain_counter_and_replacement_candidate_name_mismatch",
+        "structured_candidate": {
+          "kind": "terrain_area_counter_replacement",
+          "counter_label_in_TextBase": "폴리아레아(3카운터)",
+          "counter_label_in_TextExtra": "홀리아레아(3카운터)",
+          "requires_lp_minimum": 1,
+          "lp_cost": 1,
+          "terrain_replacement": [
+            "클라우드시티",
+            "구름도시"
+          ],
+          "label_mismatch": true,
+          "source_authority": "card_local_TextBase_and_TextExtra",
+          "engine_verified": false
+        },
+        "secondary_source_assessment": [
+          {
+            "source_id": "namuwiki_fantasy_masters",
+            "relevance": "지형 카드 및 LP 개념의 맥락만 제공. 특정 마레마/아레아 이름과 카운터 전환 규칙을 검증하지 않음."
+          },
+          {
+            "source_id": "neginote_fantasy_masters_guide",
+            "relevance": "LP와 지형 카드의 일반 관계만 보조 확인."
+          }
+        ],
+        "next_action": "TextBase와 TextExtra의 표기를 카드별로 보존하고 명칭·카운터 감소·지형 교체를 공식 원문 또는 엔진으로 확인한다.",
+        "runtime_status": "non_executable"
+      }
+    }
+  ]
+}
