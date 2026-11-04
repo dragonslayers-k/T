@@ -46,7 +46,7 @@ permissions:
 
 concurrency:
   # Keep push-triggered full audits separate from PR-triggered lightweight tests.
-  group: fm1-carddb-${{ github.event_name }}-${{ github.ref }}
+  group: fm1-carddb-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl' || github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit' || 'tests' }}
   cancel-in-progress: true
 
 jobs:
