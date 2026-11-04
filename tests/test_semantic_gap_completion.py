@@ -125,5 +125,30 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["classification"],"reference_or_metadata")
         self.assertEqual(result["confidence"],"not_applicable")
 
+    def test_conditional_card_reference_branch(self):
+        result=parse("1 ~ 3레벨: 마법개구리.")
+        self.assertEqual(result["confidence"],"medium")
+        self.assertTrue(any(x["kind"]=="conditional_branch_reference" for x in result["operations"]))
+
+    def test_time_digit_attack_formula(self):
+        result=parse("AP1이상으로 공격시, Turn의 1의 자리수로 상대를 공격한다.")
+        self.assertTrue(any(x["kind"]=="dynamic_attack_formula" for x in result["operations"]))
+
+    def test_dp_sign_reversal(self):
+        result=parse("AP1 이상으로 공격시 상대의 DP기호가 반대로 변환된다.")
+        self.assertTrue(any(x["kind"]=="modify_stat_marks" and x.get("operation")=="reverse_sign" for x in result["operations"]))
+
+    def test_enemy_dp_to_self_hp_formula(self):
+        result=parse("AP1이상으로 공격시, 적군 DP만큼 자신 HP증가.")
+        self.assertTrue(any(x["kind"]=="modify_stat" and x.get("stat")=="hp" for x in result["operations"]))
+
+    def test_rank_profile_note_is_not_effect(self):
+        result=parse("수집랭커 유니크는 수집랭커 1레벨 이상의 유저분만 구매가 가능합니다.")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_explanatory_example_is_not_effect(self):
+        result=parse("ex) 해당 마법과 관련 있는 스페셜 유닛이 필드에 있는 경우 ②번 효과가 발동.")
+        self.assertEqual(result["confidence"],"not_applicable")
+
 if __name__=="__main__":
     unittest.main()
