@@ -80,6 +80,7 @@ def parse(text, known_skills=None):
         if re.search(pat,t): targets.append(key)
 
     ops=[]
+    conditions=[]
     # Numeric stat deltas and assignments, including Korean names and grouped stats.
     stat_patterns={
       "ap":r"AP|공격력|공격치|공격\s*수치",
@@ -164,7 +165,7 @@ def parse(text, known_skills=None):
     if re.search(r"(?:적군|상대).{0,12}DP.{0,16}(?:자신|아군).{0,8}HP.{0,8}(?:증가|회복)",t):
         ops.append({"kind":"modify_stat","target":"self","stat":"hp","operator":"+",
                     "valueFormula":"enemy_field_dp_total_or_target_dp","rawText":t,"executable":False})
-    if re.search(r"자신의\s*AP.{0,16}(?:반만큼|절반|/\\s*2).{0,16}(?:적|상대).{0,8}AP.{0,12}(?:감소|낮추)",t):
+    if re.search(r"자신의\s*AP.{0,16}(?:반만큼|절반|/\s*2).{0,16}(?:적|상대).{0,8}AP.{0,12}(?:감소|낮추)",t):
         ops.append({"kind":"transfer_stat_value","sourceStat":"attacker.ap",
                     "transferFormula":"ceil(attacker.ap/2)","targetStat":"defender.ap",
                     "alsoApplyTo":"attacker.ap","rawText":t,"executable":False})
@@ -180,10 +181,29 @@ def parse(text, known_skills=None):
         direction="decrease" if re.search(r"감소|하락|낮추",t) else "increase"
         ops.append({"kind":"modify_combat_stats","stats":stats,
                     "direction":direction,"rawText":t,"executable":False})
-    if re.search(r"적 유닛은.{0,12}=\\s*\\d+\\s*/\\s*=\\s*\\d+\\s*/\\s*=\\s*\\d+",t):
-        vals=[int(x) for x in re.findall(r"=\\s*(\\d+)",t)]
+    if re.search(r"적 유닛은.{0,12}=\s*\d+\s*/\s*=\s*\d+\s*/\s*=\s*\d+",t):
+        vals=[int(x) for x in re.findall(r"=\s*(\d+)",t)]
         ops.append({"kind":"set_combat_stats","target":"enemy_unit",
                     "order":["ap","dp","hp"],"values":vals,"rawText":t,"executable":False})
+    # Text-defined grouped stat changes and formulaic stat transfers.
+    for stat,pat in [("ap",r"AP|공격력"),("dp",r"DP|방어력"),("hp",r"HP|체력")]:
+        m=re.search(r"("+pat+r").{0,18}?(\d+)\s*(?:만큼|씩)?\s*(증가|감소|상승|하락)",t)
+        if m:
+            ops.append({"kind":"modify_stat","stat":stat,
+                        "operator":"+" if m.group(3) in ("증가","상승") else "-",
+                        "value":int(m.group(2)),"rawText":t,"executable":False})
+    if re.search(r"상대의 DP를 자신의 AP에 더해 HP를 직접 공격|DP를 자신의 AP에 더해 HP를 직접 공격",t):
+        ops.append({"kind":"direct_hp_damage","ignoresDefenderDP":False,
+                    "attackValueFormula":"attacker.ap + defender.dp",
+                    "rawText":t,"executable":False})
+    if re.search(r"상대의 AP.{0,12}및.{0,12}HP.{0,12}증가|AP.{0,12},.{0,12}HP.{0,12}증가",t):
+        ops.append({"kind":"modify_combat_stats","target":"self","stats":["ap","hp"],
+                    "direction":"increase","valueFormula":"count_matching_enemy_field_units",
+                    "rawText":t,"executable":False})
+    if re.search(r"자신의 AP.{0,12}상대 DP보다 높으면.{0,30}상대의 DP/HP를 1 감소",t):
+        ops.append({"kind":"conditional_multi_stat_decrease","target":"defender",
+                    "stats":["dp","hp"],"value":1,"condition":"attacker.ap > defender.dp",
+                    "rawText":t,"executable":False})
 
     # Compound stat selectors such as "AP/DP/HP 중 가장 높은 수치" were
     # missed by the simple AP+N / DP-N patterns. Preserve the selector and amount.
@@ -240,7 +260,6 @@ def parse(text, known_skills=None):
                                 "bodyText":body,"actionCandidates":body_actions,"executable":False})
 
     # Card-to-card conditions and ranges are kept separately from effect operations.
-    conditions=[]
     for pat in [
       r"\d+\s*(?:~|-|∼)\s*\d+\s*(?:레벨|턴|킬|장|개)",
       r"\d+\s*레벨\s*(?:이상|이하|초과|미만)",
