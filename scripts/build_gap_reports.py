@@ -88,6 +88,9 @@ def build(db_path: Path, out_dir: Path):
       CREATE INDEX IF NOT EXISTS idx_card_field_coverage_status
         ON card_field_coverage(coverage_status,field_key);
     """)
+    coverage_columns={r[1] for r in db.execute("PRAGMA table_info(card_field_coverage)")}
+    if "applicability_status" not in coverage_columns:
+        db.execute("ALTER TABLE card_field_coverage ADD COLUMN applicability_status TEXT NOT NULL DEFAULT 'unknown'")
     db.execute("DELETE FROM card_field_coverage")
     field_rows=[]
     coverage_inserts=[]
@@ -172,7 +175,9 @@ def build(db_path: Path, out_dir: Path):
             "not_applicable_candidate_fields":not_applicable_candidates,
             "missing_on_card_fields":missing_fields
         })
-    db.executemany("INSERT INTO card_field_coverage VALUES(?,?,?,?,?,?,?)",coverage_inserts)
+    db.executemany("""INSERT INTO card_field_coverage
+      (card_id,field_key,coverage_status,applicability_status,field_id,source_payload_match,source_value_sha256)
+      VALUES(?,?,?,?,?,?,?)""",coverage_inserts)
     if len(coverage_inserts)!=len(cards)*len(fields):
         raise ValueError("Card-field coverage matrix is incomplete")
     if any(x[4]!=1 for x in coverage_inserts):
