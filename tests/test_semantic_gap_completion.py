@@ -60,7 +60,7 @@ class SkillExtractionTests(unittest.TestCase):
 
 class CommunityReferenceTests(unittest.TestCase):
     def test_split_line_community_skill_heading(self):
-        page="각인의결계\n\n: 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 3 감소시킨다.\n다른 기술: 별도 정의"
+        page="\n".join(["각인의결계", "", ": 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 3 감소시킨다.", "다른 기술: 별도 정의"])
         found=extract_skill_definitions(page,{"각인의결계":"각인의결계"})
         self.assertTrue(found.get("각인의결계"))
         self.assertIn("가장 높은 수치를 3 감소",found["각인의결계"][0])
