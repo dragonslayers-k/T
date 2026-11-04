@@ -84,7 +84,11 @@ jobs:
 
       - name: Install image decoder for full audits
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
-        run: python -m pip install --disable-pip-version-check Pillow
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-kor
+          python -m pip install --disable-pip-version-check Pillow pytesseract
 
       - name: Set up Node and browser tools
         if: ${{ env.MODE == 'probe' || env.MODE == 'crawl' }}
@@ -179,6 +183,7 @@ jobs:
           python scripts/infer_unmapped_skills.py data/fm1_cards.sqlite
           python scripts/import_community_skill_reference.py data/fm1_cards.sqlite
           python scripts/probe_name_only_skill_pages.py --db data/fm1_cards.sqlite --out data/gap-reports/name-only-skill-source-probe.json
+          python scripts/probe_name_only_skill_images.py --db data/fm1_cards.sqlite --archive data/images.tar.gz --out data/gap-reports/name-only-skill-image-probe.json
           python scripts/infer_effect_interpretations.py data/fm1_cards.sqlite
           python scripts/effect_pattern_audit.py \
             --db data/fm1_cards.sqlite \
@@ -221,6 +226,7 @@ jobs:
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/gap-report-summary.json
             data/gap-reports/name-only-skill-source-probe.json
+            data/gap-reports/name-only-skill-image-probe.json
           if-no-files-found: error
           compression-level: 6
           retention-days: 30
