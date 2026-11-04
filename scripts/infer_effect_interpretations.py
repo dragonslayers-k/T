@@ -8,6 +8,18 @@ def _uniq(values):
         if x not in out: out.append(x)
     return out
 
+
+def _stat_refs(text):
+    token_map={"공방체":["ap","dp","hp"],"공/방/체":["ap","dp","hp"],
+               "공체":["ap","hp"],"공/체":["ap","hp"],"공방":["ap","dp"],
+               "AP":["ap"],"DP":["dp"],"HP":["hp"],"LP":["lp"],
+               "공격력":["ap"],"방어력":["dp"],"체력":["hp"]}
+    found=[]
+    for token in re.findall(r"공방체|공/방/체|공체|공/체|공방|AP|DP|HP|LP|공격력|방어력|체력",text):
+        for stat in token_map[token]:
+            if stat not in found: found.append(stat)
+    return found
+
 def parse(text, known_skills=None):
     raw_text=(text or "").strip()
     t=raw_text
@@ -173,6 +185,7 @@ def parse(text, known_skills=None):
       ("each_turn",r"매\s*턴|턴마다"),
       ("on_play",r"발동\s*시|사용\s*시|장착\s*시")]:
         if re.search(pat,t): triggers.append(key)
+    stat_name_map={"AP":"ap","공격력":"ap","DP":"dp","방어력":"dp","HP":"hp","체력":"hp","LP":"lp"}
     actors=[]
     for key,pat in [("self",r"자신|자기"),("friendly",r"아군"),("enemy",r"적군|상대|적 "),("both_sides",r"아군.{0,8}적군|양쪽")]:
         if re.search(pat,t): actors.append(key)
@@ -220,6 +233,9 @@ def parse(text, known_skills=None):
         stats=[stat_name_map[x] for x in re.findall(r"AP|DP|HP|공격력|방어력|체력",t)]
         ops.append({"kind":"set_stat_from_field_expression","stats":_uniq(stats),
                     "expressionText":t,"rawText":t,"executable":False})
+    if re.search(r"적군\\s*하나를?\\s*아군\\s*하나의?\\s*(?:AP|DP|HP|공방체|공체|공방).{0,20}같게\\s*만든다",t):
+        ops.append({"kind":"copy_combat_stats_from_unit","stats":_stat_refs(t),
+                    "rawText":t,"executable":False})
     if re.search(r"(?:필드번호|필드 위치).{0,20}(?:레벨|위치|번호).{0,20}(?:된다|정한다|맞춘다|편다)",t):
         ops.append({"kind":"set_field_position_from_expression","expressionText":t,
                     "rawText":t,"executable":False})
@@ -236,7 +252,7 @@ def parse(text, known_skills=None):
         ops.append({"kind":"modify_stat_marks","rawText":t})
     if re.search(r"상태",t) and re.search(r"부여|추가|제거|해제|변경|전환|유지|증가|감소",t):
         ops.append({"kind":"modify_status","rawText":t})
-    if re.search(r"특수\s*공격\s*기술|공격\s*기술|방어\s*기술|특수기술|기술",t) and re.search(r"부여|추가|변경|삭제|제거|일반공격|일반방어|봉쇄",t):
+    if re.search(r"특수\s*공격\s*기술|공격\s*기술|방어\s*기술|특수기술|기술",t) and re.search(r"부여|추가|변경|삭제|제거|일반공격|일반방어|봉쇄|로\\s*된다|로\\s*바뀐다",t):
         ops.append({"kind":"modify_skill","rawText":t})
     if re.search(r"소환|소환한|소환시|소환할|배치",t):
         ops.append({"kind":"summon_or_deploy","rawText":t})
@@ -393,17 +409,15 @@ def parse(text, known_skills=None):
             ops.append({"kind":"set_stat_formula","stat":stat_name_map[stat_token],
                         "formulaText":rhs,"rawText":t,"executable":False})
     if re.search(r"(?:나눈다|나눈다\.|나누어|나눠|나눔|곱한다|곱하여|곱해|곱한|차이만큼|수로\s*깎|수로\s*감소|깎는다|깍는다)",t):
-        referenced_stats=[stat_name_map[x] for x in re.findall(
-            r"AP|DP|HP|LP|공격력|방어력|체력",t)]
+        referenced_stats=_stat_refs(t)
         if referenced_stats:
-            operation_kind=("divide_stat_by_expression" if re.search(r"나누|나눈",t)
+            operation_kind=("divide_stat_by_expression" if re.search(r"나누|나눈|나눔",t)
                             else "multiply_or_scale_stat" if re.search(r"곱",t)
                             else "formula_based_stat_change")
             ops.append({"kind":operation_kind,"stats":_uniq(referenced_stats),
                         "formulaText":t,"rawText":t,"executable":False})
     if re.search(r"(?:AP|DP|HP|공격력|방어력|체력).{0,35}(?:절반|반이 된다|반으로|짝수는)",t):
-        referenced_stats=[stat_name_map[x] for x in re.findall(
-            r"AP|DP|HP|공격력|방어력|체력",t)]
+        referenced_stats=_stat_refs(t)
         ops.append({"kind":"halve_selected_stats","stats":_uniq(referenced_stats),
                     "selectionText":t,"rawText":t,"executable":False})
     if re.search(r"(?:AP|DP|HP|공방체|공방|공체).{0,35}(?:깎|깍|감소|낮추|나누|절반|된다|바뀐다)",t):
