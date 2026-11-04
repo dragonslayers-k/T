@@ -3,7 +3,8 @@ from scripts.infer_unmapped_skills import extract_definitions, operations_from_t
 from scripts.infer_effect_interpretations import parse
 from scripts.import_community_skill_reference import extract_skill_definitions
 from scripts.infer_unmapped_skills import infer_one
-import sqlite3, json
+import sqlite3, json, tempfile
+from pathlib import Path
 
 class EffectReviewQueueTests(unittest.TestCase):
     def test_duplicate_low_confidence_text_is_grouped_with_all_card_sources(self):
@@ -49,7 +50,7 @@ class EffectReviewQueueTests(unittest.TestCase):
         source_context = {
             "c1": {
                 "source_card_url":"https://example.test/c1",
-                "TextBase":{"source_key_present":True,"source_value":"  원문 TextBase A\\n"},
+                "TextBase":{"source_key_present":True,"source_value":"  원문 TextBase A\n"},
                 "TextExtra":{"source_key_present":True,"source_value":"원문 TextExtra A"}
             },
             "c2": {
@@ -61,7 +62,7 @@ class EffectReviewQueueTests(unittest.TestCase):
         queue = build_effect_review_queue(rows, source_context)
         self.assertEqual(len(queue), 1)
         by_id = {row["card_id"]:row for row in queue[0]["cards"]}
-        self.assertEqual(by_id["c1"]["source_text_fields"]["TextBase"]["source_value"], "  원문 TextBase A\\n")
+        self.assertEqual(by_id["c1"]["source_text_fields"]["TextBase"]["source_value"], "  원문 TextBase A\n")
         self.assertEqual(by_id["c1"]["source_text_fields"]["TextExtra"]["source_value"], "원문 TextExtra A")
         self.assertTrue(by_id["c2"]["source_text_fields"]["TextBase"]["source_key_present"])
         self.assertEqual(by_id["c2"]["source_text_fields"]["TextBase"]["source_value"], "")
@@ -90,6 +91,51 @@ class EffectReviewQueueTests(unittest.TestCase):
         self.assertEqual(queue[0]["confidence"], "low")
 
 
+class EffectReviewOnlyReportTests(unittest.TestCase):
+    def test_effects_only_report_exports_raw_card_text_context_without_full_audit(self):
+        from scripts.build_gap_reports import build_effect_review_report
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root=Path(temp_dir)
+            db_path=root/"review.sqlite"
+            out_dir=root/"report"
+            db=sqlite3.connect(db_path)
+            db.executescript("""
+            CREATE TABLE cards(
+              card_id TEXT PRIMARY KEY,name TEXT,card_type TEXT,source_card_url TEXT,raw_payload_json TEXT
+            );
+            CREATE TABLE card_effect_clauses(
+              clause_id INTEGER PRIMARY KEY,card_id TEXT,clause_index INTEGER,segment_text TEXT
+            );
+            CREATE TABLE card_effect_interpretations(
+              clause_id INTEGER PRIMARY KEY,card_id TEXT,source_detail_url TEXT,
+              interpretation_json TEXT,verification_status TEXT,confidence TEXT
+            );
+            """)
+            payload={"TextBase":"원문 TextBase\n그대로","TextExtra":""}
+            db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",(
+                "c1","테스트카드","마법","https://fmlunatic.com/card/c1",
+                json.dumps(payload,ensure_ascii=False)
+            ))
+            db.execute("INSERT INTO card_effect_clauses VALUES(1,'c1',0,'저신뢰 효과 조각')")
+            db.execute("INSERT INTO card_effect_interpretations VALUES(1,'c1',?,?,?,?)",(
+                "https://fmlunatic.com/card/c1",
+                json.dumps({"classification":"unparsed_effect_text","confidence":"low"},ensure_ascii=False),
+                "inferred","low"
+            ))
+            db.commit()
+            db.close()
+            summary=build_effect_review_report(db_path,out_dir)
+            queue=[json.loads(line) for line in (out_dir/"effect-review-queue.jsonl").read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(summary["low_confidence_rows"],1)
+            self.assertEqual(summary["unique_text_patterns"],1)
+            self.assertEqual(len(queue),1)
+            card=queue[0]["cards"][0]
+            self.assertEqual(card["source_text_fields"]["TextBase"]["source_value"],"원문 TextBase\n그대로")
+            self.assertTrue(card["source_text_fields"]["TextBase"]["source_key_present"])
+            self.assertTrue(card["source_text_fields"]["TextExtra"]["source_key_present"])
+            self.assertEqual(card["source_text_fields"]["TextExtra"]["source_value"],"")
+            self.assertEqual(card["source_card_url"],"https://fmlunatic.com/card/c1")
+            self.assertFalse((out_dir/"gap-report-summary.json").exists())
 class SoulCostGapStatusTests(unittest.TestCase):
     def test_hybrid_and_special_review_reasons_are_both_preserved(self):
         from scripts.build_gap_reports import cost_interpretation_status

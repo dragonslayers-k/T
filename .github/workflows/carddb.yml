@@ -19,18 +19,18 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "probe = inspect live site; audit-release = rebuild DB from an existing Release; crawl = collect a new source snapshot"
+        description: "tests = lightweight checks; effect-review = export card-context effect queue only; audit-release = full audit; probe/crawl = inspect or collect source"
         required: true
         type: choice
-        options: [tests, probe, audit-release, crawl]
+        options: [tests, probe, effect-review, audit-release, crawl]
         default: tests
       source_release_tag:
-        description: "Existing immutable DB Release used by audit-release mode"
+        description: "Existing immutable DB Release used by audit-release or effect-review mode"
         required: false
         type: string
         default: fm1-carddb-29
       publish_release:
-        description: "Publish one new immutable Release only after all audits pass"
+        description: "Publish a new immutable Release only during audit-release/crawl after all release gates pass"
         required: false
         type: boolean
         default: false
@@ -53,8 +53,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      # Full audits use [full-db-audit] / [full-db-crawl]; full crawl includes multi-pass skill OCR and balanced image concurrency. PRs stay on lightweight tests.
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
+      # [effect-review] rebuilds DB29-derived effect candidates and exports card context only; [full-db-audit]/[full-db-crawl] run full pipelines. PRs stay on lightweight tests.
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[effect-review]') && 'effect-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
@@ -150,6 +150,22 @@ jobs:
           cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
           tar -tzf data/images.tar.gz >/dev/null
 
+      - name: Download immutable card source snapshot for focused effect review
+        if: ${{ env.MODE == 'effect-review' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${SOURCE_RELEASE_TAG}"
+          mkdir -p data/raw data/source-archive
+          for ASSET in cards.jsonl.gz enumtable.json appsettings.json; do
+            curl --fail --location --retry 3 --retry-delay 2 "${BASE}/${ASSET}" -o "data/source-archive/${ASSET}"
+          done
+          gzip -t data/source-archive/cards.jsonl.gz
+          gzip -dc data/source-archive/cards.jsonl.gz > data/raw/cards.jsonl
+          cp data/source-archive/enumtable.json data/raw/enumtable.json
+          cp data/source-archive/appsettings.json data/raw/appsettings.json
+
       - name: Archive freshly downloaded images
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]')) }}
         run: |
@@ -201,6 +217,44 @@ jobs:
             --top 500 \
             --summary-only
 
+      - name: Build effect interpretations for focused review only
+        if: ${{ env.MODE == 'effect-review' }}
+        run: |
+          set -euo pipefail
+          python scripts/build_db.py
+          python scripts/build_effect_candidates.py --db data/fm1_cards.sqlite
+          python scripts/import_manual_rules.py --db data/fm1_cards.sqlite --catalogue data/rules/fm1-skill-catalog-v1.json
+          python scripts/infer_unmapped_skills.py data/fm1_cards.sqlite
+          python scripts/import_community_skill_reference.py data/fm1_cards.sqlite
+          python scripts/infer_effect_interpretations.py data/fm1_cards.sqlite
+
+      - name: Export low-confidence effect queue with card-local source context
+        if: ${{ env.MODE == 'effect-review' }}
+        run: |
+          set -euo pipefail
+          python scripts/build_gap_reports.py --db data/fm1_cards.sqlite --out-dir data/effect-review --effects-only
+          python - <<'PY'
+          import json, sqlite3
+          from pathlib import Path
+          db=sqlite3.connect("data/fm1_cards.sqlite")
+          integrity=db.execute("PRAGMA integrity_check").fetchone()[0]
+          cards=db.execute("SELECT COUNT(*) FROM cards").fetchone()[0]
+          unique_ids=db.execute("SELECT COUNT(DISTINCT card_id) FROM cards").fetchone()[0]
+          clauses=db.execute("SELECT COUNT(*) FROM card_effect_clauses WHERE segment_type='clause'").fetchone()[0]
+          missing=db.execute("SELECT COUNT(*) FROM card_effect_clauses cl LEFT JOIN card_effect_interpretations i USING(clause_id) WHERE i.clause_id IS NULL").fetchone()[0]
+          fk=len(db.execute("PRAGMA foreign_key_check").fetchall())
+          queue=Path("data/effect-review/effect-review-summary.json")
+          summary=json.loads(queue.read_text(encoding="utf-8"))
+          db.close()
+          result={"integrity":integrity,"cards":cards,"unique_ids":unique_ids,
+                  "effect_clauses":clauses,"missing_interpretations":missing,"foreign_key_errors":fk,
+                  "low_confidence_rows":summary["low_confidence_rows"],
+                  "unique_text_patterns":summary["unique_text_patterns"]}
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          if integrity!="ok" or cards!=15350 or unique_ids!=15350 or missing or fk:
+              raise SystemExit("Focused effect-review source build validation failed")
+          PY
+
       - name: Generate card-level gap reports
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: |
@@ -247,6 +301,19 @@ jobs:
             data/gap-reports/gap-report-summary.json
             data/gap-reports/name-only-skill-source-probe.json
             data/gap-reports/name-only-skill-image-probe.json
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 7
+
+      - name: Upload focused card-context effect review artifact
+        if: ${{ always() && env.MODE == 'effect-review' && hashFiles('data/effect-review/effect-review-queue.jsonl') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-carddb-effect-review-context-${{ env.SOURCE_RELEASE_TAG }}-${{ github.run_number }}
+          path: |
+            data/effect-review/effect-review-queue.jsonl
+            data/effect-review/effect-gap-report.jsonl
+            data/effect-review/effect-review-summary.json
           if-no-files-found: error
           compression-level: 6
           retention-days: 7

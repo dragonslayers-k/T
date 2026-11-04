@@ -130,6 +130,78 @@ def build_effect_review_queue(low_effects, source_context_by_card=None):
     return sorted(groups.values(),key=lambda x:(-x["occurrences"],x["text"]))
 
 
+def build_effect_review_report(db_path: Path, out_dir: Path):
+    """Export only low-confidence effects with exact card-local source text; do not run the full audit."""
+    db=sqlite3.connect(db_path)
+    db.row_factory=sqlite3.Row
+    out_dir.mkdir(parents=True,exist_ok=True)
+    source_context_by_card={}
+    for card in db.execute("SELECT card_id,source_card_url,raw_payload_json FROM cards ORDER BY card_id"):
+        payload=json.loads(card["raw_payload_json"])
+        source_context_by_card[str(card["card_id"])]={
+            "source_card_url":card["source_card_url"],
+            "TextBase":{
+                "source_key_present":"TextBase" in payload,
+                "source_value":payload.get("TextBase")
+            },
+            "TextExtra":{
+                "source_key_present":"TextExtra" in payload,
+                "source_value":payload.get("TextExtra")
+            }
+        }
+    low_effects=[dict(row) for row in db.execute("""
+      SELECT i.card_id,c.name,c.card_type,cl.clause_index,cl.segment_text,
+             i.interpretation_json,i.verification_status,i.confidence,i.source_detail_url
+      FROM card_effect_interpretations i
+      JOIN card_effect_clauses cl USING(clause_id)
+      JOIN cards c USING(card_id)
+      WHERE i.confidence='low'
+      ORDER BY i.card_id,cl.clause_index
+    """)]
+    queue=build_effect_review_queue(low_effects,source_context_by_card)
+    classes={}
+    for row in low_effects:
+        try:
+            parsed=json.loads(row.get("interpretation_json") or "{}")
+        except Exception:
+            parsed={}
+        key=parsed.get("classification","unknown")
+        classes[key]=classes.get(key,0)+1
+    with (out_dir/"effect-gap-report.jsonl").open("w",encoding="utf-8") as f:
+        for row in low_effects:
+            f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    with (out_dir/"effect-review-queue.jsonl").open("w",encoding="utf-8") as f:
+        for row in queue:
+            f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    card_rows=[card for pattern in queue for card in pattern["cards"]]
+    distinct_cards={str(card["card_id"]) for card in card_rows}
+    missing_urls=sum(1 for card in card_rows if not card.get("source_card_url"))
+    field_stats={}
+    for field in ("TextBase","TextExtra"):
+        entries=[card["source_text_fields"][field] for card in card_rows]
+        field_stats[field]={
+            "card_occurrences":len(entries),
+            "source_key_missing":sum(1 for item in entries if not item["source_key_present"]),
+            "source_empty":sum(1 for item in entries if item["source_key_present"] and item["source_value"]==""),
+            "source_nonempty":sum(1 for item in entries if item["source_key_present"] and item["source_value"] not in (None,"")),
+        }
+    summary={
+        "source":"immutable card snapshot supplied to the focused effect-review run",
+        "low_confidence_rows":len(low_effects),
+        "unique_text_patterns":len(queue),
+        "classification_counts":dict(sorted(classes.items())),
+        "distinct_card_ids":len(distinct_cards),
+        "card_occurrences_in_queue":len(card_rows),
+        "source_detail_urls_missing":missing_urls,
+        "source_text_field_status":field_stats,
+        "policy":"Original TextBase/TextExtra values are attached without normalization. All review items remain pending and non-executable."
+    }
+    (out_dir/"effect-review-summary.json").write_text(
+        json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
+    db.close()
+    return summary
+
+
 def build_skill2_execution_review_rows(skill_rows, rules):
     """Join Skill2 candidate rules to card-local source excerpts without promoting verification."""
     by_name={rule.get("name"):rule for rule in rules if rule.get("name")}
@@ -577,8 +649,10 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--db",type=Path,default=Path("data/fm1_cards.sqlite"))
     p.add_argument("--out-dir",type=Path,default=Path("data/gap-reports"))
+    p.add_argument("--effects-only",action="store_true",
+                   help="Export low-confidence effect rows with card-local TextBase/TextExtra context; skip the full gap audit.")
     a=p.parse_args()
-    result=build(a.db,a.out_dir)
+    result=build_effect_review_report(a.db,a.out_dir) if a.effects_only else build(a.db,a.out_dir)
     print(json.dumps(result,ensure_ascii=False,indent=2))
 
 if __name__=="__main__":main()
