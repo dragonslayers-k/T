@@ -1212,7 +1212,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         if re.search(r"(?:능력|종족|상태|카드).{0,20}(?:변|바뀌|전환|된다|시킨다)",t):
             ops.append({"kind":"legacy_card_or_ability_transform_candidate",
                         "transformationText":t,"rawText":raw_text,"executable":False})
-        if re.search(r"(?:킬수|킬 수).{0,25}(?:LP|랜드포인트).{0,15}(?:된다|변한다|전환)",t):
+        if re.search(r"(?:킬수|킬 수).{0,25}(?:LP|랜드포인트).{0,15}(?:된다|된 후|변한다|전환)",t):
             ops.append({"kind":"legacy_counter_to_resource_conversion_candidate",
                         "sourceCounter":"kill_count","destination":"LP",
                         "rawText":raw_text,"executable":False})
