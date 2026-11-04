@@ -189,7 +189,7 @@ def parse(text, known_skills=None, known_cards=None):
     # Source notes, credits, collection restrictions and headings are not game effects.
     metadata_patterns=[
       r"^invalid$",
-      r"^디스(?:히어로|인첸트|인챈트)\\s*카드[.]?$",
+      r"^디스(?:히어로|인첸트|인챈트)",
       r"^상성효과[.]?$",
       r"^(?:유닛 목록|마법 목록|아이템 목록|인첸트 목록|인챈트 목록|기본형 마법 소개|복제공식에 관한 안내)[.]?$",
       r"^.*카드는 .*이벤트.*(?:얻으실 수|제공|보상|받을 수)",
