@@ -27,6 +27,16 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["bonus"], 2)
         self.assertEqual(parsed["colors"]["neutral"], 0)
 
+    def test_korean_text_cost(self):
+        p = parse_require_soul("숲 2, 물 1")
+        self.assertTrue(p["known"])
+        self.assertEqual(p["colors"]["forest"], 2)
+        self.assertEqual(p["colors"]["water"], 1)
+
+    def test_unknown_text_cost_is_not_partially_accepted(self):
+        p = parse_require_soul("숲 2, 미지의소울 1")
+        self.assertFalse(p["known"])
+
     def test_only_explicit_zero_none_token_means_no_cost(self):
         self.assertTrue(parse_require_soul("0100")["known"])
         self.assertFalse(parse_require_soul("0101")["known"])
