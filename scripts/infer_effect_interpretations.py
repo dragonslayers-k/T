@@ -1197,7 +1197,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
       t,re.I))
     if has_legacy_action and has_game_subject:
         # Capture the broad operation family while retaining the complete clause.
-        if re.search(r"(?:AP|DP|HP|공체|공방체|공격력|방어력|체력).{0,35}(?:더한다|증가|감소|상향|고정|같아진다|된다)|(?:공체|공방체)s*[+-]s*d+",t):
+        if re.search(r"(?:AP|DP|HP|공체|공방체|공격력|방어력|체력).{0,35}(?:더한다|증가|감소|상향|고정|같아진다|된다|한다|만든다)|(?:공체|공방체)s*[+-]s*d+",t):
             ops.append({"kind":"legacy_combat_stat_operation_candidate",
                         "stats":_stat_refs(t),"rawText":raw_text,"executable":False})
         if re.search(r"덱|핸드|필드.{0,15}(?:보낸다|올린다|이동|옮긴다)|(?:보낸다|올린다).{0,15}(?:덱|핸드|필드)",t):
