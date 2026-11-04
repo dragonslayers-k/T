@@ -189,7 +189,9 @@ def build(db_path: Path, out_dir: Path):
       "community_skill_card_rows":len(community_skills),
       "unmapped_skill_unique_values":len(skill_inventory),
       "low_confidence_effect_interpretations":sum(1 for r in effects if r["confidence"]=="low"),
-      "effect_low_confidence_unique_patterns":len(effect_groups),\n      "effect_low_confidence_classification_counts":effect_classes,\n      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl"]
+      "effect_low_confidence_unique_patterns":len(effect_groups),
+      "effect_low_confidence_classification_counts":effect_classes,
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl"]
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
