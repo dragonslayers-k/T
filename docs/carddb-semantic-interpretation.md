@@ -39,7 +39,7 @@ Absence in one card must never be inferred from whether another card type uses t
 
 ## RequireSoul cost review
 
-Token decoding and semantic interpretation are separate. Parsed source tokens remain available even when hybrid-color mapping or special NCS/BONUS meaning is marked for review. A review flag must never be treated as a missing or corrupt source value, and it must not be silently converted to an assumed neutral cost. Review counts and source token evidence remain attached to the card.
+Token decoding and semantic interpretation are separate. Parsed source tokens remain available even when hybrid-color mapping or special NCS/BONUS meaning is marked for review. Hybrid codes retain their two-color candidate but do not assert whether both colors are required or either color can pay. NCS and BONUS remain distinct resource identities; neither is silently converted to neutral. These payment rules stay pending until a known-cost reference or reproducible game test confirms them. A review flag is not a missing or corrupt source value. The focused audit artifact includes `cost-code-inventory.json` with token counts, candidate mappings, and card-specific source URLs for every code/status combination.
 
 ## Release gates
 
