@@ -35,7 +35,9 @@ def fuzzy_skill_name_match(ocr_text, skill_name, threshold=0.78):
     for width in range(max(3,len(target)-1),len(target)+2):
         for start in range(0,max(0,len(source)-width+1)):
             candidate=source[start:start+width]
-            score=SequenceMatcher(None,target,candidate,autojunk=False).ratio()
+            raw_score=SequenceMatcher(None,target,candidate,autojunk=False).ratio()
+            length_penalty=min(len(target),len(candidate))/max(len(target),len(candidate))
+            score=raw_score*length_penalty
             if score>best_score:
                 best_score,best_text=score,candidate
     return {"matched":best_score>=threshold,"score":round(best_score,4),
