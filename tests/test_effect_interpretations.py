@@ -255,7 +255,7 @@ class NamedEffectInterpretationTests(unittest.TestCase):
             ("피닉스의알 : 피닉스. / 티라노의알 : 티라노.", "related_card_pair_reference"),
             ("아이템/인첸트 : 소드맨 1장, 포위공격 1장.", "card_requirement_reference"),
             ("야누스가면(만능능력)○ : 야누스, 0/*/0", "named_ability_stat_reference"),
-            ("얼음꽃 : +2 / ▲2 / 0", "combat_stat_vector_reference"),
+            ("얼음꽃 : +2 / ▲2 / 0", "set_combat_stats_vector"),
         ]
         for raw, expected_kind in cases:
             with self.subTest(raw=raw):
