@@ -52,3 +52,40 @@ class ExternalReferenceReviewTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_inven_reference_cross_checks_item_names_but_does_not_override_card_text(self):
+        source = next(s for s in self.registry["sources"] if s["id"] == "inven_fm1_skill_reference_2017")
+        self.assertEqual(source["published_at"], "2017-01-30")
+        self.assertIn("코스튬체인지", " ".join(source["facts_observed"]))
+        rows = [r for r in self.review["records"]
+                if r["external_reference_review"]["structured_candidate"].get("kind") == "named_card_reference_list"
+                and r["external_reference_review"]["structured_candidate"].get("names") == [
+                    "블러드본랜스","루비소드","레드아이스링","네추럴링","생명의물약","번개의모래","그리핀석상"]]
+        self.assertEqual(len(rows), 7)
+        for row in rows:
+            extra = row["source_card"]["TextExtra"]["source_value"]
+            self.assertIn("아이템 미장착한", extra)
+            cross = [x for x in row["external_reference_review"]["secondary_source_assessment"]
+                     if x.get("source_id") == "inven_fm1_skill_reference_2017"]
+            self.assertEqual(len(cross), 1)
+            self.assertIn("조건", cross[0]["discrepancy"])
+            self.assertEqual(row["external_reference_review"]["runtime_status"], "non_executable")
+
+    def test_naver_capture_is_not_claimed_as_transcribed(self):
+        source = next(s for s in self.registry["sources"] if s["id"] == "jlplace_original_fanma_guide")
+        capture = source["attached_capture"]
+        self.assertEqual(capture["image_dimensions_px"]["width"], 65)
+        self.assertEqual(capture["extraction_status"], "no_rules_or_values_extracted")
+        self.assertFalse(self.review["summary"]["naver_post_body_retrieved"])
+
+    def test_summon_profile_community_context_does_not_claim_pool_verification(self):
+        rows = [r for r in self.review["records"]
+                if r["external_reference_review"]["structured_candidate"].get("kind") == "summoned_unit_profile"]
+        self.assertGreaterEqual(len(rows), 8)
+        for row in rows:
+            cross = [x for x in row["external_reference_review"]["secondary_source_assessment"]
+                     if x.get("source_id") == "inven_fm1_skill_reference_2017"]
+            self.assertEqual(len(cross), 1)
+            self.assertIn("검증", cross[0]["limitation"])
+            self.assertEqual(row["external_reference_review"]["runtime_status"], "non_executable")

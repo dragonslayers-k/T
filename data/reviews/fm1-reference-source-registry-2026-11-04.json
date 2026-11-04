@@ -23,7 +23,9 @@
         "카드 종류: 지형·유닛·아이템·마법·인챈트",
         "유닛 AP/DP/HP 및 전투 계산 설명",
         "아이템은 유닛 장착형이며 유닛 능력에 따른 장착 제한 설명",
-        "인챈트는 슬롯에 일정 턴 존재하며 유닛/마법에 능력을 부여하는 지속형 카드 설명"
+        "인챈트는 슬롯에 일정 턴 존재하며 유닛/마법에 능력을 부여하는 지속형 카드 설명",
+        "주요 문서 본문은 종족/소속, 8개 속성, 속성별 카드 목록과 일부 개별 카드 문서로 연결되는 내부 링크 색인을 포함한다.",
+        "본문의 카드 사례 설명에는 카드 사용 조건과 리콜 전후 변경 이력이 함께 기록된 예시가 있어, 현재 원문과 역사적 텍스트를 분리해 대조할 필요가 있다."
       ],
       "limitations": [
         "커뮤니티 편집 내용이며 공식 매뉴얼과 동일한 권위로 취급하지 않음",
@@ -45,6 +47,98 @@
           "url": "https://www.namu.moe/w/뮬도다",
           "use": "개별 카드 항목 예시"
         }
+      ],
+      "linked_page_followups": [
+        {
+          "id": "attributes",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/속성",
+          "kind": "linked_reference_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "races_factions",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/종족과%20소속",
+          "kind": "linked_reference_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "dark_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/암흑%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "fire_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/불%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "water_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/물%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "forest_cards",
+          "url": "https://www.namu.moe/w/숲(판타지%20마스터즈)",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "metal_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/금속%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "earth_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/대지%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "light_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/빛%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "void_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/무%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "frog_transform",
+          "url": "https://www.namu.moe/w/개구리변신",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "mulldolda",
+          "url": "https://www.namu.moe/w/뮬도다",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "ulti_mator",
+          "url": "https://www.namu.moe/w/울티메이터",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "elion",
+          "url": "https://www.namu.moe/w/엘리온",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "solo_curse",
+          "url": "https://www.namu.moe/w/솔로의저주",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        }
       ]
     },
     {
@@ -54,7 +148,17 @@
       "kind": "personal_original_game_guide",
       "status": "not_retrieved_robots_or_access_block",
       "use_policy": "본문 확보 전에는 어떤 규칙·수치도 이 문서에서 인용하거나 추정하지 않음",
-      "required_follow_up": "본문 텍스트 또는 캡처 확보 후 문단·페이지 단위로 카드 원문과 대조"
+      "required_follow_up": "본문 텍스트 또는 캡처 확보 후 문단·페이지 단위로 카드 원문과 대조",
+      "attached_capture": {
+        "filename": "Screenshot_20261104_231330_Chrome.jpg",
+        "image_dimensions_px": {
+          "width": 65,
+          "height": 1536
+        },
+        "observation": "본문 문단과 게임 화면 이미지가 포함된 세로 캡처이나 가로 65px로 축소되어 글자를 신뢰성 있게 판독할 수 없음",
+        "extraction_status": "no_rules_or_values_extracted",
+        "follow_up": "원본 해상도 캡처 또는 본문 텍스트를 확보하기 전까지 어떠한 규칙·수치도 이 출처에 귀속하지 않음"
+      }
     },
     {
       "id": "neginote_fantasy_masters_guide",
@@ -104,6 +208,40 @@
         "카드 원문·엔진 검증보다 우선하지 않음",
         "아이템·인챈트 상세 페이지는 이번 조회에서 본문 확보 실패"
       ]
+    },
+    {
+      "id": "inven_fm1_skill_reference_2017",
+      "requested_url": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "title": "이쯤에서 카드특수능력을 마구찍는 판마를보자(강스압)",
+      "kind": "community_forum_skill_catalog",
+      "published_at": "2017-01-30",
+      "status": "content_retrieved",
+      "facts_observed": [
+        "다수의 공격·방어·특수기술 이름과 발동 조건, 수치, 대상, 상태 설명을 나열한 커뮤니티 기술 목록이다.",
+        "코스튬체인지의 지정 아이템 7개(블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상)와 적 1 파괴 시 랜덤 장착 및 코스튬리턴 전환을 기재한다.",
+        "에카마엘 종족 유닛·핸드 카드 및 에카마엘 지형 수(최대 5)에 따라 효과가 달라지는 기술 설명이 포함된다."
+      ],
+      "source_locations": [
+        {
+          "lines": "868-871",
+          "topic": "코스튬체인지/코스튬리턴 및 지정 아이템"
+        },
+        {
+          "lines": "727-728; 771-773",
+          "topic": "에카마엘 종족·지형을 참조하는 효과"
+        },
+        {
+          "lines": "144-251",
+          "topic": "특수공격기술 목록 일부"
+        }
+      ],
+      "limitations": [
+        "사용자 편집 커뮤니티 게시글이며 원본 카드 데이터나 공식 매뉴얼이 아니다.",
+        "카드 ID, 카드별 현행 문구, 장착 가능 능력 범위를 완전하게 제공하지 않는다.",
+        "코스튬체인지 대상 설명은 아군 다음 행동가능 유닛으로만 기재되어 DB29 TextExtra의 '아이템 미장착' 조건을 생략한다.",
+        "게시 시점의 규칙/카드 버전과 DB29 원문 기준의 동일성이 검증되지 않았다."
+      ],
+      "use_policy": "기술명 및 원문 목록의 독립 교차참조에만 사용. DB29 카드 원문보다 우선하지 않으며 단독으로 executable=true를 설정하지 않음."
     }
   ]
 }
