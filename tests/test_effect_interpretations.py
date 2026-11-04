@@ -246,5 +246,24 @@ class NamedEffectInterpretationTests(unittest.TestCase):
                 self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
 
 
+    def test_audit_446_remaining_effect_relations_and_conditions(self):
+        cases = [
+            ("레벨3 이하 아군 장비, 마법 전체는 순화능력을 갖는다.", "grant_named_ability_candidate"),
+            ("아군 필드 유닛 1이 마법 유닛이면 적 필드 유닛 1의 능력에 따라 효과 발생", "conditional_effect_branch_reference"),
+            ("즉, 적 필드에 암흑속성카드 2장, 불속성카드 2장이 있을 경우에는 아무 효과가 없습니다.", "suppress_effect_under_condition"),
+            ("체인라이트닝 - 체인라이트닝 - 라이트닝볼트 순서로 필드에 나열됩니다.", "card_progression_reference"),
+            ("피닉스의알 : 피닉스. / 티라노의알 : 티라노.", "related_card_pair_reference"),
+            ("아이템/인첸트 : 소드맨 1장, 포위공격 1장.", "card_requirement_reference"),
+            ("야누스가면(만능능력)○ : 야누스, 0/*/0", "named_ability_stat_reference"),
+            ("얼음꽃 : +2 / ▲2 / 0", "combat_stat_vector_reference"),
+        ]
+        for raw, expected_kind in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                kinds = {op.get("kind") for op in result["operations"]}
+                self.assertIn(expected_kind, kinds)
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+
 if __name__ == "__main__":
     unittest.main()
