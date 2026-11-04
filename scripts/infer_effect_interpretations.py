@@ -248,7 +248,7 @@ def main(path="data/fm1_cards.sqlite"):
     """).fetchall()
     result={"sourceClauses":len(rows),"interpretationRows":total,"statusCounts":counts,
             "lowConfidenceRows":low,"missingInterpretations":missing,"foreignKeyErrors":fk,
-            "lowConfidenceByClassification":[dict(x) for x in low_by_class],
+            "lowConfidenceByClassification":[{"classification":x[0],"count":x[1],"distinctTexts":x[2]} for x in low_by_class],
             "lowConfidenceDistinctTexts":db.execute(
               "SELECT COUNT(DISTINCT source_text) FROM card_effect_interpretations WHERE confidence='low'"
             ).fetchone()[0],
