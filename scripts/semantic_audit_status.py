@@ -13,6 +13,7 @@ def evaluate_semantic_status(report):
         and report.get("effect_interpretation_missing", 0) == 0
     )
     pending = {
+        "field_applicability_category_pairs": int(report.get("field_coverage_applicability_candidate_pairs", 0)),
         "effect_interpretation_low_confidence": int(report.get("effect_interpretation_low_confidence", 0)),
         "name_only_skill_rules": int(report.get("inferred_skill_name_only_rows", 0)),
         "hybrid_soul_payment_rules": int(report.get("soul_mapping_review", 0)),
