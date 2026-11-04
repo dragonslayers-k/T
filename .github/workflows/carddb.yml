@@ -1,4 +1,5 @@
 name: FM1 Card Database
+# Re-run full immutable DB29 coverage audit after audit-report serialization fix
 
 on:
   push:
