@@ -38,12 +38,24 @@ def parse(text):
       ("change_cost",r"소울|유소울|무소울|유지비"),
       ("coin",r"코인"),("copy",r"복사|복제")]:
         if re.search(pat,t): ops.append({"kind":key,"scope":"text_defined"})
+    # Broader operation families shared with effect_pattern_audit.py.
+    for key,pat in [
+      ("stat_modify",r"AP|DP|HP|능력치"),
+      ("damage_or_destroy",r"데미지|피해|파괴|소각"),
+      ("heal_or_recover",r"회복|치료|재생"),
+      ("draw_or_mill",r"드로우|뽑|덱 파괴|덱을"),
+      ("grant_or_remove_ability",r"기술.*부여|기술.*변경|기술.*제거|봉쇄"),
+      ("move_or_replace",r"이동|교체|복제|소환"),
+      ("resource_change",r"소울|LP|마력"),
+      ("equip_or_unequip",r"장착|해제")]:
+        if re.search(pat,t) and not any(x.get("kind")==key for x in ops):
+            ops.append({"kind":key,"scope":"text_defined"})
     nums=re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t)
     conditions=[]
     for pat in [r"이하",r"이상",r"초과",r"미만",r"같으면",r"경우",r"조건",r"턴이\s*\d+턴"]:
         if re.search(pat,t): conditions.append(pat)
     if not ops:
-        if re.match(r"^\s*(?:▶|※|★|☆|illustrated|해당 카드는|카드타입)",t,re.I):
+        if re.match(r"^\s*(?:▶|※|★|☆|illustrated|해당 카드는|카드타입|상성카드|연계카드|보유LP는|더블클릭)",t,re.I):
             classification="reference_or_flavor"
         elif not t.strip():
             classification="empty_separator"
@@ -81,7 +93,7 @@ def main(path="data/fm1_cards.sqlite"):
     with db:
       for clause_id,cid,text,segtype,url in rows:
         parsed=parse(text)
-        status="not_applicable" if segtype=="separator" else "inferred"
+        status="not_applicable" if segtype=="separator" or parsed["classification"]=="reference_or_flavor" else "inferred"
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
            parsed["confidence"],parsed["inferenceMethod"]))
