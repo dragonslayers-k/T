@@ -113,7 +113,8 @@ def build(db_path: Path, out_dir: Path):
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
-      "cost_review_provenance_rows":len(cost_review),\n      "unresolved_cost_rows":sum(1 for r in costs if not r["soul_known"] or (r["card_type"]=="지형" and not r["lp_known"])),
+      "cost_review_provenance_rows":len(cost_review),
+      "unresolved_cost_rows":sum(1 for r in costs if not r["soul_known"] or (r["card_type"]=="지형" and not r["lp_known"])),
       "unmapped_skill_card_rows":sum(1 for r in skills if r["mapping_status"]=="unmapped"),
       "inferred_skill_card_rows":len(inferred_skills),
       "unmapped_skill_unique_values":len(skill_inventory),
