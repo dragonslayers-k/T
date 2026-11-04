@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build provenance-preserving semantic candidates for every FM1 card-text clause."""
-import json,re,sqlite3,sys
+import hashlib,html,json,re,sqlite3,sys
 
 def _uniq(values):
     out=[]
@@ -20,7 +20,60 @@ def _stat_refs(text):
             if stat not in found: found.append(stat)
     return found
 
-def parse(text, known_skills=None, known_cards=None):
+
+def normalize_effect_name(value):
+    return re.sub(r"[\W_]+","",str(value or ""),flags=re.UNICODE).casefold()
+
+
+def extract_named_effect_definitions(card_id, card_name, raw_text):
+    try:
+        source_text=json.loads(raw_text) if isinstance(raw_text,str) else raw_text
+    except Exception:
+        source_text=raw_text
+    if not isinstance(source_text,str) or not source_text.strip():
+        return []
+    text=html.unescape(re.sub(r"<br\s*/?>","\n",source_text,flags=re.I))
+    text=re.sub(r"<[^>]+>","",text)
+    lines=[line.strip() for line in text.splitlines()]
+    source_hash=hashlib.sha256(str(raw_text).encode("utf-8")).hexdigest()
+    out=[]
+    seen=set()
+    for index,line in enumerate(lines):
+        if not line:
+            continue
+        m=re.match(r"^([▶★※◆◇])\s*([^:：\n]{2,50})\s*[:：]\s*(.+)$",line)
+        if m:
+            marker,label,body=m.groups()
+            method="marker_label_colon"
+        else:
+            m=re.match(r"^(※)\s*([^:：\n]{2,50})\s*$",line)
+            if not m:
+                continue
+            marker,label=m.groups()
+            body_lines=[]
+            for following in lines[index+1:]:
+                if not following or re.match(r"^[▶★※◆◇]",following):
+                    break
+                body_lines.append(following)
+            if not body_lines:
+                continue
+            body="\n".join(body_lines)
+            method="marker_header_following_lines"
+        label=label.strip()
+        body=body.strip()
+        key=(marker,label,body)
+        if not label or not body or key in seen:
+            continue
+        seen.add(key)
+        out.append({
+            "source_card_id":str(card_id),"source_card_name":str(card_name or ""),
+            "source_field":"TextExtra","marker":marker,"effect_name":label,
+            "definition_text":body,"source_text_sha256":source_hash,
+            "extraction_method":method,"verification_status":"source_text_extracted"
+        })
+    return out
+
+def parse(text, known_skills=None, known_cards=None, known_named_effects=None, known_named_effect_fragments=None):
     raw_text=(text or "").strip()
     t=raw_text
     # Strip visual source markers only from the analysis copy; preserve rawText.
