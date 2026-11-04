@@ -54,6 +54,16 @@ result={
  "category_counts":dict(c.execute("select card_type,count(*) from cards group by card_type")),
  "crawl_pages":crawl.get("pages"),"crawl_complete":crawl.get("complete",False),"complete":False
 }
+result["field_coverage_rows"]=q("select count(*) from card_field_coverage")
+result["field_coverage_source_verified"]=q("select count(*) from card_field_coverage where coverage_status='source_snapshot_verified'")
+result["field_coverage_source_absent"]=q("select count(*) from card_field_coverage where coverage_status='source_absent_confirmed'")
+result["field_coverage_not_applicable"]=q("select count(*) from card_field_coverage where coverage_status='not_applicable'")
+result["field_coverage_missing"]=q("select count(*) from card_field_coverage where coverage_status='missing_on_card'")
+result["field_coverage_payload_mismatches"]=q("select count(*) from card_field_coverage where source_payload_match<>1")
+result["field_coverage_complete"]=(
+ result["field_coverage_rows"]==target*55 and result["field_coverage_missing"]==0 and
+ result["field_coverage_payload_mismatches"]==0
+)
 result["effect_interpretation_rows"]=q("select count(*) from card_effect_interpretations")
 result["effect_clause_rows"]=q("select count(*) from card_effect_clauses")
 result["effect_interpretation_missing"]=q("select count(*) from card_effect_clauses cl left join card_effect_interpretations i on i.clause_id=cl.clause_id where i.clause_id is null")
