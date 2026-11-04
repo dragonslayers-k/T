@@ -24,7 +24,7 @@ class SummonProfileReviewTests(unittest.TestCase):
     def test_ecaemael_pool_rules_are_source_text_and_exceptions_remain_unresolved(self):
         pool = self.eca["structured_pool_filter"]
         self.assertEqual(pool["chapter_range_inclusive"], [1, 3])
-        self.assertTrue(pool["same_level"])
+        self.assertTrue(pool["same_level_as_summoner_or_reference_profile"])
         self.assertTrue(pool["same_attribute"])
         self.assertEqual(pool["selection"], "random")
         self.assertTrue(pool["include_rank_cards"])
