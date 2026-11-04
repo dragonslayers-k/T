@@ -253,7 +253,7 @@ jobs:
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
               "effect_interpretation_low_confidence","field_coverage_complete","semantic_coverage_pass","semantic_completeness_pass",
-              "semantic_review_pending","engine_verification_pending","engine_verification_complete",
+              "semantic_review_pending","engine_verification_pending","engine_verification_complete","complete",
               "skill_mapping_coverage_accounted_for"
           )
           print(json.dumps({key:report.get(key) for key in keys},ensure_ascii=False,indent=2))
@@ -265,6 +265,8 @@ jobs:
               raise SystemExit("Semantic coverage is incomplete: inspect audit-report.json")
           if not report.get("semantic_completeness_pass"):
               print("::warning::Semantic coverage passed, but manual semantic review remains; see semantic_review_pending in audit-report.json")
+          if not report.get("engine_verification_complete"):
+              print("::warning::Manual skill rules still need engine verification; see engine_verification_pending in audit-report.json")
           if report.get("inferred_skill_name_only_rows", 999) > 30:
               raise SystemExit("Too many skill definitions still rely on name-only inference")
           if report.get("effect_interpretation_low_confidence", 999999) > 2000:
