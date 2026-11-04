@@ -2,7 +2,7 @@
 
 **Source basis:** CardDB Actions #430 `gap-reports/inferred-skill-report.jsonl`; Batch A source review queue.  
 **State:** inferred; semantic review pending.  
-**Scope:** 환상폭발, 음파공격, 마법숙련.  
+**Scope correction:** this file originally grouped 환상폭발 with Skill1, but Actions #430 source rows show 환상폭발 is `Skill2`, not `Skill1`. This file therefore covers only the Skill1 candidates 음파공격 and 마법숙련; 환상폭발 is a separate Skill2 review item.  
 This is a prioritization and evidence-tracking document only. It does not establish Manual authority, approve rule promotion, enable runtime behavior, or alter DB29.
 
 ## Evidence handling
@@ -11,7 +11,7 @@ This is a prioritization and evidence-tracking document only. It does not establ
 - Candidate counts and repeated phrasing are evidence of prevalence, not proof of semantics.
 - Keep wording variants separate when trigger, target selection, or timing differs.
 
-## 환상폭발 — 48 candidate rows
+## 환상폭발 — 48 candidate rows (Skill2; excluded from Skill1 batch)
 
 | Sample card ID | Card source |
 |---|---|
@@ -19,7 +19,7 @@ This is a prioritization and evidence-tracking document only. It does not establ
 | 10110325342 | https://fmlunatic.com/card/10110325342 |
 | 10110325349 | https://fmlunatic.com/card/10110325349 |
 
-**Observed summary:** when the source unit is destroyed, destroy an opposing unit that has a status.
+**Observed summary (Skill2):** when the source unit is destroyed, destroy an opposing unit that has a status. This section is retained for traceability but must not be counted as Skill1 coverage.
 
 **Pending semantic decisions:** “destroyed” event vs. HP reaching zero; whether this is a death trigger or any removal; target choice and timing; whether status is checked at trigger time or resolution; prevention, replacement, and simultaneous destruction interactions.
 
