@@ -79,7 +79,10 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
     if not isinstance(raw, str) or not raw:
         result["error_reason"] = "missing_or_non_string"
         return result
-    if not raw.isdigit() or len(raw) % 4:
+    # Numeric enum tokens may be displayed with separators in copied text.
+    # Remove only known visual separators; any other character keeps the value unresolved.
+    numeric_source = re.sub(r"[\\s,，;；+＋]", "", raw)
+    if not numeric_source.isdigit() or len(numeric_source) % 4:
         if _parse_human_readable_cost(raw, result):
             return result
         result["error_reason"] = "unparsed_human_readable_cost"
@@ -88,8 +91,8 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
     meta_by_code = soul_meta or {}
     result["source_format"] = "numeric_enum"
     known = True
-    for offset in range(0, len(raw), 4):
-        token = raw[offset:offset + 4]
+    for offset in range(0, len(numeric_source), 4):
+        token = numeric_source[offset:offset + 4]
         code_text, amount_text = token[:2], token[2:]
         token_result = {
             "raw": token,
