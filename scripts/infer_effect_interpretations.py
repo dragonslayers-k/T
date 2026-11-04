@@ -228,13 +228,13 @@ def parse(text, known_skills=None):
       ("remove_or_disable",r"제거|해제|무효화|무효|차단|방지|봉쇄|금지|봉인|잠금|없앤다|사라진다|막는다"),
       ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다|변신|진화|성장"),
       ("resource_or_cost",r"지불|소모|충전|획득|회수|빼앗|코스트|소울|유지비|소비"),
-      ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환|보낸다|돌려보낸다|버린다|버려진다|추방"),
+      ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환|보내|돌려보낸다|버린다|버려진다|추방"),
       ("battle_interaction",r"반격|반사|되받아|공격을 막|공격을 받|방어한다|공격한다|직접공격|타격"),
       ("state_or_duration",r"유지|지속|종료|만료|누적|중첩|초기화|마비|빙결|기절|침묵|혼란|중독|화상|공포|실명"),
       ("stat_or_probability",r"증가|감소|상승|하락|높아진다|낮아진다|확률|수치|능력치|공방체"),
     ]
     action_candidates=[key for key,pat in action_patterns if re.search(pat,t)]
-    if action_candidates and not ops:
+    if action_candidates:
         ops.append({"kind":"generic_effect_operation","actionCandidates":action_candidates,
                     "rawText":t,"executable":False})
 
