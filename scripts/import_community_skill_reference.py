@@ -23,6 +23,47 @@ def fetch_text():
 
 def norm(s): return re.sub(r"\s+","",s or "").strip()
 
+def extract_skill_definitions(page, names):
+    """Extract exact skill definitions from inline or split-line headings."""
+    ordered=sorted(((key, value) for key,value in names.items()), key=lambda x:(-len(x[0]),x[0]))
+    lines=[re.sub(r"\s+"," ",x).strip() for x in page.splitlines()]
+    found={}; current=None; body=[]
+    def flush():
+        if current and body:
+            value=" ".join(x for x in body if x).strip()
+            if value: found.setdefault(current,[]).append(value)
+    def tail_after_label(line, label):
+        pos=0; consumed=0
+        while pos<len(line) and consumed<len(label):
+            if not line[pos].isspace(): consumed+=1
+            pos+=1
+        return line[pos:]
+    for line in lines:
+        if not line: continue
+        clean=re.sub(r"^[★☆▶※◈●○◆◇■\s]+","",line).strip()
+        compact=norm(clean)
+        match=None; remainder=""
+        for key,name in ordered:
+            if not compact.startswith(key): continue
+            tail=tail_after_label(clean,key)
+            if not tail or tail[0].isspace() or tail[0] in ":：/／-":
+                match=(key,name); remainder=re.sub(r"^[\s:：/／-]+","",tail).strip()
+                break
+        if match:
+            flush(); current=match[1]; body=[remainder] if remainder else []
+            continue
+        if current:
+            if line.startswith(("댓글","목록","추천","비추천","신고","로그인","회원가입")):
+                flush(); current=None; body=[]; continue
+            # A new definition heading closes the previous one, even when that
+            # following name is not among the residual skills being searched.
+            if re.match(r"^.{1,48}?\s*[:：]\s*.+$",clean):
+                flush(); current=None; body=[]; continue
+            continuation=re.sub(r"^[\s:：/／]+","",line).strip()
+            if continuation: body.append(continuation)
+    flush()
+    return found
+
 def main(path="data/fm1_cards.sqlite"):
     db=sqlite3.connect(path); db.execute("PRAGMA foreign_keys=ON")
     rows=db.execute("""
@@ -38,24 +79,7 @@ def main(path="data/fm1_cards.sqlite"):
         print(json.dumps({"communityFetch":"unavailable","reason":str(exc),"upgradedKinds":0},ensure_ascii=False))
         db.close(); return
     names={norm(r[2]):r[2] for r in rows}
-    # Skill descriptions are lines beginning with an exact inventory name followed by a colon.
-    lines=[re.sub(r"\s+"," ",x).strip() for x in page.splitlines()]
-    found={}; current=None; body=[]
-    def flush():
-        if current and body:
-            value=" ".join(body).strip()
-            if value: found.setdefault(current,[]).append(value)
-    for line in lines:
-        if not line: continue
-        m=re.match(r"^(.{1,48}?)\s*[:：]\s*(.*)$",line)
-        key=norm(m.group(1)) if m else ""
-        if m and key in names:
-            flush(); current=names[key]; body=[m.group(2).strip()] if m.group(2).strip() else []
-        elif current:
-            # Stop collecting at a clearly separate page/footer block.
-            if line.startswith(("댓글","목록","추천","비추천","신고")): flush(); current=None; body=[]
-            else: body.append(line)
-    flush()
+    found=extract_skill_definitions(page,names)
     upgraded=0; total_evidence=0
     with db:
       for field,enumv,name,card_count in rows:
