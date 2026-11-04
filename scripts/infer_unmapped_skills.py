@@ -90,6 +90,10 @@ def operations_from_text(body):
     if re.search(r"소울|유지비|무소울|유소울|코스트",t): ops.append({"kind":"modify_soul_cost","scope":"text_defined"})
     if not ops:
         ops=[{"kind":"text_defined_effect","rawText":t,"executable":False}]
+    # These are evidence-backed interpretation candidates, not validated engine commands.
+    # Mark every operation explicitly non-executable until a rule-level test promotes it.
+    for operation in ops:
+        operation.setdefault("executable", False)
     # Keep one copy of every operation.
     return [json.loads(x) for x in dict.fromkeys(json.dumps(x,ensure_ascii=False,sort_keys=True) for x in ops)]
 
