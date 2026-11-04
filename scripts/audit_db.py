@@ -39,11 +39,23 @@ result={
  "soul_cost_fully_parsed":q("select count(*) from card_costs where soul_known=1"),
  "soul_cost_needs_review":q("select count(*) from card_costs where soul_known=0"),
  "soul_cost_tokens":q("select count(*) from card_soul_cost_tokens"),
+ "soul_mapping_review":q("select count(*) from card_costs where mapping_review=1"),
+ "soul_semantic_review":q("select count(*) from card_costs where semantic_review=1"),
+ "soul_manual_review":q("select count(*) from card_costs where soul_known=0"),
+ "skill_mapping_rows":q("select count(*) from card_rule_mappings"),
+ "skill_source_rows":q("select count(*) from card_fields where field_key in ('Skill1','Skill2')"),
+ "skill_unmapped_rows":q("select count(*) from card_rule_mappings where mapping_status='unmapped'"),
+ "skill_manual_verified_rows":q("select count(*) from card_rule_mappings where mapping_status='manual_verified'"),
+ "skill_community_candidate_rows":q("select count(*) from card_rule_mappings where mapping_status='community_documented_candidate'"),
+ "skill_no_special_rows":q("select count(*) from card_rule_mappings where mapping_status='no_special_skill'"),
+ "skill_inventory_unmapped_values":q("select count(*) from skill_enum_inventory where mapping_status='unmapped'"),
+ "skill_mapping_coverage_accounted_for":q("select count(*) from card_rule_mappings")==q("select count(*) from card_fields where field_key in ('Skill1','Skill2')"),
  "category_counts":dict(c.execute("select card_type,count(*) from cards group by card_type")),
  "crawl_pages":crawl.get("pages"),"crawl_complete":crawl.get("complete",False),"complete":False
 }
 result["effect_text_accounted_for"]=result["effect_rows"]==result["effect_source_text_rows"] and result["effect_rows_without_text"]==0 and result["effect_source_mismatches"]==0
 result["cost_parse_accounted_for"]=result["soul_cost_fully_parsed"]+result["soul_cost_needs_review"]==target
+result["skill_mapping_coverage_accounted_for"]=result["skill_mapping_coverage_accounted_for"] and result["skill_mapping_rows"]>0
 result["complete"]=(
  result["firestore_source_count"]==target and result["unique_cards"]==target and
  result["duplicate_ids"]==0 and result["missing_names"]==0 and
@@ -55,7 +67,7 @@ result["complete"]=(
  result["large_images_downloaded"]==target and result["small_images_downloaded"]==target and
  result["large_image_failures"]==0 and result["small_image_failures"]==0 and
  result["lp_known_cards"]==289 and result["lp_zero_cards"]==72 and
- result["cost_parse_accounted_for"] and result["effect_text_accounted_for"] and result["crawl_complete"] is True
+ result["cost_parse_accounted_for"] and result["skill_mapping_coverage_accounted_for"] and result["effect_text_accounted_for"] and result["crawl_complete"] is True
 )
 Path("data/audit-report.json").write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
 print(json.dumps(result,ensure_ascii=False,indent=2));c.close();sys.exit(0 if result["complete"] else 2)
