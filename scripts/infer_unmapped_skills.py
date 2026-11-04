@@ -29,10 +29,17 @@ def main(db_path="data/fm1_cards.sqlite"):
           ORDER BY c.card_id,ct.text_id
         """,(field,name)).fetchall()
         candidates=[]
-        aliases={"네이처드레인":["네이쳐드레인"],"기계배치":["기체배치"],"다잉메시지":["다잉메세지"]}
+        aliases={
+          "네이처드레인":["네이쳐드레인"],"기계배치":["기체배치"],"다잉메시지":["다잉메세지"],
+          "구원자의인정":["구원자의인장"],"눈사람만들기":["눈사람소환"],
+          "디펜스브레스":["디펜브레스"],"순수한광휘":["순수의광휘"],
+          "순화공격":["순화능력"],"블러드스웜":["블러드스윕"],
+          "언럭":["언력"],"치명능력":["치명공격"],"파워트랜스":["파워트렌스"],
+          "크로스카운터":["크로스카운트"],"탈부수기":["달부수기"]
+        }
         labels=[name]+aliases.get(name,[])
         for cid,cname,url,typ,txt in evidence:
-            for block in re.split(r"\n\s*\n+",txt or ""):
+            for block in re.split(r"\n+|(?=[★☆▶※◈])",txt or ""):
                 block=re.sub(r"^[★☆▶※◈●○\s]+","",block.strip())
                 for label in labels:
                     if norm(block).startswith(norm(label)):
