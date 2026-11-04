@@ -90,3 +90,10 @@ No merge or `fm1-carddb-30` publication until effect review, skill/soul semantic
 - Full audit: [artifact 13323600415](https://github.com/dragonslayers-k/T/actions/runs/41831469993/artifacts/13323600415)
 - Semantic review queue: [artifact 13323730248](https://github.com/dragonslayers-k/T/actions/runs/41831469993/artifacts/13323730248)
 - Semantic backlog progress: [artifact 13323595391](https://github.com/dragonslayers-k/T/actions/runs/41831469993/artifacts/13323595391)
+
+## 6. Post-#444 parser batch validation
+
+- The follow-up parser batch adds non-executable candidates for hero-power deltas, spell target-count deltas, grouped AP/DP/HP changes, formula-based HP changes, level-count tie-breaks, and conditional effect branches.
+- Regression tests were added from #444 queue examples.
+- Actions [#445](https://github.com/dragonslayers-k/T/actions/runs/41833512404) on commit `15958f161703d156fc0d60e222aa175206ce561d` completed successfully. All lightweight test suites passed, including 16 effect-interpretation tests.
+- #445 was a test-only run. It did not rebuild the DB29 SQLite file or recalculate the 67-row full-audit backlog. Do not claim a new backlog count until a deliberate full audit is run after a complete source-backed batch.
