@@ -301,5 +301,25 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["classification"],"card_name_reference")
         self.assertEqual(result["operations"][0]["cardIds"],["card-b"])
 
+    def test_hand_space_activation_restriction_is_not_unparsed(self):
+        result=parse("▶ 핸드 빈공간이 없을 경우 의문공격은 발동하지 않습니다.")
+        self.assertEqual(result["classification"],"effect_activation_requirement")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_field_space_count_branch_is_structured(self):
+        result=parse("아군 필드 빈공간 수가 1 : 유닛1")
+        self.assertEqual(result["classification"],"conditional_branch_reference")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_quoted_status_label_is_reference(self):
+        result=parse('☆"영혼각인" 상태')
+        self.assertEqual(result["classification"],"named_status_reference")
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_exclusive_effect_selection_is_structured(self):
+        result=parse("▶ ①과 ②중 조건에 맞는 하나의 효과만 발동. 관련 스페셜은 에피소드 카드도 포함.")
+        self.assertEqual(result["classification"],"effect_selection_rule_candidate")
+        self.assertEqual(result["confidence"],"medium")
+
 if __name__=="__main__":
     unittest.main()
