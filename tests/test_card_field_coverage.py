@@ -49,16 +49,25 @@ class CardFieldCoverageTests(unittest.TestCase):
                        ("c2", "카드2", "유닛", json.dumps({"Name": "카드2"}, ensure_ascii=False), "https://fmlunatic.com/card/c2"))
             db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
                        ("c3", "카드3", "마법", json.dumps({"Name": "카드3"}, ensure_ascii=False), "https://fmlunatic.com/card/c3"))
+            db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
+                       ("c4", "카드4", "유닛", json.dumps({"Name": "카드4", "Skill1": ""}, ensure_ascii=False), "https://fmlunatic.com/card/c4"))
+            db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
+                       ("c5", "카드5", "유닛", json.dumps({"Name": "카드5", "Skill1": None}, ensure_ascii=False), "https://fmlunatic.com/card/c5"))
             db.executemany("INSERT INTO card_fields VALUES(?,?,?,?,?,?)", [
                 (1, "c1", "Name", json.dumps("카드1", ensure_ascii=False), "카드1", "extracted"),
                 (2, "c1", "Skill1", "12", "12", "extracted"),
                 (3, "c2", "Name", json.dumps("카드2", ensure_ascii=False), "카드2", "extracted"),
                 (4, "c3", "Name", json.dumps("카드3", ensure_ascii=False), "카드3", "extracted"),
+                (5, "c4", "Name", json.dumps("카드4", ensure_ascii=False), "카드4", "extracted"),
+                (6, "c4", "Skill1", json.dumps("", ensure_ascii=False), "", "extracted"),
+                (7, "c5", "Name", json.dumps("카드5", ensure_ascii=False), "카드5", "extracted"),
             ])
             db.executemany("INSERT INTO card_costs VALUES(?,?,?,?,?,?,?,?,?)", [
                 ("c1", "0100", "{}", 0, 1, 1, 0, 0, "extracted"),
                 ("c2", "0100", "{}", 0, 1, 1, 0, 0, "extracted"),
                 ("c3", "0100", "{}", 0, 1, 1, 0, 0, "extracted"),
+                ("c4", "0100", "{}", 0, 1, 1, 0, 0, "extracted"),
+                ("c5", "0100", "{}", 0, 1, 1, 0, 0, "extracted"),
             ])
             db.commit()
             db.close()
@@ -67,17 +76,25 @@ class CardFieldCoverageTests(unittest.TestCase):
             self.assertEqual(summary["field_status_counts"].get("missing_on_card", 0), 0)
             self.assertEqual(summary["field_status_counts"].get("source_absent_confirmed", 0), 1)
             self.assertEqual(summary["field_status_counts"].get("not_applicable_candidate", 0), 1)
+            self.assertEqual(summary["field_status_counts"].get("source_empty_confirmed", 0), 1)
+            self.assertEqual(summary["field_status_counts"].get("source_null_confirmed", 0), 1)
             self.assertEqual(summary["source_payload_mismatches"], 0)
             card_rows = [json.loads(line) for line in (root / "out" / "card-field-card-summary.jsonl").read_text(encoding="utf-8").splitlines()]
             c2_summary = next(row for row in card_rows if row["card_id"] == "c2")
             self.assertIn("Skill1", c2_summary["source_absent_confirmed_fields"])
             self.assertEqual(c2_summary["missing_on_card_fields"], [])
+            c4_summary = next(row for row in card_rows if row["card_id"] == "c4")
+            self.assertIn("Skill1", c4_summary["source_empty_confirmed_fields"])
+            c5_summary = next(row for row in card_rows if row["card_id"] == "c5")
+            self.assertIn("Skill1", c5_summary["source_null_confirmed_fields"])
             c3_summary = next(row for row in card_rows if row["card_id"] == "c3")
             self.assertIn("Skill1", c3_summary["not_applicable_candidate_fields"])
             field_summary = json.loads((root / "out" / "card-field-status-summary.json").read_text(encoding="utf-8"))
             self.assertEqual(field_summary["cards"], 3)
             self.assertEqual(field_summary["fields"], 2)
             self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_absent_confirmed"], 1)
+            self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_empty_confirmed"], 1)
+            self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_null_confirmed"], 1)
 
             check = sqlite3.connect(db_path)
             status = check.execute(
