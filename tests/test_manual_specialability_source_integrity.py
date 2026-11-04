@@ -14,7 +14,7 @@ class ManualSpecialAbilitySourceIntegrityTests(unittest.TestCase):
         cls.source_text = SOURCE.read_text(encoding="utf-8")
         cls.catalogue = json.loads(CATALOGUE.read_text(encoding="utf-8"))
         cls.manual_skills = [
-            rule for rule in cls.catalogue["rules"]
+            rule for rule in cls.catalogue["manualRules"]
             if rule.get("authority") == "manual"
             and rule.get("source", {}).get("member") == "specialability.htm"
         ]
@@ -45,7 +45,7 @@ class ManualSpecialAbilitySourceIntegrityTests(unittest.TestCase):
 
     def test_community_or_inferred_entries_are_not_promoted_by_manual_source_count(self):
         non_manual = [
-            rule for rule in self.catalogue["rules"]
+            rule for rule in self.catalogue["communityCandidates"]
             if rule.get("authority") != "manual"
         ]
         self.assertTrue(non_manual)
