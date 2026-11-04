@@ -36,6 +36,14 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(p["colors"]["forest"], 2)
         self.assertEqual(p["colors"]["water"], 1)
 
+    def test_english_text_cost_is_case_insensitive(self):
+        p = parse_require_soul("Forest 2, WATER 1, nCs 3, Bonus 1")
+        self.assertTrue(p["known"])
+        self.assertEqual(p["colors"]["forest"], 2)
+        self.assertEqual(p["colors"]["water"], 1)
+        self.assertEqual(p["colors"]["ncs"], 3)
+        self.assertEqual(p["colors"]["bonus"], 1)
+
     def test_unknown_text_cost_is_not_partially_accepted(self):
         p = parse_require_soul("숲 2, 미지의소울 1")
         self.assertFalse(p["known"])
