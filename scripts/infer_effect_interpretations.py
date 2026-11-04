@@ -842,7 +842,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "inferenceMethod":"element_or_type_relation_v1","confidence":"not_applicable"}
 
     # Rarity/gemstone tables and category bonuses are metadata or reference values.
-    if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|레전드|아레나|이벤트|스페셜|에메랄드|토파즈|탄자나이트)(?:\s*[,/、]\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|레전드|아레나|이벤트|스페셜))*\s*[:：]",t):
+    if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|레전드|아레나|이벤트|스페셜|에메랄드|토파즈|탄자나이트|사파이어)(?:\s*[,/、]\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|레전드|아레나|이벤트|스페셜))*\s*[:：]",t):
         return {"classification":"rarity_or_category_reference","triggers":[],
                 "actors":[],"targets":[],"conditions":[],
                 "operations":[{"kind":"rarity_or_category_mapping","rawText":raw_text,
@@ -910,11 +910,43 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     if re.search(r"(?:레벨|슬롯\s*유닛|능력).{0,25}따라\s*다른\s*효과",t):
         ops.append({"kind":"conditional_effect_branch_reference",
                     "conditionText":t,"rawText":raw_text,"executable":False})
+    if re.search(r"(?:이름종류수|이름\\s*수\\s*종류).{0,40}(?:5이상|이상|종류)",t):
+        ops.append({"kind":"name_diversity_condition_candidate","conditionText":t,
+                    "rawText":raw_text,"executable":False})
+    if re.search(r"적 필드 유닛\\s*1의? 능력에 따라 효과 발생",t):
+        ops.append({"kind":"conditional_effect_branch_reference",
+                    "conditionText":t,"rawText":raw_text,"executable":False})
+    if re.search(r"카드 번호를 기준으로 체크|카드번호를 기준으로 체크",t):
+        ops.append({"kind":"card_identity_scope_rule_candidate",
+                    "scopeText":t,"rawText":raw_text,"executable":False})
+    if re.search(r"순화능력.{0,20}(?:갖는다|가진다|보유한다)",t):
+        ops.append({"kind":"grant_named_ability_candidate","abilityName":"순화능력",
+                    "conditionText":t,"rawText":raw_text,"executable":False})
+    if re.search(r"아무 효과도? 없(?:습니다|다)",t):
+        ops.append({"kind":"suppress_effect_under_condition",
+                    "conditionText":t,"rawText":raw_text,"executable":False})
+    if re.match(r"^(?:무지개발산공격|스피릿스톰|섀도우스킬\\(|섀도우쉬프트\\(|전쟁의주인|혼돈의주관자)",t):
+        ops.append({"kind":"named_ability_reference_candidate","abilityText":t,
+                    "rawText":raw_text,"executable":False})
+    if re.search(r"순서로 필드에 나열됩니다",t) and re.search(r"[-–—]",t):
+        stages=[x.strip(" .。") for x in re.split(r"\\s*[-–—]\\s*",t) if x.strip()]
+        if len(stages)>=2:
+            ops.append({"kind":"card_progression_reference","stages":stages,
+                        "rawText":raw_text,"executable":False})
+    if re.search(r"(?:피닉스의알|티라노의알).{0,30}[:：].{0,30}(?:피닉스|티라노)",t):
+        ops.append({"kind":"related_card_pair_reference","relationText":t,
+                    "rawText":raw_text,"executable":False})
+    if re.search(r"(?:아이템|인첸트|인챈트)\\s*/\\s*(?:인첸트|인챈트|아이템)\\s*[:：]",t):
+        ops.append({"kind":"card_requirement_reference","requirementText":t,
+                    "rawText":raw_text,"executable":False})
+    if re.search(r"야누스가면.*만능능력",t):
+        ops.append({"kind":"named_ability_stat_reference","abilityText":t,
+                    "rawText":raw_text,"executable":False})
     if re.search(r"(?:효과|발동).{0,20}(?:조건|경우|이면|일 경우)",t) and not ops:
         ops.append({"kind":"conditional_effect_requirement_candidate",
                     "conditionText":t,"rawText":raw_text,"executable":False})
     # Three-part legacy AP/DP/HP vectors are preserved as explicit candidates.
-    vector_match=re.search(r"([=+-]?[0-9]+) */ *([=+-]?[0-9]+) */ *([=+-]?[0-9]+)",t)
+    vector_match=re.search(r"([=+-]?[0-9]+|[▲▼★][+-]?[0-9]+) */ *([=+-]?[0-9]+|[▲▼★][+-]?[0-9]+) */ *([=+-]?[0-9]+|[▲▼★][+-]?[0-9]+)",t)
     if vector_match:
         vector_values=list(vector_match.groups())
         target_text=t[:vector_match.start()].strip(" ,:：")
@@ -1096,7 +1128,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     action_patterns = [
       ("grant_or_apply",r"부여|추가|적용|부착|부여받|발생시키|생성|만들어|얻는다|획득한다|투여|착용시키|착용"),
       ("remove_or_disable",r"제거|해제|무효화|무효|차단|방지|봉쇄|금지|봉인|잠금|없앤다|사라진다|막는다|삭제"),
-      ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다|변신|진화|성장|변한다|바뀐다|변화"),
+      ("modify_or_exchange",r"변경|전환|교환|반전|복사|대체|뒤바꾼|바꾼다|변신|진화|성장|변한다|바뀐다|바뀝니다|변화"),
       ("resource_or_cost",r"지불|소모|충전|획득|회수|빼앗|코스트|소울|유지비|소비"),
       ("move_or_select",r"이동|선택|지정|옮긴다|되돌린다|반환|보내|돌려보낸다|버린다|버려진다|추방|올린다|내린다"),
       ("battle_interaction",r"반격|반사|되받아|공격을 막|공격을 받|방어한다|공격한다|직접공격|타격"),
