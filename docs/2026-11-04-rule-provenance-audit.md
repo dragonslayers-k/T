@@ -160,3 +160,8 @@ CI 스크립트에서 매뉴얼 원문 파일을 명령 인자로 잘못 붙인 
 ## 원본 키 부재·null·빈 문자열 분리
 
 카드 필드 매트릭스에서 원본 키 자체가 없는 경우(`source_absent_confirmed`), 키는 있으나 JSON null인 경우(`source_null_confirmed`), 키는 있으나 빈 문자열인 경우(`source_empty_confirmed`)를 구분한다. 원본에 키와 값이 있으나 정규화 행이 없는 경우만 `missing_on_card`로 처리한다. 이 세 상태는 서로 대체하거나 0/기본값으로 보정하지 않는다.
+
+
+## 카드 종류별 적용성 근거의 기준
+
+`not_applicable_candidate`는 정규화된 표시용 카드 유형이 아니라 원본 payload의 `Category` 값으로 묶는다. 또한 해당 원본 Category 안에서 그 필드가 비어 있지 않은 값으로 한 번 이상 관측된 경우에만 적용 필드로 본다. 같은 유형 전체에서 비어 있는 필드는 적용성 후보로 남기며, 빈 문자열/JSON null이 원본에 명시된 경우에는 각각 `source_empty_confirmed`/`source_null_confirmed`로 별도 보존한다.
