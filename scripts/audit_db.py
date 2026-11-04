@@ -78,7 +78,7 @@ result["source_snapshot_integrity_pass"]=(
  result["cost_parse_accounted_for"] and result["skill_mapping_coverage_accounted_for"] and result["effect_text_accounted_for"] and result["crawl_complete"] is True
 )
 result["semantic_completeness_pass"]=(
- result["soul_cost_needs_review"]==0 and result["soul_tokens"]>0 and
+ result["soul_cost_needs_review"]==0 and result["soul_cost_tokens"]>0 and
  result["skill_unmapped_rows"]==0 and result["skill_inventory_unmapped_values"]==0 and
  result["unmapped_skill_card_rows_after_inference"]==0 and
  result["effect_interpretation_rows"]==result["effect_clause_rows"] and
