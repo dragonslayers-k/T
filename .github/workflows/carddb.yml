@@ -358,7 +358,9 @@ jobs:
               or manual_rule_count != 27 or community_rule_count < 41
               or card_rule_mapping_rows < 15000 or manual_skill_mappings < 1000
               or community_skill_candidates < 100 or skill_inventory_rows < 100
-              or community_playable_rows != 0 or unmapped_skill_rows != 0\n    or inferred_skill_rule_count < 900 or effect_interpretation_rows != effect_clause_rows\n    or effect_interpretation_missing != 0
+              or community_playable_rows != 0 or unmapped_skill_rows != 0
+              or inferred_skill_rule_count < 900 or effect_interpretation_rows != effect_clause_rows
+              or effect_interpretation_missing != 0
           ):
               raise SystemExit("SQLite validation failed: " + json.dumps(summary, ensure_ascii=False))
           with gzip.open("data/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
