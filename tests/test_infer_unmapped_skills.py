@@ -48,6 +48,21 @@ class SkillDefinitionExtractionTests(unittest.TestCase):
         merged_again = json.loads(merge_evidence_references(json.dumps(merged),source))
         self.assertEqual(len(merged_again),2)
 
+    def test_skill_grant_flavor_text_is_not_misread_as_effect_definition(self):
+        rows = extract_definitions(
+            "기선제압",
+            "기선제압 기술부여 [비슐로의 주인이자 시대의 마왕이 지녔던 비늘이다.]"
+        )
+        self.assertEqual(rows, [])
+
+    def test_real_skill_effect_with_trailing_flavor_is_preserved(self):
+        rows = extract_definitions(
+            "기선제압",
+            "기선제압: 적군이 아군보다 이하 레벨일 경우 데미지를 1 덜 받는다. [방패의 전설]"
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertIn("데미지를 1 덜 받는다", rows[0]["body"])
+
     def test_stat_operations_are_structured_without_becoming_executable(self):
         ops = operations_from_text("아군 AP+2, DP-1")
         self.assertIn({"kind": "modify_stat", "stat": "ap", "operator": "+", "value": 2, "executable": False}, ops)

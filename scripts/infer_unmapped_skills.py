@@ -19,6 +19,22 @@ ALIASES={
 def norm(s): return "".join(str(s or "").split())
 def clean_line(s): return re.sub(r"^[★☆▶※◈●○◆◇■\s]+","",s.strip())
 
+EFFECT_DEFINITION_SIGNAL=re.compile(
+    r"(?:AP|DP|HP|LP|공방체|공체|공방|공격|방어|데미지|대미지|피해|증가|감소|상승|하락|회복|치료|"
+    r"파괴|소멸|소각|소환|배치|이동|변경|전환|교환|복사|대체|부여|제거|해제|무효|방지|봉쇄|"
+    r"착용|장착|지불|소모|생성|획득|회수|드로우|뽑|발동|유지|지속|중첩|상태|코인|동전|"
+    r"레벨|턴|필드|핸드|소울|유소울|무소울|코스트|킬수|킬 수|카운트|수량|빈공간|빈 공간|"
+    r"면역|보호|막는다|보유한다|얻는다|된다|변한다|바뀐다)"
+)
+
+def is_effect_definition_body(body):
+    """Reject flavor/grant-label prose that is not the skill's rule definition."""
+    value=re.sub(r"\s+"," ",str(body or "")).strip()
+    if not value:
+        return False
+    return bool(EFFECT_DEFINITION_SIGNAL.search(value))
+
+
 def extract_definitions(name, text):
     labels=[name]+ALIASES.get(name,[])
     source=html.unescape(text or "")
@@ -57,7 +73,7 @@ def extract_definitions(name, text):
                 if re.match(r"^.{1,48}?\s*[:：]\s*.+$",nxt): break
                 parts.append(nxt)
         body=" ".join(parts).strip()
-        if body:
+        if body and is_effect_definition_body(body):
             found.append({"label":label,"body":body,"line":i})
     unique={}
     for x in found: unique.setdefault(norm(x["body"]),x)
