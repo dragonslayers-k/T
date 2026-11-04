@@ -1184,7 +1184,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     # never infer execution order or arithmetic from this fallback.
     legacy_action_verbs=[
       r"더한다",r"빼(?:낸다|준다|버린다)",r"보낸다",r"올린다",r"내린다",
-      r"이동(?:시킨다|한다)",r"착용(?:시킨다|한다)",r"투여한다",r"부여한다",
+      r"이동(?:시킨다|한다)",r"착용(?:시킨다|한다)",r"착용한다",r"착용시킨다",r"투여한다",r"부여한다",
       r"갖게\s*된다",r"가지게\s*된다",r"얻게\s*된다",r"얻는다",
       r"변(?:한다|하게\s*된다)",r"바뀐다",r"고정(?:된다|시킨다|한다)",
       r"증가(?:한다|시킨다)",r"감소(?:한다|시킨다)",r"상향고정",
