@@ -5,6 +5,26 @@ from scripts.import_community_skill_reference import extract_skill_definitions
 from scripts.infer_unmapped_skills import infer_one
 import sqlite3, json
 
+class EffectReviewQueueTests(unittest.TestCase):
+    def test_duplicate_low_confidence_text_is_grouped_with_all_card_sources(self):
+        from scripts.build_gap_reports import build_effect_review_queue
+        rows = [
+            {"card_id":"c1","name":"카드A","card_type":"마법","clause_index":0,
+             "segment_text":"▶ 조건에 따라 발동.\n",
+             "source_detail_url":"https://example.test/c1",
+             "interpretation_json":json.dumps({"classification":"effect_activation_requirement","confidence":"low","inferenceMethod":"test"})},
+            {"card_id":"c2","name":"카드B","card_type":"마법","clause_index":1,
+             "segment_text":"조건에 따라 발동.",
+             "source_detail_url":"https://example.test/c2",
+             "interpretation_json":json.dumps({"classification":"effect_activation_requirement","confidence":"low","inferenceMethod":"test"})}
+        ]
+        queue = build_effect_review_queue(rows)
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0]["occurrences"], 2)
+        self.assertEqual({x["card_id"] for x in queue[0]["cards"]}, {"c1","c2"})
+        self.assertEqual(queue[0]["review_status"], "pending_manual_semantic_review")
+
+
 class SoulCostGapStatusTests(unittest.TestCase):
     def test_hybrid_and_special_review_reasons_are_both_preserved(self):
         from scripts.build_gap_reports import cost_interpretation_status
