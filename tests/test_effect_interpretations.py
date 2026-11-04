@@ -265,5 +265,59 @@ class NamedEffectInterpretationTests(unittest.TestCase):
                 self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
 
 
+    def test_audit_454_remaining_card_local_notes_are_dispositioned_without_execution(self):
+        cases = [
+            ('"기가스XG"는 울티밋퓨전 마법을 사용하여 확보할 수 있습니다.', "acquisition_method_reference"),
+            ("cwda!", "source_annotation_pending"),
+            ("다크마레아(3카운터)", "named_area_counter_reference_candidate"),
+            ("디스인첸트 카드 [모래 마법의 장막.]", "named_effect_reference_candidate"),
+            ("디스인첸트 카드. [그리핀과의 사투.]", "named_effect_reference_candidate"),
+            ("롯트, 장생수, 맨이터롯트N, 이모탈트리, 손드트리, 뮤턴트엔트, 에인션트엔트.", "card_reference_list"),
+            ("모래형상 유닛(야수, 골렘, 돌진공격).", "named_summon_unit_profile_reference"),
+            ("AP1이상으로 공격시, 상대 유닛이 장비/야수면 3턴간", "effect_condition_continuation_candidate"),
+            ("발동시 이름종류수에 따라 특 별 효과가 발동한다(특이사항)", "conditional_effect_branch_reference"),
+            ("블레이즈스탭, 정령의화염, 퓨리라이드, 화염의용술사, 버닝래빗, 불새의둥지, 불의노래, 퓨리파이어샷 (2015.5.6 발매기준)", "historical_release_cohort_metadata"),
+            ("상", "incomplete_source_fragment"),
+            ("실패시.", "conditional_branch_reference"),
+            ("에네퍼브렌C", "named_card_variant_reference"),
+            ("워터마레마(3카운터)", "named_area_counter_reference_candidate"),
+            ("조건에 따른 이서리얼의 능력.", "conditional_unit_profile_reference"),
+            ("해당카드는 하급, 중급 등 에카마엘 상태를 보유하지 않고 있습니다.★★★", "card_state_exclusion_metadata"),
+        ]
+        for raw, expected in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw, known_cards={"에네퍼브렌":["14022627282"]})
+                self.assertEqual(result["classification"], expected)
+                self.assertTrue(result["operations"])
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+    def test_audit_454_named_area_counter_retains_counter_and_name(self):
+        result=parse("포레스마레마(3카운터)")
+        op=result["operations"][0]
+        self.assertEqual(op["areaName"],"포레스마레마")
+        self.assertEqual(op["counterCount"],3)
+
+    def test_audit_454_split_attack_condition_keeps_actor_target_and_duration(self):
+        result=parse("AP1이상으로 공격시, 상대 유닛이 장비/야수면 3턴간")
+        op=result["operations"][0]
+        self.assertEqual(result["triggers"],["on_attack"])
+        self.assertEqual(op["minimumAttackStat"],1)
+        self.assertEqual(op["targetTypeAnyOf"],["장비","야수"])
+        self.assertEqual(op["durationTurns"],3)
+
+    def test_audit_454_release_cohort_parses_as_metadata_not_effect(self):
+        result=parse("블레이즈스탭, 정령의화염, 퓨리라이드, 화염의용술사, 버닝래빗, 불새의둥지, 불의노래, 퓨리파이어샷 (2015.5.6 발매기준)")
+        op=result["operations"][0]
+        self.assertEqual(op["asOfDate"],"2015-5-6")
+        self.assertEqual(len(op["cardNames"]),8)
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_audit_454_variant_reference_requires_known_base_card(self):
+        without_base=parse("에네퍼브렌C")
+        with_base=parse("에네퍼브렌C",known_cards={"에네퍼브렌":["14022627282"]})
+        self.assertNotEqual(without_base["classification"],"named_card_variant_reference")
+        self.assertEqual(with_base["classification"],"named_card_variant_reference")
+
+
 if __name__ == "__main__":
     unittest.main()

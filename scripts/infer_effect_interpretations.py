@@ -155,6 +155,158 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
                 "conditions":[],"operations":[{"kind":"card_glossary_or_ui_note","rawText":raw_text,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"card_glossary_metadata_v1","confidence":"not_applicable"}
+    # Card-local residual queue dispositions (audit #454 / focused review #457).
+    # These are references, metadata or non-executable condition fragments; they
+    # preserve source wording and never promote inferred operations to runtime rules.
+    acquisition=re.fullmatch(
+        r'["“]?([^"”]+)["”]?는\s*(.+?)\s*마법을\s*사용하여\s*확보할\s*수\s*있습니다[.]?',t)
+    if acquisition:
+        return {"classification":"acquisition_method_reference","triggers":[],"actors":[],
+                "targets":["card_acquisition"],"conditions":[],
+                "operations":[{"kind":"card_acquisition_method_reference",
+                    "cardName":acquisition.group(1).strip(),
+                    "methodText":acquisition.group(2).strip(),"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"card_local_acquisition_note_v1","confidence":"not_applicable"}
+    if re.fullmatch(r"cwda!",t,re.I):
+        return {"classification":"source_annotation_pending","triggers":[],"actors":[],
+                "targets":[],"conditions":[],
+                "operations":[{"kind":"unresolved_source_annotation","rawText":raw_text,
+                               "meaning":"unresolved","executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"opaque_source_annotation_v1","confidence":"medium"}
+    if re.fullmatch(r"상",t):
+        return {"classification":"incomplete_source_fragment","triggers":[],"actors":[],
+                "targets":[],"conditions":[],
+                "operations":[{"kind":"incomplete_source_fragment","rawText":raw_text,
+                               "adjacent_source_context_required":True,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"single_token_source_fragment_v1","confidence":"medium"}
+    area_counter=re.fullmatch(r"(?P<area>[^()]{2,30})\s*\(\s*(?P<count>\d+)\s*카운터\s*\)",t)
+    if area_counter:
+        return {"classification":"named_area_counter_reference_candidate","triggers":[],
+                "actors":[],"targets":["named_area_or_terrain"],"conditions":[],
+                "operations":[{"kind":"named_area_counter_reference",
+                    "areaName":area_counter.group("area").strip(),
+                    "counterCount":int(area_counter.group("count")),
+                    "definitionMustBeResolvedFromCardLocalTextExtra":True,"executable":False}],
+                "numbers":[area_counter.group("count")],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"named_area_counter_label_v1","confidence":"medium"}
+    disenchant=re.fullmatch(r"(?:디스인첸트|디스인챈트)\s*카드[.]?(?:\s*\[[^]]*\])?",t)
+    if disenchant:
+        labels=("디스인첸트 카드","디스인챈트 카드")
+        definitions=[]
+        for label in labels:
+            definitions.extend((known_named_effects or {}).get(normalize_effect_name(label),[]))
+        definition_ids=_uniq([x["definition_id"] for x in definitions])
+        return {"classification":"named_effect_reference_candidate","triggers":[],
+                "actors":[],"targets":["named_effect"],"conditions":[],
+                "operations":[{"kind":"named_effect_reference_candidate",
+                    "effectName":"디스인첸트 카드","definitionIds":definition_ids,
+                    "definitionCardIds":_uniq([x["source_card_id"] for x in definitions]),
+                    "definitionTexts":_uniq([x["definition_text"] for x in definitions]),
+                    "cardLocalDefinitionRequired":not bool(definitions),"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"disenchant_named_mechanic_reference_v1","confidence":"medium"}
+    unit_profile=re.fullmatch(r"(?P<name>[^()]{2,40}\s*유닛)\s*\((?P<traits>[^()]+)\)[.]?",t)
+    if unit_profile:
+        traits=[x.strip() for x in re.split(r"[,，、]",unit_profile.group("traits")) if x.strip()]
+        return {"classification":"named_summon_unit_profile_reference","triggers":[],
+                "actors":[],"targets":["summoned_unit"],"conditions":[],
+                "operations":[{"kind":"named_summon_unit_profile_reference",
+                    "profileName":unit_profile.group("name").strip(),"traits":traits,
+                    "definitionMustBeResolvedFromCardLocalTextExtra":True,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"named_summon_profile_label_v1","confidence":"medium"}
+    continuation=re.fullmatch(
+        r"(?P<stat>AP|공격력)\s*(?P<minimum>\d+)\s*이상으로\s*공격시,?\s*상대\s*유닛이\s*(?P<target>[^면]+)면\s*(?P<duration>\d+)\s*턴간",
+        t)
+    if continuation:
+        target_types=[x.strip() for x in re.split(r"[/,，·]",continuation.group("target")) if x.strip()]
+        return {"classification":"effect_condition_continuation_candidate","triggers":["on_attack"],
+                "actors":["attacking_unit"],"targets":["enemy_unit"],"conditions":[
+                    f'{continuation.group("stat")} >= {continuation.group("minimum")}',
+                    {"targetTypeAnyOf":target_types}],
+                "operations":[{"kind":"effect_condition_continuation",
+                    "minimumAttackStat":int(continuation.group("minimum")),
+                    "targetTypeAnyOf":target_types,
+                    "durationTurns":int(continuation.group("duration")),
+                    "expectedFollowingEffectText":True,"executable":False}],
+                "numbers":[continuation.group("minimum"),continuation.group("duration")],
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"card_local_split_effect_condition_v1","confidence":"medium"}
+    if re.search(r"이름\s*종류\s*수",t) and re.search(r"특\s*별\s*효과가\s*발동",t):
+        return {"classification":"conditional_effect_branch_reference","triggers":["on_spell_activation"],
+                "actors":["friendly"],"targets":["card_attached_item_or_effect"],
+                "conditions":["distinct_name_count"],"operations":[
+                    {"kind":"conditional_effect_branch_reference",
+                     "conditionMetric":"distinct_name_count",
+                     "branchDefinitionsMustBeResolvedFromCardLocalTextExtra":True,
+                     "executable":False}],
+                "numbers":re.findall(r"(?<!\d)\d+",t),"rawText":raw_text,
+                "flavorText":flavor_text,"inferenceMethod":"name_diversity_branch_marker_v1",
+                "confidence":"medium"}
+    if re.fullmatch(r"(?:실패시|성공시)[.]?",t):
+        branch="failure" if t.startswith("실패시") else "success"
+        return {"classification":"conditional_branch_reference","triggers":[],
+                "actors":[],"targets":[],"conditions":[branch],
+                "operations":[{"kind":"conditional_branch_header","branch":branch,
+                               "branchConditionsMustBeResolvedFromCardLocalTextExtra":True,
+                               "executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"standalone_success_failure_branch_header_v1","confidence":"medium"}
+    state_exclusion=re.search(r"해당\s*카드는.*?(?:하급|중급).*?에카마엘\s*상태를\s*보유하지\s*않고\s*있습니다",t)
+    if state_exclusion:
+        return {"classification":"card_state_exclusion_metadata","triggers":[],
+                "actors":[],"targets":["source_card"],"conditions":[],
+                "operations":[{"kind":"card_state_exclusion",
+                    "excludedStateFamily":"에카마엘","scopeText":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"card_local_state_exclusion_note_v1","confidence":"not_applicable"}
+    conditional_profile=re.fullmatch(r"조건에\s*따른\s*(?P<name>.+?)의\s*능력[.]?",t)
+    if conditional_profile:
+        return {"classification":"conditional_unit_profile_reference","triggers":[],
+                "actors":[],"targets":["conditional_summoned_unit"],"conditions":[t],
+                "operations":[{"kind":"conditional_unit_profile_reference",
+                    "unitName":conditional_profile.group("name").strip(),
+                    "profileFieldsMustBeResolvedFromCardLocalTextExtra":True,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"conditional_unit_profile_heading_v1","confidence":"medium"}
+    variant=re.fullmatch(r"(?P<base>[가-힣A-Za-z0-9]+)C",t)
+    if variant and known_cards:
+        base_ids=known_cards.get("".join(variant.group("base").split()),[])
+        if base_ids:
+            return {"classification":"named_card_variant_reference","triggers":[],
+                    "actors":[],"targets":["card_variant"],"conditions":[],
+                    "operations":[{"kind":"named_card_variant_reference",
+                        "baseCardName":variant.group("base"),"baseCardIds":base_ids,
+                        "variantSuffix":"C","executable":False}],
+                    "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"card_name_c_variant_reference_v1","confidence":"medium"}
+    release_list=re.fullmatch(
+        r"(?P<names>[가-힣A-Za-z0-9]+(?:\s*,\s*[가-힣A-Za-z0-9]+){4,})\s*\(\s*(?P<date>20\d{2}\.\d{1,2}\.\d{1,2})\s*발매기준\s*\)[.]?",
+        t)
+    if release_list:
+        names=[x.strip() for x in re.split(r"[,，]",release_list.group("names")) if x.strip()]
+        return {"classification":"historical_release_cohort_metadata","triggers":[],
+                "actors":[],"targets":["card_release_cohort"],"conditions":[],
+                "operations":[{"kind":"historical_release_cohort",
+                    "cardNames":names,"asOfDate":release_list.group("date").replace(".","-"),
+                    "executable":False}],
+                "numbers":re.findall(r"\d+",release_list.group("date")),
+                "rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"dated_card_release_cohort_v1","confidence":"not_applicable"}
+    comma_list=re.fullmatch(r"(?P<names>[가-힣A-Za-z0-9]+(?:\s*,\s*[가-힣A-Za-z0-9]+){4,})[.]?",t)
+    if comma_list:
+        names=[x.strip() for x in re.split(r"[,，]",comma_list.group("names")) if x.strip()]
+        return {"classification":"card_reference_list","triggers":[],"actors":[],
+                "targets":["card_or_summon_reference"],"conditions":[],
+                "operations":[{"kind":"related_card_reference_list","entries":[
+                    {"name":name,"cardIds":(known_cards or {}).get("".join(name.split()),[])}
+                    for name in names],"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"comma_separated_card_name_list_v1","confidence":"not_applicable"}
+
     if (t.startswith("[") and len(t)>=40
             and not re.search(r"(?:표기되어|표기됩니다|아이콘|증가|감소|공격|방어|발동|파괴|부여|소환|이동|회복|데미지)",t)):
         return {"classification":"flavor_or_lore","triggers":[],"actors":[],"targets":[],
@@ -1435,8 +1587,8 @@ def main(path="data/fm1_cards.sqlite"):
       for clause_id,cid,text,segtype,url in rows:
         parsed=parse(text,known_skills,known_cards,known_named_effects,known_named_effect_fragments)
         status=("not_applicable" if segtype=="separator" or parsed["classification"] in
-                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","state_condition_target_reference","flavor_or_lore","named_status_reference","named_effect_reference","named_effect_definition","named_effect_definition_body","administrative_or_shop_note","historical_card_effect_reference","event_or_acquisition_metadata","card_glossary_metadata","punctuation_artifact","parenthetical_reference_note","parenthetical_rule_note","no_effect_marker","trigger_timing_metadata","ability_type_metadata","equip_condition_metadata","card_type_metadata","example_or_reference","source_placeholder")
-                else "linked_rule_reference" if parsed["classification"] in ("ability_name_reference","named_ability_reference_candidate","matchup_effect_reference_candidate","card_or_named_reference_candidate","numeric_range_reference_candidate") else "inferred")
+                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","state_condition_target_reference","flavor_or_lore","named_status_reference","named_effect_reference","named_effect_definition","named_effect_definition_body","administrative_or_shop_note","historical_card_effect_reference","event_or_acquisition_metadata","card_glossary_metadata","punctuation_artifact","parenthetical_reference_note","parenthetical_rule_note","no_effect_marker","trigger_timing_metadata","ability_type_metadata","equip_condition_metadata","card_type_metadata","example_or_reference","source_placeholder","acquisition_method_reference","card_state_exclusion_metadata","historical_release_cohort_metadata")
+                else "linked_rule_reference" if parsed["classification"] in ("ability_name_reference","named_ability_reference_candidate","matchup_effect_reference_candidate","card_or_named_reference_candidate","numeric_range_reference_candidate","named_area_counter_reference_candidate","named_effect_reference_candidate","named_summon_unit_profile_reference","conditional_unit_profile_reference","named_card_variant_reference") else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
            parsed["confidence"],parsed["inferenceMethod"]))
