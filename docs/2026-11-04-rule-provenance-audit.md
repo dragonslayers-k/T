@@ -1,29 +1,47 @@
-# Rule provenance and execution audit — 2026-11-04
+# 카드 DB 전수 갭 조사 — DB29 기준선
 
-## Purpose
+## 목적과 적용 범위
 
-Re-run the complete database audit against the immutable `fm1-carddb-29` source release before connecting any card effect to executable game logic.
+이 문서는 불변 릴리스 `fm1-carddb-29`를 입력으로 삼아, DB 자체의 누락·미입력·미확인 항목을 카드별로 조사하기 위한 기준이다. 이 단계는 게임 구현이 아니라 DB의 사실관계와 완전성 조사다.
 
-## Required interpretation
+## 데이터 보존 및 상태 구분
 
-- Original card records, card detail URLs, source text, taxonomy, and image references remain source data; do not overwrite them with inferred interpretations.
-- Pixel-derived soul-cost readings remain candidates until manually checked against the original card image. Unknown cost must not be treated as zero or free.
-- Manually verified skill catalogue entries may be represented as authoritative rule records only with their source/version and card mapping retained.
-- Community-documented rules remain candidate evidence; they are not playable/executable by default.
-- Effect-pattern inventories and parsed clauses are analysis artifacts, not proof that a game effect is fully understood or safe to execute.
-- Unverified or partially parsed effects should preserve the original text and stay non-executable.
+- 원본 카드 레코드, 원본 enum, 원본 텍스트, 원본 URL, 원본 이미지와 체크섬은 변경하지 않는다.
+- 정규화 결과, 매뉴얼 해석, 카드 이미지 판독, 보조자료, 추정치는 원본과 분리된 별도 필드/테이블에 둔다.
+- 각 값의 상태는 `source_verified`, `manual_verified`, `inferred`, `not_applicable`, `source_absent_confirmed`로 구분한다.
+- 추출만 된 텍스트나 후보 규칙은 확인된 해석으로 간주하지 않는다.
+- 추정값은 출처, 근거, 추정 방법, 신뢰도를 보존한다. 미확인을 0, 빈 값, 일반 규칙으로 은폐하지 않는다.
+- 매뉴얼과 후대 커뮤니티 자료가 충돌하면 각각의 해석을 분리하고 기본값 선정 근거를 기록한다.
 
-## Audit acceptance checks
+## 1차 전수 감사 항목
 
-The full workflow should verify, against the immutable release:
+1. 15,350개 카드 ID, 분류별 기대 수량, 중복/누락, 카드명, 목록 URL, 상세 URL.
+2. 원본 필드 55종의 카드별 존재 여부, 빈 값 수, enum 해석 여부, 정규화 오류 및 필드 간 모순.
+3. 30,700개 대형/소형 이미지의 원본 URL, 카드 ID 연결, 실제 파일, 형식, 크기, SHA-256, 아카이브 무결성.
+4. RequireLP와 RequireSoul의 카드별 원문/토큰/비용 해석/미해결 상태. 하이브리드, NCS, BONUS 및 텍스트형 비용 포함.
+5. Skill1/Skill2 원본 enum의 전체 사용 목록, 카드별 연결, 미매핑 enum과 별칭 후보.
+6. TextBase/TextExtra 원문 및 절 단위 효과 후보의 카드별 연결, 구조화 상태, 미해석 문장 목록.
+7. 마법/인챈트/아이템/지형별 고유 필드 및 효과 구조화 공백.
+8. SQLite integrity, foreign-key integrity, FTS 검색, 정규화 테이블 간 참조 무결성.
 
-1. 15,350 source card records, expected category counts, unique IDs, exact source card URLs, and field/taxonomy quality.
-2. 30,700 original image assets and archive integrity, linked to card IDs without missing references.
-3. SQLite integrity, foreign-key integrity, normalized table counts, and search behavior.
-4. Soul-cost provenance and confidence/status counts; no candidate is silently promoted to verified cost.
-5. Manual and community rule catalogues, card mappings, mapping status, and community `playable_by_default=0` invariant.
-6. Effect candidate spans/clauses and status inventory; do not equate extraction with implementation.
+## 산출물
 
-## Result policy
+- `data/audit-report.json`: 전수 집계 및 완료 게이트.
+- `data/card-field-gap-report.csv`: 카드 ID × 필드별 누락/빈 값/미확인 상태.
+- `data/card-field-gap-report.jsonl`: 동일 항목의 기계 판독 상세 근거.
+- 비용·기술·효과별 개별 갭 CSV/JSONL.
+- 이미지 누락/해시 오류 목록.
+- 표본 수동 대조 목록 및 결과.
 
-A successful audit certifies the source snapshot, normalized DB, and stated integrity checks only. It does not certify complete battle simulation or all card effects as executable. Publish a new immutable release only if every audit passes and the release contents are explicitly reviewed.
+집계만 출력하고 카드 ID별 상세를 생략하지 않는다. 대규모 보고서는 Actions artifact로 보관한다.
+
+## 완료 판정
+
+이 감사 실행 자체는 현황 파악 단계이며, DB29가 완전하다고 미리 가정하지 않는다. 발견된 갭은 보완 작업 목록으로 분리한다. 새 불변 DB 릴리스는 카드별 갭이 모두 닫히고, 추정 상태까지 근거와 함께 기록되며, 자동 검사 및 표본 수동 대조가 통과한 뒤에만 발행한다.
+
+## 금지 사항
+
+- DB29 릴리스 자산이나 태그를 덮어쓰지 않는다.
+- 이 감사 단계에서 FM-OFFLINE 게임 코드/전투 규칙을 수정하지 않는다.
+- 텍스트 추출 수량을 구현 완료 수량으로 보고하지 않는다.
+- 미확인/미입력/미해결 건수를 0으로 임의 설정하지 않는다.
