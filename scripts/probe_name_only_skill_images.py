@@ -44,6 +44,38 @@ def fuzzy_skill_name_match(ocr_text, skill_name, threshold=0.78):
             "matchedText":best_text if best_score>=threshold else None}
 
 
+
+
+def classify_image_match(skill_name, card_name, exact, fuzzy, matched_text, ocr_text):
+    skill_key=normalize_text(skill_name)
+    card_key=normalize_text(card_name)
+    lines=[line.strip() for line in (ocr_text or "").splitlines() if line.strip()]
+    candidates=[]
+    for line in lines:
+        line_key=normalize_text(line)
+        if skill_key and skill_key in line_key:
+            candidates.append(line)
+        elif matched_text and normalize_text(matched_text) and normalize_text(matched_text) in line_key:
+            candidates.append(line)
+    candidates.sort(key=lambda line: ("/" not in line and "／" not in line, len(line)))
+    context=candidates[0] if candidates else None
+    has_slash=bool(context and ("/" in context or "／" in context))
+    name_collision=bool(skill_key and card_key and skill_key==card_key and not has_slash)
+    if exact and not name_collision:
+        if has_slash or (context and len(context)<=42 and not re.search(r"[.!?。！？]",context)):
+            status="image_text_exact"
+        else:
+            status="exact_text_unclassified"
+    elif exact and name_collision:
+        status="name_collision"
+    elif fuzzy and name_collision:
+        status="name_collision"
+    elif fuzzy:
+        status="fuzzy_candidate"
+    else:
+        status="not_found"
+    return status,context,has_slash,name_collision
+
 def probe(db_path: Path, archive_path: Path, output: Path):
     from PIL import Image, ImageEnhance, ImageOps
     import pytesseract
@@ -127,19 +159,79 @@ def probe(db_path: Path, archive_path: Path, output: Path):
             text = image.get("ocrText", "")
             exact=contains_skill_name(text,skill["source_name"])
             fuzzy=fuzzy_skill_name_match(text,skill["source_name"])
+            fuzzy_candidate=bool(not exact and fuzzy["matched"])
+            match_status,match_context,context_has_slash,name_collision=classify_image_match(
+                skill["source_name"],card["cardName"],exact,fuzzy_candidate,fuzzy["matchedText"],text)
             cards.append({
                 **card, "imageEvidence": image,
                 "skillNameFoundByOcr": exact,
-                "skillNameFuzzyCandidate": bool(not exact and fuzzy["matched"]),
+                "skillNameFuzzyCandidate": fuzzy_candidate,
                 "skillNameMatchScore": fuzzy["score"] if not exact else 1.0,
                 "skillNameMatchText": fuzzy["matchedText"],
-                "skillNameMatchMethod": "exact_normalized" if exact else ("fuzzy_candidate" if fuzzy["matched"] else "not_found")
+                "skillNameMatchMethod": "exact_normalized" if exact else ("fuzzy_candidate" if fuzzy_candidate else "not_found"),
+                "skillNameEvidenceStatus":match_status,
+                "skillNameMatchContext":match_context,
+                "skillNameContextHasSlash":context_has_slash,
+                "skillNameCardNameCollision":name_collision
             })
         skill_results.append({
             "sourceField": skill["source_field"], "sourceEnumValue": str(skill["source_enum_value"]),
             "skillName": skill["source_name"], "cardCount": skill["card_count"],
             "ruleId": skill["rule_id"], "cards": cards
         })
+
+    db.executescript("""
+    CREATE TABLE IF NOT EXISTS card_skill_ocr_evidence(
+      card_id TEXT NOT NULL REFERENCES cards(card_id),
+      source_field TEXT NOT NULL,
+      source_enum_value TEXT NOT NULL,
+      source_name TEXT NOT NULL,
+      skill_rule_id TEXT,
+      image_type TEXT NOT NULL,
+      image_archive_path TEXT,
+      image_sha256 TEXT,
+      match_status TEXT NOT NULL,
+      match_score REAL,
+      matched_text TEXT,
+      match_context TEXT,
+      context_has_slash INTEGER NOT NULL,
+      card_name_equals_skill_name INTEGER NOT NULL,
+      ocr_passes_json TEXT NOT NULL,
+      ocr_text_sha256 TEXT,
+      evidence_policy TEXT NOT NULL,
+      rule_semantics_verified INTEGER NOT NULL DEFAULT 0,
+      executable INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY(card_id,source_field,source_enum_value,image_type)
+    );
+    """)
+    db.execute("DELETE FROM card_skill_ocr_evidence")
+    evidence_rows=[]
+    for skill in skill_results:
+        for card in skill["cards"]:
+            image=card.get("imageEvidence",{})
+            ocr_text=image.get("ocrText","")
+            passes=[{"name":p.get("name"),"sha256":hashlib.sha256(p.get("text","").encode("utf-8")).hexdigest()}
+                    for p in image.get("ocrPasses",[])]
+            evidence_rows.append((
+                str(card["cardId"]),skill["sourceField"],skill["sourceEnumValue"],skill["skillName"],
+                str(skill["ruleId"]),image.get("imageType") or "unknown",image.get("archivePath"),
+                image.get("sha256"),card.get("skillNameEvidenceStatus","not_found"),
+                float(card.get("skillNameMatchScore") or 0),card.get("skillNameMatchText"),
+                card.get("skillNameMatchContext"),int(bool(card.get("skillNameContextHasSlash"))),
+                int(bool(card.get("skillNameCardNameCollision"))),json.dumps(passes,ensure_ascii=False),
+                hashlib.sha256(ocr_text.encode("utf-8")).hexdigest() if ocr_text else None,
+                "image_text_only_not_semantic",0,0
+            ))
+    if evidence_rows:
+        db.executemany("""INSERT OR REPLACE INTO card_skill_ocr_evidence
+          (card_id,source_field,source_enum_value,source_name,skill_rule_id,image_type,image_archive_path,
+           image_sha256,match_status,match_score,matched_text,match_context,context_has_slash,
+           card_name_equals_skill_name,ocr_passes_json,ocr_text_sha256,evidence_policy,
+           rule_semantics_verified,executable)
+          VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",evidence_rows)
+    db.commit()
+    evidence_counts={r[0]:r[1] for r in db.execute("SELECT match_status,COUNT(*) FROM card_skill_ocr_evidence GROUP BY match_status")}
+    db.close()
 
     result = {
         "source": "archived original card images",
@@ -148,6 +240,9 @@ def probe(db_path: Path, archive_path: Path, output: Path):
         "imagesOcrProcessed": sum(1 for x in image_results.values() if "ocrText" in x),
         "skillsWithOcrNameMatch": sum(1 for s in skill_results if any(c["skillNameFoundByOcr"] for c in s["cards"])),
         "skillsWithFuzzyOcrCandidate": sum(1 for s in skill_results if any(c["skillNameFuzzyCandidate"] for c in s["cards"])),
+        "skillImageEvidenceRows":sum(evidence_counts.values()),
+        "skillImageEvidenceStatusCounts":evidence_counts,
+        "ruleSemanticsVerifiedByOcr":False,
         "skills": skill_results
     }
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -164,12 +259,15 @@ def probe(db_path: Path, archive_path: Path, output: Path):
                     "matchMethod": card["skillNameMatchMethod"],
                     "matchScore": card["skillNameMatchScore"],
                     "matchedText": card["skillNameMatchText"],
+                    "evidenceStatus":card["skillNameEvidenceStatus"],
+                    "matchContext":card["skillNameMatchContext"],
                     "archivePath": card["imageEvidence"].get("archivePath"),
                     "ocrText": card["imageEvidence"].get("ocrText", "")[:1800]
                 })
     print(json.dumps({
         **{k: result[k] for k in ("lowConfidenceSkillKinds", "targetCardIds",
-            "imagesOcrProcessed", "skillsWithOcrNameMatch", "skillsWithFuzzyOcrCandidate")},
+            "imagesOcrProcessed", "skillsWithOcrNameMatch", "skillsWithFuzzyOcrCandidate",
+            "skillImageEvidenceRows", "skillImageEvidenceStatusCounts")},
         "matchedSkillEvidence": matched
     }, ensure_ascii=False))
     return result
