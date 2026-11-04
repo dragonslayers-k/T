@@ -272,8 +272,13 @@ class EffectInterpretationTests(unittest.TestCase):
         self.assertEqual(result["operations"][0]["cardName"],"유리가면")
 
     def test_source_placeholder_is_not_a_low_confidence_effect(self):
-        result=parse("…")
+        result=parse(".")
         self.assertEqual(result["classification"],"source_placeholder")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_ellipsis_is_a_punctuation_artifact(self):
+        result=parse("…")
+        self.assertEqual(result["classification"],"punctuation_artifact")
         self.assertEqual(result["confidence"],"not_applicable")
 
     def test_item_buildup_lore_is_reference_metadata(self):
