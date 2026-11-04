@@ -148,7 +148,8 @@ def build(db_path: Path, out_dir: Path):
 
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
-      "field_status_counts":{},\n      "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),\n      "sqlite_field_coverage_rows":len(coverage_inserts),
+      "field_status_counts":{},
+      "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),\n      "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
       "unresolved_cost_rows":sum(1 for r in costs if not r["soul_known"] or (r["card_type"]=="지형" and not r["lp_known"])),
       "unmapped_skill_card_rows":sum(1 for r in skills if r["mapping_status"]=="unmapped"),
