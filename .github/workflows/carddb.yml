@@ -189,6 +189,16 @@ jobs:
           set -euo pipefail
           python scripts/build_gap_reports.py --db data/fm1_cards.sqlite --out-dir data/gap-reports
           cat data/gap-reports/gap-report-summary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("data/gap-reports/gap-report-summary.json").read_text(encoding="utf-8"))
+          counts=r.get("field_status_counts",{})
+          assert counts.get("missing_on_card",0)==0, counts
+          assert counts.get("empty_source_value",0)==0, counts
+          assert r.get("unresolved_cost_rows",0)==0, r
+          assert r.get("unmapped_skill_card_rows",0)==0, r
+          PY
 
       - name: Audit complete card, soul-cost, and skill mapping coverage
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
