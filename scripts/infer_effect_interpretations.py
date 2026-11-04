@@ -1016,6 +1016,51 @@ def main(path="data/fm1_cards.sqlite"):
     CREATE INDEX IF NOT EXISTS idx_effect_interpretations_card ON card_effect_interpretations(card_id);
     """)
     db.execute("DELETE FROM card_effect_interpretations")
+    db.executescript("""
+    CREATE TABLE IF NOT EXISTS card_named_effect_definitions(
+      definition_id INTEGER PRIMARY KEY,
+      source_card_id TEXT NOT NULL REFERENCES cards(card_id),
+      source_card_name TEXT NOT NULL,
+      source_field TEXT NOT NULL,
+      marker TEXT NOT NULL,
+      effect_name TEXT NOT NULL,
+      definition_text TEXT NOT NULL,
+      source_text_sha256 TEXT NOT NULL,
+      extraction_method TEXT NOT NULL,
+      verification_status TEXT NOT NULL,
+      UNIQUE(source_card_id,source_field,marker,effect_name,definition_text)
+    );
+    CREATE INDEX IF NOT EXISTS idx_named_effect_definitions_name
+      ON card_named_effect_definitions(effect_name,marker);
+    """)
+    db.execute("DELETE FROM card_named_effect_definitions")
+    definition_rows=[]
+    for cid,card_name,raw in db.execute("""SELECT f.card_id,c.name,f.source_value_json
+        FROM card_fields f JOIN cards c USING(card_id)
+        WHERE f.field_key='TextExtra' AND f.source_value_json IS NOT NULL"""):
+        for definition in extract_named_effect_definitions(cid,card_name,raw):
+            definition_rows.append((definition["source_card_id"],definition["source_card_name"],
+                definition["source_field"],definition["marker"],definition["effect_name"],
+                definition["definition_text"],definition["source_text_sha256"],
+                definition["extraction_method"],definition["verification_status"]))
+    if definition_rows:
+        db.executemany("""INSERT OR IGNORE INTO card_named_effect_definitions
+          (source_card_id,source_card_name,source_field,marker,effect_name,definition_text,
+           source_text_sha256,extraction_method,verification_status)
+          VALUES(?,?,?,?,?,?,?,?,?)""",definition_rows)
+    known_named_effects={}
+    known_named_effect_fragments={}
+    for row in db.execute("""SELECT definition_id,source_card_id,source_card_name,marker,effect_name,definition_text
+        FROM card_named_effect_definitions"""):
+        item={"definition_id":row[0],"source_card_id":row[1],"source_card_name":row[2],
+              "marker":row[3],"effect_name":row[4],"definition_text":row[5]}
+        key=normalize_effect_name(item["effect_name"])
+        if item["marker"] in ("▶","★","※") and len(key)>=4 and not key.startswith("유닛"):
+            known_named_effects.setdefault(key,[]).append(item)
+        for fragment in item["definition_text"].splitlines():
+            fragment_key=normalize_effect_name(fragment)
+            if len(fragment_key)>=8:
+                known_named_effect_fragments.setdefault(fragment_key,[]).append(item)
     known_skills={}
     known_cards={}
     for cid,card_name in db.execute("SELECT card_id,name FROM cards WHERE name IS NOT NULL"):
@@ -1032,9 +1077,9 @@ def main(path="data/fm1_cards.sqlite"):
     counts={}
     with db:
       for clause_id,cid,text,segtype,url in rows:
-        parsed=parse(text,known_skills,known_cards)
+        parsed=parse(text,known_skills,known_cards,known_named_effects,known_named_effect_fragments)
         status=("not_applicable" if segtype=="separator" or parsed["classification"] in
-                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","state_condition_target_reference","flavor_or_lore","named_status_reference","example_or_reference","source_placeholder")
+                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","state_condition_target_reference","flavor_or_lore","named_status_reference","named_effect_reference","named_effect_definition","named_effect_definition_body","administrative_or_shop_note","punctuation_artifact","parenthetical_reference_note","parenthetical_rule_note","no_effect_marker","trigger_timing_metadata","ability_type_metadata","equip_condition_metadata","card_type_metadata","example_or_reference","source_placeholder")
                 else "linked_rule_reference" if parsed["classification"]=="ability_name_reference" else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
@@ -1060,6 +1105,9 @@ def main(path="data/fm1_cards.sqlite"):
       GROUP BY i.source_text ORDER BY card_count DESC,i.source_text LIMIT 120
     """).fetchall()
     result={"sourceClauses":len(rows),"interpretationRows":total,"statusCounts":counts,
+            "namedEffectDefinitionRows":db.execute("SELECT COUNT(*) FROM card_named_effect_definitions").fetchone()[0],
+            "namedEffectDefinitionNames":db.execute("SELECT COUNT(DISTINCT effect_name) FROM card_named_effect_definitions").fetchone()[0],
+            "namedEffectReferenceRows":db.execute("SELECT COUNT(*) FROM card_effect_interpretations WHERE json_extract(interpretation_json,'$.classification')='named_effect_reference'").fetchone()[0],
             "lowConfidenceRows":low,"missingInterpretations":missing,"foreignKeyErrors":fk,
             "lowConfidenceByClassification":[{"classification":x[0],"count":x[1],"distinctTexts":x[2]} for x in low_by_class],
             "lowConfidenceDistinctTexts":db.execute(
