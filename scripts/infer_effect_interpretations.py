@@ -79,11 +79,11 @@ def parse(text, known_skills=None):
 
     # Explanatory examples, flavor-only build-up labels, and acquisition/display
     # notes are reference material rather than executable in-game effects.
-    if re.match(r"^(?:예\\)|예시\\))",t):
+    if re.match(r"^(?:예\)|예시\))",t):
         return {"classification":"example_or_reference","triggers":[],"actors":[],
                 "targets":[],"conditions":[],"operations":[
                     {"kind":"effect_explanation_example","exampleText":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?%?",t),
+                "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t),
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"example_prefix_v1","confidence":"not_applicable"}
 
@@ -91,7 +91,7 @@ def parse(text, known_skills=None):
     # They are preserved as related-card references, not interpreted as effects.
     if re.search(r"(?:->|→|⇒)",t) and not re.search(
         r"(?:공격|방어|효과|발동|증가|감소|부여|파괴|이동|회복)",t):
-        stages=[x.strip(" .。") for x in re.split(r"\\s*(?:->|→|⇒)\\s*",t) if x.strip()]
+        stages=[x.strip(" .。") for x in re.split(r"\s*(?:->|→|⇒)\s*",t) if x.strip()]
         if len(stages)>=2:
             return {"classification":"card_progression_reference","triggers":[],
                     "actors":[],"targets":[],"conditions":[],
@@ -123,7 +123,7 @@ def parse(text, known_skills=None):
     # Element-to-card and type-to-card rows are catalogue relations.
     # Only classify these as references when no game-action verb is present.
     relation_rows=re.findall(
-        r"(암흑|암|불|물|숲|금속|대지|빛|철|목|수|화|광|지형|유닛|마법|아이템)\\s*[:：-]\\s*([^,;■◇◆]+)",
+        r"(암흑|암|불|물|숲|금속|대지|빛|철|목|수|화|광|지형|유닛|마법|아이템)\s*[:：-]\s*([^,;■◇◆]+)",
         t)
     if relation_rows and not re.search(
         r"(?:증가|감소|공격|방어|발동|파괴|부여|적용|변경|된다|시킨다|회복|이동)",t):
@@ -132,17 +132,17 @@ def parse(text, known_skills=None):
                     {"kind":"related_card_reference","entries":[
                         {"label":a,"value":b.strip(" .。")} for a,b in relation_rows],
                      "executable":False}],
-                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?%?",t),
+                "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t),
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"element_or_type_relation_v1","confidence":"not_applicable"}
 
     # Rarity/gemstone tables and category bonuses are metadata or reference values.
-    if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜|에메랄드|토파즈|탄자나이트)(?:\\s*[,/、]\\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜))*\\s*[:：]",t):
+    if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜|에메랄드|토파즈|탄자나이트)(?:\s*[,/、]\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜))*\s*[:：]",t):
         return {"classification":"rarity_or_category_reference","triggers":[],
                 "actors":[],"targets":[],"conditions":[],
                 "operations":[{"kind":"rarity_or_category_mapping","rawText":t,
                                "executable":False}],
-                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?%?",t),
+                "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t),
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"rarity_category_reference_v1","confidence":"not_applicable"}
 
@@ -196,16 +196,16 @@ def parse(text, known_skills=None):
     # These candidates retain raw formula text and are never executable by default.
     stat_ref_pattern=r"(AP|DP|HP|LP|공격력|방어력|체력)"
     stat_copy=re.search(
-        r"(AP|DP|HP|공격력|방어력|체력)\\s*(?:은|는|을|를)?\\s*(?:적\\s*필드\\s*유닛\\s*\\d+의?\\s*)?(AP|DP|HP|공격력|방어력|체력)와?\\s*동일해?지",
+        r"(AP|DP|HP|공격력|방어력|체력)\s*(?:은|는|을|를)?\s*(?:적\s*필드\s*유닛\s*\d+의?\s*)?(AP|DP|HP|공격력|방어력|체력)와?\s*동일해?지",
         t)
     if stat_copy:
         ops.append({"kind":"copy_stat_value","targetStat":stat_name_map.get(stat_copy.group(1),stat_copy.group(1).lower()),
                     "sourceStat":stat_name_map.get(stat_copy.group(2),stat_copy.group(2).lower()),
                     "rawText":t,"executable":False})
-    for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\\s*(?:는|을|를)?\\s*([^,;。]+?)\\s*(?:와|과)?\\s*(?:같게|동일하게)\\s*(?:만든다|한다)",t):
+    for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\s*(?:는|을|를)?\s*([^,;。]+?)\s*(?:와|과)?\s*(?:같게|동일하게)\s*(?:만든다|한다)",t):
         ops.append({"kind":"set_stat_from_expression","stat":stat_name_map.get(m.group(1)),
                     "expressionText":m.group(2).strip(),"rawText":t,"executable":False})
-    for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\\s*(?:를|을)?\\s*\\*\\s*(\\d+(?:\\.\\d+)?)\\s*(?:로)?\\s*(?:만든다|한다)",t):
+    for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\s*(?:를|을)?\s*\*\s*(\d+(?:\.\d+)?)\s*(?:로)?\s*(?:만든다|한다)",t):
         ops.append({"kind":"multiply_stat","stat":stat_name_map.get(m.group(1)),
                     "multiplier":float(m.group(2)),"rawText":t,"executable":False})
     if re.search(r"(?:AP|DP|HP|공격력|방어력|체력).{0,35}(?:적 필드 유닛|아군 필드 유닛|적군 전체|아군 전체).{0,25}(?:동일|같게|만큼)",t):
@@ -215,7 +215,7 @@ def parse(text, known_skills=None):
     if re.search(r"(?:필드번호|필드 위치).{0,20}(?:레벨|위치|번호).{0,20}(?:된다|정한다|맞춘다|편다)",t):
         ops.append({"kind":"set_field_position_from_expression","expressionText":t,
                     "rawText":t,"executable":False})
-    if re.search(r"행동가능한 아군\\s*\\d+의?\\s*AP.{0,20}적군의?\\s*AP.{0,8}더한다",t):
+    if re.search(r"행동가능한 아군\s*\d+의?\s*AP.{0,20}적군의?\s*AP.{0,8}더한다",t):
         ops.append({"kind":"add_stat_from_target_expression","stat":"ap",
                     "sourceExpression":"friendly_unit.ap + enemy.ap",
                     "rawText":t,"executable":False})
