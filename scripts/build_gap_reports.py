@@ -12,13 +12,19 @@ def build(db_path: Path, out_dir: Path):
     present={(r["card_id"],r["field_key"]):r for r in db.execute(
         "SELECT field_id,card_id,field_key,source_value_json,normalized_value,verification_status FROM card_fields"
     )}
-    # Category-level applicability is only a candidate: a field absent from every
-    # peer card of the same type may be inapplicable, but this is not source proof.
-    observed_type_fields={(r[0],r[1]) for r in db.execute(
-        """SELECT DISTINCT json_extract(c.raw_payload_json,'$.Category'),cf.field_key
-           FROM card_fields cf JOIN cards c USING(card_id)
-           WHERE cf.source_value_json IS NOT NULL
-             AND json_type(cf.source_value_json,'
+    # Determine applicability from non-empty values in the raw source Category.
+    # Explicit empty/null values remain separate statuses; they do not prove applicability.
+    source_payloads={card["card_id"]:json.loads(card["raw_payload_json"]) for card in cards}
+    source_categories={card_id:payload.get("Category") for card_id,payload in source_payloads.items()}
+    observed_type_fields=set()
+    for (card_id,field),row in present.items():
+        raw=row["source_value_json"]
+        try:
+            value=json.loads(raw) if raw is not None else None
+        except Exception:
+            continue
+        if value is not None and not (isinstance(value,str) and not value.strip()):
+            observed_type_fields.add((source_categories.get(card_id),field))
     db.executescript("""
       CREATE TABLE IF NOT EXISTS card_field_coverage(
         card_id TEXT NOT NULL REFERENCES cards(card_id),
@@ -39,7 +45,7 @@ def build(db_path: Path, out_dir: Path):
     per_field_status_counts={field:{} for field in fields}
     per_field_examples={field:{} for field in fields}
     for card in cards:
-        payload=json.loads(card["raw_payload_json"])
+        payload=source_payloads[card["card_id"]]
         source_category=payload.get("Category")
         verified_fields=[]
         absent_fields=[]
