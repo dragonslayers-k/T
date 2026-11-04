@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Create card-by-card gap queues without changing immutable source values."""
-import argparse, csv, json, sqlite3
+import argparse, csv, hashlib, json, sqlite3
 from pathlib import Path
 
 def build(db_path: Path, out_dir: Path):
     db=sqlite3.connect(db_path)
     db.row_factory=sqlite3.Row
     out_dir.mkdir(parents=True,exist_ok=True)
-    cards=db.execute("SELECT card_id,name,card_type FROM cards ORDER BY card_id").fetchall()
+    cards=db.execute("SELECT card_id,name,card_type,raw_payload_json FROM cards ORDER BY card_id").fetchall()
     fields=[r[0] for r in db.execute("SELECT DISTINCT field_key FROM card_fields ORDER BY field_key")]
     present={(r["card_id"],r["field_key"]):r for r in db.execute(
-        "SELECT card_id,field_key,source_value_json,normalized_value,verification_status FROM card_fields"
+        "SELECT field_id,card_id,field_key,source_value_json,normalized_value,verification_status FROM card_fields"
     )}
     applicable=set()
     for r in db.execute("""
@@ -19,25 +19,55 @@ def build(db_path: Path, out_dir: Path):
       WHERE cf.source_value_json IS NOT NULL AND trim(cf.source_value_json)<>'""'
     """):
         applicable.add((r[0],r[1]))
+    db.executescript("""
+      CREATE TABLE IF NOT EXISTS card_field_coverage(
+        card_id TEXT NOT NULL REFERENCES cards(card_id),
+        field_key TEXT NOT NULL,
+        coverage_status TEXT NOT NULL,
+        field_id INTEGER REFERENCES card_fields(field_id),
+        source_payload_match INTEGER NOT NULL,
+        source_value_sha256 TEXT,
+        PRIMARY KEY(card_id,field_key)
+      );
+      CREATE INDEX IF NOT EXISTS idx_card_field_coverage_status
+        ON card_field_coverage(coverage_status,field_key);
+    """)
+    db.execute("DELETE FROM card_field_coverage")
     field_rows=[]
+    coverage_inserts=[]
     for card in cards:
+        payload=json.loads(card["raw_payload_json"])
         for field in fields:
             row=present.get((card["card_id"],field))
+            expected_applicable=(card["card_type"],field) in applicable
             if row is None:
-                status="missing_on_card" if (card["card_type"],field) in applicable else "not_applicable"
-                raw=None; normalized=None; verification="not_recorded"
+                status="missing_on_card" if expected_applicable else "not_applicable"
+                raw=None; normalized=None; verification="not_recorded"; field_id=None
+                payload_match=0 if field in payload else 1
+                value_hash=None
             else:
-                raw=row["source_value_json"]; normalized=row["normalized_value"]; verification=row["verification_status"]
+                raw=row["source_value_json"]; normalized=row["normalized_value"]
+                verification=row["verification_status"]; field_id=row["field_id"]
                 try: value=json.loads(raw) if raw is not None else None
-                except Exception: value=raw
-                status=("not_applicable" if (card["card_type"],field) not in applicable
-                        else "source_absent_confirmed" if (value is None or value=="") and field=="TextExtra"
-                        else "empty_source_value" if value is None or value=="" else "present_unverified")
+                except Exception as exc: raise ValueError(f"Invalid JSON source value: {card['card_id']} {field}: {exc}")
+                payload_match=int(field in payload and value==payload.get(field))
+                if not payload_match:
+                    raise ValueError(f"Normalized field differs from immutable raw payload: {card['card_id']} {field}")
+                value_hash=hashlib.sha256((raw or "null").encode("utf-8")).hexdigest()
+                status=("not_applicable" if not expected_applicable
+                        else "source_absent_confirmed" if value is None or value=="" else "source_snapshot_verified")
+            coverage_inserts.append((card["card_id"],field,status,field_id,payload_match,value_hash))
             field_rows.append({
                 "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
                 "field_key":field,"status":status,"source_value_json":raw,
-                "normalized_value":normalized,"verification_status":verification
+                "normalized_value":normalized,"verification_status":verification,
+                "source_payload_match":payload_match
             })
+    db.executemany("INSERT INTO card_field_coverage VALUES(?,?,?,?,?,?)",coverage_inserts)
+    if len(coverage_inserts)!=len(cards)*len(fields):
+        raise ValueError("Card-field coverage matrix is incomplete")
+    if any(x[4]!=1 for x in coverage_inserts):
+        raise ValueError("At least one normalized source field does not match its raw card payload")
     with (out_dir/"card-field-gap-report.csv").open("w",newline="",encoding="utf-8-sig") as f:
         w=csv.DictWriter(f,fieldnames=list(field_rows[0]) if field_rows else ["card_id","field_key","status"])
         w.writeheader();w.writerows(field_rows)
@@ -118,7 +148,7 @@ def build(db_path: Path, out_dir: Path):
 
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
-      "field_status_counts":{},
+      "field_status_counts":{},\n      "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),\n      "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
       "unresolved_cost_rows":sum(1 for r in costs if not r["soul_known"] or (r["card_type"]=="지형" and not r["lp_known"])),
       "unmapped_skill_card_rows":sum(1 for r in skills if r["mapping_status"]=="unmapped"),
