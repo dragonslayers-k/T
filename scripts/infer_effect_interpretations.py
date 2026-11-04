@@ -293,7 +293,7 @@ def parse(text, known_skills=None):
         referenced_stats=[stat_name_map[x] for x in re.findall(
             r"AP|DP|HP|LP|공격력|방어력|체력",t)]
         if referenced_stats:
-            operation_kind=("divide_stat_by_expression" if re.search(r"나누",t)
+            operation_kind=("divide_stat_by_expression" if re.search(r"나누|나눈",t)
                             else "multiply_or_scale_stat" if re.search(r"곱",t)
                             else "formula_based_stat_change")
             ops.append({"kind":operation_kind,"stats":_uniq(referenced_stats),
