@@ -254,6 +254,8 @@ jobs:
               "soul_mapping_review","soul_semantic_review","soul_manual_review",
               "skill_mapping_rows","skill_source_rows","skill_unmapped_rows",
               "skill_manual_verified_rows","skill_community_candidate_rows",
+              "manual_rule_count","manual_skill_rule_count","manual_global_rule_count","manual_rule_conflict_count",
+              "manual_skill_rule_engine_test_pending","manual_global_rule_engine_test_pending",
               "skill_no_special_rows","skill_inventory_unmapped_values",
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
