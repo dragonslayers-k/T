@@ -203,3 +203,38 @@ T에서 확인한 사실이나 스키마가 APK 엔진의 구현 완료를 의�
 - 제외 카드 ID, 후보 풀 전체, 0개 처리, 하드캡은 미확인. Inven의 최대 5장 언급은 보조자료다.
 - 모래의형상화(9010731883)는 대지 지형 파괴 후 속박 2턴 소환, 유소울=턴 일의자리, 무소울=십의자리, AP=소각장 유닛 수, DP=핸드 유닛 수, HP=백필드 지형 수, 최대 레벨 10이라는 별도 공식이다.
 모든 내용은 원문 구조화이며 엔진 검증 전까지 pending/non_executable이다.
+
+---
+
+## 2026-11-05 최신 운영 갱신 — 병렬 진행 / A30 / APK PR #28
+
+### 현재 검증된 저장소 상태
+
+- T 브랜치 `feat/carddb-effect-semantic-pass`: HEAD `00c0480d0bd3eec3b2685986cdc471f20ca6fffb`; PR #9 open/unmerged. Actions #532 성공: https://github.com/dragonslayers-k/T/actions/runs/41934778231
+- DB29 `fm1-carddb-29`는 불변 기준선. DB30 발행과 PR #9 병합은 사용자 명시 승인 전 금지.
+- Skill1 원문 조사 문서는 A30까지 존재한다. A1~A30 합계는 후보 행 2,198 / 원문 발췌 2,224 / 정확 문구 변형 477이다. 이 값은 근거 인벤토리이지 의미 검증·엔진 구현 완료량이 아니다. A31은 Skill1만 필터링한 후보 빈도 262~271위로 이어간다. Skill2와 혼합 금지.
+- FM-OFFLINE PR #28: https://github.com/dragonslayers-k/FM-OFFLINE/pull/28 — HEAD `4f19702fc0fccc7a1651ddf5bd09257e24162402`, open/draft/unmerged. Actions #129 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41935871522. JS 규칙 테스트, Python 변환기 검사, Android Debug APK 빌드, APK 패키지/ZIP 검증과 산출물 업로드가 성공했다. 이 run은 선택형 DB29 카드팩·에뮬레이터 검증을 실행하지 않았으므로 실제 카드팩 설치·대전 검증 성공으로 간주하지 않는다.
+- PR #28에는 불변 전투 이벤트 레코드·결정적 큐와 검증된 카드 영역 이동 primitive가 들어 있다. 이것은 효과 실행 기반이며 모든 카드 효과가 이벤트에 연결된 것은 아니다. 별도 PR #29 변경은 #28에 통합 후 중복 방지를 위해 닫았다.
+
+### 기존 순차 계획을 병렬 진행으로 전환
+
+DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다. 독립 작업은 동시에 진행한다.
+
+1. **T 원본/필드 감사:** 카드 15,350장·55개 필드·이미지·URL의 원본 보존과 카드 ID별 누락/빈값/미적용/미확인 분류.
+2. **T Skill1/Skill2:** A31 이후 Skill1 근거 배치, Skill2 미확보 8행 복구, 매뉴얼·카드 원문 교차 검증. 두 스킬 필드는 분리.
+3. **T 효과/비용:** 저신뢰 효과, hybrid 52, NCS/BONUS 779, 수식·분기·소울/LP/유지비 의미를 병렬 검증. 기존 수치는 최신 재산출 전까지 기준 스냅샷으로만 사용.
+4. **APK 공통 엔진:** 이벤트 dispatch, 대상 선택, 재진입/순환 방지, zone owner/capacity, 상태 snapshot, 영구·임시 능력치, 소환/복제/장착 primitive를 독립 테스트.
+5. **APK 규칙 핸들러:** Manual authority 규칙 및 카드별 원문 근거가 확보된 항목부터 구현. 근거 없는 후보는 계속 non_executable.
+6. **T↔APK 데이터팩 계약:** SQLite→converter→manifest→importer 간 카드 필드, enum, provenance, executable gate, 버전·해시 일치 테스트.
+7. **통합 검증:** 변경 묶음의 focused tests 후 필요한 시점에 DB29 전체 감사, 데이터팩 import, emulator, 고정 시드 대전 검증을 묶어 수행.
+
+### 속도·CI 운영 규칙
+
+- 독립 트랙을 병렬 진행하고 동일 기능의 중복 PR을 만들지 않는다. 상호 의존 코드는 통합 PR에 묶는다.
+- 관련 변경과 focused tests를 한 번에 묶고, 같은 SHA에서 통과한 Actions를 반복 실행하지 않는다.
+- PR에서는 경량 회귀 테스트 우선. 전체 DB audit·크롤링·이미지 다운로드·에뮬레이터 검증은 실제 통합 시점에 필요한 만큼만 수행한다.
+- 실패 시 로그의 최초 실패 step을 수정한 뒤 재실행한다. 취소는 실패로 집계하지 않으며 후속 성공이 동일 SHA/변경을 포함하는지 확인한다.
+- 진척은 문서 수가 아니라 원문 근거 확보 / 의미 검증 / 실행 handler / 회귀 테스트 / 통합 검증으로 분리 보고한다.
+- DB29·Release 29는 불변, DB30 미발행, PR #9와 PR #28 미병합 원칙을 유지한다.
+
+다음 상태 보고는 T/APK 각각의 HEAD SHA, PR 상태, Actions run ID/conclusion, 후보 원문 누계, 의미 검증 수, 실행 handler 수, 통과 테스트 수, 미확인 backlog를 구분한다. Actions 성공은 실제 실행된 job 단계의 성공으로만 보고한다.
