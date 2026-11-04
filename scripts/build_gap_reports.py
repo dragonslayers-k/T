@@ -352,6 +352,7 @@ def build(db_path: Path, out_dir: Path):
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
+      "field_applicability_counts":{},
       "field_status_counts_by_field":per_field_status_counts,
       "field_applicability_counts_by_field":per_field_applicability_counts,
       "field_applicability_candidate_pairs":len(applicability_rows),
@@ -370,7 +371,9 @@ def build(db_path: Path, out_dir: Path):
       "effect_low_confidence_classification_counts":effect_classes,
       "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json","field-applicability-candidate-report.jsonl","field-applicability-candidate-report.csv"]
     }
-    for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
+    for r in field_rows:
+        summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
+        summary["field_applicability_counts"][r["applicability_status"]]=summary["field_applicability_counts"].get(r["applicability_status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
     db.commit()
     db.close()
