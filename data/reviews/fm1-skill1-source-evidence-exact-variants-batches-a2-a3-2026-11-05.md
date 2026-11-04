@@ -35,7 +35,7 @@ The excerpts below are exact `additional_text` values in that artifact. Counts a
 
 **Still unresolved:** which unit receives HP; current/base HP amount; whether this unit must cause destruction; whether the pre-attack variant is distinct; HP cap and simultaneous-destruction handling.
 
-## A3 — 환상폭발 (48 candidate rows; 47 mechanic excerpts; 2 exact variants)
+## Separate Skill2 item — 환상폭발 (48 candidate rows; 47 mechanic excerpts; 2 exact variants)
 
 | Count | Exact source excerpt | Sample card IDs / names |
 |---:|---|---|
@@ -65,7 +65,7 @@ The excerpts below are exact `additional_text` values in that artifact. Counts a
 
 **Still unresolved:** “magic” card/type/ability classification, bonus application relative to DP, and temporary/copied classifications.
 
-## Source and implementation boundary
+**Field-separation correction:** 환상폭발 is recorded under `Skill2` in Actions #430 and is not part of Skill1 Batch A3. Its section above is retained as a separate Skill2 item and must not be counted in Skill1 coverage.\n\n## Source and implementation boundary
 
 - This file is a source-index expansion only; it does not claim that the summarized semantics are fully resolved.
 - A1–A4 source candidate groups must remain distinct from the 27 Manual-authority rules.
