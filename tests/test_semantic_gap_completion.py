@@ -20,6 +20,32 @@ class SoulCostGapStatusTests(unittest.TestCase):
         self.assertEqual(cost_interpretation_status(0, 0), "unresolved")
 
 
+class EffectGapRegressionTests(unittest.TestCase):
+    def test_status_condition_target_note_is_not_unparsed_effect(self):
+        parsed = parse("▶ 에카마엘상태의 조건 대상이 됩니다.")
+        self.assertEqual(parsed["classification"], "state_condition_target_reference")
+        self.assertEqual(parsed["confidence"], "medium")
+        self.assertTrue(all(op.get("executable") is False for op in parsed["operations"]))
+
+    def test_episode_scope_note_is_metadata(self):
+        parsed = parse("※ 농민은 에피소드 농민만 해당됩니다.(어드벤스 신규발매 농민N은 포함되지 않습니다.)")
+        self.assertEqual(parsed["classification"], "reference_or_metadata")
+        self.assertEqual(parsed["confidence"], "not_applicable")
+
+    def test_decorated_unit_list_heading_is_not_unparsed(self):
+        parsed = parse("▶ 유닛 목록.")
+        self.assertEqual(parsed["classification"], "section_heading")
+
+    def test_defense_convert_positive_negative_dp_marks_are_structured(self):
+        parsed = parse("방어변환 : AP 1 이상 공격시, 상대를 공격한 후 상대의 DP 양수,음수기호를 변환시킨다.")
+        self.assertEqual(parsed["confidence"], "medium")
+        self.assertTrue(any(
+            op.get("kind") == "modify_stat_marks" and op.get("stat") == "dp"
+            and op.get("operation") == "reverse_sign" and op.get("executable") is False
+            for op in parsed["operations"]
+        ))
+
+
 class SkillExtractionTests(unittest.TestCase):
     def test_split_skill_heading_and_body(self):
         text="각인의결계\n\n: 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다."
