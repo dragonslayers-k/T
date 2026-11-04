@@ -80,7 +80,13 @@ result["effect_interpretation_low_confidence"]=q("select count(*) from card_effe
 result["inferred_skill_card_rows"]=q("select count(*) from card_rule_mappings where mapping_status='inferred'")
 result["unmapped_skill_card_rows_after_inference"]=q("select count(*) from card_rule_mappings where mapping_status='unmapped'")
 result["inferred_skill_name_only_rows"]=q("select count(*) from game_rule_catalog where source_authority='inferred' and confidence='low'")
+result["manual_rule_count"]=q("select count(*) from game_rule_catalog where source_authority='manual'")
+result["manual_skill_rule_count"]=q("select count(*) from game_rule_catalog where source_authority='manual' and source_references_json like '%specialability.htm%'")
+result["manual_global_rule_count"]=result["manual_rule_count"]-result["manual_skill_rule_count"]
+result["manual_rule_conflict_count"]=q("select count(*) from game_rule_catalog where source_authority='manual' and verification_status='manual_conflict'")
 result["manual_rule_engine_test_pending"]=q("select count(*) from game_rule_catalog where source_authority='manual' and implementation_status='pending_engine_test'")
+result["manual_skill_rule_engine_test_pending"]=q("select count(*) from game_rule_catalog where source_authority='manual' and implementation_status='pending_engine_test' and source_references_json like '%specialability.htm%'")
+result["manual_global_rule_engine_test_pending"]=result["manual_rule_engine_test_pending"]-result["manual_skill_rule_engine_test_pending"]
 result["effect_text_accounted_for"]=result["effect_rows"]==result["effect_source_text_rows"] and result["effect_rows_without_text"]==0 and result["effect_source_mismatches"]==0
 result["cost_parse_accounted_for"]=result["soul_cost_fully_parsed"]+result["soul_cost_needs_review"]==target
 result["skill_mapping_coverage_accounted_for"]=result["skill_mapping_coverage_accounted_for"] and result["skill_mapping_rows"]>0
