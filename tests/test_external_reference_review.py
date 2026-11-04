@@ -32,7 +32,12 @@ class ExternalReferenceReviewTests(unittest.TestCase):
     def test_area_counter_name_mismatches_are_not_silently_merged(self):
         rows = [r for r in self.review["records"] if r["classification"] == "named_area_counter_reference_candidate"]
         self.assertEqual(len(rows), 7)
-        self.assertTrue(all(r["external_reference_review"]["structured_candidate"]["label_mismatch"] for r in rows))
+        mismatches = [r for r in rows if r["external_reference_review"]["structured_candidate"]["label_mismatch"]]
+        matches = [r for r in rows if not r["external_reference_review"]["structured_candidate"]["label_mismatch"]]
+        self.assertEqual(len(mismatches), 6)
+        self.assertEqual(len(matches), 1)
+        self.assertTrue(all(r["external_reference_review"]["structured_candidate"]["counter_label_in_TextBase"] and
+                            r["external_reference_review"]["structured_candidate"]["counter_label_in_TextExtra"] for r in rows))
 
     def test_naver_reference_is_registered_but_not_claimed_as_read(self):
         source = next(s for s in self.registry["sources"] if s["id"] == "jlplace_original_fanma_guide")
