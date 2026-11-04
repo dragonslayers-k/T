@@ -69,7 +69,7 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/apply_runtime_fallbacks.py scripts/resolve_runtime_fallbacks.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/semantic_audit_status.py
+          python -m py_compile scripts/apply_runtime_fallbacks.py scripts/resolve_runtime_fallbacks.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/audit_raw_field_applicability.py scripts/semantic_audit_status.py
           python -m unittest tests/test_runtime_fallbacks.py
           python -m unittest tests/test_runtime_fallback_resolver.py
           python -m unittest tests/test_effect_pattern_audit.py
@@ -79,6 +79,7 @@ jobs:
           python -m unittest tests/test_infer_unmapped_skills.py
           python -m unittest tests/test_skill2_execution_review.py
           python -m unittest tests/test_card_field_coverage.py
+          python -m unittest tests/test_raw_field_applicability.py
           python -m unittest tests/test_name_only_skill_image_probe.py
           python -m unittest tests/test_effect_interpretations.py
           python -m unittest tests/test_semantic_gap_completion.py
@@ -204,6 +205,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/build_gap_reports.py --db data/fm1_cards.sqlite --out-dir data/gap-reports
+          python scripts/audit_raw_field_applicability.py --db data/fm1_cards.sqlite --out data/gap-reports/raw-field-applicability-audit.jsonl
           cat data/gap-reports/gap-report-summary.json
           cat data/gap-reports/effect-low-confidence-summary.json
           python - <<'PY'
@@ -224,6 +226,7 @@ jobs:
           name: fm1-carddb-semantic-review-${{ env.SOURCE_RELEASE_TAG }}-${{ github.run_number }}
           path: |
             data/gap-reports/card-field-card-summary.jsonl
+            data/gap-reports/raw-field-applicability-audit.jsonl
             data/gap-reports/card-field-status-summary.json
             data/gap-reports/field-applicability-scope-report.jsonl
             data/gap-reports/field-applicability-scope-report.csv
