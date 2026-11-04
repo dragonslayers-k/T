@@ -270,6 +270,19 @@ jobs:
           unmapped_skill_rows = db.execute(
               "SELECT COUNT(*) FROM card_rule_mappings WHERE mapping_status='unmapped'"
           ).fetchone()[0]
+          inferred_skill_rule_count = db.execute(
+              "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='inferred'"
+          ).fetchone()[0]
+          name_only_low_confidence_skill_rules = db.execute(
+              "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='inferred' AND confidence='low'"
+          ).fetchone()[0]
+          effect_interpretation_rows = db.execute("SELECT COUNT(*) FROM card_effect_interpretations").fetchone()[0]
+          effect_interpretation_missing = db.execute(
+              "SELECT COUNT(*) FROM card_effect_clauses cl LEFT JOIN card_effect_interpretations i USING(clause_id) WHERE i.clause_id IS NULL"
+          ).fetchone()[0]
+          low_confidence_effect_interpretations = db.execute(
+              "SELECT COUNT(*) FROM card_effect_interpretations WHERE confidence='low'"
+          ).fetchone()[0]
           skill_inventory_rows = db.execute("SELECT COUNT(*) FROM skill_enum_inventory").fetchone()[0]
           community_playable_rows = db.execute(
               "SELECT COUNT(*) FROM game_rule_catalog WHERE source_authority='community' AND playable_by_default=1"
@@ -309,7 +322,7 @@ jobs:
               "communityRuleCandidateCount": community_rule_count,
               "cardRuleMappingRows": card_rule_mapping_rows,
               "manualSkillMappingRows": manual_skill_mappings,
-              "communitySkillCandidateRows": community_skill_candidates,
+              "communitySkillCandidateRows": community_skill_candidates,\n    "inferredSkillRuleCount": inferred_skill_rule_count,\n    "nameOnlyLowConfidenceSkillRules": name_only_low_confidence_skill_rules,\n    "effectInterpretationRows": effect_interpretation_rows,\n    "effectInterpretationMissing": effect_interpretation_missing,\n    "lowConfidenceEffectInterpretations": low_confidence_effect_interpretations,
               "unmappedSkillRows": unmapped_skill_rows,
               "skillEnumInventoryRows": skill_inventory_rows,
               "playableCommunityRuleRows": community_playable_rows,
@@ -337,10 +350,10 @@ jobs:
               or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000
               or effect_candidate_rows != texts or effect_clause_rows < effect_candidate_rows
               or effect_span_errors != 0 or source_pages != 30700
-              or manual_rule_count != 27 or community_rule_count != 41
+              or manual_rule_count != 27 or community_rule_count < 41
               or card_rule_mapping_rows < 15000 or manual_skill_mappings < 1000
               or community_skill_candidates < 100 or skill_inventory_rows < 100
-              or community_playable_rows != 0
+              or community_playable_rows != 0 or unmapped_skill_rows != 0\n    or inferred_skill_rule_count < 900 or effect_interpretation_rows != effect_clause_rows\n    or effect_interpretation_missing != 0
           ):
               raise SystemExit("SQLite validation failed: " + json.dumps(summary, ensure_ascii=False))
           with gzip.open("data/fm1_cards.sqlite.gz", "wb", compresslevel=6) as out:
