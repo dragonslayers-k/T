@@ -30,9 +30,9 @@ result={
  "cards_with_image_urls":q("select count(distinct card_id) from card_images where source_url is not null and source_url<>''"),
  "image_rows_in_db":q("select count(*) from card_images"),
  "large_images_downloaded":sum(x.get("status") in ("downloaded","archive_verified","verified") for x in large),
- "small_images_downloaded":sum(x.get("status") in ("downloaded","archive_verified") for x in small),
- "large_image_failures":sum(x.get("status") not in ("downloaded","archive_verified") for x in large),
- "small_image_failures":sum(x.get("status") not in ("downloaded","archive_verified") for x in small),
+ "small_images_downloaded":sum(x.get("status") in ("downloaded","archive_verified","verified") for x in small),
+ "large_image_failures":sum(x.get("status") not in ("downloaded","archive_verified","verified") for x in large),
+ "small_image_failures":sum(x.get("status") not in ("downloaded","archive_verified","verified") for x in small),
  "large_image_manifest_rows":len(large),"small_image_manifest_rows":len(small),
  "lp_known_cards":q("select count(*) from card_costs where lp_known=1"),
  "lp_zero_cards":q("select count(*) from card_costs where lp_known=1 and lp_value=0"),
@@ -57,7 +57,7 @@ result={
 result["effect_text_accounted_for"]=result["effect_rows"]==result["effect_source_text_rows"] and result["effect_rows_without_text"]==0 and result["effect_source_mismatches"]==0
 result["cost_parse_accounted_for"]=result["soul_cost_fully_parsed"]+result["soul_cost_needs_review"]==target
 result["skill_mapping_coverage_accounted_for"]=result["skill_mapping_coverage_accounted_for"] and result["skill_mapping_rows"]>0
-result["complete"]=(
+result["source_snapshot_integrity_pass"]=(
  result["firestore_source_count"]==target and result["unique_cards"]==target and
  result["duplicate_ids"]==0 and result["missing_names"]==0 and
  result["missing_individual_urls"]==0 and result["missing_list_urls"]==0 and
@@ -70,5 +70,11 @@ result["complete"]=(
  result["lp_known_cards"]==289 and result["lp_zero_cards"]==72 and
  result["cost_parse_accounted_for"] and result["skill_mapping_coverage_accounted_for"] and result["effect_text_accounted_for"] and result["crawl_complete"] is True
 )
+result["semantic_completeness_pass"]=(
+ result["soul_cost_needs_review"]==0 and result["soul_mapping_review"]==0 and
+ result["soul_semantic_review"]==0 and result["skill_unmapped_rows"]==0 and
+ result["skill_inventory_unmapped_values"]==0 and result["effect_rows_unverified"]==0
+)
+result["complete"]=result["source_snapshot_integrity_pass"] and result["semantic_completeness_pass"]
 Path("data/audit-report.json").write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
-print(json.dumps(result,ensure_ascii=False,indent=2));c.close();sys.exit(0 if result["complete"] else 2)
+print(json.dumps(result,ensure_ascii=False,indent=2));c.close();sys.exit(0 if result["source_snapshot_integrity_pass"] else 2)
