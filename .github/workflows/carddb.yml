@@ -73,6 +73,7 @@ jobs:
           python -m unittest tests/test_cost_decoding.py
           python -m unittest tests/test_effect_candidates.py
           python -m unittest tests/test_manual_rules.py
+          python -m unittest tests/test_infer_unmapped_skills.py
           python -m unittest tests/test_semantic_gap_completion.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
