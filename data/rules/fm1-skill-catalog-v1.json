@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "FM1 unit special-skill rule catalogue. Rules are paraphrased, source-versioned, and never inferred from an enum name alone.",
+  "description": "FM1 unit special-skill rule catalogue. Manual.zip is authoritative; community and inferred candidates remain distinct.",
   "sourcePriority": [
     "Manual.zip",
     "community_reference",
@@ -60,7 +60,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "normal_damage",
+        "formula": "max(0, attacker.ap - defender.dp)",
+        "requiresAttackerAP": 1,
+        "sourceNote": "매뉴얼은 일반공격을 특수기술이 없는 유닛의 기본 공격으로 정의"
+      },
+      "definition": {
+        "kind": "normal_damage",
+        "formula": "max(0, attacker.ap - defender.dp)",
+        "requiresAttackerAP": 1,
+        "sourceNote": "매뉴얼은 일반공격을 특수기술이 없는 유닛의 기본 공격으로 정의"
+      }
     },
     {
       "id": "defense_bypass",
@@ -95,7 +107,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "direct_hp_damage",
+        "formula": "attacker.ap",
+        "ignoresDefenderDP": true,
+        "ignoresNegativeDefenderDP": true
+      },
+      "definition": {
+        "kind": "direct_hp_damage",
+        "formula": "attacker.ap",
+        "ignoresDefenderDP": true,
+        "ignoresNegativeDefenderDP": true
+      }
     },
     {
       "id": "fatal_attack",
@@ -130,7 +154,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_hp",
+        "value": 1,
+        "trigger": "after_attack"
+      },
+      "definition": {
+        "kind": "set_target_hp",
+        "value": 1,
+        "trigger": "after_attack"
+      }
     },
     {
       "id": "piercing_attack",
@@ -169,7 +203,23 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "pierce_dp_then_hp",
+        "formula": "attacker.ap",
+        "order": [
+          "reduce_defender_dp_by_attacker_ap",
+          "overflow_damage_to_hp"
+        ]
+      },
+      "definition": {
+        "kind": "pierce_dp_then_hp",
+        "formula": "attacker.ap",
+        "order": [
+          "reduce_defender_dp_by_attacker_ap",
+          "overflow_damage_to_hp"
+        ]
+      }
     },
     {
       "id": "weaken_attack",
@@ -205,7 +255,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "modify_target_stats",
+        "ap": -1,
+        "dp": -1
+      },
+      "definition": {
+        "kind": "modify_target_stats",
+        "ap": -1,
+        "dp": -1
+      }
     },
     {
       "id": "petrify_attack",
@@ -241,7 +301,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_and_modify_target_stats",
+        "ap": 0,
+        "dp": 1
+      },
+      "definition": {
+        "kind": "set_and_modify_target_stats",
+        "ap": 0,
+        "dp": 1
+      }
     },
     {
       "id": "vampiric_attack",
@@ -277,7 +347,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "heal_from_damage",
+        "formula": "ceil(actual_hp_damage/2)",
+        "usesActualHpDamage": true
+      },
+      "definition": {
+        "kind": "heal_from_damage",
+        "formula": "ceil(actual_hp_damage/2)",
+        "usesActualHpDamage": true
+      }
     },
     {
       "id": "aging_attack",
@@ -312,7 +392,15 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "modify_target_stats",
+        "ap": -2
+      },
+      "definition": {
+        "kind": "modify_target_stats",
+        "ap": -2
+      }
     },
     {
       "id": "charge_attack",
@@ -345,7 +433,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "attack_with_ap_and_dp",
+        "formula": "attacker.ap + attacker.dp",
+        "can_attack_whenApZero": true,
+        "can_attack_whenApCoinZero": true
+      },
+      "definition": {
+        "kind": "attack_with_ap_and_dp",
+        "formula": "attacker.ap + attacker.dp",
+        "can_attack_whenApZero": true,
+        "can_attack_whenApCoinZero": true
+      }
     },
     {
       "id": "beast_tamer",
@@ -397,7 +497,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == beast",
+        "ap": 0,
+        "dp": null
+      },
+      "definition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == beast",
+        "ap": 0,
+        "dp": null
+      }
     },
     {
       "id": "bravery_attack",
@@ -433,7 +545,21 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "bonus_damage",
+        "amount": 1,
+        "condition": "defender.level >= attacker.level",
+        "apZeroStillDealsBonus": true,
+        "noEffectWhenTargetLevelLower": true
+      },
+      "definition": {
+        "kind": "bonus_damage",
+        "amount": 1,
+        "condition": "defender.level >= attacker.level",
+        "apZeroStillDealsBonus": true,
+        "noEffectWhenTargetLevelLower": true
+      }
     },
     {
       "id": "regeneration",
@@ -468,7 +594,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "modify_attacker_stats",
+        "hp": 1,
+        "trigger": "on_attack",
+        "appliesEvenWhenNoHpDamage": true
+      },
+      "definition": {
+        "kind": "modify_attacker_stats",
+        "hp": 1,
+        "trigger": "on_attack",
+        "appliesEvenWhenNoHpDamage": true
+      }
     },
     {
       "id": "frenzy_attack",
@@ -502,7 +640,23 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "sacrifice_hp_for_damage",
+        "leaveHp": 1,
+        "bonusFormula": "attacker.hp_before - 1",
+        "addToAttackPower": true,
+        "canAttackWhenApZero": true,
+        "canAttackWhenApCoinZero": true
+      },
+      "definition": {
+        "kind": "sacrifice_hp_for_damage",
+        "leaveHp": 1,
+        "bonusFormula": "attacker.hp_before - 1",
+        "addToAttackPower": true,
+        "canAttackWhenApZero": true,
+        "canAttackWhenApCoinZero": true
+      }
     },
     {
       "id": "consecutive_attack",
@@ -537,7 +691,15 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "double_after_ap_minus_one",
+        "formula": "max(0,(attacker.ap - 1)*2)"
+      },
+      "definition": {
+        "kind": "double_after_ap_minus_one",
+        "formula": "max(0,(attacker.ap - 1)*2)"
+      }
     },
     {
       "id": "fear_attack",
@@ -573,7 +735,21 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "bonus_damage",
+        "amount": 1,
+        "condition": "defender.level <= attacker.level",
+        "apZeroStillDealsBonus": true,
+        "noEffectWhenTargetLevelHigher": true
+      },
+      "definition": {
+        "kind": "bonus_damage",
+        "amount": 1,
+        "condition": "defender.level <= attacker.level",
+        "apZeroStillDealsBonus": true,
+        "noEffectWhenTargetLevelHigher": true
+      }
     },
     {
       "id": "charm_attack",
@@ -609,7 +785,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_stats",
+        "ap": 0,
+        "condition": "actual_hp_damage == 0 && defender.dp_blocked_attack == true"
+      },
+      "definition": {
+        "kind": "set_target_stats",
+        "ap": 0,
+        "condition": "actual_hp_damage == 0 && defender.dp_blocked_attack == true"
+      }
     },
     {
       "id": "ability_seal",
@@ -645,7 +831,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "replace_target_special_skill",
+        "value": "일반공격",
+        "trigger": "after_attack",
+        "suppressesSpecialSkillEffects": true
+      },
+      "definition": {
+        "kind": "replace_target_special_skill",
+        "value": "일반공격",
+        "trigger": "after_attack",
+        "suppressesSpecialSkillEffects": true
+      }
     },
     {
       "id": "spell_suppression",
@@ -698,7 +896,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == magic",
+        "ap": 0,
+        "dp": null
+      },
+      "definition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == magic",
+        "ap": 0,
+        "dp": null
+      }
     },
     {
       "id": "weapon_suppression",
@@ -751,7 +961,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == equipment",
+        "ap": 0,
+        "dp": null
+      },
+      "definition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == equipment",
+        "ap": 0,
+        "dp": null
+      }
     },
     {
       "id": "copy_attack",
@@ -804,7 +1026,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "copy_target_ap_for_attack",
+        "source": "defender.ap",
+        "usesDefenderEffectiveAp": true,
+        "ignoresAttackerCoinAndAttackModifiers": true
+      },
+      "definition": {
+        "kind": "copy_target_ap_for_attack",
+        "source": "defender.ap",
+        "usesDefenderEffectiveAp": true,
+        "ignoresAttackerCoinAndAttackModifiers": true
+      }
     },
     {
       "id": "shield_break",
@@ -841,7 +1075,19 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_stats",
+        "dp": 0,
+        "condition": "defender.dp >= 0",
+        "noEffectWhenDefenderDpNegative": true
+      },
+      "definition": {
+        "kind": "set_target_stats",
+        "dp": 0,
+        "condition": "defender.dp >= 0",
+        "noEffectWhenDefenderDpNegative": true
+      }
     },
     {
       "id": "curse_attack",
@@ -877,7 +1123,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "modify_target_stats",
+        "ap": -2,
+        "dp": -2
+      },
+      "definition": {
+        "kind": "modify_target_stats",
+        "ap": -2,
+        "dp": -2
+      }
     },
     {
       "id": "defensive_use",
@@ -913,7 +1169,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "direct_hp_damage",
+        "formula": "attacker.ap + defender.dp",
+        "negativeDefenderDpReducesAttackerAp": true
+      },
+      "definition": {
+        "kind": "direct_hp_damage",
+        "formula": "attacker.ap + defender.dp",
+        "negativeDefenderDpReducesAttackerAp": true
+      }
     },
     {
       "id": "taunt_attack",
@@ -951,7 +1217,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_hp_and_transfer_lost_hp_to_ap",
+        "hp": 1,
+        "apGainFormula": "defender.hp_before - 1"
+      },
+      "definition": {
+        "kind": "set_target_hp_and_transfer_lost_hp_to_ap",
+        "hp": 1,
+        "apGainFormula": "defender.hp_before - 1"
+      }
     },
     {
       "id": "confusion_attack",
@@ -989,7 +1265,21 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "swap_target_stats",
+        "stats": [
+          "ap",
+          "hp"
+        ]
+      },
+      "definition": {
+        "kind": "swap_target_stats",
+        "stats": [
+          "ap",
+          "hp"
+        ]
+      }
     },
     {
       "id": "stealth_attack",
@@ -1022,7 +1312,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "modify_attacker_stats",
+        "dp": 1,
+        "trigger": "after_attack"
+      },
+      "definition": {
+        "kind": "modify_attacker_stats",
+        "dp": 1,
+        "trigger": "after_attack"
+      }
     },
     {
       "id": "defense_convert",
@@ -1074,7 +1374,17 @@
       "authority": "manual",
       "confidence": "high",
       "verificationStatus": "manual_verified",
-      "implementationStatus": "pending_engine_test"
+      "implementationStatus": "pending_engine_test",
+      "ruleDefinition": {
+        "kind": "set_target_dp_negative",
+        "policy": "apply_negative_sign_to_dp",
+        "trigger": "after_attack"
+      },
+      "definition": {
+        "kind": "set_target_dp_negative",
+        "policy": "apply_negative_sign_to_dp",
+        "trigger": "after_attack"
+      }
     }
   ],
   "communityCandidates": [
