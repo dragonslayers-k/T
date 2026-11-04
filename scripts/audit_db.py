@@ -58,12 +58,20 @@ result={
 result["field_coverage_rows"]=q("select count(*) from card_field_coverage")
 result["field_coverage_source_verified"]=q("select count(*) from card_field_coverage where coverage_status='source_snapshot_verified'")
 result["field_coverage_source_absent"]=q("select count(*) from card_field_coverage where coverage_status='source_absent_confirmed'")
-result["field_coverage_not_applicable"]=q("select count(*) from card_field_coverage where coverage_status='not_applicable'")
+result["field_coverage_source_empty"]=q("select count(*) from card_field_coverage where coverage_status='source_empty_confirmed'")
+result["field_coverage_source_null"]=q("select count(*) from card_field_coverage where coverage_status='source_null_confirmed'")
+result["field_coverage_not_applicable"]=q("select count(*) from card_field_coverage where applicability_status='not_applicable_candidate'")
+result["field_coverage_applicable_source_absent"]=q("select count(*) from card_field_coverage where applicability_status='applicable_source_absent'")
+result["field_coverage_applicability_candidate_pairs"]=q("select count(*) from (select c.card_type,f.field_key from card_field_coverage f join cards c using(card_id) where f.applicability_status='not_applicable_candidate' group by c.card_type,f.field_key)")
 result["field_coverage_missing"]=q("select count(*) from card_field_coverage where coverage_status='missing_on_card'")
 result["field_coverage_payload_mismatches"]=q("select count(*) from card_field_coverage where source_payload_match<>1")
-result["field_coverage_complete"]=(
+result["field_coverage_matrix_integrity"]=(
  result["field_coverage_rows"]==target*55 and result["field_coverage_missing"]==0 and
  result["field_coverage_payload_mismatches"]==0
+)
+result["field_coverage_applicability_complete"]=result["field_coverage_not_applicable"]==0
+result["field_coverage_complete"]=(
+ result["field_coverage_matrix_integrity"] and result["field_coverage_applicability_complete"]
 )
 result["effect_interpretation_rows"]=q("select count(*) from card_effect_interpretations")
 result["effect_clause_rows"]=q("select count(*) from card_effect_clauses")
