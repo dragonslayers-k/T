@@ -45,7 +45,7 @@ class CardFieldCoverageTests(unittest.TestCase):
             """)
             db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
                        ("c1", "카드1", "유닛", json.dumps({"Name": "카드1", "Skill1": 12}, ensure_ascii=False), "https://fmlunatic.com/card/c1"))
-            db.execute("INSERT INTO cards VALUES(?,?,?,?)",
+            db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
                        ("c2", "카드2", "유닛", json.dumps({"Name": "카드2"}, ensure_ascii=False), "https://fmlunatic.com/card/c2"))
             db.executemany("INSERT INTO card_fields VALUES(?,?,?,?,?,?)", [
                 (1, "c1", "Name", json.dumps("카드1", ensure_ascii=False), "카드1", "extracted"),
