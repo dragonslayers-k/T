@@ -74,8 +74,12 @@ class CardFieldCoverageTests(unittest.TestCase):
 
             summary = build(db_path, root / "out")
             self.assertEqual(summary["field_status_counts"].get("missing_on_card", 0), 0)
-            self.assertEqual(summary["field_status_counts"].get("source_absent_confirmed", 0), 1)
-            self.assertEqual(summary["field_status_counts"].get("not_applicable_candidate", 0), 1)
+            self.assertEqual(summary["field_status_counts"].get("source_absent_confirmed", 0), 2)
+            self.assertEqual(summary["field_status_counts"].get("not_applicable_candidate", 0), 0)
+            self.assertEqual(summary["field_applicability_counts"]["Skill1"]["applicable_source_absent"], 1)
+            self.assertEqual(summary["field_applicability_counts"]["Skill1"]["not_applicable_candidate"], 1)
+            self.assertEqual(summary["field_applicability_candidate_pairs"], 1)
+            self.assertEqual(summary["field_applicability_candidate_cells"], 1)
             self.assertEqual(summary["field_status_counts"].get("source_empty_confirmed", 0), 1)
             self.assertEqual(summary["field_status_counts"].get("source_null_confirmed", 0), 1)
             self.assertEqual(summary["source_payload_mismatches"], 0)
@@ -89,6 +93,7 @@ class CardFieldCoverageTests(unittest.TestCase):
             self.assertIn("Skill1", c5_summary["source_null_confirmed_fields"])
             c3_summary = next(row for row in card_rows if row["card_id"] == "c3")
             self.assertIn("Skill1", c3_summary["not_applicable_candidate_fields"])
+            self.assertIn("Skill1", c3_summary["source_absent_confirmed_fields"])
             self.assertEqual(c2_summary["source_category"], 2)
             self.assertEqual(c3_summary["source_category"], 3)
             field_summary = json.loads((root / "out" / "card-field-status-summary.json").read_text(encoding="utf-8"))
@@ -100,10 +105,14 @@ class CardFieldCoverageTests(unittest.TestCase):
 
             check = sqlite3.connect(db_path)
             status = check.execute(
-                "SELECT coverage_status FROM card_field_coverage WHERE card_id='c2' AND field_key='Skill1'"
-            ).fetchone()[0]
+                "SELECT coverage_status,applicability_status FROM card_field_coverage WHERE card_id='c2' AND field_key='Skill1'"
+            ).fetchone()
+            candidate = check.execute(
+                "SELECT coverage_status,applicability_status FROM card_field_coverage WHERE card_id='c3' AND field_key='Skill1'"
+            ).fetchone()
             check.close()
-            self.assertEqual(status, "source_absent_confirmed")
+            self.assertEqual(tuple(status), ("source_absent_confirmed", "applicable_source_absent"))
+            self.assertEqual(tuple(candidate), ("source_absent_confirmed", "not_applicable_candidate"))
 
 
 if __name__ == "__main__":
