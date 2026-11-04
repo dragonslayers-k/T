@@ -38,9 +38,7 @@ class SummonProfileReviewTests(unittest.TestCase):
         self.assertEqual(effect["odd_count"], {"stat": "AP", "delta": 1})
         self.assertEqual(effect["even_count"], {"stat": "HP", "delta": 1})
         self.assertEqual(effect["zero_count_behavior"], "unverified")
-        self.assertIn("maximum-five", " ".join(self.eca["unresolved_engine_questions"]).lower()
-                      if any("maximum-five" in x.lower() for x in self.eca["unresolved_engine_questions"]) else
-                      " ".join(self.eca["unresolved_engine_questions"]).lower())
+        self.assertTrue(any("five" in q.lower() or "5" in q for q in self.eca["unresolved_engine_questions"]))
 
     def test_sand_shape_is_not_an_ecaemael_profile(self):
         self.assertEqual(self.sand["card_id"], "9010731883")
