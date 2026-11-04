@@ -161,7 +161,42 @@ class NamedEffectInterpretationTests(unittest.TestCase):
             with self.subTest(raw=raw):
                 result = parse(raw)
                 self.assertEqual(result["classification"], "effect_candidate")
-                self.assertTrue(any(op.get("kind") == "generic_effect_operation" for op in result["operations"]))
+                self.assertTrue(any(op.get("kind") in {
+                    "generic_effect_operation",
+                    "legacy_skill_grant_or_reference_candidate",
+                    "legacy_card_movement_candidate",
+                    "legacy_card_or_ability_transform_candidate",
+                } for op in result["operations"]))
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+    def test_audit_435_actual_legacy_effect_sentences_are_structured(self):
+        cases = [
+            ("아군 전체 유니트의 AP/DP/HP 를 +1 한다.", "legacy_combat_stat_operation_candidate"),
+            ("적군 유닛1을 상대방 덱 위로 올린다.", "legacy_card_movement_candidate"),
+            ("슬롯 유닛에게 숲의보호 기술을 투여한다.", "legacy_skill_grant_or_reference_candidate"),
+            ("아군 유닛 전체는 장비능력으로 변한다.", "legacy_card_or_ability_transform_candidate"),
+            ("아군 유닛 1의 킬수가 아군의 LP가 된 후 킬수=0", "generic_effect_operation"),
+            ("적군 필드 유닛 전체의 AP를 0으로 만든다.", "generic_effect_operation"),
+        ]
+        for raw, expected_kind in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                kinds = {op.get("kind") for op in result["operations"]}
+                self.assertIn(expected_kind, kinds)
+                self.assertEqual(result["classification"], "effect_candidate")
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+    def test_audit_435_ability_and_card_lists_are_not_unparsed_effects(self):
+        cases = [
+            ("수호일격 공격기술 (기술방어보다 먼저발동)", "named_ability_reference_candidate"),
+            ("돌진공격/네이밍디펜스", "card_reference_list"),
+            ("(캐리온크로우, 패러키트, 스패로우, 만다린덕).", "card_reference_list"),
+            ("무-마안석", "card_reference_list"),
+        ]
+        for raw, expected in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                self.assertEqual(result["classification"], expected)
                 self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
 
 
