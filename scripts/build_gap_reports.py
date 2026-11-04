@@ -146,6 +146,37 @@ def build(db_path: Path, out_dir: Path):
             if r["confidence"]=="low":
                 f.write(json.dumps(r,ensure_ascii=False)+"\n")
 
+    # A compact diagnostic index makes the remaining low-confidence queue
+    # actionable without downloading and opening the multi-hundred-MB DB artifact.
+    low_effects=[r for r in effects if r["confidence"]=="low"]
+    effect_groups={}
+    effect_classes={}
+    for r in low_effects:
+        try:
+            parsed=json.loads(r["interpretation_json"] or "{}")
+        except Exception:
+            parsed={}
+        classification=parsed.get("classification","unknown")
+        effect_classes[classification]=effect_classes.get(classification,0)+1
+        key=" ".join((r["segment_text"] or "").split())
+        if not key: key="(empty)"
+        group=effect_groups.setdefault(key,{"text":key,"count":0,"classification":classification,
+                                           "examples":[]})
+        group["count"]+=1
+        if len(group["examples"])<3:
+            group["examples"].append({"card_id":r["card_id"],"name":r["name"],
+                                      "url":r["source_detail_url"]})
+    ranked_effect_groups=sorted(effect_groups.values(),key=lambda x:(-x["count"],x["text"]))
+    effect_low_summary={
+      "low_confidence_rows":len(low_effects),
+      "unique_text_patterns":len(effect_groups),
+      "classification_counts":dict(sorted(effect_classes.items())),
+      "top_repeated_patterns":ranked_effect_groups[:100],
+      "rare_pattern_samples":ranked_effect_groups[-100:]
+    }
+    (out_dir/"effect-low-confidence-summary.json").write_text(
+      json.dumps(effect_low_summary,ensure_ascii=False,indent=2),encoding="utf-8")
+
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
@@ -158,7 +189,7 @@ def build(db_path: Path, out_dir: Path):
       "community_skill_card_rows":len(community_skills),
       "unmapped_skill_unique_values":len(skill_inventory),
       "low_confidence_effect_interpretations":sum(1 for r in effects if r["confidence"]=="low"),
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","cost-inference-report.jsonl"]
+      "effect_low_confidence_unique_patterns":len(effect_groups),\n      "effect_low_confidence_classification_counts":effect_classes,\n      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl"]
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
