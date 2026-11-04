@@ -27,22 +27,22 @@ def normalize_effect_name(value):
 
 def _is_named_effect_label(label):
     """Reject obvious counters, examples, dates and prose headings from the effect-name index."""
-    value=re.sub(r"\\s+"," ",str(label or "")).strip()
+    value=re.sub(r"\s+"," ",str(label or "")).strip()
     if not value:
         return False
-    if re.fullmatch(r"\\d+(?:개|장|회|이상)?",value):
+    if re.fullmatch(r"\d+(?:개|장|회|이상)?",value):
         return False
-    if re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}(?:\\s+\\d+)?",value):
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}(?:\s+\d+)?",value):
         return False
-    if re.fullmatch(r"\\d+(?:~\\d+)?\\s*(?:레벨|랭크|등급)",value):
+    if re.fullmatch(r"\d+(?:~\d+)?\s*(?:레벨|랭크|등급)",value):
         return False
-    if re.match(r"^(?:EX|예)\\s*[):：]",value,re.I):
+    if re.match(r"^(?:EX|예)\s*[):：]",value,re.I):
         return False
     if len(value)>40 or "글자" in value:
         return False
     if re.match(r"^(?:해당 유닛은|해당 마법은|동일이름 카드|공격코인|코인 수치|발동시 |소환시 |이미 아이템|조건에 충족|아군 핸드 또는 필드)",value):
         return False
-    if re.search(r"(?:일 경우|인 경우|경우에는|경우,|이면|없으면|있으면|필요합니다|필요\\.|수 있습니다|되어야 합니다|뜻합니다|보는 방법|참고 바랍니다)$",value):
+    if re.search(r"(?:일 경우|인 경우|경우에는|경우,|이면|없으면|있으면|필요합니다|필요\.|수 있습니다|되어야 합니다|뜻합니다|보는 방법|참고 바랍니다)$",value):
         return False
     return True
 
