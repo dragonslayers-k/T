@@ -12,6 +12,11 @@ def build(db_path: Path, out_dir: Path):
     present={(r["card_id"],r["field_key"]):r for r in db.execute(
         "SELECT field_id,card_id,field_key,source_value_json,normalized_value,verification_status FROM card_fields"
     )}
+    # Category-level applicability is only a candidate: a field absent from every
+    # peer card of the same type may be inapplicable, but this is not source proof.
+    observed_type_fields={(r[0],r[1]) for r in db.execute(
+        "SELECT DISTINCT c.card_type,cf.field_key FROM card_fields cf JOIN cards c USING(card_id)"
+    )}
     db.executescript("""
       CREATE TABLE IF NOT EXISTS card_field_coverage(
         card_id TEXT NOT NULL REFERENCES cards(card_id),
@@ -35,6 +40,7 @@ def build(db_path: Path, out_dir: Path):
         payload=json.loads(card["raw_payload_json"])
         verified_fields=[]
         absent_fields=[]
+        not_applicable_candidates=[]
         missing_fields=[]
         for field in fields:
             row=present.get((card["card_id"],field))
@@ -43,7 +49,13 @@ def build(db_path: Path, out_dir: Path):
                 # source absence; a key present in the raw payload but absent here is
                 # a genuine ingestion/normalization gap.
                 source_has_key=field in payload
-                status="missing_on_card" if source_has_key else "source_absent_confirmed"
+                if source_has_key:
+                    status="missing_on_card"
+                elif (card["card_type"],field) not in observed_type_fields:
+                    status="not_applicable_candidate"
+                    not_applicable_candidates.append(field)
+                else:
+                    status="source_absent_confirmed"
                 raw=None; normalized=None; verification="not_recorded"; field_id=None
                 payload_match=0 if source_has_key else 1
                 value_hash=None
@@ -63,6 +75,7 @@ def build(db_path: Path, out_dir: Path):
                 per_field_examples[field].setdefault(status,[]).append(card["card_id"])
             if status=="source_snapshot_verified": verified_fields.append(field)
             elif status=="source_absent_confirmed": absent_fields.append(field)
+            elif status=="not_applicable_candidate": pass
             elif status=="missing_on_card": missing_fields.append(field)
             field_rows.append({
                 "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
@@ -74,6 +87,7 @@ def build(db_path: Path, out_dir: Path):
             "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
             "source_snapshot_verified_fields":verified_fields,
             "source_absent_confirmed_fields":absent_fields,
+            "not_applicable_candidate_fields":not_applicable_candidates,
             "missing_on_card_fields":missing_fields
         })
     db.executemany("INSERT INTO card_field_coverage VALUES(?,?,?,?,?,?)",coverage_inserts)
