@@ -31,6 +31,11 @@ class SkillExtractionTests(unittest.TestCase):
         rows=extract_definitions("구원자의인정",text)
         self.assertTrue(rows)
         self.assertIn("공방체 +1",rows[0]["body"])
+    def test_inferred_operations_are_never_executable_before_rule_validation(self):
+        ops = operations_from_text("공격시 적 유닛 AP-2, HP+1 및 코인 -C5로 변경한다.")
+        self.assertTrue(ops)
+        self.assertTrue(all(op.get("executable") is False for op in ops))
+
     def test_coin_operation_retains_formula(self):
         ops=operations_from_text("공격시 적 유닛의 체력 코인을 -C5로 영구 변경한다.")
         self.assertTrue(any(x["kind"]=="modify_coin" for x in ops))
