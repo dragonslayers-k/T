@@ -18,11 +18,22 @@ def norm(value: str) -> str:
     return "".join(unicodedata.normalize("NFKC", str(value or "")).split())
 
 
-def load_catalog(path: Path) -> dict:
+def load_catalog(path: Path, global_path: Path | None = None) -> dict:
     data=json.loads(path.read_text(encoding="utf-8"))
     if data.get("schemaVersion") != 1:
         raise ValueError("Unsupported skill catalogue schemaVersion")
-    rules=data.get("manualRules",[])+data.get("communityCandidates",[])
+    global_path=global_path or path.parent/"fm1-global-gameplay-catalog-v1.json"
+    global_data=json.loads(global_path.read_text(encoding="utf-8")) if global_path.exists() else {"schemaVersion":1,"rules":[]}
+    if global_data.get("schemaVersion") != 1:
+        raise ValueError("Unsupported global gameplay catalogue schemaVersion")
+    global_rules=global_data.get("rules",[])
+    data["globalGameplayCatalogue"]={
+        "catalogueId":global_data.get("catalogueId"),
+        "schemaVersion":global_data.get("schemaVersion"),
+        "ruleCount":len(global_rules),
+        "source":global_data.get("source",{})
+    }
+    rules=data.get("manualRules",[])+data.get("communityCandidates",[])+global_rules
     ids=set()
     aliases={}
     for rule in rules:
@@ -32,8 +43,11 @@ def load_catalog(path: Path) -> dict:
         ids.add(rid)
         if rule.get("authority") not in ("manual","community"):
             raise ValueError(f"Invalid authority on {rid}")
-        if rule.get("authority")=="manual" and rule.get("verificationStatus")!="manual_verified":
-            raise ValueError(f"Manual rule must retain manual_verified status: {rid}")
+        if rule.get("authority")=="manual" and rule.get("verificationStatus") not in ("manual_verified","manual_conflict"):
+            raise ValueError(f"Manual rule must retain manual_verified/manual_conflict status: {rid}")
+        if rule.get("authority")=="manual" and rule.get("verificationStatus")=="manual_conflict":
+            if not rule.get("sourceConflicts") or rule.get("playableByDefault") is not False:
+                raise ValueError(f"Manual conflict must preserve conflict evidence and remain non-playable: {rid}")
         if rule.get("authority")=="community" and rule.get("playableByDefault") is not False:
             raise ValueError(f"Community-only rule must not be playable by default: {rid}")
         for alias in [rule.get("name","")]+list(rule.get("aliases",[])):
@@ -213,6 +227,8 @@ def import_rules(db: sqlite3.Connection, catalogue: dict) -> dict:
     return {
         "catalogueVersion":data["schemaVersion"],
         "manualRuleCount":sum(r["authority"]=="manual" for r in rules),
+        "manualSkillRuleCount":sum(r["authority"]=="manual" and (r.get("source") or {}).get("member")=="specialability.htm" for r in rules),
+        "manualGlobalRuleCount":sum(r["authority"]=="manual" and r.get("ruleFamily")!="skill" and (r.get("source") or {}).get("member")!="specialability.htm" for r in rules),
         "communityCandidateRuleCount":sum(r["authority"]=="community" for r in rules),
         "mappedCardFieldRows":len(by_card),
         "manualVerifiedMappings":sum(manual.values()),
@@ -249,7 +265,9 @@ def self_test(catalogue: dict) -> None:
     assert ("기술봉쇄","ability_seal","manual_verified") in rows
     assert ("주문봉쇄","spell_suppression","manual_verified") in rows
     assert ("없음",None,"no_special_skill") in rows
-    assert result["manualRuleCount"]==27
+    assert result["manualRuleCount"]==42
+    assert result["manualSkillRuleCount"]==27
+    assert result["manualGlobalRuleCount"]==15
     assert result["playableCommunityCandidates"]==0
     assert db.execute("PRAGMA foreign_key_check").fetchall()==[]
     db.close()
@@ -260,9 +278,10 @@ def main() -> None:
     parser=argparse.ArgumentParser()
     parser.add_argument("--db",type=Path,default=Path("data/fm1_cards.sqlite"))
     parser.add_argument("--catalogue",type=Path,default=Path("data/rules/fm1-skill-catalog-v1.json"))
+    parser.add_argument("--global-catalogue",type=Path,default=Path("data/rules/fm1-global-gameplay-catalog-v1.json"))
     parser.add_argument("--self-test",action="store_true")
     args=parser.parse_args()
-    catalogue=load_catalog(args.catalogue)
+    catalogue=load_catalog(args.catalogue,args.global_catalogue)
     if args.self_test:
         self_test(catalogue)
         return
