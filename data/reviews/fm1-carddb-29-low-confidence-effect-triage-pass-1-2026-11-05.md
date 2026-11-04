@@ -56,4 +56,4 @@ Some entries are clearly incomplete labels, stat notation, or explanatory text r
 
 ## Next pass
 
-Start with complete card context for 라이트닝버그, 녹음의습격, 추억, and the two rounding fragments. These have the clearest potential to unlock executable semantics once their missing context is recovered. Keep all other entries pending.
+**Status correction from adjudication #454:** complete card-local TextBase/TextExtra context for 라이트닝버그 (8111923702), 녹음의습격 (13071033261), and 추억 (11050432579) was already recovered and adjudicated. See `fm1-carddb-29-low-confidence-effect-source-expansion-pass-2-2026-11-05.md`; their remaining blockers are engine verification, not missing source context.\n\nNext, retrieve full context for the two rounding fragments (칼날의눈보라 5113030979; 집중공격 3032130211), and inspect the AP/DP floor note (에인션트타임 12110733033). Keep all entries non-executable until their operands, timing, and affected stats are confirmed.
