@@ -464,6 +464,15 @@ def parse(text, known_skills=None, known_cards=None):
 
     ops=[]
     conditions=[]
+    # Three-part legacy AP/DP/HP vectors are preserved as explicit candidates.
+    vector_match=re.search(r"([=+-]?[0-9]+) */ *([=+-]?[0-9]+) */ *([=+-]?[0-9]+)",t)
+    if vector_match:
+        vector_values=list(vector_match.groups())
+        target_text=t[:vector_match.start()].strip(" ,:：")
+        catalogue_entry=raw_text.lstrip().startswith(("★","☆","*"))
+        ops.append({"kind":"combat_stat_vector_reference" if catalogue_entry else "set_combat_stats_vector",
+                    "targetText":target_text,"values":vector_values,
+                    "rawText":raw_text,"executable":False})
     # Numeric stat deltas and assignments, including Korean names and grouped stats.
     stat_patterns={
       "ap":r"AP|공격력|공격치|공격\s*수치",
