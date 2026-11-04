@@ -28,8 +28,14 @@ def build(db_path: Path, out_dir: Path):
     db.execute("DELETE FROM card_field_coverage")
     field_rows=[]
     coverage_inserts=[]
+    card_field_summaries=[]
+    per_field_status_counts={field:{} for field in fields}
+    per_field_examples={field:{} for field in fields}
     for card in cards:
         payload=json.loads(card["raw_payload_json"])
+        verified_fields=[]
+        absent_fields=[]
+        missing_fields=[]
         for field in fields:
             row=present.get((card["card_id"],field))
             if row is None:
@@ -52,12 +58,24 @@ def build(db_path: Path, out_dir: Path):
                 value_hash=hashlib.sha256((raw or "null").encode("utf-8")).hexdigest()
                 status=("source_absent_confirmed" if value is None or value=="" else "source_snapshot_verified")
             coverage_inserts.append((card["card_id"],field,status,field_id,payload_match,value_hash))
+            per_field_status_counts[field][status]=per_field_status_counts[field].get(status,0)+1
+            if len(per_field_examples[field].get(status,[]))<5:
+                per_field_examples[field].setdefault(status,[]).append(card["card_id"])
+            if status=="source_snapshot_verified": verified_fields.append(field)
+            elif status=="source_absent_confirmed": absent_fields.append(field)
+            elif status=="missing_on_card": missing_fields.append(field)
             field_rows.append({
                 "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
                 "field_key":field,"status":status,"source_value_json":raw,
                 "normalized_value":normalized,"verification_status":verification,
                 "source_payload_match":payload_match
             })
+        card_field_summaries.append({
+            "card_id":card["card_id"],"name":card["name"],"card_type":card["card_type"],
+            "source_snapshot_verified_fields":verified_fields,
+            "source_absent_confirmed_fields":absent_fields,
+            "missing_on_card_fields":missing_fields
+        })
     db.executemany("INSERT INTO card_field_coverage VALUES(?,?,?,?,?,?)",coverage_inserts)
     if len(coverage_inserts)!=len(cards)*len(fields):
         raise ValueError("Card-field coverage matrix is incomplete")
@@ -68,6 +86,15 @@ def build(db_path: Path, out_dir: Path):
         w.writeheader();w.writerows(field_rows)
     with (out_dir/"card-field-gap-report.jsonl").open("w",encoding="utf-8") as f:
         for row in field_rows:f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    with (out_dir/"card-field-card-summary.jsonl").open("w",encoding="utf-8") as f:
+        for row in card_field_summaries:f.write(json.dumps(row,ensure_ascii=False)+"\n")
+    field_status_summary={
+        "cards":len(cards),"fields":len(fields),
+        "field_status_counts":per_field_status_counts,
+        "example_card_ids_by_status":per_field_examples
+    }
+    (out_dir/"card-field-status-summary.json").write_text(
+        json.dumps(field_status_summary,ensure_ascii=False,indent=2),encoding="utf-8")
 
     costs=[]
     for r in db.execute("""
@@ -208,6 +235,7 @@ def build(db_path: Path, out_dir: Path):
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
+      "field_status_counts_by_field":per_field_status_counts,
       "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),
       "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
