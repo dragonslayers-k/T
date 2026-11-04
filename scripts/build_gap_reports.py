@@ -13,6 +13,41 @@ def cost_interpretation_status(mapping_review, semantic_review):
     return "unresolved"
 
 
+def build_effect_review_queue(low_effects):
+    groups={}
+    for row in low_effects:
+        text=" ".join((row.get("segment_text") or "").split()) or "(empty)"
+        try:
+            parsed=json.loads(row.get("interpretation_json") or "{}")
+        except Exception:
+            parsed={}
+        group=groups.setdefault(text,{
+            "pattern_id":hashlib.sha256(text.encode("utf-8")).hexdigest()[:16],
+            "text":text,
+            "occurrences":0,
+            "classification":parsed.get("classification","unknown"),
+            "confidence":parsed.get("confidence","low"),
+            "inference_methods":[],
+            "card_types":[],
+            "cards":[],
+            "review_status":"pending_manual_semantic_review"
+        })
+        group["occurrences"]+=1
+        method=parsed.get("inferenceMethod")
+        if method and method not in group["inference_methods"]:
+            group["inference_methods"].append(method)
+        card_type=row.get("card_type")
+        if card_type and card_type not in group["card_types"]:
+            group["card_types"].append(card_type)
+        card={"card_id":row["card_id"],"name":row.get("name"),
+              "card_type":card_type,"clause_index":row.get("clause_index"),
+              "url":row.get("source_detail_url")}
+        if not any(x["card_id"]==card["card_id"] and x["clause_index"]==card["clause_index"]
+                   for x in group["cards"]):
+            group["cards"].append(card)
+    return sorted(groups.values(),key=lambda x:(-x["occurrences"],x["text"]))
+
+
 def build(db_path: Path, out_dir: Path):
     db=sqlite3.connect(db_path)
     db.row_factory=sqlite3.Row
@@ -275,6 +310,11 @@ def build(db_path: Path, out_dir: Path):
     (out_dir/"effect-low-confidence-summary.json").write_text(
       json.dumps(effect_low_summary,ensure_ascii=False,indent=2),encoding="utf-8")
 
+    effect_review_queue=build_effect_review_queue(low_effects)
+    with (out_dir/"effect-review-queue.jsonl").open("w",encoding="utf-8") as f:
+        for item in effect_review_queue:
+            f.write(json.dumps(item,ensure_ascii=False)+"\\n")
+
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
@@ -288,9 +328,9 @@ def build(db_path: Path, out_dir: Path):
       "community_skill_card_rows":len(community_skills),
       "unmapped_skill_unique_values":len(skill_inventory),
       "low_confidence_effect_interpretations":sum(1 for r in effects if r["confidence"]=="low"),
-      "effect_low_confidence_unique_patterns":len(effect_groups),
+      "effect_low_confidence_unique_patterns":len(effect_groups),\n      "effect_review_queue_patterns":len(effect_review_queue),
       "effect_low_confidence_classification_counts":effect_classes,
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl","cost-code-inventory.json"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","effect-review-queue.jsonl","cost-inference-report.jsonl","cost-code-inventory.json"]
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
