@@ -26,7 +26,7 @@ def build_soul_semantic_review_queue(rows):
             "parse_status":row.get("parse_status"),
             "review_reasons":[],
             "token_rows":0,"card_ids":[],
-            "cards":[]
+            "occurrences":[]
         })
         reasons=[]
         if int(row.get("mapping_review") or 0):
@@ -40,15 +40,15 @@ def build_soul_semantic_review_queue(rows):
         card_id=str(row["card_id"])
         if card_id not in group["card_ids"]:
             group["card_ids"].append(card_id)
-            group["cards"].append({
-                "card_id":card_id,"name":row.get("name"),
-                "card_type":row.get("card_type"),
-                "source_card_url":row.get("source_card_url"),
-                "source_require_soul":row.get("source_text"),
-                "token_ordinal":row.get("ordinal"),
-                "raw_token":row.get("raw_token"),
-                "amount":row.get("count")
-            })
+        group["occurrences"].append({
+            "card_id":card_id,"name":row.get("name"),
+            "card_type":row.get("card_type"),
+            "source_card_url":row.get("source_card_url"),
+            "source_require_soul":row.get("source_text"),
+            "token_ordinal":row.get("ordinal"),
+            "raw_token":row.get("raw_token"),
+            "amount":row.get("count")
+        })
         card_ids.add(card_id)
     result=sorted(groups.values(),key=lambda x:(str(x["code"]),x["symbol"],x["candidate_color_mapping"]))
     for group in result:
