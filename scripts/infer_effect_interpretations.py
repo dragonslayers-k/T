@@ -188,15 +188,15 @@ def parse(text, known_skills=None, known_cards=None):
     ]
     if any(re.search(p,t,re.I) for p in metadata_patterns):
         return {"classification":"reference_or_metadata","triggers":[],"actors":[],
-                "targets":[],"conditions":[],"operations":[{"kind":"source_metadata","rawText":t}],
+                "targets":[],"conditions":[],"operations":[{"kind":"source_metadata","rawText":raw_text}],
                 "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t),
-                "rawText":t,"inferenceMethod":"source_metadata_patterns_v2","confidence":"not_applicable"}
+                "rawText":raw_text,"inferenceMethod":"source_metadata_patterns_v2","confidence":"not_applicable"}
 
     # A lone ellipsis is a source placeholder rather than an omitted parse.
     if re.fullmatch(r"(?:\.\.\.|…|⋯)",t):
         return {"classification":"source_placeholder","triggers":[],"actors":[],
                 "targets":[],"conditions":[],"operations":[
-                    {"kind":"source_text_placeholder","rawText":t,"executable":False}],
+                    {"kind":"source_text_placeholder","rawText":raw_text,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"source_placeholder_v1","confidence":"not_applicable"}
 
@@ -291,7 +291,7 @@ def parse(text, known_skills=None, known_cards=None):
     if re.match(r"^(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜|에메랄드|토파즈|탄자나이트)(?:\s*[,/、]\s*(?:프리|커먼|언커먼|레어|유니크|시크릿|에픽|이벤트|스페셜))*\s*[:：]",t):
         return {"classification":"rarity_or_category_reference","triggers":[],
                 "actors":[],"targets":[],"conditions":[],
-                "operations":[{"kind":"rarity_or_category_mapping","rawText":t,
+                "operations":[{"kind":"rarity_or_category_mapping","rawText":raw_text,
                                "executable":False}],
                 "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?%?",t),
                 "rawText":raw_text,"flavorText":flavor_text,
@@ -343,7 +343,7 @@ def parse(text, known_skills=None, known_cards=None):
             ops.append({"kind":"set_stat","stat":stat,"value":m.group(2).replace(" ","")})
     if re.search(r"공방체|공체|공방|공격력|방어력|체력",t) and re.search(r"증가|감소|변경|상승|하락|올리|내리|영구",t):
         ops.append({"kind":"modify_combat_stats","statGroup":re.findall(r"공방체|공체|공방|공격력|방어력|체력",t),
-                    "direction":"text_defined","rawText":t})
+                    "direction":"text_defined","rawText":raw_text})
     # Exact legacy stat copying, assignments, and multipliers.
     # These candidates retain raw formula text and are never executable by default.
     stat_ref_pattern=r"(AP|DP|HP|LP|공격력|방어력|체력)"
@@ -353,136 +353,136 @@ def parse(text, known_skills=None, known_cards=None):
     if stat_copy:
         ops.append({"kind":"copy_stat_value","targetStat":stat_name_map.get(stat_copy.group(1),stat_copy.group(1).lower()),
                     "sourceStat":stat_name_map.get(stat_copy.group(2),stat_copy.group(2).lower()),
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\s*(?:는|을|를)?\s*([^,;。]+?)\s*(?:와|과)?\s*(?:같게|동일하게)\s*(?:만든다|한다)",t):
         ops.append({"kind":"set_stat_from_expression","stat":stat_name_map.get(m.group(1)),
-                    "expressionText":m.group(2).strip(),"rawText":t,"executable":False})
+                    "expressionText":m.group(2).strip(),"rawText":raw_text,"executable":False})
     for m in re.finditer(r"(AP|DP|HP|공격력|방어력|체력)\s*(?:를|을)?\s*\*\s*(\d+(?:\.\d+)?)\s*(?:로)?\s*(?:만든다|한다)",t):
         ops.append({"kind":"multiply_stat","stat":stat_name_map.get(m.group(1)),
-                    "multiplier":float(m.group(2)),"rawText":t,"executable":False})
+                    "multiplier":float(m.group(2)),"rawText":raw_text,"executable":False})
     if re.search(r"(?:AP|DP|HP|공격력|방어력|체력).{0,35}(?:적 필드 유닛|아군 필드 유닛|적군 전체|아군 전체).{0,25}(?:동일|같게|만큼)",t):
         stats=[stat_name_map[x] for x in re.findall(r"AP|DP|HP|공격력|방어력|체력",t)]
         ops.append({"kind":"set_stat_from_field_expression","stats":_uniq(stats),
-                    "expressionText":t,"rawText":t,"executable":False})
+                    "expressionText":t,"rawText":raw_text,"executable":False})
     if re.search(r"적군\s*하나를?\s*아군\s*하나의?\s*(?:AP|DP|HP|공방체|공체|공방).{0,20}같게\s*만든다",t):
         ops.append({"kind":"copy_combat_stats_from_unit","stats":_stat_refs(t),
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"(?:필드번호|필드 위치).{0,20}(?:레벨|위치|번호).{0,20}(?:된다|정한다|맞춘다|편다)",t):
         ops.append({"kind":"set_field_position_from_expression","expressionText":t,
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"행동가능한 아군\s*\d+의?\s*AP.{0,20}적군의?\s*AP.{0,8}더한다",t):
         ops.append({"kind":"add_stat_from_target_expression","stat":"ap",
                     "sourceExpression":"friendly_unit.ap + enemy.ap",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
 
     # Coin formulas: preserve exact source formula rather than approximating arithmetic.
     coin_tokens=re.findall(r"(?:[+-]?\s*\d*C\d+|[+-]?\s*C\d+|AC[+-]?\d+|HC[+-]?\d+|[+-]\d+%)",t)
     if coin_tokens or re.search(r"코인|동전|코인수|코인 수|코인확률|코인 확률",t):
-        ops.append({"kind":"modify_coin","formulas":coin_tokens,"rawText":t})
+        ops.append({"kind":"modify_coin","formulas":coin_tokens,"rawText":raw_text})
     if re.search(r"기호|★|▲|▼",t) and re.search(r"변경|삭제|부여|제거|하향|상향|유지",t):
-        ops.append({"kind":"modify_stat_marks","rawText":t})
+        ops.append({"kind":"modify_stat_marks","rawText":raw_text})
     if re.search(r"상태",t) and re.search(r"부여|추가|제거|해제|변경|전환|유지|증가|감소",t):
-        ops.append({"kind":"modify_status","rawText":t})
+        ops.append({"kind":"modify_status","rawText":raw_text})
     if re.search(r"특수\s*공격\s*기술|공격\s*기술|방어\s*기술|특수기술|기술",t) and re.search(r"부여|추가|변경|삭제|제거|일반공격|일반방어|봉쇄|로\s*된다|로\s*바뀐다",t):
-        ops.append({"kind":"modify_skill","rawText":t})
+        ops.append({"kind":"modify_skill","rawText":raw_text})
     if re.search(r"소환|소환한|소환시|소환할|배치",t):
-        ops.append({"kind":"summon_or_deploy","rawText":t})
+        ops.append({"kind":"summon_or_deploy","rawText":raw_text})
     if re.search(r"파괴|소멸|함께 파괴|소각",t):
-        ops.append({"kind":"destroy_or_exile","rawText":t})
+        ops.append({"kind":"destroy_or_exile","rawText":raw_text})
     if re.search(r"데미지|피해",t):
-        ops.append({"kind":"deal_damage","rawText":t})
+        ops.append({"kind":"deal_damage","rawText":raw_text})
     if re.search(r"회복|치료|흡수",t):
-        ops.append({"kind":"heal_or_recover","rawText":t})
+        ops.append({"kind":"heal_or_recover","rawText":raw_text})
     if re.search(r"드로우|뽑|덱.{0,8}(?:파괴|소각)|핸드로 이동",t):
-        ops.append({"kind":"draw_or_mill","rawText":t})
+        ops.append({"kind":"draw_or_mill","rawText":raw_text})
     if re.search(r"이동|교체|변신|변경.{0,8}카드|다음 단계|성장|진화|폴리모프",t):
-        ops.append({"kind":"transform_or_move_card","rawText":t})
+        ops.append({"kind":"transform_or_move_card","rawText":raw_text})
     if re.search(r"레벨.{0,12}(?:감소|증가|변경)|소울.{0,12}(?:감소|증가|변경)|코스트.{0,12}(?:감소|증가|변경)",t):
-        ops.append({"kind":"modify_card_cost_or_level","rawText":t})
+        ops.append({"kind":"modify_card_cost_or_level","rawText":raw_text})
     if re.search(r"종족|소속",t) and re.search(r"없음|삭제|변경|부여",t):
-        ops.append({"kind":"modify_race_or_faction","rawText":t})
+        ops.append({"kind":"modify_race_or_faction","rawText":raw_text})
     if re.search(r"장착|해제|아이템을 장착",t):
-        ops.append({"kind":"equip_or_unequip","rawText":t})
+        ops.append({"kind":"equip_or_unequip","rawText":raw_text})
     if re.search(r"오오라|오라|아레아",t):
-        ops.append({"kind":"aura_or_area_effect","rawText":t})
+        ops.append({"kind":"aura_or_area_effect","rawText":raw_text})
     # Common legacy battle-rule sentences. These are deterministic surface
     # interpretations used by many cards; formula details remain non-executable.
     if re.search(r"DP.{0,14}무시.{0,18}HP.{0,12}직접\s*공격|HP를?\s*직접공격",t):
         ops.append({"kind":"direct_hp_damage","ignoresDefenderDP":True,
-                    "formula":"text_defined_attack_value","rawText":t,"executable":False})
+                    "formula":"text_defined_attack_value","rawText":raw_text,"executable":False})
     if re.search(r"(?:자신의\s*)?AP.{0,16}DP.{0,12}(?:더해|더하고|합산).{0,12}공격",t):
         ops.append({"kind":"attack_with_ap_and_dp","formula":"attacker.ap + attacker.dp",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"상대의?\s*DP.{0,12}(?:깎|감소|낮추|내리)",t):
         amount_match=re.search(r"DP.{0,8}?([+-]?\d+)",t)
         ops.append({"kind":"modify_stat","target":"defender","stat":"dp",
                     "direction":"decrease","value":int(amount_match.group(1)) if amount_match else None,
                     "valueSource":"text" if amount_match else "unspecified_in_source",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"(?:상대의\s*)?AP.{0,12}(?:와|및|/)\s*(?:상대의\s*)?HP.{0,12}(?:바뀐다|교환|서로)",t):
         ops.append({"kind":"swap_stats","target":"defender","stats":["ap","hp"],
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"상대의?\s*AP.{0,12}(?:로|를 사용해)\s*공격",t):
         ops.append({"kind":"attack_using_target_stat","stat":"defender.ap",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     consecutive=re.search(r"AP\s*(\d+)\s*감소\s*후.{0,12}(?:x|×)\s*(\d+).{0,12}AP.{0,8}공격",t,re.I)
     if consecutive:
         ops.append({"kind":"sequential_attack_formula","firstOperation":{"kind":"modify_stat","stat":"ap",
                     "operator":"-","value":int(consecutive.group(1))},
                     "secondOperation":{"kind":"attack","stat":"ap","multiplier":int(consecutive.group(2))},
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"특수\s*기술.{0,16}(?:일반\s*기술|일반공격기술).{0,8}(?:바뀐다|변경|전환)",t):
         ops.append({"kind":"modify_skill","target":"defender","operation":"replace_special_with_normal",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
 
     if re.search(r"DP\s*기호.{0,12}(?:반대로|반전|변환)",t):
         ops.append({"kind":"modify_stat_marks","target":"defender","stat":"dp",
-                    "operation":"reverse_sign","rawText":t,"executable":False})
+                    "operation":"reverse_sign","rawText":raw_text,"executable":False})
     if re.search(r"(?:turn|턴).{0,16}(?:1의 자리|일의 자리|일의자리)",t,re.I):
         ops.append({"kind":"dynamic_attack_formula","formula":"turn % 10",
-                    "target":"defender","rawText":t,"executable":False})
+                    "target":"defender","rawText":raw_text,"executable":False})
     if re.search(r"(?:적군|상대).{0,12}DP.{0,16}(?:자신|아군).{0,8}HP.{0,8}(?:증가|회복)",t):
         ops.append({"kind":"modify_stat","target":"self","stat":"hp","operator":"+",
-                    "valueFormula":"enemy_field_dp_total_or_target_dp","rawText":t,"executable":False})
+                    "valueFormula":"enemy_field_dp_total_or_target_dp","rawText":raw_text,"executable":False})
     if re.search(r"자신의\s*AP.{0,16}(?:반만큼|절반|/\s*2).{0,16}(?:적|상대).{0,8}AP.{0,12}(?:감소|낮추)",t):
         ops.append({"kind":"transfer_stat_value","sourceStat":"attacker.ap",
                     "transferFormula":"ceil(attacker.ap/2)","targetStat":"defender.ap",
-                    "alsoApplyTo":"attacker.ap","rawText":t,"executable":False})
+                    "alsoApplyTo":"attacker.ap","rawText":raw_text,"executable":False})
     if re.search(r"동일한 능력.{0,16}유닛수만큼.{0,12}HP.{0,8}증가|같은 능력.{0,16}유닛수만큼.{0,12}HP.{0,8}증가",t):
         ops.append({"kind":"modify_stat","target":"self","stat":"hp","operator":"+",
                     "valueFormula":"count_friendly_units_with_same_ability_excluding_self",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"상대 유닛.{0,16}상태 보유 수.{0,16}효과 발동",t):
         ops.append({"kind":"conditional_effect_trigger","condition":"target_status_count",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"(?:AP|DP|HP).{0,12}(?:/|,|및).{0,12}(?:AP|DP|HP).{0,16}(?:증가|감소|상승|하락)",t):
         stats=[x.lower() for x in re.findall(r"AP|DP|HP",t)]
         direction="decrease" if re.search(r"감소|하락|낮추",t) else "increase"
         ops.append({"kind":"modify_combat_stats","stats":stats,
-                    "direction":direction,"rawText":t,"executable":False})
+                    "direction":direction,"rawText":raw_text,"executable":False})
     if re.search(r"적 유닛은.{0,12}=\s*\d+\s*/\s*=\s*\d+\s*/\s*=\s*\d+",t):
         vals=[int(x) for x in re.findall(r"=\s*(\d+)",t)]
         ops.append({"kind":"set_combat_stats","target":"enemy_unit",
-                    "order":["ap","dp","hp"],"values":vals,"rawText":t,"executable":False})
+                    "order":["ap","dp","hp"],"values":vals,"rawText":raw_text,"executable":False})
     # Text-defined grouped stat changes and formulaic stat transfers.
     for stat,pat in [("ap",r"AP|공격력"),("dp",r"DP|방어력"),("hp",r"HP|체력")]:
         m=re.search(r"("+pat+r").{0,18}?(\d+)\s*(?:만큼|씩)?\s*(증가|감소|상승|하락)",t)
         if m:
             ops.append({"kind":"modify_stat","stat":stat,
                         "operator":"+" if m.group(3) in ("증가","상승") else "-",
-                        "value":int(m.group(2)),"rawText":t,"executable":False})
+                        "value":int(m.group(2)),"rawText":raw_text,"executable":False})
     if re.search(r"상대의 DP를 자신의 AP에 더해 HP를 직접 공격|DP를 자신의 AP에 더해 HP를 직접 공격",t):
         ops.append({"kind":"direct_hp_damage","ignoresDefenderDP":False,
                     "attackValueFormula":"attacker.ap + defender.dp",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"상대의 AP.{0,12}및.{0,12}HP.{0,12}증가|AP.{0,12},.{0,12}HP.{0,12}증가",t):
         ops.append({"kind":"modify_combat_stats","target":"self","stats":["ap","hp"],
                     "direction":"increase","valueFormula":"count_matching_enemy_field_units",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"자신의 AP.{0,12}상대 DP보다 높으면.{0,30}상대의 DP/HP를 1 감소",t):
         ops.append({"kind":"conditional_multi_stat_decrease","target":"defender",
                     "stats":["dp","hp"],"value":1,"condition":"attacker.ap > defender.dp",
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
 
     # Compound stat selectors such as "AP/DP/HP 중 가장 높은 수치" were
     # missed by the simple AP+N / DP-N patterns. Preserve the selector and amount.
@@ -492,7 +492,7 @@ def parse(text, known_skills=None, known_cards=None):
     if selector and direction and amount:
         ops.append({"kind":"modify_selected_combat_stat","selector":selector.group(0),
                     "selection":selector.group(2),"direction":direction,
-                    "value":int(amount.group(1)),"rawText":t,"executable":False})
+                    "value":int(amount.group(1)),"rawText":raw_text,"executable":False})
 
     # Broad Korean action vocabulary. Exact operations above retain explicit
     # numbers/formulas; this layer also captures legacy card verbs whose wording
@@ -512,22 +512,22 @@ def parse(text, known_skills=None, known_cards=None):
     action_candidates=[key for key,pat in action_patterns if re.search(pat,t)]
     if action_candidates:
         ops.append({"kind":"generic_effect_operation","actionCandidates":action_candidates,
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
 
     # Named status terms are useful even when the source text omits the generic
     # word '상태'. Keep the exact term list and the original sentence.
     status_terms=re.findall(r"마비|빙결|기절|침묵|혼란|중독|독|화상|공포|실명|구속|봉인|저주|출혈",t)
     if status_terms and re.search(r"부여|걸린|적용|해제|제거|유지|면역|무효|상태",t):
         ops.append({"kind":"apply_or_change_named_status","statusTerms":_uniq(status_terms),
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
 
     # Explicit "no effect" clauses are condition gates, not unparsed prose.
     if re.search(r"(?:경우|때|이상|이하|초과|미만).{0,100}효과\s*없음|효과\s*없음.{0,100}(?:경우|때|이상|이하|초과|미만)",t):
         ops.append({"kind":"suppress_effect_when_condition","conditionText":t,
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
     if re.search(r"핸드에.{0,35}(?:없는 경우|없을 경우)|AP나 HP가 발동 후 0이하",t):
         ops.append({"kind":"effect_activation_restriction","conditionText":t,
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
 
     # Preserve formula-like stat assignments and arithmetic as explicit, non-executable
     # candidates. This covers legacy descriptions such as HP=hand size, a stat becoming
@@ -538,7 +538,7 @@ def parse(text, known_skills=None, known_cards=None):
         if not re.fullmatch(r"[★▲▼]?\s*[+-]?\d+",rhs):
             stat_token=m.group(1)
             ops.append({"kind":"set_stat_formula","stat":stat_name_map[stat_token],
-                        "formulaText":rhs,"rawText":t,"executable":False})
+                        "formulaText":rhs,"rawText":raw_text,"executable":False})
     if re.search(r"(?:나눈다|나눈다\.|나누어|나눠|나눔|곱한다|곱하여|곱해|곱한|차이만큼|수로\s*깎|수로\s*감소|깎는다|깍는다)",t):
         referenced_stats=_stat_refs(t)
         if referenced_stats:
@@ -546,18 +546,18 @@ def parse(text, known_skills=None, known_cards=None):
                             else "multiply_or_scale_stat" if re.search(r"곱",t)
                             else "formula_based_stat_change")
             ops.append({"kind":operation_kind,"stats":_uniq(referenced_stats),
-                        "formulaText":t,"rawText":t,"executable":False})
+                        "formulaText":t,"rawText":raw_text,"executable":False})
     if re.search(r"(?:AP|DP|HP|공격력|방어력|체력).{0,35}(?:절반|반이 된다|반으로|짝수는)",t):
         referenced_stats=_stat_refs(t)
         ops.append({"kind":"halve_selected_stats","stats":_uniq(referenced_stats),
-                    "selectionText":t,"rawText":t,"executable":False})
+                    "selectionText":t,"rawText":raw_text,"executable":False})
     if re.search(r"(?:AP|DP|HP|공방체|공방|공체).{0,35}(?:깎|깍|감소|낮추|나누|절반|된다|바뀐다)",t):
         referenced_stats=[stat_name_map[x] for x in re.findall(
             r"AP|DP|HP|공격력|방어력|체력",t)]
         ops.append({"kind":"formula_based_combat_stat_rule","stats":_uniq(referenced_stats),
-                    "formulaText":t,"rawText":t,"executable":False})
+                    "formulaText":t,"rawText":raw_text,"executable":False})
     if re.search(r"지형.{0,30}(?:변화|바뀐다|변경|된다)",t):
-        ops.append({"kind":"transform_terrain","formulaText":t,"rawText":t,"executable":False})
+        ops.append({"kind":"transform_terrain","formulaText":t,"rawText":raw_text,"executable":False})
 
     # Separate named state changes from numeric operations. These are still candidates
     # until a rule is independently verified.
@@ -565,7 +565,7 @@ def parse(text, known_skills=None, known_cards=None):
         r"한파|행동불능|영혼지배|마비|빙결|기절|침묵|혼란|중독|독|화상|공포|실명|구속|봉인|저주|출혈",t)
     if named_states and re.search(r"상태|걸린다|된다|부여|적용|해제|제거|면역|무효",t):
         ops.append({"kind":"apply_or_change_named_status","statusTerms":_uniq(named_states),
-                    "rawText":t,"executable":False})
+                    "rawText":raw_text,"executable":False})
 
     # A colon-prefixed label is often a split skill/effect heading, not a reference.
     # Record the label and body as an effect definition when the body contains an
@@ -611,22 +611,22 @@ def parse(text, known_skills=None, known_cards=None):
     if not ops:
         if re.match(r"^\s*(?:invalid$|▶|※|★|☆|illustrated|해당 카드는|카드타입)",t,re.I):
             classification="reference_or_flavor"; confidence="not_applicable"
-            ops=[{"kind":"source_note","rawText":t}]
+            ops=[{"kind":"source_note","rawText":raw_text}]
         elif re.match(r"^\s*(?:상성유닛|상성아이템|상성카드)\s*[:：]",t):
             classification="card_reference_list"; confidence="not_applicable"
-            ops=[{"kind":"related_card_reference","rawText":t}]
+            ops=[{"kind":"related_card_reference","rawText":raw_text}]
         elif re.match(r"^\s*\[[^\]]{2,}\]\s*$",t):
             classification="flavor_or_lore"; confidence="not_applicable"
-            ops=[{"kind":"flavor_text","rawText":t}]
+            ops=[{"kind":"flavor_text","rawText":raw_text}]
         elif re.match(r"^\s*(?:성장목록|성장유닛|변경되는 유닛 리스트|상성효과|오오라 능력)\s*$",t):
             classification="section_heading"; confidence="not_applicable"
-            ops=[{"kind":"section_heading","rawText":t}]
+            ops=[{"kind":"section_heading","rawText":raw_text}]
         elif re.search(r"[:：].{1,}",t) or re.search(r"(?:레벨|턴|킬|핸드카드|유닛수|필드 카드수).*(?:이상|이하|:)",t):
             classification="conditional_or_reference_candidate"; confidence="low"
-            ops=[{"kind":"conditional_rule_candidate","rawText":t}]
+            ops=[{"kind":"conditional_rule_candidate","rawText":raw_text}]
         else:
             classification="unparsed_effect_text"; confidence="low"
-            ops=[{"kind":"unparsed_operation","rawText":t}]
+            ops=[{"kind":"unparsed_operation","rawText":raw_text}]
     else:
         classification="effect_candidate"; confidence="medium"
     return {"classification":classification,"triggers":triggers,"actors":actors,
