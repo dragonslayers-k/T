@@ -23,6 +23,27 @@ class EffectReviewQueueTests(unittest.TestCase):
         self.assertEqual(queue[0]["occurrences"], 2)
         self.assertEqual({x["card_id"] for x in queue[0]["cards"]}, {"c1","c2"})
         self.assertEqual(queue[0]["review_status"], "pending_manual_semantic_review")
+        self.assertEqual(queue[0]["classification_variants"], ["effect_activation_requirement"])
+        self.assertFalse(queue[0]["classification_conflict"])
+        self.assertFalse(queue[0]["confidence_conflict"])
+
+    def test_same_text_keeps_conflicting_interpretation_variants_visible(self):
+        from scripts.build_gap_reports import build_effect_review_queue
+        rows = [
+            {"card_id":"c1","name":"카드A","card_type":"마법","clause_index":0,
+             "segment_text":"효과 문구",
+             "interpretation_json":json.dumps({"classification":"effect_operation","confidence":"medium"})},
+            {"card_id":"c2","name":"카드B","card_type":"마법","clause_index":1,
+             "segment_text":"효과 문구",
+             "interpretation_json":json.dumps({"classification":"effect_activation_requirement","confidence":"low"})}
+        ]
+        queue = build_effect_review_queue(rows)
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(set(queue[0]["classification_variants"]),
+                         {"effect_operation","effect_activation_requirement"})
+        self.assertEqual(set(queue[0]["confidence_variants"]), {"medium","low"})
+        self.assertTrue(queue[0]["classification_conflict"])
+        self.assertTrue(queue[0]["confidence_conflict"])
 
 
 class SoulCostGapStatusTests(unittest.TestCase):
