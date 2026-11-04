@@ -63,6 +63,14 @@ class CardFieldCoverageTests(unittest.TestCase):
             self.assertEqual(summary["field_status_counts"].get("missing_on_card", 0), 0)
             self.assertEqual(summary["field_status_counts"].get("source_absent_confirmed", 0), 1)
             self.assertEqual(summary["source_payload_mismatches"], 0)
+            card_rows = [json.loads(line) for line in (root / "out" / "card-field-card-summary.jsonl").read_text(encoding="utf-8").splitlines()]
+            c2_summary = next(row for row in card_rows if row["card_id"] == "c2")
+            self.assertIn("Skill1", c2_summary["source_absent_confirmed_fields"])
+            self.assertEqual(c2_summary["missing_on_card_fields"], [])
+            field_summary = json.loads((root / "out" / "card-field-status-summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(field_summary["cards"], 2)
+            self.assertEqual(field_summary["fields"], 2)
+            self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_absent_confirmed"], 1)
 
             check = sqlite3.connect(db_path)
             status = check.execute(
