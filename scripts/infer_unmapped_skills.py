@@ -12,7 +12,7 @@ def main(db_path="data/fm1_cards.sqlite"):
     db.execute("PRAGMA foreign_keys=ON")
     rows=db.execute("""
       SELECT source_field,source_enum_value,source_name,card_count
-      FROM skill_enum_inventory WHERE mapping_status='unmapped'
+      FROM skill_enum_inventory WHERE mapping_status IN ('unmapped','inferred') OR (mapping_status='inferred' AND rule_id IN (SELECT rule_id FROM game_rule_catalog WHERE confidence='low'))
       ORDER BY source_field,source_enum_value
     """).fetchall()
     done=0; evidence_backed=0; name_only=0
@@ -29,19 +29,23 @@ def main(db_path="data/fm1_cards.sqlite"):
           ORDER BY c.card_id,ct.text_id
         """,(field,name)).fetchall()
         candidates=[]
+        aliases={"네이처드레인":["네이쳐드레인"],"기계배치":["기체배치"],"다잉메시지":["다잉메세지"]}
+        labels=[name]+aliases.get(name,[])
         for cid,cname,url,typ,txt in evidence:
             for block in re.split(r"\n\s*\n+",txt or ""):
-                block=block.strip()
-                if norm(block).startswith(norm(name)):
-                    body=re.sub(r"^\s*"+re.escape(name)+r"\s*[:：]?\s*","",block,count=1).strip()
-                    if body and not body.startswith(("▶","※","★","☆")):
-                        candidates.append((cid,cname,url,typ,body))
+                block=re.sub(r"^[★☆▶※◈●○\s]+","",block.strip())
+                for label in labels:
+                    if norm(block).startswith(norm(label)):
+                        body=re.sub(r"^\s*"+re.escape(label)+r"\s*[:：]?\s*","",block,count=1).strip()
+                        if body:
+                            candidates.append((cid,cname,url,typ,body,label))
+                            break
         variants=Counter(norm(x[4]) for x in candidates)
         body=""
         if variants:
             best=variants.most_common(1)[0][0]
             body=next(x[4] for x in candidates if norm(x[4])==best)
-        refs=[{"cardId":x[0],"cardName":x[1],"url":x[2],"textType":x[3],"effectText":x[4]} for x in candidates[:8]]
+        refs=[{"cardId":x[0],"cardName":x[1],"url":x[2],"textType":x[3],"effectText":x[4],"matchedSkillLabel":x[5]} for x in candidates[:8]]
         rid="inferred_"+field.lower()+"_"+str(enum_value)
         definition={"trigger":"conditional_or_passive","target":"text_defined","rawEffectText":body,"operations":[]}
         if body:
