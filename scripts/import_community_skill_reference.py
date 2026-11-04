@@ -86,8 +86,32 @@ def main(path="data/fm1_cards.sqlite"):
           rule_id=? WHERE source_field=? AND source_name=? AND rule_id=?""",(rid,field,name,rid))
         upgraded+=1; total_evidence+=len(matches)
     remaining=db.execute("SELECT COUNT(*) FROM skill_enum_inventory WHERE mapping_status='inferred' AND rule_id IN (SELECT rule_id FROM game_rule_catalog WHERE confidence='low')").fetchone()[0]
+    unresolved=[]
+    low_rows=db.execute("""
+      SELECT e.source_field,e.source_enum_value,e.source_name,e.card_count,e.rule_id
+      FROM skill_enum_inventory e JOIN game_rule_catalog g USING(rule_id)
+      WHERE e.mapping_status='inferred' AND g.confidence='low'
+      ORDER BY e.source_name,e.source_field
+    """).fetchall()
+    for field,enumv,name,card_count,rid in low_rows:
+        examples=[]
+        card_rows=db.execute("""
+          SELECT c.card_id,c.name,c.source_card_url
+          FROM card_rule_mappings m JOIN cards c USING(card_id)
+          WHERE m.source_field=? AND m.source_enum_value=? AND m.source_name=?
+          ORDER BY c.card_id LIMIT 3
+        """,(field,str(enumv),name)).fetchall()
+        for cid,cname,url in card_rows:
+            texts=db.execute("""
+              SELECT text_type,COALESCE(NULLIF(plain_text,''),source_text)
+              FROM card_texts WHERE card_id=? ORDER BY text_id
+            """,(cid,)).fetchall()
+            examples.append({"cardId":cid,"cardName":cname,"url":url,
+                             "cardTexts":[{"type":typ,"text":(txt or "")[:1200]} for typ,txt in texts]})
+        unresolved.append({"sourceField":field,"sourceEnumValue":str(enumv),"skillName":name,
+                           "cardCount":card_count,"ruleId":rid,"examples":examples})
     result={"communityFetch":"success","communityMatchedKinds":upgraded,"matchedDefinitionVariants":total_evidence,
-            "remainingNameOnlyLowConfidenceKinds":remaining,
+            "remainingNameOnlyLowConfidenceKinds":remaining,"unresolvedSkillEvidence":unresolved,
             "unmappedKinds":db.execute("SELECT COUNT(*) FROM skill_enum_inventory WHERE mapping_status='unmapped'").fetchone()[0],
             "foreignKeyErrors":len(db.execute("PRAGMA foreign_key_check").fetchall())}
     print(json.dumps(result,ensure_ascii=False,indent=2));db.close()
