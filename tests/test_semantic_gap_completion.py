@@ -22,6 +22,15 @@ class EffectReviewQueueTests(unittest.TestCase):
         self.assertEqual(len(queue), 1)
         self.assertEqual(queue[0]["occurrences"], 2)
         self.assertEqual({x["card_id"] for x in queue[0]["cards"]}, {"c1","c2"})
+        # Grouping must not erase the original per-card wording or source URLs.
+        self.assertEqual(
+            set(queue[0]["source_text_variants"]),
+            {"▶ 조건에 따라 발동.", "조건에 따라 발동."},
+        )
+        self.assertEqual(
+            {x["url"] for x in queue[0]["cards"]},
+            {"https://example.test/c1", "https://example.test/c2"},
+        )
         self.assertEqual(queue[0]["review_status"], "pending_manual_semantic_review")
         self.assertEqual(queue[0]["classification_variants"], ["effect_activation_requirement"])
         self.assertFalse(queue[0]["classification_conflict"])
