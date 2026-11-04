@@ -50,6 +50,54 @@ def parse(text, known_skills=None, known_cards=None):
                 "operations":[{"kind":"state_persistence_constraint","rawRule":t,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"state_persistence_note_v1","confidence":"medium"}
+    if ("핸드 빈공간이 없을 경우" in t or "핸드 빈공간이 없으면" in t
+            or ("자신과 같은 속성의" in t and "없으면 발동하지" in t)
+            or "발동시 아군 유닛" in t or ("핸드 또는 필드에" in t and "존재시 발동" in t)
+            or ("발동하지" in t and any(k in t for k in ("DP가 0","묘지가 0","핸드 카드가 없거나")))):
+        return {"classification":"effect_activation_requirement","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"activation_restriction","conditionText":t,"executable":False}],
+                "numbers":re.findall("[0-9]+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"activation_restriction_v2","confidence":"medium"}
+    if "아군 필드 빈공간 수가" in t and (":" in t or "：" in t):
+        return {"classification":"conditional_branch_reference","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"conditional_branch","conditionText":t,"executable":False}],
+                "numbers":re.findall("[0-9]+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"field_space_branch_v1","confidence":"medium"}
+    if "①과 ②중 조건에 맞는 하나의 효과만 발동" in t:
+        return {"classification":"effect_selection_rule_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"exclusive_effect_selection","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"exclusive_effect_selection_v1","confidence":"medium"}
+    if "코러스 상태" in t and (":" in t or "：" in t):
+        return {"classification":"named_status_rule_candidate","triggers":["on_status_activate"],
+                "actors":["friendly"],"targets":["unit"],"conditions":[t],
+                "operations":[{"kind":"count_based_status_rule","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"named_status_rule_v1","confidence":"medium"}
+    if "상태가 사라지면" in t and ("원래대로" in t or "원상복구" in t):
+        return {"classification":"state_reversion_rule_candidate","triggers":["on_status_removed"],
+                "actors":[],"targets":["unit"],"conditions":[t],
+                "operations":[{"kind":"restore_previous_state","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"state_reversion_note_v1","confidence":"medium"}
+    if t.startswith("짝수 :") or t.startswith("홀수 :") or t.startswith("짝수：") or t.startswith("홀수："):
+        return {"classification":"conditional_branch_reference","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"parity_branch","conditionText":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"parity_branch_v1","confidence":"medium"}
+    if t.startswith("연계카드 :") or t.startswith("연계카드："):
+        label,body=re.split("[:：]",t,maxsplit=1)
+        name_key="".join(body.strip(" .。").split())
+        if known_cards and name_key in known_cards:
+            return {"classification":"card_reference_list","triggers":[],"actors":[],
+                    "targets":[],"conditions":[],"operations":[{"kind":"related_card_reference",
+                        "cardName":body.strip(),"cardIds":known_cards[name_key],"executable":False}],
+                    "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"linked_card_reference_v1","confidence":"medium"}
     if re.match(r"^(?:아군|적군).{0,100}(?:필드|핸드).{0,80}(?:필요|없으면|없을 경우|존재하면|보유)",t):
         return {"classification":"effect_activation_requirement","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
@@ -80,7 +128,7 @@ def parse(text, known_skills=None, known_cards=None):
                 "operations":[{"kind":"apply_status","rawRule":t,"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"on_play_status_note_v1","confidence":"medium"}
-    status_delta=re.match(r"^(?P<target>[^:：]+)[:：]\s*(?P<status>.+?)\s*(?P<sign>[+-])\s*(?P<turns>\d+)\s*턴$",t)
+    status_delta=re.match(r"^(?P<target>[^:：]+)[:：]\s*(?P<status>.+?)\s*(?P<sign>[+-])\s*(?P<turns>\d+)\s*턴[.。]?$",t)
     if status_delta:
         return {"classification":"status_duration_change_candidate","triggers":[],
                 "actors":[],"targets":[status_delta.group("target").strip()],"conditions":[],
@@ -156,6 +204,22 @@ def parse(text, known_skills=None, known_cards=None):
       r"^상성(?:유닛|아이템)\s*[:：]",
       r"^(?:랭크가 있는 카드입니다|랭크 카드 안내|랭크카드 각각에 대한 설명은)",
       r"^(?:FM 도움말|고객센터|홈페이지 메인화면|이벤트 페이지를 확인)",
+      r"^20\\d\\d년.*(?:이벤트|부스터).*(?:획득|제공|유닛|카드)",
+      r"^에카마엘과 관련하여 특별한 효과를 발휘합니다[.]?$",
+      r"^표시 확인\\)?$",
+      r"^필드 슬롯 번호[.]?$",
+      r"^기술방어보다 먼저 발동하는 기술 목록",
+      r"^기호 소개[.]?$",
+      r"^상성$",
+      r"^고정기호\\s*[:：]",
+      r"^.*카드는 디스펠 타입의 카드입니다",
+      r"^나만의 카드를 GET 이벤트로 지급된 특수 카드입니다",
+      r"^.*이벤트.*(?:특수 카드|유닛|카드)[.]?$",
+      r"^.*\\[.*\\]\\s*By\\s*[-:]",
+      r"^\\d+점\\s*[=：]",
+      r"^\\d+(?:~\\d+)?\\s*[:：=]\\s*(?:효과없음|Free|N Rank|C~B Rank|A~S Rank|Rare|Unique|Legend)",
+      r"^.*상성효과\\s*[:：]\\s*(?:하단 참조|방어고정)",
+      r"^By\\s*[-:].*",
       r"^20\d\d년.*(?:이벤트|부스터).*(?:획득|제공)",
       r"^상성(?:유닛|아이템)\s*[:：]",
       r"^◈\s*",
@@ -251,7 +315,25 @@ def parse(text, known_skills=None, known_cards=None):
                     "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                     "inferenceMethod":"arrow_card_sequence_v1","confidence":"not_applicable"}
 
-    # A bracketed status label is a status reference, not a free-form effect.
+    # Named status and named ability labels are references, not free-form effects.
+    if t.endswith("상태") and (t.startswith('"') or t.startswith("“")):
+        return {"classification":"named_status_reference","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[{"kind":"status_reference",
+                    "statusName":t[1:-3].strip(),"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"quoted_status_reference_v1","confidence":"medium"}
+    if len(t)<30 and t.endswith("상태") and t[:-2].strip() and not any(x in t for x in ("발동","부여","제거","해제")):
+        return {"classification":"named_status_reference","triggers":[],"actors":[],
+                "targets":[],"conditions":[],"operations":[{"kind":"status_reference",
+                    "statusName":t[:-2].strip(),"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"named_status_reference_v2","confidence":"medium"}
+    if ("(공격기술)" in t or "(방어기술)" in t or "[방어기술]" in t) and len(t)<50:
+        return {"classification":"named_ability_reference_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[],
+                "operations":[{"kind":"ability_name_reference_candidate","name":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"named_ability_label_v1","confidence":"medium"}
     status_ref=re.fullmatch(r"\[([^\]]+)\]\s*상태\s*[:：]?",t)
     if status_ref:
         return {"classification":"named_status_reference","triggers":[],"actors":[],
