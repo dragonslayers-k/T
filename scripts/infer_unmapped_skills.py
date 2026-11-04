@@ -5,7 +5,7 @@ Unlike the earlier implementation, this module inserts a stable rule catalogue r
 before attaching a previously unmapped card skill. A successful extraction count
 therefore means persisted mappings, not merely analyzed candidates.
 """
-import json, re, sqlite3, sys, hashlib
+import html, json, re, sqlite3, sys, hashlib
 from collections import Counter
 
 ALIASES={
@@ -21,32 +21,41 @@ def clean_line(s): return re.sub(r"^[★☆▶※◈●○◆◇■\s]+","",s.st
 
 def extract_definitions(name, text):
     labels=[name]+ALIASES.get(name,[])
-    lines=(text or "").replace("<br/>","\n").replace("<br>","\n").replace("<br />","\n").splitlines()
+    source=html.unescape(text or "")
+    source=re.sub(r"(?i)<br\\s*/?>","\\n",source)
+    source=re.sub(r"(?i)</(?:p|div|li|tr|h[1-6])\\s*>","\\n",source)
+    source=re.sub(r"<[^>]+>","",source)
+    lines=source.splitlines()
     found=[]
     for i,line in enumerate(lines):
         clean=clean_line(line)
         clean_norm=norm(clean)
         label=next((x for x in labels if clean_norm.startswith(norm(x))),None)
         if not label: continue
-        # Preserve the original substring after the matched label even when spaces
-        # occur inside the visible heading.
+        # Preserve text after a heading even when its displayed label contains spaces.
         pos=0; consumed=0
         while pos<len(clean) and consumed<len(norm(label)):
             if not clean[pos].isspace(): consumed+=1
             pos+=1
         rest=clean[pos:].strip()
-        rest=re.sub(r"^(?:[/／]\s*)+","",rest).strip()
-        rest=re.sub(r"^[:：]\s*","",rest).strip()
+        rest=re.sub(r"^(?:[/／\\-]\\s*)+","",rest).strip()
+        rest=re.sub(r"^[:：]\\s*","",rest).strip()
         parts=[rest] if rest else []
         if not parts:
-            for j in range(i+1,min(len(lines),i+6)):
+            # Some FM1 descriptions put the rule body on the next visual line,
+            # often prefixed by a bullet. Gather a short contiguous block rather
+            # than losing it after the first decorated line.
+            for j in range(i+1,min(len(lines),i+5)):
                 nxt=lines[j].strip()
                 if not nxt:
+                    if parts: break
                     continue
-                if re.match(r"^[★☆▶※◈●○◆◇■]",nxt): break
-                nxt=re.sub(r"^[/:：\s]+","",nxt).strip()
-                if nxt: parts.append(nxt)
-                if parts: break
+                if re.match(r"^◈",nxt): break
+                nxt=re.sub(r"^[★☆▶※●○◆◇■\\s]+","",nxt).strip()
+                nxt=re.sub(r"^[/:：\\-]+","",nxt).strip()
+                if not nxt: continue
+                if re.match(r"^.{1,48}?\\s*[:：]\\s*.+$",nxt): break
+                parts.append(nxt)
         body=" ".join(parts).strip()
         if body:
             found.append({"label":label,"body":body,"line":i})
@@ -116,7 +125,7 @@ def _rule_id(field, enum_value):
 def infer_one(db, field, enum_value, name, card_count):
     evidence=db.execute("""
       SELECT DISTINCT c.card_id,c.name,c.source_card_url,ct.text_type,
-             COALESCE(NULLIF(ct.plain_text,''),ct.source_text)
+             ct.plain_text,ct.source_text
       FROM card_rule_mappings m
       JOIN cards c ON c.card_id=m.card_id
       JOIN card_texts ct ON ct.card_id=c.card_id
@@ -125,9 +134,16 @@ def infer_one(db, field, enum_value, name, card_count):
       ORDER BY c.card_id,ct.text_id
     """,(field,str(enum_value),name)).fetchall()
     candidates=[]
-    for cid,cname,url,typ,txt in evidence:
-        for item in extract_definitions(name,txt):
-            candidates.append((cid,cname,url,typ,item["body"],item["label"]))
+    for cid,cname,url,typ,plain,raw in evidence:
+        # Keep both renderings as evidence. The normalized rendering is readable,
+        # while the source HTML can retain line breaks lost by a flattening step.
+        seen_text=set()
+        for txt in (plain,raw):
+            key=norm(txt)
+            if not key or key in seen_text: continue
+            seen_text.add(key)
+            for item in extract_definitions(name,txt):
+                candidates.append((cid,cname,url,typ,item["body"],item["label"]))
     variants=Counter(norm(x[4]) for x in candidates)
     chosen=""
     if variants:
