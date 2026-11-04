@@ -39,8 +39,8 @@ TEXT_SOUL_ALIASES = {
 }
 import re
 _TEXT_SOUL_PATTERN = re.compile(
-    r"(?P<name>NCS|BONUS|dark|fire|water|forest|iron|metal|earth|light|neutral|암흑|다크|흑|암|화염|파이어|불|화|워터|물|수|포레스트|숲|목|금속|아이언|철|대지|어스|땅|지|라이트|빛|광|무속성|무색|중립|무)(?:\\s*소울)?\s*(?:[:：=＝xX*×]?\s*)(?P<count>\d+)"
-    r"|(?P<count_first>\d+)\s*(?P<name_first>NCS|BONUS|dark|fire|water|forest|iron|metal|earth|light|neutral|암흑|다크|흑|암|화염|파이어|불|화|워터|물|수|포레스트|숲|목|금속|아이언|철|대지|어스|땅|지|라이트|빛|광|무속성|무색|중립|무)(?:\\s*소울)?", re.IGNORECASE
+    r"(?P<name>NCS|BONUS|dark|fire|water|forest|iron|metal|earth|light|neutral|암흑|다크|흑|암|화염|파이어|불|화|워터|물|수|포레스트|숲|목|금속|아이언|철|대지|어스|땅|지|라이트|빛|광|무속성|무색|중립|무)(?:\s*소울)?\s*(?:[:：=＝xX*×]?\s*)(?P<count>\d+)"
+    r"|(?P<count_first>\d+)\s*(?P<name_first>NCS|BONUS|dark|fire|water|forest|iron|metal|earth|light|neutral|암흑|다크|흑|암|화염|파이어|불|화|워터|물|수|포레스트|숲|목|금속|아이언|철|대지|어스|땅|지|라이트|빛|광|무속성|무색|중립|무)(?:\s*소울)?", re.IGNORECASE
 )
 def _parse_human_readable_cost(raw: str, result: dict) -> bool:
     matches=list(_TEXT_SOUL_PATTERN.finditer(raw))
