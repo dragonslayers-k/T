@@ -29,7 +29,7 @@ on:
         description: "Existing immutable DB Release used by audit-release mode"
         required: false
         type: string
-        default: fm1-carddb-27
+        default: fm1-carddb-29
       publish_release:
         description: "Publish one new immutable Release only after all audits pass"
         required: false
@@ -39,7 +39,7 @@ on:
         description: "New unused Release tag (only used when publish_release=true)"
         required: false
         type: string
-        default: fm1-carddb-28
+        default: fm1-carddb-30
 
 permissions:
   contents: write
@@ -56,7 +56,7 @@ jobs:
       MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release' || 'tests') }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
-      RELEASE_TAG: ${{ inputs.release_tag || 'fm1-carddb-29' }}
+      RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -73,6 +73,7 @@ jobs:
           python -m unittest tests/test_cost_decoding.py
           python -m unittest tests/test_effect_candidates.py
           python -m unittest tests/test_manual_rules.py
+          python -m unittest tests/test_semantic_gap_completion.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
           python scripts/quality_audit.py --self-test
@@ -224,6 +225,10 @@ jobs:
               raise SystemExit("Skill1/Skill2 source rows are not fully represented in card_rule_mappings")
           if not report.get("semantic_completeness_pass"):
               raise SystemExit("Semantic inference coverage is incomplete: inspect audit-report.json")
+          if report.get("inferred_skill_name_only_rows", 999) > 30:
+              raise SystemExit("Too many skill definitions still rely on name-only inference")
+          if report.get("effect_interpretation_low_confidence", 999999) > 2000:
+              raise SystemExit("Too many effect clauses remain unparsed; inspect effect-gap-report.jsonl")
           PY
 
       - name: Verify SQLite counts, references, images, costs, and search
