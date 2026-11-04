@@ -13,6 +13,56 @@ def cost_interpretation_status(mapping_review, semantic_review):
     return "unresolved"
 
 
+def build_soul_semantic_review_queue(rows):
+    """Group every pending hybrid/special soul token while retaining every card source."""
+    groups={}
+    card_ids=set()
+    for row in rows:
+        key=(row.get("code"),row.get("symbol") or "",row.get("normalized_color") or "",
+             row.get("parse_status") or "")
+        group=groups.setdefault(key,{
+            "code":row.get("code"),"symbol":row.get("symbol"),
+            "candidate_color_mapping":row.get("normalized_color"),
+            "parse_status":row.get("parse_status"),
+            "review_reasons":[],
+            "token_rows":0,"card_ids":[],
+            "cards":[]
+        })
+        reasons=[]
+        if int(row.get("mapping_review") or 0):
+            reasons.append("hybrid_payment_rule_unverified")
+        if int(row.get("semantic_review") or 0):
+            reasons.append("special_soul_payment_rule_unverified")
+        for reason in reasons:
+            if reason not in group["review_reasons"]:
+                group["review_reasons"].append(reason)
+        group["token_rows"]+=1
+        card_id=str(row["card_id"])
+        if card_id not in group["card_ids"]:
+            group["card_ids"].append(card_id)
+            group["cards"].append({
+                "card_id":card_id,"name":row.get("name"),
+                "card_type":row.get("card_type"),
+                "source_card_url":row.get("source_card_url"),
+                "source_require_soul":row.get("source_text"),
+                "token_ordinal":row.get("ordinal"),
+                "raw_token":row.get("raw_token"),
+                "amount":row.get("count")
+            })
+        card_ids.add(card_id)
+    result=sorted(groups.values(),key=lambda x:(str(x["code"]),x["symbol"],x["candidate_color_mapping"]))
+    for group in result:
+        group["card_count"]=len(group["card_ids"])
+        group["verification_status"]="pending_source_and_engine_verification"
+        group["executable"]=False
+    return {
+        "pending_card_rows":len(card_ids),
+        "token_rows":sum(x["token_rows"] for x in result),
+        "groups":result,
+        "policy":"Token identity and candidate color mapping are preserved; no payment rule is inferred or made executable."
+    }
+
+
 def build_effect_review_queue(low_effects):
     groups={}
     for row in low_effects:
@@ -314,6 +364,22 @@ def build(db_path: Path, out_dir: Path):
         })
     (out_dir/"cost-code-inventory.json").write_text(
         json.dumps(cost_code_inventory,ensure_ascii=False,indent=2),encoding="utf-8")
+
+    # Full source-linked review queue: unlike the compact inventory above, this
+    # retains every card occurrence rather than only five examples per token.
+    soul_review_rows=[dict(r) for r in db.execute("""
+      SELECT t.card_id,c.name,c.card_type,c.source_card_url,cc.source_text,
+             cc.mapping_review,cc.semantic_review,t.ordinal,t.raw_token,t.code,
+             t.count,t.symbol,t.normalized_color,t.parse_status
+      FROM card_soul_cost_tokens t
+      JOIN card_costs cc USING(card_id)
+      JOIN cards c USING(card_id)
+      WHERE cc.mapping_review=1 OR cc.semantic_review=1
+      ORDER BY t.code,t.symbol,t.normalized_color,t.parse_status,t.card_id,t.ordinal
+    """)]
+    soul_review_queue=build_soul_semantic_review_queue(soul_review_rows)
+    (out_dir/"soul-semantic-review-queue.json").write_text(
+        json.dumps(soul_review_queue,ensure_ascii=False,indent=2),encoding="utf-8")
 
     skill_inventory=[]
     for r in db.execute("""
