@@ -38,6 +38,88 @@ def parse(text, known_skills=None, known_cards=None):
                 "conditions":[],"operations":[],"numbers":[],"rawText":raw_text,
                 "flavorText":flavor_text,"inferenceMethod":"empty_text_v1","confidence":"not_applicable"}
 
+    if re.search(r"^매직랜드는 .*맨 앞의 매직랜드만 발동",t):
+        return {"classification":"terrain_activation_rule_candidate","triggers":["terrain_activation"],
+                "actors":[],"targets":["frontmost_magic_land"],"conditions":[t],
+                "operations":[{"kind":"activation_order_constraint","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"terrain_order_note_v1","confidence":"medium"}
+    if re.search(r"^유닛간 상성으로 인한 상태와 .*상성은 사라지지 않습니다",t):
+        return {"classification":"persistent_state_rule_candidate","triggers":[],
+                "actors":[],"targets":["matchup_state"],"conditions":[t],
+                "operations":[{"kind":"state_persistence_constraint","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"state_persistence_note_v1","confidence":"medium"}
+    if re.match(r"^(?:아군|적군).{0,100}(?:필드|핸드).{0,80}(?:필요|없으면|없을 경우|존재하면|보유)",t):
+        return {"classification":"effect_activation_requirement","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"activation_condition","conditionText":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"activation_requirement_note_v1","confidence":"medium"}
+    if re.match(r"^(?:실패시|성공시)\\s*[:：=]",t):
+        return {"classification":"conditional_branch_reference","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"conditional_branch","conditionText":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"success_failure_branch_v1","confidence":"medium"}
+    if re.match(r"^(?:기본효과|발동후 효과|발동 후 효과)",t):
+        return {"classification":"effect_timing_rule_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"effect_timing_constraint","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"effect_timing_note_v1","confidence":"medium"}
+    if re.match(r"^무한턴일 때\\s*\\d+턴으로 처리",t):
+        return {"classification":"turn_duration_override_candidate","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"turn_duration_override","rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"infinite_turn_override_v1","confidence":"medium"}
+    if re.match(r"^해당 유닛을 필드에 올리면 .+상태가 바로 발동",t):
+        return {"classification":"on_play_status_trigger_candidate","triggers":["on_play"],
+                "actors":["played_unit"],"targets":[],"conditions":[],
+                "operations":[{"kind":"apply_status","rawRule":t,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"on_play_status_note_v1","confidence":"medium"}
+    status_delta=re.match(r"^(?P<target>[^:：]+)[:：]\\s*(?P<status>.+?)\\s*(?P<sign>[+-])\\s*(?P<turns>\\d+)\\s*턴$",t)
+    if status_delta:
+        return {"classification":"status_duration_change_candidate","triggers":[],
+                "actors":[],"targets":[status_delta.group("target").strip()],"conditions":[],
+                "operations":[{"kind":"modify_status_duration","targetText":status_delta.group("target").strip(),
+                    "statusText":status_delta.group("status").strip(),
+                    "turnDelta":int(status_delta.group("turns"))*(1 if status_delta.group("sign")=="+" else -1),
+                    "executable":False}],
+                "numbers":[status_delta.group("turns")],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"status_duration_note_v1","confidence":"medium"}
+    if re.match(r"^(?:만능|마법|장비|야수)\\s*[:：].*상태\\s*\\([^)]+\\)",t):
+        return {"classification":"unit_ability_profile_reference","triggers":[],
+                "actors":[],"targets":[],"conditions":[t],
+                "operations":[{"kind":"ability_stat_profile_reference","rawRule":t,"executable":False}],
+                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+",t),"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"ability_profile_reference_v1","confidence":"not_applicable"}
+    if re.match(r"^(?:중급|상급|하급)\\s*[가-힣A-Za-z0-9]+\\s*[;；:]?$",t) or re.match(r"^(?:유닛 목록|튜터능력|챕터\\d+ 스페설 마법 특징)$",t):
+        return {"classification":"section_heading","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"section_heading","rawText":raw_text,"executable":False}],
+                "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                "inferenceMethod":"section_heading_v2","confidence":"not_applicable"}
+    if known_cards and re.search(r"[:：]",t):
+        label,body=re.split(r"[:：]",t,maxsplit=1)
+        label_key="".join(label.split())
+        if label_key in known_cards and re.search(r"[+-]?\\d+\\s*/\\s*[+-]?\\d+\\s*/\\s*[+-]?\\d+",body):
+            return {"classification":"card_stat_profile_reference","triggers":[],
+                    "actors":[],"targets":[],"conditions":[],
+                    "operations":[{"kind":"related_card_definition","cardName":label.strip(),
+                        "cardIds":known_cards[label_key],"statText":body.strip(),"executable":False}],
+                    "numbers":re.findall(r"(?<!\\d)[+-]?\\d+",body),"rawText":raw_text,
+                    "flavorText":flavor_text,"inferenceMethod":"card_stat_profile_link_v1","confidence":"medium"}
+    if known_cards:
+        card_list=[x.strip() for x in re.split(r"[,，、]",t) if x.strip()]
+        if len(card_list)>1 and all("".join(x.split()) in known_cards for x in card_list):
+            return {"classification":"card_reference_list","triggers":[],"actors":[],
+                    "targets":[],"conditions":[],"operations":[{"kind":"related_card_reference",
+                        "entries":[{"label":x,"cardIds":known_cards["".join(x.split())]} for x in card_list],
+                        "executable":False}],"numbers":[],"rawText":raw_text,"flavorText":flavor_text,
+                    "inferenceMethod":"known_card_list_link_v1","confidence":"medium"}
+
     # Source notes, credits, collection restrictions and headings are not game effects.
     metadata_patterns=[
       r"^invalid$",
@@ -45,7 +127,33 @@ def parse(text, known_skills=None, known_cards=None):
       r"^\d+차\s*강화\s*유닛\s*특징$",
       r"^상성(?:효과|카드|유닛|아이템)\s*:?\s*$",
       r"^(?:성장목록|성장유닛|오오라 능력|변경되는 유닛 리스트)$",
-      r"^해당\s*(?:유닛|아이템|마법|카드).*(?:가지고 있습니다|확인하실 수|확인할 수|FAQ를 참조|획득 가능합니다|획득할 수 있습니다)",
+      r"^해당\\s*(?:지형|유닛|아이템|마법|카드).*(?:입니다|가지고 있습니다|확인하실 수|확인할 수|FAQ를 참조|획득 가능합니다|획득할 수 있습니다)",
+      r"^3차 강화 카드는 만능능력 유닛으로 아이템 착용에 있어서 제한이 없습니다",
+      r"^아이템 착용에 있어서 제한이 전혀 없는 특징을 갖고 있는 유닛입니다",
+      r"^에카마엘 유닛은 .*전용테두리로 표시됩니다",
+      r"^모든 \\[마일리지카드\\]는",
+      r"^좌측 히어로 창을 클릭한 후",
+      r"^해당 기술은 유닛의 고유기술로서",
+      r"^해당 아이템은 \\d차 강화능력을 보유",
+      r"^해당 유닛은 .*을 보유하고 있습니다",
+      r"^Expansion 일일퀘스트 .*보상으로 받을",
+      r"^이카젠 등급은 유니크 등급과 동일하게 취급",
+      r"^종족은 유닛 카드 큰 이미지",
+      r"^종족 스페셜 카드들은 특수한 능력을 가지고 있습니다",
+      r"^SP/보석카드 종류",
+      r"^챕터 유닛은 .*모든 유닛을 말합니다",
+      r"^소드걸즈 유닛은 모두 동일한 아티스트값",
+      r"^자세한 사항은 FAQ를 참고",
+      r"^해당 상태에 대한 자세한 설명은 FAQ",
+      r"^FM올림픽 이벤트 .*상품 카드입니다",
+      r"^.*최초로 제작하신 카드입니다",
+      r"^※표시 확인",
+      r"^해당 마법은 .*로 발동됩니다",
+      r"^에카마엘 유닛 \\(챕터\\)",
+      r"^하급에카마엘상태$",
+      r"^유닛,인첸트:HP$",
+      r"^상성 안내$",
+      r"^상성(?:유닛|아이템)\\s*[:：]",
       r"^(?:랭크가 있는 카드입니다|랭크 카드 안내|랭크카드 각각에 대한 설명은)",
       r"^(?:FM 도움말|고객센터|홈페이지 메인화면|이벤트 페이지를 확인)",
       r"^20\d\d년.*(?:이벤트|부스터).*(?:획득|제공)",
@@ -561,7 +669,7 @@ def main(path="data/fm1_cards.sqlite"):
       for clause_id,cid,text,segtype,url in rows:
         parsed=parse(text,known_skills,known_cards)
         status=("not_applicable" if segtype=="separator" or parsed["classification"] in
-                ("reference_or_flavor","card_reference_list","card_name_reference","section_heading","flavor_or_lore","named_status_reference")
+                ("reference_or_flavor","reference_or_metadata","card_reference_list","card_name_reference","card_stat_profile_reference","unit_ability_profile_reference","section_heading","flavor_or_lore","named_status_reference","example_or_reference","source_placeholder")
                 else "linked_rule_reference" if parsed["classification"]=="ability_name_reference" else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
