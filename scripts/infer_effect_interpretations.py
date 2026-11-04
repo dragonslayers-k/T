@@ -908,7 +908,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         label_is_condition=bool(re.search(
             r"(?:레벨|턴|킬|랭크|장|개|소울|코인|점수|포인트|수치|경우|이상|이하|초과|미만)",label))
         if body:
-            body_result=parse(body,known_skills,known_cards)
+            body_result=parse(body,known_skills,known_cards,known_named_effects,known_named_effect_fragments)
             if body_result["confidence"]!="low":
                 ops.append({"kind":"labeled_effect_definition","label":label,
                             "bodyText":body,"derivedOperations":body_result["operations"],
