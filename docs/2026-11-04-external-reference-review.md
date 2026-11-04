@@ -51,3 +51,13 @@
 - DB 레지스트리 및 출처 인덱스에 URL/문서종류/본문확인상태/판본·시점/확인한 주장/한계/다음 작업을 보존한다.
 - 카드 효과는 원문 TextBase/TextExtra를 먼저 읽고 ID/상세 URL과 연결한 뒤 구조화한다.
 - 모든 변경은 원본 보존, provenance 연결, focused tests 순으로 진행한다. 54행은 아직 전부 pending/non_executable이며, 이 문서 자체가 효과 완료를 의미하지 않는다.
+
+
+## #466 디스인첸트 공통 규칙의 원문 연결 (2026-11-05)
+- #460 pending 중 `named_effect_reference_candidate` 23행을 다시 읽어 전부 고유 카드 ID 23개이며, 동일 디스인첸트 공통 정의를 각 카드 `TextExtra`에 포함하는 것을 확인.
+- 공통 정의를 `fm1_enchantment_disenchant_first_by_field_count`로 링크하고, 7속성별 3개씩 21개 종류 이름을 23개 근거 행 내 카드명/ID와 정확 매칭.
+- `칠색조의가호`, `시스카이`는 공통 정의를 포함하지만 21개 종류 목록에는 없는 별도 보조 카드.
+- `TextExtra`의 서로 다른 전체 본문 14종 및 각 카드별 부가 설명을 그대로 보존.
+- 카운트 확정 시점, 빈 슬롯, 양측 처리 순서, 재생성/디스펠 상호작용 등은 미검증. 23행 전체 pending/non_executable 유지.
+- 데이터: `data/reviews/fm1-disenchant-shared-rule-v1.json` 및 adjudication manifest.
+- 테스트: `tests/test_disenchant_shared_rule.py`.

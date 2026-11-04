@@ -1,0 +1,425 @@
+{
+  "schema_version": "FM1-DISENCHANT-SHARED-RULE-1.0",
+  "source_db_release": "fm1-carddb-29",
+  "source_db_release_immutable": true,
+  "rule_id": "fm1_enchantment_disenchant_first_by_field_count",
+  "canonical_name": "디스인첸트 카드",
+  "source_authority": "DB29 original card TextExtra",
+  "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+  "transcribed_semantics": {
+    "precondition": "디스인첸트 카드가 필드에 존재",
+    "trigger_phase": "인첸트 발동 페이즈",
+    "count_basis": "해당 필드에 존재하는 디스인첸트 카드 수",
+    "target_sides": [
+      "아군 필드",
+      "적군 필드"
+    ],
+    "target_selector": "각 필드의 첫번째 인첸트부터 순서대로",
+    "operation": "선택된 인첸트 카드 파괴",
+    "source_example": "디스인첸트 카드 1장당 아군 필드 1장 및 적군 필드 1장의 인첸트 파괴"
+  },
+  "disenchant_card_names_by_attribute": [
+    {
+      "attribute": "암흑",
+      "key": "dark",
+      "names": [
+        "매직블랙홀",
+        "킬링타임",
+        "복수의준비"
+      ],
+      "items": [
+        {
+          "name": "매직블랙홀",
+          "card_id": "7020731304",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "킬링타임",
+          "card_id": "6120631255",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "복수의준비",
+          "card_id": "12070432957",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        }
+      ]
+    },
+    {
+      "attribute": "불",
+      "key": "fire",
+      "names": [
+        "파이어플래쉬",
+        "화룡의분노",
+        "연행"
+      ],
+      "items": [
+        {
+          "name": "파이어플래쉬",
+          "card_id": "4062530563",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "화룡의분노",
+          "card_id": "3062730277",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "연행",
+          "card_id": "12070432959",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        }
+      ]
+    },
+    {
+      "attribute": "물",
+      "key": "water",
+      "names": [
+        "스펠카운터",
+        "프로즌노바",
+        "청사의시선"
+      ],
+      "items": [
+        {
+          "name": "스펠카운터",
+          "card_id": "4062530566",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "프로즌노바",
+          "card_id": "3062730281",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "청사의시선",
+          "card_id": "12070432961",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        }
+      ]
+    },
+    {
+      "attribute": "숲",
+      "key": "forest",
+      "names": [
+        "이그조스트리",
+        "그룹차징",
+        "숨막히는공격"
+      ],
+      "items": [
+        {
+          "name": "이그조스트리",
+          "card_id": "4121530702",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "그룹차징",
+          "card_id": "5090730915",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "숨막히는공격",
+          "card_id": "12070432963",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        }
+      ]
+    },
+    {
+      "attribute": "금속",
+      "key": "metal",
+      "names": [
+        "성직자암살",
+        "불가침조약",
+        "숙명"
+      ],
+      "items": [
+        {
+          "name": "성직자암살",
+          "card_id": "4072130593",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "불가침조약",
+          "card_id": "4111730684",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "숙명",
+          "card_id": "12070432965",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        }
+      ]
+    },
+    {
+      "attribute": "대지",
+      "key": "earth",
+      "names": [
+        "회오리장막",
+        "지축변경",
+        "사막의감시"
+      ],
+      "items": [
+        {
+          "name": "회오리장막",
+          "card_id": "7020731319",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "지축변경",
+          "card_id": "4111730687",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "사막의감시",
+          "card_id": "12070432967",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        }
+      ]
+    },
+    {
+      "attribute": "빛",
+      "key": "light",
+      "names": [
+        "천계의심판",
+        "그리핀출몰",
+        "고귀한생명"
+      ],
+      "items": [
+        {
+          "name": "천계의심판",
+          "card_id": "4111730690",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "그리핀출몰",
+          "card_id": "9020431914",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        },
+        {
+          "name": "고귀한생명",
+          "card_id": "12070432969",
+          "match_status": "exact_card_name_match_within_23_evidence_rows"
+        }
+      ]
+    }
+  ],
+  "named_card_count": 21,
+  "supporting_reference_rows": 23,
+  "supporting_card_ids": [
+    {
+      "card_id": "3062730277",
+      "card_name": "화룡의분노",
+      "pattern_id": "5bbd71cd5e652d02",
+      "detail_url": "https://fmlunatic.com/card/3062730277"
+    },
+    {
+      "card_id": "4111730687",
+      "card_name": "지축변경",
+      "pattern_id": "5bbd71cd5e652d02",
+      "detail_url": "https://fmlunatic.com/card/4111730687"
+    },
+    {
+      "card_id": "4062530566",
+      "card_name": "스펠카운터",
+      "pattern_id": "839e622dec75b37a",
+      "detail_url": "https://fmlunatic.com/card/4062530566"
+    },
+    {
+      "card_id": "12070432965",
+      "card_name": "숙명",
+      "pattern_id": "cf496fbe1a4ad7b0",
+      "detail_url": "https://fmlunatic.com/card/12070432965"
+    },
+    {
+      "card_id": "4121530702",
+      "card_name": "이그조스트리",
+      "pattern_id": "a89c167e47d6d1a6",
+      "detail_url": "https://fmlunatic.com/card/4121530702"
+    },
+    {
+      "card_id": "4072130593",
+      "card_name": "성직자암살",
+      "pattern_id": "ac99e5a38665171f",
+      "detail_url": "https://fmlunatic.com/card/4072130593"
+    },
+    {
+      "card_id": "4111730690",
+      "card_name": "천계의심판",
+      "pattern_id": "7824c438fd6b1a5c",
+      "detail_url": "https://fmlunatic.com/card/4111730690"
+    },
+    {
+      "card_id": "12070432961",
+      "card_name": "청사의시선",
+      "pattern_id": "de567b286c4932e6",
+      "detail_url": "https://fmlunatic.com/card/12070432961"
+    },
+    {
+      "card_id": "12070432959",
+      "card_name": "연행",
+      "pattern_id": "315583fe67130afe",
+      "detail_url": "https://fmlunatic.com/card/12070432959"
+    },
+    {
+      "card_id": "12070432963",
+      "card_name": "숨막히는공격",
+      "pattern_id": "e413b817f58df766",
+      "detail_url": "https://fmlunatic.com/card/12070432963"
+    },
+    {
+      "card_id": "7020731304",
+      "card_name": "매직블랙홀",
+      "pattern_id": "1c167e2486441070",
+      "detail_url": "https://fmlunatic.com/card/7020731304"
+    },
+    {
+      "card_id": "7020731319",
+      "card_name": "회오리장막",
+      "pattern_id": "83d8fccfa54ce720",
+      "detail_url": "https://fmlunatic.com/card/7020731319"
+    },
+    {
+      "card_id": "12070432969",
+      "card_name": "고귀한생명",
+      "pattern_id": "ac655a5a0d2e8f7c",
+      "detail_url": "https://fmlunatic.com/card/12070432969"
+    },
+    {
+      "card_id": "12070432967",
+      "card_name": "사막의감시",
+      "pattern_id": "b940d63fea79ba65",
+      "detail_url": "https://fmlunatic.com/card/12070432967"
+    },
+    {
+      "card_id": "14012233385",
+      "card_name": "칠색조의가호",
+      "pattern_id": "e24af7068b6972ba",
+      "detail_url": "https://fmlunatic.com/card/14012233385"
+    },
+    {
+      "card_id": "6120631255",
+      "card_name": "킬링타임",
+      "pattern_id": "dc1c1158b89fec26",
+      "detail_url": "https://fmlunatic.com/card/6120631255"
+    },
+    {
+      "card_id": "12070432957",
+      "card_name": "복수의준비",
+      "pattern_id": "021bd824961a80e4",
+      "detail_url": "https://fmlunatic.com/card/12070432957"
+    },
+    {
+      "card_id": "4111730684",
+      "card_name": "불가침조약",
+      "pattern_id": "e5a1a195f573cc15",
+      "detail_url": "https://fmlunatic.com/card/4111730684"
+    },
+    {
+      "card_id": "9020431914",
+      "card_name": "그리핀출몰",
+      "pattern_id": "0e5b31a93f6d48f2",
+      "detail_url": "https://fmlunatic.com/card/9020431914"
+    },
+    {
+      "card_id": "4062530563",
+      "card_name": "파이어플래쉬",
+      "pattern_id": "c0399da6ece0425c",
+      "detail_url": "https://fmlunatic.com/card/4062530563"
+    },
+    {
+      "card_id": "3062730281",
+      "card_name": "프로즌노바",
+      "pattern_id": "bd862ece40b0c729",
+      "detail_url": "https://fmlunatic.com/card/3062730281"
+    },
+    {
+      "card_id": "5090730915",
+      "card_name": "그룹차징",
+      "pattern_id": "369637133f626c14",
+      "detail_url": "https://fmlunatic.com/card/5090730915"
+    },
+    {
+      "card_id": "15042933603",
+      "card_name": "시스카이",
+      "pattern_id": "e6d9caade4df19f0",
+      "detail_url": "https://fmlunatic.com/card/15042933603"
+    }
+  ],
+  "supporting_cards_not_in_named_type_list": [
+    {
+      "name": "칠색조의가호",
+      "card_id": "14012233385"
+    },
+    {
+      "name": "시스카이",
+      "card_id": "15042933603"
+    }
+  ],
+  "mapping_scope_and_limit": "21개의 명칭은 일부 카드의 TextExtra에 실린 디스인첸트 종류 목록과 23개 근거 행의 카드명을 대조한 정확 일치다. 이는 23개 근거 행 내의 매칭이며 DB29 전체 카드 DB에서 동명 중복·이전 판본을 포함한 전역 유일성까지 인증한 것은 아니다.",
+  "source_text_variant_count": 14,
+  "original_text_policy": "모든 TextBase/TextExtra 원문은 각 근거 행에 그대로 보존한다. 여러 TextExtra에 함께 나타나는 공통 정의만 이 shared rule ID로 연결하고 개별 행에 포함된 다른 문장들은 이 공통 규칙에 병합하지 않는다.",
+  "card_specific_auxiliary_notes": [
+    {
+      "card_id": "3062730277",
+      "card_name": "화룡의분노",
+      "note": "일부 TextExtra에는 '파괴'의 보충 설명(소각장 이동, 유닛 HP=0, ▲*HP 제외)이 함께 있음. 보편적인 Disenchant 대상 처리로 일반화하지 말고 원문 문맥별로 유지."
+    },
+    {
+      "card_id": "4062530566",
+      "card_name": "스펠카운터",
+      "note": "재생성 시 아군 백필드 지형 1 파괴 및 인첸트 파괴 시 마법 성공 판정 관련 보충 문구가 포함됨."
+    },
+    {
+      "card_id": "4072130593",
+      "card_name": "성직자암살",
+      "note": "재생성 관련 문구가 포함됨. 공통 Disenchant 정의와 별도 처리."
+    },
+    {
+      "card_id": "4062530563",
+      "card_name": "파이어플래쉬",
+      "note": "재생성 관련 문구가 포함됨. 공통 Disenchant 정의와 별도 처리."
+    },
+    {
+      "card_id": "12070432965",
+      "card_name": "숙명",
+      "note": "랭크결박 상태 수치와 디스인첸트 종류 목록을 함께 보존."
+    },
+    {
+      "card_id": "4111730690",
+      "card_name": "천계의심판",
+      "note": "저스티스 턴 일의자리 수 피해 문구를 공통 Disenchant 처리와 분리."
+    },
+    {
+      "card_id": "12070432969",
+      "card_name": "고귀한생명",
+      "note": "홀리레인 마법의 유닛 HP 변화 문구를 공통 처리와 분리."
+    },
+    {
+      "card_id": "12070432967",
+      "card_name": "사막의감시",
+      "note": "LP 정의 및 디스인첸트 종류 목록을 함께 보존."
+    },
+    {
+      "card_id": "12070432957",
+      "card_name": "복수의준비",
+      "note": "방체 단계별 데미지 문구를 공통 처리와 분리."
+    },
+    {
+      "card_id": "15042933603",
+      "card_name": "시스카이",
+      "note": "무속성 마법 대상 제외 등 시스카이 고유 문구를 공통 처리와 분리."
+    }
+  ],
+  "unresolved_engine_questions": [
+    "동일 인챈트 발동 페이즈에서 디스인첸트 수를 언제 스냅샷하는지(파괴·재생성 중 카운트 변화)",
+    "아군/적군 각각의 첫 인챈트 슬롯 탐색의 정확한 슬롯 순서와 빈 슬롯 처리",
+    "한 쪽 필드의 인챈트가 카운트보다 적을 때 잔여 파괴 횟수 처리",
+    "양측 파괴가 동시인지 순차인지 및 한쪽 처리 결과가 반대쪽에 영향을 주는지",
+    "디스인첸트 카드 자체가 제거·비활성·변형되는 경우 카운트 포함 여부",
+    "재생성·디스펠 성공 판정·인챈트 발동 페이즈와의 상호작용",
+    "동일 페이즈 다중 카드/복수 효과/인챈트 지속시간 종료와 처리 우선순위"
+  ],
+  "verification_status": "source_text_definition_linked_pending_engine_validation",
+  "engine_verified": false,
+  "runtime_status": "non_executable",
+  "executable": false
+}
