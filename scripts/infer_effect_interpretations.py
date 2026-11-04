@@ -3,8 +3,13 @@
 import json,re,sqlite3,sys
 from pathlib import Path
 
-def parse(text):
+def parse(text, known_skills=None):
     t=text or ""
+    normalized="".join(t.split())
+    if known_skills and normalized in known_skills:
+        return {"classification":"ability_name_reference","triggers":[],"actors":[],"targets":[],
+                "conditions":[],"operations":[{"kind":"skill_reference","ruleId":known_skills[normalized]}],
+                "numbers":[],"rawText":t,"inferenceMethod":"catalogue_name_link_v1","confidence":"medium"}
     triggers=[]
     for key,pat in [
       ("on_attack",r"공격\s*시|공격할 때|공격 선언"),
@@ -55,7 +60,7 @@ def parse(text):
     for pat in [r"이하",r"이상",r"초과",r"미만",r"같으면",r"경우",r"조건",r"턴이\s*\d+턴"]:
         if re.search(pat,t): conditions.append(pat)
     if not ops:
-        if re.match(r"^\s*(?:▶|※|★|☆|illustrated|해당 카드는|카드타입|상성카드|연계카드|보유LP는|더블클릭)",t,re.I):
+        if re.match(r"^\s*(?:invalid$|▶|※|★|☆|illustrated|해당 카드는|카드타입|상성카드|연계카드|보유LP는|더블클릭|.*랭크가 있는 카드입니다|.*랭크 카드 안내)",t,re.I):
             classification="reference_or_flavor"
         elif not t.strip():
             classification="empty_separator"
@@ -86,14 +91,21 @@ def main(path="data/fm1_cards.sqlite"):
     CREATE INDEX IF NOT EXISTS idx_effect_interpretations_card ON card_effect_interpretations(card_id);
     """)
     db.execute("DELETE FROM card_effect_interpretations")
+    known_skills={}
+    for rid,canonical,aliases_json in db.execute("SELECT rule_id,canonical_name,aliases_json FROM game_rule_catalog"):
+        for label in [canonical]+(json.loads(aliases_json or "[]")):
+            known_skills["".join(str(label).split())]=rid
+    for field,name,rid in db.execute("SELECT source_field,source_name,rule_id FROM skill_enum_inventory WHERE rule_id IS NOT NULL"):
+        known_skills["".join(str(name).split())]=rid
     rows=db.execute("""SELECT cl.clause_id,cl.card_id,cl.segment_text,cl.segment_type,c.source_card_url
       FROM card_effect_clauses cl JOIN cards c ON c.card_id=cl.card_id
       ORDER BY cl.card_id,cl.clause_index""").fetchall()
     counts={}
     with db:
       for clause_id,cid,text,segtype,url in rows:
-        parsed=parse(text)
-        status="not_applicable" if segtype=="separator" or parsed["classification"]=="reference_or_flavor" else "inferred"
+        parsed=parse(text,known_skills)
+        status=("not_applicable" if segtype=="separator" or parsed["classification"]=="reference_or_flavor"
+                else "linked_rule_reference" if parsed["classification"]=="ability_name_reference" else "inferred")
         db.execute("""INSERT INTO card_effect_interpretations VALUES(?,?,?,?,?,?,?,?)""",
           (clause_id,cid,url,text,json.dumps(parsed,ensure_ascii=False,sort_keys=True),status,
            parsed["confidence"],parsed["inferenceMethod"]))
