@@ -45,7 +45,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: fm1-carddb
+  # Keep push-triggered full audits separate from PR-triggered lightweight tests.
+  group: fm1-carddb-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -53,7 +54,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      # Full audits are explicit: workflow_dispatch inputs or a push commit tagged [full-db-audit]. PRs stay on lightweight tests; hashFiles is only valid in step-level expressions.
+      # Full audits are explicit: workflow_dispatch inputs or a push commit tagged [full-db-audit]. PRs stay on lightweight tests.
       MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
