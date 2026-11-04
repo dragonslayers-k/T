@@ -90,6 +90,7 @@ result["source_snapshot_integrity_pass"]=(
  result["cost_parse_accounted_for"] and result["skill_mapping_coverage_accounted_for"] and result["effect_text_accounted_for"] and result["crawl_complete"] is True
 )
 result.update(evaluate_semantic_status(result))
-result["complete"]=result["source_snapshot_integrity_pass"] and result["semantic_completeness_pass"]
+result["complete"]=(result["source_snapshot_integrity_pass"] and
+ result["semantic_completeness_pass"] and result["engine_verification_complete"])
 Path("data/audit-report.json").write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
 print(json.dumps(result,ensure_ascii=False,indent=2));c.close();sys.exit(0 if result["source_snapshot_integrity_pass"] else 2)
