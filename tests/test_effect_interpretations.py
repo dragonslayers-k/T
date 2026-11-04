@@ -134,5 +134,36 @@ class NamedEffectInterpretationTests(unittest.TestCase):
                 self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
 
 
+    def test_audit_435_counting_conditions_and_ability_labels(self):
+        cases = [
+            ("※ 동일 수에서 자신은 제외됩니다.", "counting_or_scope_rule_candidate"),
+            ("※ 듀얼 카드 카운트에서 지형은 제외됩니다.(같이 발매된 다른 마법과 동일)", "counting_or_scope_rule_candidate"),
+            ("▶ 지형은 1레벨로 계산", "counting_or_scope_rule_candidate"),
+            ("▶ 가장 많은 속성의 카드수가 동일할 경우에는 효과가 없습니다.", "effect_activation_requirement"),
+            ("▶ 1번 슬롯의 맨 위 인첸트가 대지 인첸트여야 합니다.", "effect_activation_requirement"),
+            ("▶ 적 필드 카드가 2이상 이여야 발동", "effect_activation_requirement"),
+            ("수호일격 공격기술 (기술방어보다 먼저발동)", "named_ability_reference_candidate"),
+            ("(캐리온크로우, 패러키트, 스패로우, 만다린덕, 크레인, 데저트이글, 펠리컨).", "card_reference_list"),
+        ]
+        for raw, expected in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                self.assertEqual(result["classification"], expected)
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+    def test_audit_435_legacy_action_verbs_are_non_executable_candidates(self):
+        cases = [
+            "슬롯 유닛에게 숲의보호 기술을 투여한다.",
+            "적군 유닛1을 상대방 덱 위로 올린다.",
+            "아군 유닛 전체는 장비능력으로 변한다.",
+        ]
+        for raw in cases:
+            with self.subTest(raw=raw):
+                result = parse(raw)
+                self.assertEqual(result["classification"], "effect_candidate")
+                self.assertTrue(any(op.get("kind") == "generic_effect_operation" for op in result["operations"]))
+                self.assertFalse(any(op.get("executable") is True for op in result["operations"]))
+
+
 if __name__ == "__main__":
     unittest.main()
