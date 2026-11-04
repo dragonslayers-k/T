@@ -99,7 +99,8 @@ class CardFieldCoverageTests(unittest.TestCase):
             field_summary = json.loads((root / "out" / "card-field-status-summary.json").read_text(encoding="utf-8"))
             self.assertEqual(field_summary["cards"], 5)
             self.assertEqual(field_summary["fields"], 2)
-            self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_absent_confirmed"], 1)
+            self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_absent_confirmed"], 2)
+            self.assertEqual(field_summary["field_applicability_counts"]["Skill1"]["not_applicable_candidate"], 1)
             self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_empty_confirmed"], 1)
             self.assertEqual(field_summary["field_status_counts"]["Skill1"]["source_null_confirmed"], 1)
 
