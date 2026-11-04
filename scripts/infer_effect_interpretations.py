@@ -347,7 +347,7 @@ def parse(text, known_skills=None, known_cards=None):
                     "statusName":t[1:-3].strip(),"executable":False}],
                 "numbers":[],"rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"quoted_status_reference_v1","confidence":"medium"}
-    if len(t)<30 and t.endswith("상태") and t[:-2].strip() and not any(x in t for x in ("발동","부여","제거","해제")):
+    if len(t)<30 and t.endswith("상태") and t[:-2].strip() and not t.startswith("[") and not any(x in t for x in ("발동","부여","제거","해제")):
         return {"classification":"named_status_reference","triggers":[],"actors":[],
                 "targets":[],"conditions":[],"operations":[{"kind":"status_reference",
                     "statusName":t[:-2].strip(),"executable":False}],
