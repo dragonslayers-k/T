@@ -465,3 +465,17 @@
 - Naver 원문은 미열람 상태로 기록.
 
 DB29 불변, DB30 미발행, main 미병합. 다음 단계는 카드 목록 이름→ID 정확 매칭과 에카마엘 소환 풀 검토, 지형 카운터 7건의 표기 충돌 및 엔진 테스트 케이스 작성이다.
+
+
+## 2026-11-05 운영 가이드 및 외부 참고자료 보강
+
+- 통합 운영 기준: `docs/MASTER_OPERATING_GUIDE_2026-11-05.md`
+- 외부 자료 상세 인덱스·카드 사례: `docs/2026-11-05-fantasy-masters-reference-guide.md`
+- #464 최신 카드DB Actions 성공: https://github.com/dragonslayers-k/T/actions/runs/41848414940
+- #460의 54행은 여전히 전부 pending/non_executable이다. #464에서 Namu 링크 및 과거 기술 자료를 보조 교차참조했으나 실행 규칙으로 승격하지 않았다.
+- 사용자 제공 A.docx의 3.4~3.6 카드 링크 인덱스와 통합 지식베이스를 출처 색인에 추가한다. 본문/하위 페이지를 직접 확인하지 못한 링크는 접근 상태를 별도 보존한다.
+- 저장소별 역할은 T=원본 데이터/정규화/provenance/DB Release, FM-OFFLINE=데이터팩/도감/엔진/Android 검증으로 유지한다.
+- NamuWiki의 7속성 상세 하위 문서와 메인 문서의 무속성 포함 8속성 서술을 시간축으로 분리한다. 종족과 소속도 별도 필드로 관리한다.
+- Naver jlplace 개인 가이드는 본문 접근 차단 및 현재 캡처의 가독성 부족으로 규칙 추출을 수행하지 않았다.
+- 다음 실제 작업은 54행의 23 named-effect reference → 8 Ecaemael summon profiles → 7 terrain/area counters → 8 card-name reference list → 나머지 8행 순으로 카드 ID/원문/공식 매뉴얼/엔진 테스트를 연결한다.
+- DB29 immutable, DB30 미발행, main 미병합 원칙 유지.
