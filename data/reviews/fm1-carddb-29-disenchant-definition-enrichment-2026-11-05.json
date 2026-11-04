@@ -1,0 +1,514 @@
+{
+  "schema_version": "FM1-SEMANTIC-REVIEW-ENRICHED-1.0",
+  "based_on_manifest": "fm1-carddb-29-semantic-review-pending-460.json",
+  "source_db_release": "fm1-carddb-29",
+  "immutable_baseline": true,
+  "generated_at": "2026-11-05",
+  "source_review": {
+    "card_source_text": "DB29 source fields in each record remain byte-for-byte copied from manifest #460.",
+    "new_reference_observation": "Across 23 card occurrences, TextExtra repeats a common Disenchant-card description. This is directly evidenced by the preserved source text, not inferred from the external wiki/blog.",
+    "external_references_added_to_operating_guide": [
+      "https://namu.wiki/w/판타지_마스터즈",
+      "https://m.blog.naver.com/jlplace/220468684977"
+    ],
+    "external_reference_scope": "These sources are research leads; this enrichment does not claim exhaustive linked-page review or corroboration of the specific shared rule."
+  },
+  "shared_definitions": [
+    {
+      "definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "source_label": "DB29 TextExtra shared text: ▶ 디스인첸트 카드",
+      "source_excerpt": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.",
+      "normalized_semantics": {
+        "mechanic": "enchant_destruction",
+        "trigger_phase": "enchant_activation_phase",
+        "count_source": "number_of_dis_enchant_cards_present_on_field",
+        "sides": [
+          "friendly",
+          "enemy"
+        ],
+        "selection": "start_from_first_enchant_and_follow_field_order",
+        "quantity": "count-scaled; source example explicitly describes one enchant per side for one Disenchant card",
+        "outcome": "destroy_selected_enchant_cards",
+        "destruction_reference": "for source records that define destruction, card goes to graveyard; unit destruction is HP=0 and ▲*HP is not destroyed"
+      },
+      "unresolved": {
+        "runtime_executable": false,
+        "status": "pending_engine_validation",
+        "questions": [
+          "Confirm whether count scaling means exactly N enchantments on each side in every case and how it handles fewer enchantments than N.",
+          "Confirm order when both sides have slots with gaps, tied/invalid positions, or enchant destruction effects.",
+          "Confirm timing relative to card resolution, replacement, regeneration, and multiple simultaneous Disenchant cards.",
+          "Confirm the source's term 'field exists' means only currently active cards and whether self-removal during the phase changes count."
+        ]
+      }
+    }
+  ],
+  "records": [
+    {
+      "pattern_id": "5bbd71cd5e652d02",
+      "card_id": "3062730277",
+      "card_name": "화룡의분노",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/3062730277",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군 백필드 지형 1 파괴 후 적 필드 유닛1 파괴 / 아군 핸드 필드에 레드드래곤 있거나 아군 필드 6레벨이상 드래곤 존재시 적 파괴를 1,2로 증가. By - vsi2138 ◇디스인첸트 카드"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>▶ 파괴 : 해당 카드 소각장 이동, 유닛은 HP=0 처리이므로 ▲*HP는 파괴 안됨."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "5bbd71cd5e652d02",
+      "card_id": "4111730687",
+      "card_name": "지축변경",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/4111730687",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군 백필드 생성 유소울이 모두 대지 속성이면 남은 무소울과 이름 수가 일치하는 적 필드 유닛을 모두 소멸 시키고, 백필드 지형 1 파괴 ◇ 디스인첸트 카드"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "839e622dec75b37a",
+      "card_id": "4062530566",
+      "card_name": "스펠카운터",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/4062530566",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적군 필드마법 1 파괴. 실패시 남은 물소울 3개 이상이면 물소울과 지형 1 파괴 후 아군 핸드에 재생성. ◇디스인챈트 카드 [누가 더 빠르게 시전하는 자가 큰 영향을 미치지.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 재생성시 아군 백필드 지형1을 파괴합니다.<br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>※ 재생성 효과를 갖고있는 디스인첸트 디스펠은 인첸트 파괴시, 마법 성공으로 체크합니다."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "cf496fbe1a4ad7b0",
+      "card_id": "12070432965",
+      "card_name": "숙명",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/12070432965",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드 유닛 1, 2에게 랭크결박 상태를 2턴간 부여한 후, 아군 필드 유닛 전체의 AP/HP를 적 필드 상태없는 유닛 수만큼 증가. ◇ 디스인첸트 카드 [과연 그 회담에서 어떠한 일이 있었는지는 아무도 모른다. 그들은 그 후에도 만난 적이 없다.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>★ 랭크결박 상태 : 상태 부여된 유닛의 랭크에 따라 AP 감소 후 일반공격기술 부여.<br>N랭크, 랭크없음 : AP 감소없음.<br>C랭크 : AP-1.<br>B랭크 : AP-2.<br>A랭크 : AP-3.<br>S랭크 : AP-4. <br>"
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "a89c167e47d6d1a6",
+      "card_id": "4121530702",
+      "card_name": "이그조스트리",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/4121530702",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적군 필드마법 1파괴. 성공 시 파괴된 마법 레벨이 아군 적군 필드유닛 1의 코인 수가 된다. ◇ 디스인첸트 카드 [그 열매들은 마법의 힘을 흡수하여 맺은 것입니다.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "ac99e5a38665171f",
+      "card_id": "4072130593",
+      "card_name": "성직자암살",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/4072130593",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적군 필드마법 1 파괴, 실패 시 아군 핸드 아이템 카드 1 을 파괴하고 핸드에 재생성 ◇디스인첸트 카드 [그가 호수 앞에 있을 것이 니 숨통을 끊게. 그리하면 방어결계가 무너진다네.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>※ 재생성 효과를 갖고있는 디스인첸트 디스펠은 인첸트 파괴시, 마법 성공으로 체크합니다."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "7824c438fd6b1a5c",
+      "card_id": "4111730690",
+      "card_name": "천계의심판",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/4111730690",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드마법 1을 파괴 후, 적 필드 다음 위치에 저스티스 1을 소환. ◇ 디스인첸트 카드 [그대의 악행을 아무리 숨기려고 해도 하늘의 눈은 피할 수 없소.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "★ 저스티스 : 턴의 일의자리 수 만큼 아군 적군 같은 수로 HP 데미지.<br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "de567b286c4932e6",
+      "card_id": "12070432961",
+      "card_name": "청사의시선",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/12070432961",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군 핸드 물속성 카드 수와 동일한 유소울 또는 NCS 소울을 가진 적 필드 유닛의 특수기술을 일반 공격기술로 변경하고, AP/HP를 2 감소시킨다. ◇ 디스인첸트 카드 [깊은 바다의 위험한 뱀과 시선을 마주쳐버렸다.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "315583fe67130afe",
+      "card_id": "12070432959",
+      "card_name": "연행",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/12070432959",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드 마법1을 행동불능 상태로 적 필드 맨 뒤에 이동시키고, 마법이 이동한 필드 슬롯이 5번이면 적 필드 유닛 1을 파괴한다. ◇ 디스인첸트 카드 [끌고가봐. 내가 애송이 도둑이라고 생각하는 건 아니겠지? 감시를 게을리 하지 말라고.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "e413b817f58df766",
+      "card_id": "12070432963",
+      "card_name": "숨막히는공격",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/12070432963",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군 적군 핸드 카드 1의 레벨을 영구히 1 증가시킨 후 아군 다음 턴 생성하는 숲소울을 3 증가. ◇ 디스인첸트 카드 [늪지에선 항상 조심해야하네. 지난 번에는 거대한 괴물 뱀이 지나가던 여행자를 질식시켜서 잡아 먹었다는군.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "1c167e2486441070",
+      "card_id": "7020731304",
+      "card_name": "매직블랙홀",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/7020731304",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적군 마법1을 파괴한다. 성공시 적군 마법 레벨만큼의 적 유닛의 체력에 -C1을 부여한다. 실패시 적군수 만큼의 아군 유닛은 AP-1 ◇디스인첸트 카드 [마법을 모두 흡수했다.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "83d8fccfa54ce720",
+      "card_id": "7020731319",
+      "card_name": "회오리장막",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/7020731319",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적군 필드마법 1을 파괴. 성공시 아군 필드유닛 전체 코인 1 증가. 실패시 지형이 아닌 아군 핸드카드 1을 \"모래언덕\" 으로 교체. ◇디스인첸트 카드 [모래 마법의 장막.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "ac655a5a0d2e8f7c",
+      "card_id": "12070432969",
+      "card_name": "고귀한생명",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/12070432969",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군 필드 \"고귀한생명\" 마법 1을 제외한 마법 카드 1의 레벨 이상인 적 필드 유닛 1을 파괴한 후, 해당 마법 카드 1을 \"홀리레인\" 으로 교체한다. ◇ 디스인첸트 카드 [새로운 생명의 찬란함이란 얼마나 고귀한 것인가!]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>★ 홀리레인 마법 : 아군 필드 유닛 전체 HP+1, 적 필드 유닛 전체 HP-1.<br>"
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "b940d63fea79ba65",
+      "card_id": "12070432967",
+      "card_name": "사막의감시",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/12070432967",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군 LP가 1이 되고, 변경된 LP 수치의 절대값+1 만큼 아군 필드 유닛 1,2의 AP/HP가 최대 6까지 증가한다. ◇ 디스인첸트 카드 [생존을 위해서라면 도마뱀조차도 뜨거운 태양별에 상관하지 않는다. 생존이란 긴장이다.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ LP는 랜드포인트를 뜻하며, 지형을 올릴 수 있는 포인트입니다.<br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>"
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "e24af7068b6972ba",
+      "card_id": "14012233385",
+      "card_name": "칠색조의가호",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/14012233385",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드 50 덱포인트 이상인 마법 1을 파괴한다.◇ 디스인첸트 카드 [신령스러운 새요. 동방에서는 신조라하고 이곳에서는 칠색조라 하오. 그 울음은 천리를 가고 깃털은 불과 물을 가리지 않고 빛난다오. 나는 그 새를 찾고 있소.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>"
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "dc1c1158b89fec26",
+      "card_id": "6120631255",
+      "card_name": "킬링타임",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/6120631255",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드 홀수번째 유닛에게 턴의 일의 자리 수만큼 각각 HP 데미지를 준다. ◇ 디스인첸트 카드 [죽음은 모든 이에게 공평하다. 앞으로 닥칠 일을 미리 두려워할 필요는 없지.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "021bd824961a80e4",
+      "card_id": "12070432957",
+      "card_name": "복수의준비",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/12070432957",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드에 위치하는 2번째 마법을 파괴한 후, 파괴한 마법 카드의 레벨만큼 적 필드 유닛 1부터 방체 단계별 데미지를 준다. ◇ 디스인첸트 카드 [흡혈귀에게 아내를 빼앗긴 그는 그 후로 미친듯이 훈련을 거듭했다. 오로지 복수를 위해서.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br>▶ 디스인첸트 종류 : 암흑(매직블랙홀/킬링타임/복수의준비), 불(파이어플래쉬/화룡의분노/연행), 물(스펠카운터/프로즌노바/청사의시선), 숲(이그조스트리/그룹차징/숨막히는공격), 금속(성직자암살/불가침조약/숙명), 대지(회오리장막/지축변경/사막의감시), 빛(천계의심판/그리핀출몰/고귀한생명)<br>▶ 방체 단계별데미지 : 최대 0까지 방체 단계별 감소, DP 수치 따라 데미지 가감."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "e5a1a195f573cc15",
+      "card_id": "4111730684",
+      "card_name": "불가침조약",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/4111730684",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드 6레벨 이하 특수기술보유 유닛은 행동불능. ◇ 디스인첸트 카드. ※ 발동시 아군 백필드 생성 유소울이 모두 금속이 아니면 대상을 4레벨이하 특수기술유닛 전체로 변경. "
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "0e5b31a93f6d48f2",
+      "card_id": "9020431914",
+      "card_name": "그리핀출몰",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/9020431914",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군 필드 최저레벨 유닛 1과 적 필드 최고레벨 유닛 1을 제외한 아군적군 필드 유닛 모두 파괴 후 아군 필드 해당 유닛과 적 필드 해당 유닛의 레벨 차이만큼 아군 필드 해당 유닛 물리데미지. ◇ 디스인첸트 카드. [그리핀과의 사투.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>▶ 아군 적군 필드 유닛 1이상 필요."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "c0399da6ece0425c",
+      "card_id": "4062530563",
+      "card_name": "파이어플래쉬",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/4062530563",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드마법 1 파괴. 실패시 아군 남은 불소울이 2개 이상이면 소각 후, 아군 필드 유닛 1파괴, 핸드 재생성, ◇디스인첸트 카드. [배를 돌리지 않으면 곧 불길에 닿게 될 것입니다!]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>※ 재생성 효과를 갖고있는 디스인첸트 디스펠은 인첸트 파괴시, 마법 성공으로 체크합니다."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "bd862ece40b0c729",
+      "card_id": "3062730281",
+      "card_name": "프로즌노바",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/3062730281",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적 필드 유닛 전체 자신의 유지비+1만큼 각각 공체가 감소한다. ◇디스인첸트 카드. [이 밤이 지나면 저 성안은 하얀 눈에 뒤덮여 아무것도 보이지 않게 될 겁니다.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴.<br><br>▶ 유지비 : ○으로 표시, 소울코스트마다 유지비만큼 무소울 지불, 남은 소울 부족시 대신 덱/라이프 소모."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "369637133f626c14",
+      "card_id": "5090730915",
+      "card_name": "그룹차징",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/5090730915",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "아군필드 숲속성 유닛 1,2,3의 AP합으로 적 필드 유닛 1부터 공방체 단계별 데미지를 준다. ◇ 디스인첸트카드. [다함께 공격하여 침입자를 내쫓을 수가 있었다네.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다. <br>ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    },
+    {
+      "pattern_id": "e6d9caade4df19f0",
+      "card_id": "15042933603",
+      "card_name": "시스카이",
+      "classification": "named_effect_reference_candidate",
+      "source_detail_url": "https://fmlunatic.com/card/15042933603",
+      "original_TextBase": {
+        "source_key_present": true,
+        "source_value": "적군 핸드 마법 전체는 각 속성의 기본형 마법으로 교체된다.◇디스인첸트카드. [성난 바람이 부정한 기운을 몰아 내고 태양 빛은 어두운 기운을 물리쳤다. 만물에 새로운 세상을 말리듯 사방천지의 생명이 살아 숨 쉬고 있었다.]"
+      },
+      "original_TextExtra": {
+        "source_key_present": true,
+        "source_value": "기본형 마법 소개 <br>* 암흑 : 라이프드레인. <br>* 불 : 파이어월. <br>* 물 : 눈보라. <br>* 숲 : 함정. <br>* 금속 : 백일몽. <br>* 대지 : 모래지옥. <br>* 빛 : 홀리힐. <br>* 이벤트 : 마법눈덩이..<br>▶무속성 마법은 시스카이의 대상이 되지 않습니다..<br>▶무속성 이벤트 마법은 이벤트 마법으로 취급됩니다.<br><br>▶ 디스인첸트 카드 : 디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.ex) 디스인첸트 카드 1장당, 아군 필드 1장, 적군 필드 1장의 인첸트 파괴."
+      },
+      "linked_definition_id": "FM1-DISENCHANT-ENCHANT-DESTROY-BASE-01",
+      "evidence_status": "observed_in_DB29_TextExtra",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "review_note": "Shared definition is textually evidenced in this card's preserved TextExtra. This does not resolve the card's own primary effect or validate engine timing/order."
+    }
+  ],
+  "policy": {
+    "db29_immutable": true,
+    "db30_issued": false,
+    "merge_to_main_authorized": false,
+    "no_unverified_rule_is_executable": true
+  }
+}
