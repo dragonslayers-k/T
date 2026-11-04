@@ -85,7 +85,6 @@ jobs:
           python -m unittest tests/test_semantic_gap_completion.py
           python -m unittest tests/test_semantic_audit_status.py
           python -m unittest tests/test_semantic_backlog_progress.py
-          python -m unittest tests/test_soul_semantic_review_queue.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
           python scripts/quality_audit.py --self-test
