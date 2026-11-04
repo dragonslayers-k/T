@@ -444,3 +444,43 @@ class EffectInterpretationTests(unittest.TestCase):
 
 if __name__=="__main__":
     unittest.main()
+
+
+class LegacyLowConfidenceEffectRegressionTests(unittest.TestCase):
+    def test_compact_ap_hp_multipliers_are_structured(self):
+        parsed=parse("아군 필드 유닛 중 자신의 이름수와 레벨이 일치하는 유닛은 APX2,HPX2")
+        self.assertEqual({x.get("stat") for x in parsed["operations"] if x["kind"]=="multiply_stat"},{"ap","hp"})
+        self.assertTrue(all(x.get("executable") is False for x in parsed["operations"]))
+
+    def test_card_name_count_combat_stat_shorthand_is_preserved(self):
+        parsed=parse("아군 유닛 전체 각각의 카드이름수가 공/체가 된다.")
+        self.assertTrue(any(x["kind"]=="set_combat_stats_from_expression" for x in parsed["operations"]))
+
+    def test_multiple_stats_becoming_one_are_structured(self):
+        parsed=parse("아군 적군 레벨 이상은 AP와 HP가 1로 변한다.")
+        self.assertTrue(any(x["kind"]=="set_multiple_stats_from_rule" for x in parsed["operations"]))
+
+    def test_mirrored_card_levels_are_structured(self):
+        parsed=parse("아군 적군 필드 유닛 카드의 레벨이 좌우대칭으로 바뀐다.")
+        self.assertTrue(any(x["kind"]=="mirror_or_swap_card_levels" for x in parsed["operations"]))
+
+    def test_granted_named_attack_skill_is_structured(self):
+        parsed=parse("아군 유닛 전체는 저주공격기술을 가진다.")
+        self.assertTrue(any(x["kind"]=="grant_or_reference_skill" for x in parsed["operations"]))
+
+    def test_administrative_purchase_notice_is_not_an_effect(self):
+        parsed=parse("1장 초과로 구입하시는 경우 구입에 오류가 납니다. 번거로우시더라도 1장씩 구입을 부탁드립니다.")
+        self.assertEqual(parsed["classification"],"reference_or_metadata")
+        self.assertEqual(parsed["confidence"],"not_applicable")
+
+    def test_faq_and_maintenance_notes_are_not_effects(self):
+        parsed=parse("- 자세한 내용 및 조건은 FAQ 검색.")
+        self.assertEqual(parsed["confidence"],"not_applicable")
+
+    def test_damage_spelling_variant_is_captured(self):
+        parsed=parse("예상밖의습격 : 적 유닛에게 단계별 대미지를 준다.")
+        self.assertTrue(any(x["kind"]=="deal_damage" for x in parsed["operations"]))
+
+    def test_card_category_treatment_is_structured(self):
+        parsed=parse("무속성 이벤트 마법은 이벤트 마법으로 취급됩니다.")
+        self.assertTrue(any(x["kind"]=="card_category_treatment_rule" for x in parsed["operations"]))
