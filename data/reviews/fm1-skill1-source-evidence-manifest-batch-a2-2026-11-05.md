@@ -15,9 +15,9 @@ This is a review triage record, not source authority, rule promotion, runtime im
 
 | Sample card ID | Card name | Card source |
 |---|---|---|
-| 10050424833 | 확인 대상 카드 | https://fmlunatic.com/card/10050424833 |
-| 10050424839 | 확인 대상 카드 | https://fmlunatic.com/card/10050424839 |
-| 10050424846 | 확인 대상 카드 | https://fmlunatic.com/card/10050424846 |
+| 10050424833 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10050424833 |
+| 10050424839 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10050424839 |
+| 10050424846 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10050424846 |
 
 **Observed mechanic summary:** AP 1 이상 공격 시 상태보유 적의 AP/DP를 0으로 하고 HP를 1로 설정한다.
 
@@ -27,9 +27,9 @@ This is a review triage record, not source authority, rule promotion, runtime im
 
 | Sample card ID | Card name | Card source |
 |---|---|---|
-| 10020324682 | 확인 대상 카드 | https://fmlunatic.com/card/10020324682 |
-| 10030324707 | 확인 대상 카드 | https://fmlunatic.com/card/10030324707 |
-| 10070724973 | 확인 대상 카드 | https://fmlunatic.com/card/10070724973 |
+| 10020324682 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10020324682 |
+| 10030324707 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10030324707 |
+| 10070724973 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10070724973 |
 
 **Observed mechanic summary:** AP 1 이상 공격 시 양측 코인 수의 차이만큼 추가 피해. The source report distinguishes a common wording pattern and a shortened variant; they must not be unified before confirming the coin field and comparison direction.
 
@@ -39,9 +39,9 @@ This is a review triage record, not source authority, rule promotion, runtime im
 
 | Sample card ID | Card name | Card source |
 |---|---|---|
-| 10020324655 | 확인 대상 카드 | https://fmlunatic.com/card/10020324655 |
-| 10021724693 | 확인 대상 카드 | https://fmlunatic.com/card/10021724693 |
-| 10030324726 | 확인 대상 카드 | https://fmlunatic.com/card/10030324726 |
+| 10020324655 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10020324655 |
+| 10021724693 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10021724693 |
+| 10030324726 | 카드명은 원문 아티팩트에서 재확인 필요 | https://fmlunatic.com/card/10030324726 |
 
 **Observed mechanic summary:** On destruction of an enemy unit at level 2 or below, the opposing unit's HP is absorbed. One separate source wording explicitly describes HP gain before attack; keep this as a distinct timing variant.
 
