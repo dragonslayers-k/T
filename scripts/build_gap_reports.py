@@ -29,11 +29,23 @@ def build_effect_review_queue(low_effects):
             "occurrences":0,
             "classification":parsed.get("classification","unknown"),
             "confidence":parsed.get("confidence","low"),
+            "classification_variants":[],
+            "confidence_variants":[],
+            "classification_conflict":False,
+            "confidence_conflict":False,
             "inference_methods":[],
             "card_types":[],
             "cards":[],
             "review_status":"pending_manual_semantic_review"
         })
+        classification=parsed.get("classification","unknown")
+        confidence=parsed.get("confidence","low")
+        if classification not in group["classification_variants"]:
+            group["classification_variants"].append(classification)
+        if confidence not in group["confidence_variants"]:
+            group["confidence_variants"].append(confidence)
+        group["classification_conflict"]=len(group["classification_variants"])>1
+        group["confidence_conflict"]=len(group["confidence_variants"])>1
         group["occurrences"]+=1
         if raw_text not in group["source_text_variants"]:
             group["source_text_variants"].append(raw_text)
