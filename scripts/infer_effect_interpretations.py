@@ -910,10 +910,10 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     if re.search(r"(?:레벨|슬롯\s*유닛|능력).{0,25}따라\s*다른\s*효과",t):
         ops.append({"kind":"conditional_effect_branch_reference",
                     "conditionText":t,"rawText":raw_text,"executable":False})
-    if re.search(r"(?:이름종류수|이름\\s*수\\s*종류).{0,40}(?:5이상|이상|종류)",t):
+    if re.search(r"(?:이름종류수|이름\s*수\s*종류).{0,40}(?:5이상|이상|종류)",t):
         ops.append({"kind":"name_diversity_condition_candidate","conditionText":t,
                     "rawText":raw_text,"executable":False})
-    if re.search(r"적 필드 유닛\\s*1의? 능력에 따라 효과 발생",t):
+    if re.search(r"적 필드 유닛\s*1의? 능력에 따라 효과 발생",t):
         ops.append({"kind":"conditional_effect_branch_reference",
                     "conditionText":t,"rawText":raw_text,"executable":False})
     if re.search(r"카드 번호를 기준으로 체크|카드번호를 기준으로 체크",t):
@@ -925,18 +925,18 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
     if re.search(r"아무 효과도? 없(?:습니다|다)",t):
         ops.append({"kind":"suppress_effect_under_condition",
                     "conditionText":t,"rawText":raw_text,"executable":False})
-    if re.match(r"^(?:무지개발산공격|스피릿스톰|섀도우스킬\\(|섀도우쉬프트\\(|전쟁의주인|혼돈의주관자)",t):
+    if re.match(r"^(?:무지개발산공격|스피릿스톰|섀도우스킬\(|섀도우쉬프트\(|전쟁의주인|혼돈의주관자)",t):
         ops.append({"kind":"named_ability_reference_candidate","abilityText":t,
                     "rawText":raw_text,"executable":False})
     if re.search(r"순서로 필드에 나열됩니다",t) and re.search(r"[-–—]",t):
-        stages=[x.strip(" .。") for x in re.split(r"\\s*[-–—]\\s*",t) if x.strip()]
+        stages=[x.strip(" .。") for x in re.split(r"\s*[-–—]\s*",t) if x.strip()]
         if len(stages)>=2:
             ops.append({"kind":"card_progression_reference","stages":stages,
                         "rawText":raw_text,"executable":False})
     if re.search(r"(?:피닉스의알|티라노의알).{0,30}[:：].{0,30}(?:피닉스|티라노)",t):
         ops.append({"kind":"related_card_pair_reference","relationText":t,
                     "rawText":raw_text,"executable":False})
-    if re.search(r"(?:아이템|인첸트|인챈트)\\s*/\\s*(?:인첸트|인챈트|아이템)\\s*[:：]",t):
+    if re.search(r"(?:아이템|인첸트|인챈트)\s*/\s*(?:인첸트|인챈트|아이템)\s*[:：]",t):
         ops.append({"kind":"card_requirement_reference","requirementText":t,
                     "rawText":raw_text,"executable":False})
     if re.search(r"야누스가면.*만능능력",t):
