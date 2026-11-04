@@ -1188,10 +1188,11 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
       r"갖게\s*된다",r"가지게\s*된다",r"얻게\s*된다",r"얻는다",
       r"변(?:한다|하게\s*된다)",r"바뀐다",r"고정(?:된다|시킨다|한다)",
       r"증가(?:한다|시킨다)",r"감소(?:한다|시킨다)",r"상향고정",
-      r"제거한다",r"파괴한다",r"전환한다",r"회복한다",r"생성한다",
-      r"분배한다",r"나눈다",r"나누어\s*준다",r"합산한다",
+      r"제거한다",r"파괴한다",r"전환한다",r"전환된다",r"회복한다",r"생성한다",
+      r"분배한다",r"나눈다",r"나누어\s*준다",r"합산한다",r"더해진다",r"더해준다",
       r"동일(?:해진다|하게\s*된다)",r"같아진다",r"같게\s*만든다",
-      r"만든다",r"한다",r"효과가\s*발생",r"효과\s*발동",r"발동\s*안함"
+      r"만든다",r"한다",r"된다",r"시킨다",r"걸린다",r"착용된다",
+      r"효과가\s*발생",r"효과\s*발동",r"발동\s*안함"
     ]
     has_legacy_action=any(re.search(p,t) for p in legacy_action_verbs)
     has_game_subject=bool(re.search(
@@ -1211,6 +1212,13 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         if re.search(r"(?:능력|종족|상태|카드).{0,20}(?:변|바뀌|전환|된다|시킨다)",t):
             ops.append({"kind":"legacy_card_or_ability_transform_candidate",
                         "transformationText":t,"rawText":raw_text,"executable":False})
+        if re.search(r"(?:킬수|킬 수).{0,25}(?:LP|랜드포인트).{0,15}(?:된다|변한다|전환)",t):
+            ops.append({"kind":"legacy_counter_to_resource_conversion_candidate",
+                        "sourceCounter":"kill_count","destination":"LP",
+                        "rawText":raw_text,"executable":False})
+        if re.search(r"(?:행동\s*불능|마비|빙결|침묵|혼란).{0,20}(?:된다|부여|적용|걸린다)",t):
+            ops.append({"kind":"legacy_status_application_candidate",
+                        "statusText":t,"rawText":raw_text,"executable":False})
         if not ops:
             ops.append({"kind":"generic_effect_operation","actionText":t,
                         "rawText":raw_text,"executable":False})
