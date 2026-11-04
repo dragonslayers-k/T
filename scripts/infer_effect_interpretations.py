@@ -489,7 +489,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         return {"classification":"calculation_or_counting_rule_candidate","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
                 "operations":[{"kind":"calculation_or_counting_rule","rawRule":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?",t),
+                "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?",t),
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"source_calculation_note_v1","confidence":"medium"}
 
@@ -508,7 +508,7 @@ def parse(text, known_skills=None, known_cards=None, known_named_effects=None, k
         return {"classification":"target_or_resolution_rule_candidate","triggers":[],
                 "actors":[],"targets":[],"conditions":[t],
                 "operations":[{"kind":"target_or_resolution_constraint","rawRule":t,"executable":False}],
-                "numbers":re.findall(r"(?<!\\d)[+-]?\\d+(?:\\.\\d+)?",t),
+                "numbers":re.findall(r"(?<!\d)[+-]?\d+(?:\.\d+)?",t),
                 "rawText":raw_text,"flavorText":flavor_text,
                 "inferenceMethod":"source_scope_note_v1","confidence":"medium"}
 
