@@ -42,8 +42,8 @@ class SkillExtractionTests(unittest.TestCase):
           playable_by_default INTEGER NOT NULL DEFAULT 0,catalogue_version INTEGER NOT NULL);
         INSERT INTO cards VALUES('c1','테스트1','https://fmlunatic.com/card/c1');
         INSERT INTO cards VALUES('c2','테스트2','https://fmlunatic.com/card/c2');
-        INSERT INTO card_texts VALUES(1,'c1','card_text','각인의결계\\n\\n: 방어시 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.','');
-        INSERT INTO card_texts VALUES(2,'c2','card_text','각인의결계\\n\\n: 방어시 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.','');
+        INSERT INTO card_texts VALUES(1,'c1','card_text','각인의결계' || char(10) || char(10) || ': 방어시 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.','');
+        INSERT INTO card_texts VALUES(2,'c2','card_text','각인의결계' || char(10) || char(10) || ': 방어시 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.','');
         INSERT INTO card_rule_mappings VALUES('c1','Skill1','500','각인의결계',NULL,'unmapped','unreviewed','[]');
         INSERT INTO card_rule_mappings VALUES('c2','Skill1','500','각인의결계',NULL,'unmapped','unreviewed','[]');
         INSERT INTO skill_enum_inventory VALUES('Skill1','500','각인의결계',2,0,0,0,'unmapped',NULL);
