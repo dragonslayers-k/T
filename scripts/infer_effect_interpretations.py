@@ -35,6 +35,13 @@ def parse(text, known_skills=None):
       r"^(?:만능능력|에카마엘 유닛|에카마엘상태)$",
       r"^에카마엘 카드와 같은 레벨",
       r"^-\s*자신을 제외한 아군 유닛에게 영향을 미칩니다",
+      r"^\(\s*20\d\d-\d\d-\d\d.*(?:오류수정|오타 수정|특이사항)",
+      r"^\(\s*게임내 특이사항.*(?:오타 수정|수정)",
+      r"^수집랭커 .*(?:구매가 가능합니다|검색해 보세요)",
+      r"^\(암흑:.*(?:불:|물:|숲:|금속:|대지:|빛:).*\)$",
+      r"^ex[)）.]",
+      r"^~\s*$",
+      r"^:\s*$",
     ]
     if any(re.search(p,t,re.I) for p in metadata_patterns):
         return {"classification":"reference_or_metadata","triggers":[],"actors":[],
@@ -148,6 +155,36 @@ def parse(text, known_skills=None):
         ops.append({"kind":"modify_skill","target":"defender","operation":"replace_special_with_normal",
                     "rawText":t,"executable":False})
 
+    if re.search(r"DP\s*기호.{0,12}(?:반대로|반전|변환)",t):
+        ops.append({"kind":"modify_stat_marks","target":"defender","stat":"dp",
+                    "operation":"reverse_sign","rawText":t,"executable":False})
+    if re.search(r"(?:turn|턴).{0,16}(?:1의 자리|일의 자리|일의자리)",t,re.I):
+        ops.append({"kind":"dynamic_attack_formula","formula":"turn % 10",
+                    "target":"defender","rawText":t,"executable":False})
+    if re.search(r"(?:적군|상대).{0,12}DP.{0,16}(?:자신|아군).{0,8}HP.{0,8}(?:증가|회복)",t):
+        ops.append({"kind":"modify_stat","target":"self","stat":"hp","operator":"+",
+                    "valueFormula":"enemy_field_dp_total_or_target_dp","rawText":t,"executable":False})
+    if re.search(r"자신의\s*AP.{0,16}(?:반만큼|절반|/\\s*2).{0,16}(?:적|상대).{0,8}AP.{0,12}(?:감소|낮추)",t):
+        ops.append({"kind":"transfer_stat_value","sourceStat":"attacker.ap",
+                    "transferFormula":"ceil(attacker.ap/2)","targetStat":"defender.ap",
+                    "alsoApplyTo":"attacker.ap","rawText":t,"executable":False})
+    if re.search(r"동일한 능력.{0,16}유닛수만큼.{0,12}HP.{0,8}증가|같은 능력.{0,16}유닛수만큼.{0,12}HP.{0,8}증가",t):
+        ops.append({"kind":"modify_stat","target":"self","stat":"hp","operator":"+",
+                    "valueFormula":"count_friendly_units_with_same_ability_excluding_self",
+                    "rawText":t,"executable":False})
+    if re.search(r"상대 유닛.{0,16}상태 보유 수.{0,16}효과 발동",t):
+        ops.append({"kind":"conditional_effect_trigger","condition":"target_status_count",
+                    "rawText":t,"executable":False})
+    if re.search(r"(?:AP|DP|HP).{0,12}(?:/|,|및).{0,12}(?:AP|DP|HP).{0,16}(?:증가|감소|상승|하락)",t):
+        stats=[x.lower() for x in re.findall(r"AP|DP|HP",t)]
+        direction="decrease" if re.search(r"감소|하락|낮추",t) else "increase"
+        ops.append({"kind":"modify_combat_stats","stats":stats,
+                    "direction":direction,"rawText":t,"executable":False})
+    if re.search(r"적 유닛은.{0,12}=\\s*\\d+\\s*/\\s*=\\s*\\d+\\s*/\\s*=\\s*\\d+",t):
+        vals=[int(x) for x in re.findall(r"=\\s*(\\d+)",t)]
+        ops.append({"kind":"set_combat_stats","target":"enemy_unit",
+                    "order":["ap","dp","hp"],"values":vals,"rawText":t,"executable":False})
+
     # Compound stat selectors such as "AP/DP/HP 중 가장 높은 수치" were
     # missed by the simple AP+N / DP-N patterns. Preserve the selector and amount.
     selector = re.search(r"(AP\s*[/·,및]\s*DP(?:\s*[/·,및]\s*HP)?|공방체|공방|공체).{0,35}?(최고|최저|가장 높은|가장 낮은|중 하나|각각)",t)
@@ -180,11 +217,27 @@ def parse(text, known_skills=None):
     # action phrase, rather than classifying the whole clause as an opaque reference.
     if not ops and re.search(r"[:：].{1,}",t):
         label, body = re.split(r"[:：]",t,maxsplit=1)
-        body=body.strip()
-        body_actions=[key for key,pat in action_patterns if re.search(pat,body)]
-        if body_actions:
-            ops.append({"kind":"labeled_effect_definition","label":label.strip(),
-                        "bodyText":body,"actionCandidates":body_actions,"executable":False})
+        label=label.strip(); body=body.strip()
+        label_is_condition=bool(re.search(
+            r"(?:레벨|턴|킬|랭크|장|개|소울|코인|점수|포인트|수치|경우|이상|이하|초과|미만)",label))
+        if body:
+            body_result=parse(body,known_skills)
+            if body_result["confidence"]!="low":
+                ops.append({"kind":"labeled_effect_definition","label":label,
+                            "bodyText":body,"derivedOperations":body_result["operations"],
+                            "executable":False})
+                triggers.extend(x for x in body_result.get("triggers",[]) if x not in triggers)
+                actors.extend(x for x in body_result.get("actors",[]) if x not in actors)
+                targets.extend(x for x in body_result.get("targets",[]) if x not in targets)
+                conditions.extend(x for x in body_result.get("conditions",[]) if x not in conditions)
+            elif label_is_condition:
+                ops.append({"kind":"conditional_branch_reference","conditionText":label,
+                            "branchValue":body,"executable":False})
+            else:
+                body_actions=[key for key,pat in action_patterns if re.search(pat,body)]
+                if body_actions:
+                    ops.append({"kind":"labeled_effect_definition","label":label,
+                                "bodyText":body,"actionCandidates":body_actions,"executable":False})
 
     # Card-to-card conditions and ranges are kept separately from effect operations.
     conditions=[]
