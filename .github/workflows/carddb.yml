@@ -263,7 +263,10 @@ jobs:
               "inferred_skill_card_rows","unmapped_skill_card_rows_after_inference",
               "effect_clause_rows","effect_interpretation_rows","effect_interpretation_missing",
               "effect_interpretation_low_confidence","field_coverage_matrix_integrity","field_coverage_applicability_complete","field_coverage_applicability_candidate_pairs","field_coverage_applicability_not_applicable_pairs","field_coverage_applicability_candidates","field_coverage_not_applicable","field_coverage_complete",
-              "named_effect_definition_rows","named_effect_definition_unique_names","named_effect_reference_rows","semantic_coverage_pass","semantic_completeness_pass",
+              "named_effect_definition_rows","named_effect_definition_unique_names","named_effect_reference_rows",
+              "skill_image_ocr_evidence_rows","skill_image_ocr_exact_rows","skill_image_ocr_fuzzy_candidates",
+              "skill_image_ocr_name_collisions","skill_image_ocr_exact_unclassified","skill_image_ocr_not_found",
+              "skill_image_ocr_semantic_promotions","semantic_coverage_pass","semantic_completeness_pass",
               "semantic_review_pending","engine_verification_pending","engine_verification_complete","complete",
               "skill_mapping_coverage_accounted_for"
           )
