@@ -19,6 +19,14 @@ class SkillDefinitionExtractionTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertIn("아군 AP+2", rows[0]["body"])
 
+    def test_html_breaks_separate_preceding_text_from_skill_heading(self):
+        rows = extract_definitions(
+            "후폭풍",
+            "설명 문장<BR /><b>후폭풍</b><br/>▶ 공격받은 뒤 상대에게 피해를 돌려준다."
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertIn("피해를 돌려준다", rows[0]["body"])
+
     def test_stat_operations_are_structured_without_becoming_executable(self):
         ops = operations_from_text("아군 AP+2, DP-1")
         self.assertIn({"kind": "modify_stat", "stat": "ap", "operator": "+", "value": 2}, ops)
