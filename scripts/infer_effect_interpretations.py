@@ -114,9 +114,9 @@ def parse(text, known_skills=None):
         ops.append({"kind":"aura_or_area_effect","rawText":t})
     # Compound stat selectors such as "AP/DP/HP 중 가장 높은 수치" were
     # missed by the simple AP+N / DP-N patterns. Preserve the selector and amount.
-    selector = re.search(r"(AP\\s*[/·,및]\\s*DP(?:\\s*[/·,및]\\s*HP)?|공방체|공방|공체).{0,35}?(최고|최저|가장 높은|가장 낮은|중 하나|각각)",t)
+    selector = re.search(r"(AP\s*[/·,및]\s*DP(?:\s*[/·,및]\s*HP)?|공방체|공방|공체).{0,35}?(최고|최저|가장 높은|가장 낮은|중 하나|각각)",t)
     direction = "decrease" if re.search(r"감소|낮추|하락|내리",t) else "increase" if re.search(r"증가|높이|상승|올리",t) else None
-    amount = re.search(r"(?:최고|최저|가장 높은|가장 낮은|중 하나|각각)?.{0,20}?(\\d+)\\s*(?:만큼|씩)?\\s*(?:영구히|영구적으로)?\\s*(?:감소|증가|낮춘|높인|내린|올린)",t)
+    amount = re.search(r"(?:최고|최저|가장 높은|가장 낮은|중 하나|각각)?.{0,20}?(\d+)\s*(?:만큼|씩)?\s*(?:영구히|영구적으로)?\s*(?:감소|증가|낮춘|높인|내린|올린)",t)
     if selector and direction and amount:
         ops.append({"kind":"modify_selected_combat_stat","selector":selector.group(0),
                     "selection":selector.group(2),"direction":direction,
