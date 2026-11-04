@@ -29,7 +29,7 @@ result={
  "effect_rows_without_text":q("select count(*) from card_effects where effect_text is null or trim(effect_text)=''"),
  "cards_with_image_urls":q("select count(distinct card_id) from card_images where source_url is not null and source_url<>''"),
  "image_rows_in_db":q("select count(*) from card_images"),
- "large_images_downloaded":sum(x.get("status") in ("downloaded","archive_verified") for x in large),
+ "large_images_downloaded":sum(x.get("status") in ("downloaded","archive_verified","verified") for x in large),
  "small_images_downloaded":sum(x.get("status") in ("downloaded","archive_verified") for x in small),
  "large_image_failures":sum(x.get("status") not in ("downloaded","archive_verified") for x in large),
  "small_image_failures":sum(x.get("status") not in ("downloaded","archive_verified") for x in small),
