@@ -840,3 +840,54 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - Commits: `b04216a` (script), `6f477af` (tests), `24b0713` (CI).
 - Actions #553 for commit `24b0713` passed. This verifies the audit script/test infrastructure; the actual DB29 matcher report is not yet generated because the release SQLite must be supplied as the script input. Do not state match counts until it has run against that DB.
 - Next: execute the matcher against the immutable DB29 SQLite, review card-local evidence, then select one source-backed rule for engine tests. Maintain DB29 immutable, DB30 not issued, and PRs unmerged.
+
+
+---
+
+## 2026-11-05 — DB29 Manual Skill1 match audit result (Actions #558)
+
+### Verified result
+- Immutable source release: `fm1-carddb-29`; SQLite gzip hash and database integrity checks passed.
+- Manual rules: **27/27** have exact DB29 `Skill1` rows.
+- Matched card rows: **3,158** total; unmatched Manual rules: **0**.
+- Runtime promotion: **0**. Exact Skill1 matching is an evidence join, not engine test approval.
+- Actions #556 first generated the report artifact; Actions #558 reran the same audit with per-rule counts. Both passed.
+- Report artifact from #558 is `FM1-Manual-Skill1-DB29-Source-Match`; artifact ID **13384474035** from #556 (the #558 run has its own current artifact).
+
+### Per-rule source-row counts
+| Manual rule | exact source rows |
+|---|---:|
+| 일반공격 | 68 |
+| 방어무시 | 234 |
+| 치명공격 | 153 |
+| 관통공격 | 172 |
+| 약화공격 | 141 |
+| 석화공격 | 120 |
+| 흡혈공격 | 115 |
+| 노화공격 | 53 |
+| 돌진공격 | 189 |
+| 야수조련 | 63 |
+| 용맹공격 | 221 |
+| 재생능력 | 157 |
+| 광분공격 | 110 |
+| 연속공격 | 116 |
+| 공포공격 | 167 |
+| 매료공격 | 127 |
+| 기술봉쇄 | 203 |
+| 주문봉쇄 | 56 |
+| 무기봉쇄 | 48 |
+| 공격복제 | 48 |
+| 방패파괴 | 96 |
+| 저주공격 | 84 |
+| 방어이용 | 164 |
+| 조롱공격 | 47 |
+| 혼란공격 | 94 |
+| 은폐공격 | 86 |
+| 방어변환 | 26 |
+| **Total** | **3,158** |
+
+### Interpretation and next work
+- The 27 Manual definitions are now connected to the complete DB29 card-row inventory. The source labels and engine alias differences remain explicit; no substring matching was used.
+- The current APK has baseline tests for these manual rules, but this match audit alone does not certify card-specific source text, interactions, or runtime completeness.
+- Next work is to choose a separate Skill1 candidate from the 704-group evidence inventory and add an exact card-local source gate plus deterministic positive/negative/boundary tests. Avoid bulk-promoting all candidate rows.
+- DB29 remains immutable; DB30 is not issued; PR #9 remains open/unmerged.
