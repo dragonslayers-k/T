@@ -939,3 +939,14 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - CardDB Actions #562: 성공한 PR lightweight regression이다. Exact Manual Skill1 source-match, full DB audit 및 semantic review 단계는 실행되지 않았으므로 #558의 source-match 결과(27/27 labels, 3,158 exact rows, unmatched 0, runtime promotion 0)만 유지한다.
 - FM-OFFLINE Actions #173: 성공. SDK download retry 및 Debug APK build/package verification/emulator execution smoke test가 통과했다. 이는 현재 카드 효과의 전면 실행 완성을 의미하지 않는다.
 - 다음 묶음의 즉시 목표: (i) Manual Skill1 27개 × 3,158 exact source rows와 현재 rules.js/tests를 일괄 crosswalk, (ii) dispatcher lifecycle 및 Skill2 8 handler / 7 source-verified executable distinction의 regression coverage, (iii) source-local evidence join의 unmatched/collision report를 동시에 갱신한다. 이 결과가 나오기 전에는 카드 효과를 임의 승격하지 않는다.
+
+
+---
+
+# Operating checkpoint — 2026-11-05 13:03 KST (CardDB #563–565 / APK #175)
+
+- CardDB PR #9 remains open; no merge. Runs #563 (41963827238), #564 (41964356212), and #565 (41964680341) succeeded. #565 ran lightweight regressions only; full DB audit and Manual Skill1 exact-match steps were skipped, so this is not a full-database approval.
+- Current PR #9 head 79d59a146fc03f53c90ff329a9fde836740b6e9c includes the grouped 54-row/41-pattern review index and exact DB29 Manual Skill1 source row counts. The 3,158 rows mean source-label matches only; they do not promote runtime implementation.
+- APK PR #28 remains open; no merge. Run #175 (41964416258) succeeded at f324103c61ab2b875dc127f3339f6cb781031376. Its build job passed rules tests, converter validation, DB29 Android data ZIP creation, APK build/signature/integrity checks, emulator install/launch, and artifact upload. #174's test failure was corrected in #175; cancelled #172 is not a failure.
+- Parallel next-stage gates: (1) only use current-head-matched latest full-audit artifacts for semantic backlog; (2) keep exact source evidence, semantic review, and runtime readiness as separate statuses for Skill1/Skill2; (3) batch audit APK dispatcher coverage, provenance gates, event order/reentrancy/duplicate handling and regression edges; (4) validate APK import/WebView card count from logs, not merely APK launch; (5) record SHA, run IDs, test totals, blockers and disposition in both repo guides.
+- DB29 remains immutable. PR #9/#28 and main remain untouched pending explicit approval. Avoid redundant concurrent Actions runs.
