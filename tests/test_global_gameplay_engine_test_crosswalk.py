@@ -26,7 +26,8 @@ class GlobalGameplayEngineTestCrosswalkTests(unittest.TestCase):
     def test_manual_terrain_conflict_is_not_resolved_by_engine_behavior(self):
         rule = next(x for x in self.data["rules"] if x["rule_id"] == "terrain_placement_limit_conflict")
         self.assertEqual(rule["coverage_status"], "engine_behavior_tested_source_conflict_unresolved")
-        self.assertIn("unresolved", rule["source_conflict"])
+        self.assertIn("conflict", rule["source_conflict"])
+        self.assertIn("not source resolution", rule["source_conflict"])
 
     def test_test_coverage_does_not_promote_runtime_rules(self):
         self.assertEqual(self.data["summary"]["runtime_rule_promotions"], 0)
