@@ -1,0 +1,141 @@
+{
+  "schema_version": "FM1-SKILL2-TACTICAL-INITIATIVE-ADJUDICATION-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source": {
+    "workflow_run_number": 573,
+    "workflow_run_id": 41970905894,
+    "artifact_id": 13388874560,
+    "artifact_member": "gap-reports/skill2-execution-review.jsonl",
+    "repository": "dragonslayers-k/T",
+    "branch": "feat/carddb-effect-semantic-pass"
+  },
+  "scope": {
+    "skill2": "기선제압",
+    "candidate_rows": 181,
+    "distinct_card_ids": 181,
+    "additional_text_effect_rows": 175,
+    "card_text_only_rows": 1,
+    "missing_card_local_excerpt_rows": 5
+  },
+  "policy": {
+    "all_card_mappings_remain_inferred": true,
+    "no_source_card_verified_promotion": true,
+    "no_executable_promotion": true,
+    "card_text_is_not_effect_evidence": true,
+    "ambiguous_wording_must_not_be_normalized_away": true
+  },
+  "variants": [
+    {
+      "key": "ambiguous_level_order",
+      "count": 133,
+      "text": "적군이 아군보다 이하 레벨일 경우 데미지를 1 덜 받는다.",
+      "disposition": "pending_semantic_adjudication",
+      "reason": "‘적군이 아군보다 이하 레벨’의 비교 방향·경계 문구를 카드 원문만으로 단정하지 않는다.",
+      "questions": [
+        "공격자 레벨과 방어자 레벨의 비교 방향",
+        "이하가 포함 경계인지",
+        "일반 피해 전체인지 AP 기반 피해만인지"
+      ]
+    },
+    {
+      "key": "explicit_inclusive_level_threshold",
+      "count": 18,
+      "text": "방어시, 상대의 레벨 수치가 자신 레벨 수치 이하이면 자신이 받는 데미지를 1 감소시킨다.",
+      "disposition": "inclusive_level_candidate_pending_engine_semantics",
+      "reason": "‘이하’는 포함 경계를 시사하지만, 이 원문 변형군의 카드별 의미·발동 문맥을 별도 검증한다."
+    },
+    {
+      "key": "ambiguous_level_order_ap_damage_scope",
+      "count": 16,
+      "text": "적군이 아군보다 이하 레벨인 경우 상대 AP로 인한 데미지를 1 덜 받는다.",
+      "disposition": "pending_semantic_adjudication",
+      "reason": "레벨 비교 방향과 ‘상대 AP로 인한 데미지’라는 피해 원천 제한을 일반 피해 감소와 합치지 않는다.",
+      "questions": [
+        "레벨 비교의 정확한 방향과 경계",
+        "AP에서 기인한 피해만 감소하는지",
+        "특수 공격/직접 공격/효과 피해의 포함 여부"
+      ]
+    },
+    {
+      "key": "explicit_inclusive_short_form",
+      "count": 6,
+      "text": "방어시, 상대의 레벨이 자신보다 이하면 받는 데미지를 1 감소시킨다.",
+      "disposition": "inclusive_level_candidate_pending_engine_semantics",
+      "reason": "‘이하면’ 포함 경계를 시사한다. 18행 변형과 동일 규칙인지 개별 확인 전 통합하지 않는다."
+    },
+    {
+      "key": "strict_lower_level",
+      "count": 1,
+      "text": "방어시, 상대의 레벨이 자신보다 낮은 경우 받는 데미지를 1 감소시킨다.",
+      "disposition": "strict_level_candidate_pending_engine_semantics",
+      "reason": "‘낮은 경우’는 엄격한 미만 비교를 나타내므로 ‘이하’ 변형과 별도 보존한다."
+    },
+    {
+      "key": "explicit_inclusive_enum_abbreviation",
+      "count": 1,
+      "text": "적군LV이 아군 이하일 경우 데미지를 1 덜 받는다",
+      "disposition": "inclusive_level_candidate_pending_engine_semantics",
+      "reason": "‘이하’ 문구는 포함 경계를 시사하지만 축약 문장과 비교 주체를 별도 확인한다."
+    }
+  ],
+  "exclusions": {
+    "card_text_only": [
+      {
+        "card_id": "6082340724",
+        "name": "패황의전투마",
+        "source_card_url": "https://fmlunatic.com/card/6082340724",
+        "text_type": "card_text",
+        "disposition": "exclude_from_skill2_effect_evidence"
+      }
+    ],
+    "missing_card_local_excerpt": [
+      {
+        "card_id": "12111426500",
+        "name": "신비의바다",
+        "source_card_url": "https://fmlunatic.com/card/12111426500"
+      },
+      {
+        "card_id": "16102628565",
+        "name": "마왕",
+        "source_card_url": "https://fmlunatic.com/card/16102628565"
+      },
+      {
+        "card_id": "16110928590",
+        "name": "불의정령여왕",
+        "source_card_url": "https://fmlunatic.com/card/16110928590"
+      },
+      {
+        "card_id": "6121340763",
+        "name": "고대나무뿌리",
+        "source_card_url": "https://fmlunatic.com/card/6121340763"
+      },
+      {
+        "card_id": "8080640943",
+        "name": "용기의정령",
+        "source_card_url": "https://fmlunatic.com/card/8080640943"
+      }
+    ]
+  },
+  "engine_crosswalk": {
+    "repository": "dragonslayers-k/FM-OFFLINE",
+    "branch": "feat/combat-event-foundation",
+    "latest_verified_commit": "e6603b3a595fb2e4c142e6853f0881b8fa686527",
+    "workflow_run_number": 230,
+    "workflow_run_id": 42126431155,
+    "workflow_conclusion": "success",
+    "existing_handler_test": "source Skill2 Tactical Initiative reduces incoming damage by one at equal or lower attacker level",
+    "test_scope_note": "CI confirms the existing general handler test suite; it does not adjudicate every wording variant or promote DB29 card mappings."
+  },
+  "next_gates": [
+    "Resolve the ambiguous 133-row wording against authoritative manual/source evidence.",
+    "Keep the 16 AP-origin wording rows separate until damage-origin scope is proven.",
+    "Keep the strict-lower 1-row variant separate from inclusive variants.",
+    "Recover the five missing card-local excerpts without borrowing neighboring-card text.",
+    "Add engine boundary tests for inclusive versus strict level comparisons and AP-origin damage scope before any mapping promotion."
+  ]
+}
