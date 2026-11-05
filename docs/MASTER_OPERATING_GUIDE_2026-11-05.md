@@ -629,3 +629,11 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - #141 JS game rule tests, Python converter, Android Debug APK build, package/signature/ZIP validation, artifact upload 모두 성공. 산출물 `FantasyMastersOffline-debug.apk` SHA-256: `5c18527bbd17bd7229fdd79d8377ca78ccb6abb2235e2a10d5456dadbfa11f46`.
 - Build artifact는 Debug APK와 build-status.txt. Signed Release APK는 signing secrets 미설정으로 생성되지 않았으며, DB29 SQLite 다운로드/Android data ZIP 생성, emulator install/launch는 해당 run에서 skip됐다. 따라서 실제 DB29 카드팩 설치/대전 검증 성공으로 표현하지 않는다.
 - PR #28은 open/draft/unmerged. PR #9도 open/unmerged. DB29 immutable, DB30 미발행, main 미병합.
+
+
+## Low-confidence effect triage pass 1 (2026-11-05)
+
+- 신규 문서: `data/reviews/fm1-low-confidence-effect-triage-pass-1-2026-11-05.md`.
+- DB29 low-confidence queue 206개 중 conditional/reference candidate 11개를 분류했다: 미완성 조건 2, 명명 능력 정의 필요 1, stat-marker effect 후보 1, rarity metadata 1, 카드 pool 1, profile 2, opaque unknown 2, card mapping reference 1.
+- 이 중 실행 가능한 효과로 승격된 항목은 0. 포메이션제로의 상향고정 marker와 간절한기도의 순화능력은 원문 정의/테스트 전까지 pending.
+- 나머지 unparsed_effect_text 195개는 미판정 유지. 원문 텍스트를 추정으로 고치거나 DB29를 수정하지 않는다.
