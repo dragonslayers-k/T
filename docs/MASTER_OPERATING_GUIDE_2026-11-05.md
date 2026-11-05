@@ -765,3 +765,64 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 ### 통합 기준 재확인
 - CardDB는 원문·분류·근거·비실행 상태를 보존하고, APK는 확인된 카드별 매핑만 실행한다.
 - 빌드 성공, 카드팩 생성, 에뮬레이터 import, WebView 전체 로딩, 규칙 완전성은 각각 별도 검증 항목이다. #166은 앞의 네 단계까지 확인했으나 모든 카드 효과 또는 완전한 대전 규칙 구현을 뜻하지 않는다.
+
+
+---
+
+## 2026-11-05 최신 재개 체크포인트 — Actions #547 / APK #169 / ADB 로그 분석
+
+> 확인 시각: 2026-11-05 11:48 KST. 이 절은 이전 상태 스냅샷을 보존하고, 현재 저장소에서 다시 조회한 사실만 추가한다.
+
+### 1. 저장소·PR·Actions 최신 상태
+
+#### CardDB — `dragonslayers-k/T`
+- PR #9: `feat/carddb-effect-semantic-pass` → `main`, HEAD `b337c21905ddf29f1c8b6eb263dd1a2543bf4041`, open/mergeable/unmerged.
+- Actions #547: https://github.com/dragonslayers-k/T/actions/runs/41955911356 — PR 이벤트의 경량 regression tests 성공.
+- #547은 전체 DB29 audit/effect-review가 아니다. structured semantic enrichment test는 stacked PR #12의 review JSON이 PR #9 단독 브랜치에 없어서 skip되었다. 이는 조건부 테스트의 정상 skip이며, pass로 합산하거나 의미검토 완료로 해석하지 않는다.
+- PR #12: draft/open/unmerged, head `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`, base는 PR #9 feature branch. Actions #543에서 stacked merge ref 기준 구조화 보강 테스트 5개가 통과했다.
+- PR #9/#12 모두 병합하지 않았다. DB29 immutable, DB30 미발행, main 미수정.
+
+#### FM-OFFLINE — `dragonslayers-k/FM-OFFLINE`
+- PR #28: `feat/combat-event-foundation` → `main`, HEAD `70d61831ace43f7e36c55f98d6f5dcdae7b57ced`, open/draft/mergeable/unmerged.
+- Actions #169: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41955677080 — success.
+- #169: Node 규칙 테스트 148/148, Python converter 테스트 11개, DB29 SQLite/release manifest 검증, Debug APK build/package integrity, emulator 설치 및 카드팩 import/WebView 전체 로딩 통과.
+- #169의 실제 스모크 결과: `Emulator card-data import + WebView load smoke test: PASS`, cards=15,350.
+- Artifacts: `FantasyMastersOffline-build-output` ID 13383111704, `FM1-CardData-v1.3.0-IMPORT-DB29` ID 13382942450. 서명 secrets 미설정 시 signed Release APK는 생성된 것으로 보고하지 않는다.
+- #167은 Node 테스트 148개 중 16개 실패, #168은 148개 중 2개 실패였다. #168의 남은 두 실패는 성공 item equip / spell queue 테스트 fixture가 유효한 카드 배치 조건을 충족하지 못한 테스트 데이터 문제였다. #169에서 fixture를 바로잡아 148/148로 통과했다. 실패 이력은 유지하며 #169 성공이 앞선 실패를 소급 삭제하지 않는다.
+
+### 2. ADB 로그 2770~2830행 판정
+
+- APK Actions #160 로그에서 ADB daemon이 시작된 직후 `adb: device offline`가 한 차례 발생했다.
+- 이후 `getprop sys.boot_completed`를 재시도했고, 에뮬레이터 부팅 완료(약 27.7초) 후 값 `1`을 반환했다.
+- 그 뒤 streamed APK install 성공, 앱 실행, 실제 DB29 ZIP import 및 WebView 카드 로딩 스모크 PASS가 확인됐다.
+- #169에서도 부팅 초기에 동일한 일시적 `device offline`이 나타났지만, 약 31.7초 부팅 완료 후 정상 연결되어 카드 15,350장 import/WebView load PASS로 끝났다.
+- 따라서 #160의 해당 구간은 지속적인 ADB 장애나 앱 결함이 아니라 **에뮬레이터 부팅 중 ADB transport가 준비되기 전 발생한 일시적 offline 상태**다. ini update-check warning도 이 실행의 최종 실패 원인이 아니다.
+- 현재 workflow는 재시도 후 부팅 완료를 확인하고 있으므로, 동일 로그 한 줄만으로 ADB 실패로 집계하지 않는다. 최종 boot timeout, 반복 offline, install 실패, 앱 process 종료, import/WebView count mismatch가 있을 때만 실제 실패로 판정한다.
+
+### 3. 전투 이벤트 dispatcher의 현재 구현 범위
+
+- production `newGame()`은 match-local event queue와 core dispatcher를 생성한다.
+- 현재 발생 이벤트: `land_installed`, `unit_summoned`, `item_equipped`, `spell_queued`, `unit_destroyed`, `unit_attack_resolved`.
+- 카드/유닛 원본 식별자, owner, cause, field index 및 전투 상태 snapshot을 보존한다. 카드 구역 이동은 source membership 및 destination capacity를 검사한 후 commit하며, 실패한 이동에서는 해당 성공 이벤트를 발행하지 않는다.
+- 실제 Skill2 handler 구독은 `unit_destroyed`, `unit_damage_prevention_requested`, `unit_hp_damage_applied` 경로다. 지형 설치·소환·장착·마법 배치·공격 완료 이벤트는 현재 lifecycle 관찰 기반이며, 각 이벤트에 대한 모든 카드 효과 handler가 구현됐다는 뜻은 아니다.
+- Core dispatcher에는 Skill2 8개 handler가 등록되어 있지만, DB29 카드팩에서 source-card verified 및 실행 가능한 규칙은 **7개**다. 홀리오오라는 unit 카드 자체의 정확한 card-local 문구가 충족되지 않아 실행 불가로 유지한다. handler 등록 수 8을 executable rule count 8로 보고하지 않는다.
+- 공격 전/후 damage 이벤트는 전투 함수에서 직접 dispatch되며, 파괴·zone/lifecycle 이벤트는 큐를 통해 순서대로 drain한다. 재진입 방지와 snapshot 격리 테스트가 유지된다.
+
+### 4. CardDB 의미·기술 backlog의 현행 해석
+
+- Skill1 인벤토리 최종 집계: 704 exact-name groups / 2,655 candidate card rows / 2,767 non-empty source excerpts / 1,004 group-local exact text variants. 이는 근거 인덱스 수치이며 의미 검증 완료 또는 엔진 실행 승인 수가 아니다.
+- Manual Skill1 27개는 catalog에서 manual authority로 확인되었으나, runtime promotion queue는 27개 전부 `pending_engine_test`; 테스트 명세 108개는 설계 전용이고, 현재 명세의 카드별 source match는 0이다. 다음 단계는 704개 순위 인벤토리 반복이 아니라, DB29의 exact card ID/TextBase/TextExtra/source URL을 27개 Manual rule과 연결하고 각 rule별 positive/negative/boundary/interaction tests를 만드는 것이다.
+- Skill2 후보 377행 / 8개 규칙 그룹은 369행에 카드별 참조가 연결되었지만, 368행만 실제 additional_text effect evidence이며 1행은 card_text 보조 문구뿐이고 8행은 발췌 미확보다. 모든 377행의 mapping은 inferred이므로 카드별 source verification을 자동으로 승격하지 않는다.
+- #460 semantic pending overlay는 54행 / 41패턴 / 54개 ID이며 non-executable 유지. Pass 3는 원문 문맥을 구조화했지만 디스인첸트, 지형 카운터, 카드 pool, 에카마엘 profile을 실행 규칙으로 승인한 것이 아니다.
+- Actions #430의 `unparsed_effect_text 195`는 과거 큐다. #454~#460 이후의 현재 잔여량으로 사용하지 않는다. 최신 full/focused audit가 새로 실행되기 전에는 195를 현재 잔여 수치로 재사용하지 않는다.
+- Actions #547은 PR #9의 경량 테스트 성공이며 최신 full DB audit 결과가 아니다. DB29 full audit/effect-review를 실행했다고 보고하지 않는다.
+
+### 5. 다음 작업 순서
+
+1. Manual Skill1 27개를 exact DB29 card ID/source text 기준으로 매칭한다. 카드별 근거가 없으면 unmatched/pending으로 둔다.
+2. 27개 전체를 한 번에 runtime promotion하지 말고, 원문과 현재 handler가 일치하는 소규모 batch부터 positive/negative/boundary/interaction tests를 만든다.
+3. Skill2 8개 미확보 excerpt와 377개 inferred mapping은 별도 트랙으로 유지한다. item/card_text 문구를 unit effect evidence로 사용하지 않는다.
+4. APK는 이미 생성한 lifecycle event를 이용해 source-verified 효과 하나씩 연결한다. 아직 subscriber가 없는 event는 descriptive-only로 유지하고, 근거 없는 handler는 추가하지 않는다.
+5. 문서·테스트를 한 묶음으로 정리한 후 focused Actions를 실행한다. 전체 DB audit, 대형 데이터팩 생성, emulator run은 의미 있는 변경이 누적된 시점에만 선택 실행한다.
+6. PR #9/#12/#28 병합, DB30 발행, main 수정은 사용자 명시 승인 전 금지한다.
+
