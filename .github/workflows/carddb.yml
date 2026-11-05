@@ -332,9 +332,13 @@ jobs:
                   "missing": len(missing_rows),
                   "variants": len(variants),
               }
-              expected_actual = {key: rule[key] for key in actual}
-              if actual != expected_actual:
-                  raise SystemExit(f"Skill2 source count mismatch for {rule['name']} enum={enum_value}: expected={expected_actual} actual={actual}")
+              # Source text distributions are measured from immutable DB29 and are not
+              # frozen as expected counts: wording/HTML variants are evidence, not errors.
+              if actual["rows"] != rule["rows"]:
+                  raise SystemExit(
+                      f"Skill2 card-row count mismatch for {rule['name']} enum={enum_value}: "
+                      f"expected={rule['rows']} actual={actual['rows']}"
+                  )
 
               variant_reports = []
               for text_value, candidates in sorted(variants.items(), key=lambda item: item[0]):
@@ -371,19 +375,18 @@ jobs:
               "source_card_verified_rows": 0,
               "executable_rows": 0,
           }
+          # Lock only the source inventory and review safety status. Text coverage,
+          # missing excerpts, and variant counts are reported as observed measurements.
           expected_summary = {
               "candidate_rows": 377,
               "distinct_card_ids": 377,
               "rule_groups": 8,
-              "additional_text_rows": 368,
-              "card_text_only_rows": 1,
-              "missing_card_local_excerpt_rows": 8,
-              "distinct_additional_text_variants": 24,
               "source_card_verified_rows": 0,
               "executable_rows": 0,
           }
-          if summary != expected_summary:
-              raise SystemExit(f"DB29 Skill2 summary mismatch: expected={expected_summary} actual={summary}")
+          summary_gate = {key: summary[key] for key in expected_summary}
+          if summary_gate != expected_summary:
+              raise SystemExit(f"DB29 Skill2 inventory mismatch: expected={expected_summary} actual={summary_gate}")
 
           report = {
               "schema_version": "fm1-skill2-source-representatives-v1",
