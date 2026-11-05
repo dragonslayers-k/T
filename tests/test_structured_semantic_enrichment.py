@@ -104,11 +104,20 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
     def test_external_community_claims_remain_supplemental_and_non_executable(self):
         data = load_review("fm1-external-card-and-magic-order-claims-2026-11-05.json")
         self.assertTrue(data["claims"])
+        self.assertEqual(len(data["claims"]), 7)
+        matched = 0
+        unmatched = 0
         for claim in data["claims"]:
             self.assertEqual(claim["evidence_status"], "community_claim")
             self.assertEqual(claim["runtime_status"], "non_executable")
             self.assertIn(claim.get("id_match_status"), (None, "pending_card_id_match"))
+            matched += claim.get("id_match_status") == "pending_card_id_match"
+            unmatched += claim.get("id_match_status") is None
             self.assertTrue(claim["source"]["url"])
+            self.assertTrue(claim["claim"])
+            self.assertIn("card_id", claim)
+        self.assertEqual(matched, 4)
+        self.assertEqual(unmatched, 3)
         self.assertEqual(data["policy"]["ruleset"], "FM1; historical version uncertain unless noted")
         self.assertFalse(data["policy"]["main_merge"])
 
