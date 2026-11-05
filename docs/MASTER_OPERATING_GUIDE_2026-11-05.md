@@ -317,3 +317,16 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - 등록 gate는 임의의 `verified=true`가 아니라 기존 규칙 catalog의 허용 ID와 상태 tuple을 함께 확인한다: Skill1은 `manual_verified + manual + known Manual rule ID`, Skill2는 `source_card_verified + card_source + source-card-rule-implemented + known Skill2 rule ID`만 허용한다. community candidate/unknown ID는 거부한다.
 - 테스트는 candidate/unknown 등록 거부, 두 권한 채널의 정상 등록, 중복 구독 거부, 순서/sequence 보존, handler event 변형이 원본 이벤트에 전파되지 않음을 확인한다.
 - 이 단계는 subscriber infrastructure다. 아직 신규 카드 효과 handler를 등록하지 않았고 기존 공격 로직과 중복 실행하지 않는다. Actions #135 검증 중이므로 성공 전까지 통과로 보고하지 않는다.
+
+
+## A36 및 APK event dispatcher 검증 갱신 (2026-11-05)
+
+- A36 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a36-2026-11-05.md` — Skill1 빈도순 312~321위.
+- A36: 10 후보 행 / 10 원문 발췌 / 10 정확 문구 변형.
+- A1~A36 누계: **2,268 후보 행 / 2,305 원문 발췌 / 549 정확 문구 변형**.
+- APK Actions #135 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41937810008. Fail-closed dispatcher 코드와 테스트를 포함한 SHA `fc3f2b9f231a34449cda48f1c457ad9f6179b5eb`에서 JS 규칙 테스트, converter, Android Debug APK build, package verification 및 artifact upload가 통과했다.
+- Dispatcher 등록은 허용된 Manual Skill1 rule ID + `manual_verified/manual`, 또는 허용된 Skill2 rule ID + `source_card_verified/card_source/source-card-rule-implemented` 조합만 허용한다. community candidate, unknown rule, duplicate subscription은 거부한다.
+- 이벤트 dispatch는 이벤트 순서와 sequence를 유지하고 handler마다 복사본을 전달한다. handler의 payload 수정이 원본 queued event에 전파되지 않는 테스트가 통과했다.
+- 아직 dispatcher에 새 카드 효과 handler를 연결하지 않았다. 이 변경은 안전한 구독 등록/전달 기반이며 카드 효과 구현 완료로 집계하지 않는다.
+- PR #28 최신 검증 SHA `fc3f2b9f231a34449cda48f1c457ad9f6179b5eb`, open/draft/unmerged. 선택형 DB29 data pack과 emulator 검증은 미실행.
+- 다음 단계: 이벤트 dispatcher를 game state의 controlled drain point와 연결하되, battle resolution 단계/중복 처리/재진입 방지 계약을 먼저 테스트한다. 카드별 handler는 source/Manual authority와 카드 ID 매핑이 검증된 것부터 단위별로 연결한다.
