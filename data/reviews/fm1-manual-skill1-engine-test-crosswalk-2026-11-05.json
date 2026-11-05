@@ -1,0 +1,556 @@
+{
+  "schema_version": "FM1-MANUAL-SKILL1-ENGINE-TEST-CROSSWALK-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "engine_evidence": {
+    "repository": "dragonslayers-k/FM-OFFLINE",
+    "branch": "feat/combat-event-foundation",
+    "commit": "28de5d2ff49d65ce23730818b1c8becc402c58cc",
+    "workflow_run_number": 208,
+    "workflow_run_id": 42032079550,
+    "workflow_conclusion": "success",
+    "test_file": "tests/rules.test.cjs"
+  },
+  "source_evidence": {
+    "manual_catalog": "data/rules/fm1-skill-catalog-v1.json",
+    "skill1_exact_label_groups": 27,
+    "skill1_matched_card_rows": 3158,
+    "unmatched_manual_rule_groups": 0
+  },
+  "policy": {
+    "engine_test_name_or_rule_id_presence_is_not_full_semantic_proof": true,
+    "representative_card_fixture_absence_is_not_proof_of_missing_handler": true,
+    "db29_card_mapping_not_promoted_by_engine_test_alone": true,
+    "manual_and_engine_names_preserved_separately": true
+  },
+  "summary": {
+    "manual_rule_count": 27,
+    "rule_ids_in_engine_test_catalogue": 27,
+    "representative_db29_card_fixtures_present": 18,
+    "representative_db29_card_fixtures_missing": 9,
+    "engine_action_208": "success",
+    "db29_mapping_semantic_promotion_authorized": false
+  },
+  "missing_representative_fixtures": [
+    {
+      "rule_id": "normal_attack",
+      "manual_name": "일반공격",
+      "engine_name": "일반공격",
+      "card_id": "10020341112"
+    },
+    {
+      "rule_id": "defense_bypass",
+      "manual_name": "방어무시",
+      "engine_name": "방어무시",
+      "card_id": "10091525193"
+    },
+    {
+      "rule_id": "frenzy_attack",
+      "manual_name": "광분공격",
+      "engine_name": "광분공격",
+      "card_id": "10010624538"
+    },
+    {
+      "rule_id": "ability_seal",
+      "manual_name": "기술봉쇄",
+      "engine_name": "봉쇄공격",
+      "card_id": "10020324644"
+    },
+    {
+      "rule_id": "copy_attack",
+      "manual_name": "공격복제",
+      "engine_name": "복제공격",
+      "card_id": "10050441147"
+    },
+    {
+      "rule_id": "defensive_use",
+      "manual_name": "방어이용",
+      "engine_name": "방어이용",
+      "card_id": "10010624568"
+    },
+    {
+      "rule_id": "taunt_attack",
+      "manual_name": "조롱공격",
+      "engine_name": "조롱",
+      "card_id": "10030324709"
+    },
+    {
+      "rule_id": "confusion_attack",
+      "manual_name": "혼란공격",
+      "engine_name": "혼란공격",
+      "card_id": "10040724804"
+    },
+    {
+      "rule_id": "stealth_attack",
+      "manual_name": "은폐공격",
+      "engine_name": "은폐공격",
+      "card_id": "10040724812"
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "normal_attack",
+      "manual_name": "일반공격",
+      "engine_whitelist_name": "일반공격",
+      "representative_db29_card_id": "10020341112",
+      "representative_card_name": "은룡의검",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 suppression permanently converts target special attack to ordinary attack",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
+        "a Skill2-only ability never falls through to the Skill1 combat handler"
+      ]
+    },
+    {
+      "rule_id": "defense_bypass",
+      "manual_name": "방어무시",
+      "engine_whitelist_name": "방어무시",
+      "representative_db29_card_id": "10091525193",
+      "representative_card_name": "카오틱비스트",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "successful unit summon emits one source-linked event after the field commit",
+        "failed unit summon emits no unit_summoned event and leaves the hand unchanged",
+        "successful terrain installation emits a source-linked event only after LP, cost and production commit",
+        "failed terrain installation emits no event and preserves the original hand and resources",
+        "successful item equip emits target and stat payload after the equipment commit",
+        "failed item targeting emits no equipment event and leaves item in hand",
+        "successful spell queue emits a source-linked event after slot assignment",
+        "failed spell target validation emits no queue event and preserves the hand",
+        "FM1 defense-bypass attack deals AP directly to HP without subtracting DP",
+        "FM1 suppression permanently converts target special attack to ordinary attack",
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
+        "DB29 1.3 Skill1 mapping metadata fails closed unless manual authority and verified status agree",
+        "combat event dispatcher rejects unverified and unknown rules fail-closed",
+        "combat event dispatcher accepts only known verified mappings and dispatches isolated events in order",
+        "attached dispatcher drains combat events only at completed attack boundaries",
+        "events enqueued by a subscriber wait for the next explicit dispatch boundary",
+        "newGame initializes a per-match dispatcher and routes completed attack events through it",
+        "combat dispatcher rejects unverified authority, duplicate event types, and duplicate subscriptions",
+        "combat dispatcher sends isolated event copies to every subscriber in stable order",
+        "compact DB29 Skill1 mapping executes only source-authorized Manual rules in combat",
+        "compact DB29 Manual defense-bypass Skill1 clamps zero attack power and preserves target HP"
+      ]
+    },
+    {
+      "rule_id": "fatal_attack",
+      "manual_name": "치명공격",
+      "engine_whitelist_name": "치명공격",
+      "representative_db29_card_id": "10012024612",
+      "representative_card_name": "선더골렘",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual Fatal Attack does not revive an already-zero-HP defender"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills",
+        "combat dispatcher sends isolated event copies to every subscriber in stable order",
+        "compact DB29 Manual fatal attack preserves the one-HP floor at lethal boundary",
+        "DB29 Manual Fatal Attack does not revive an already-zero-HP defender"
+      ]
+    },
+    {
+      "rule_id": "piercing_attack",
+      "manual_name": "관통공격",
+      "engine_whitelist_name": "관통공격",
+      "representative_db29_card_id": "10091525214",
+      "representative_card_name": "블랙유니콘",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual piercing and weakening attacks follow their exact AP and DP effects"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual piercing and weakening attacks follow their exact AP and DP effects",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "weaken_attack",
+      "manual_name": "약화공격",
+      "engine_whitelist_name": "약화공격",
+      "representative_db29_card_id": "10091525190",
+      "representative_card_name": "이블크로우",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual piercing and weakening attacks follow their exact AP and DP effects",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual piercing and weakening attacks follow their exact AP and DP effects",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ]
+    },
+    {
+      "rule_id": "petrify_attack",
+      "manual_name": "석화공격",
+      "engine_whitelist_name": "석화공격",
+      "representative_db29_card_id": "10010624589",
+      "representative_card_name": "파프니르",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ],
+      "matching_engine_test_names": [
+        "FM1 petrification sets target AP to zero and raises DP by one",
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ]
+    },
+    {
+      "rule_id": "vampiric_attack",
+      "manual_name": "흡혈공격",
+      "engine_whitelist_name": "흡혈공격",
+      "representative_db29_card_id": "10010624542",
+      "representative_card_name": "다크카운티스",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual Vampiric Attack uses actual HP damage, rounds half up, and respects HP markers"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual Vampiric Attack uses actual HP damage, rounds half up, and respects HP markers",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
+      ]
+    },
+    {
+      "rule_id": "aging_attack",
+      "manual_name": "노화공격",
+      "engine_whitelist_name": "노화공격",
+      "representative_db29_card_id": "13020626691",
+      "representative_card_name": "타락자",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "charge_attack",
+      "manual_name": "돌진공격",
+      "engine_whitelist_name": "돌진공격",
+      "representative_db29_card_id": "10010624588",
+      "representative_card_name": "패스파인더",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
+      ]
+    },
+    {
+      "rule_id": "beast_tamer",
+      "manual_name": "야수조련",
+      "engine_whitelist_name": "야수조련공격",
+      "representative_db29_card_id": "11011925567",
+      "representative_card_name": "네추럴마스터",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "bravery_attack",
+      "manual_name": "용맹공격",
+      "engine_whitelist_name": "용맹공격",
+      "representative_db29_card_id": "10010624545",
+      "representative_card_name": "타투파이터",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual bravery and fear attacks apply level-gated bonus damage at zero AP"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "Manual bravery/fear use the defender level relation and add AP before DP even at AP zero",
+        "DB29 Manual bravery and fear attacks apply level-gated bonus damage at zero AP",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "regeneration",
+      "manual_name": "재생능력",
+      "engine_whitelist_name": "재생능력",
+      "representative_db29_card_id": "10010624560",
+      "representative_card_name": "울프라이더",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual Regeneration restores one HP on attack even when defender DP blocks all damage"
+      ],
+      "matching_engine_test_names": [
+        "DB29 Manual Regeneration restores one HP on attack even when defender DP blocks all damage",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
+      ]
+    },
+    {
+      "rule_id": "frenzy_attack",
+      "manual_name": "광분공격",
+      "engine_whitelist_name": "광분공격",
+      "representative_db29_card_id": "10010624538",
+      "representative_card_name": "다크퍼밀리어",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
+      ]
+    },
+    {
+      "rule_id": "consecutive_attack",
+      "manual_name": "연속공격",
+      "engine_whitelist_name": "연속공격",
+      "representative_db29_card_id": "10050441142",
+      "representative_card_name": "트윈스컬소드",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual Consecutive Attack applies AP-minus-one doubling with DP and boundary clamps"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "DB29 Manual Consecutive Attack applies AP-minus-one doubling with DP and boundary clamps"
+      ]
+    },
+    {
+      "rule_id": "fear_attack",
+      "manual_name": "공포공격",
+      "engine_whitelist_name": "공포공격",
+      "representative_db29_card_id": "10050424835",
+      "representative_card_name": "다크프리스트",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual bravery and fear attacks apply level-gated bonus damage at zero AP"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "Manual bravery/fear use the defender level relation and add AP before DP even at AP zero",
+        "DB29 Manual bravery and fear attacks apply level-gated bonus damage at zero AP",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "charm_attack",
+      "manual_name": "매료공격",
+      "engine_whitelist_name": "매료공격",
+      "representative_db29_card_id": "10020324637",
+      "representative_card_name": "데몬",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual charm attack disables AP only when DP prevents all HP damage"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual charm attack disables AP only when DP prevents all HP damage",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "ability_seal",
+      "manual_name": "기술봉쇄",
+      "engine_whitelist_name": "봉쇄공격",
+      "representative_db29_card_id": "10020324644",
+      "representative_card_name": "환상낚시꾼",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 suppression permanently converts target special attack to ordinary attack",
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills",
+        "compact DB29 Manual Skill1 fields activate only the mapped canonical rule ID",
+        "combat event dispatcher accepts only known verified mappings and dispatches isolated events in order"
+      ]
+    },
+    {
+      "rule_id": "spell_suppression",
+      "manual_name": "주문봉쇄",
+      "engine_whitelist_name": "마법봉쇄공격",
+      "representative_db29_card_id": "10010624550",
+      "representative_card_name": "혼드비스트",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules"
+      ]
+    },
+    {
+      "rule_id": "weapon_suppression",
+      "manual_name": "무기봉쇄",
+      "engine_whitelist_name": "무기뺏기공격",
+      "representative_db29_card_id": "10010624543",
+      "representative_card_name": "데크라프",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules"
+      ]
+    },
+    {
+      "rule_id": "copy_attack",
+      "manual_name": "공격복제",
+      "engine_whitelist_name": "복제공격",
+      "representative_db29_card_id": "10050441147",
+      "representative_card_name": "진실의거울",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
+      ]
+    },
+    {
+      "rule_id": "shield_break",
+      "manual_name": "방패파괴",
+      "engine_whitelist_name": "방패파괴공격",
+      "representative_db29_card_id": "10010624551",
+      "representative_card_name": "해적전투원",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual shield-break and curse attacks apply their source-defined stat changes",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual shield-break and curse attacks apply their source-defined stat changes",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "Manual canonical shield-break label normalizes to the engine keyword",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ]
+    },
+    {
+      "rule_id": "curse_attack",
+      "manual_name": "저주공격",
+      "engine_whitelist_name": "저주공격",
+      "representative_db29_card_id": "10030324708",
+      "representative_card_name": "다크조커",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual shield-break and curse attacks apply their source-defined stat changes"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual shield-break and curse attacks apply their source-defined stat changes",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "defensive_use",
+      "manual_name": "방어이용",
+      "engine_whitelist_name": "방어이용",
+      "representative_db29_card_id": "10010624568",
+      "representative_card_name": "포춘텔러",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
+      ]
+    },
+    {
+      "rule_id": "taunt_attack",
+      "manual_name": "조롱공격",
+      "engine_whitelist_name": "조롱",
+      "representative_db29_card_id": "10030324709",
+      "representative_card_name": "다크조커",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 intimidation taunt leaves target at 1 HP and transfers lost HP to its AP",
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "confusion_attack",
+      "manual_name": "혼란공격",
+      "engine_whitelist_name": "혼란공격",
+      "representative_db29_card_id": "10040724804",
+      "representative_card_name": "견습수도사",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
+      ]
+    },
+    {
+      "rule_id": "stealth_attack",
+      "manual_name": "은폐공격",
+      "engine_whitelist_name": "은폐공격",
+      "representative_db29_card_id": "10040724812",
+      "representative_card_name": "블라인드랩터",
+      "representative_card_fixture_present_in_engine_tests": false,
+      "representative_card_fixture_test_names": [],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
+      ]
+    },
+    {
+      "rule_id": "defense_convert",
+      "manual_name": "방어변환",
+      "engine_whitelist_name": "방어전환공격",
+      "representative_db29_card_id": "10010624563",
+      "representative_card_name": "리듬포이",
+      "representative_card_fixture_present_in_engine_tests": true,
+      "representative_card_fixture_test_names": [
+        "DB29 Manual defense-convert attack makes positive target DP negative",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ],
+      "matching_engine_test_names": [
+        "FM1 manual special attacks apply their named stat conditions",
+        "DB29 Manual defense-convert attack makes positive target DP negative",
+        "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
+        "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ]
+    }
+  ]
+}
