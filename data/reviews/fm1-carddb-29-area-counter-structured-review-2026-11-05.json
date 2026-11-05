@@ -1,0 +1,208 @@
+{
+  "schema_version": "FM1-AREA-COUNTER-REVIEW-1.0",
+  "source_db_release": "fm1-carddb-29",
+  "based_on": "fm1-carddb-29-semantic-review-reference-adjudication-2026-11-04.json",
+  "captured_date": "2026-11-05",
+  "immutable_baseline": true,
+  "summary": {
+    "records": 7,
+    "rule_observed": "Each source card TextExtra describes when friendly remaining LP is at least 1, reduce friendly LP by 1, then replace one named friendly backfield terrain with a named replacement terrain.",
+    "runtime_status": "pending_engine_validation"
+  },
+  "common_rule": {
+    "condition": {
+      "friendly_remaining_lp_gte": 1
+    },
+    "cost": {
+      "friendly_lp_delta": -1
+    },
+    "operation": "replace_one_friendly_backfield_terrain",
+    "selection": "specific named terrain stated per card",
+    "replacement": "specific named terrain stated per card",
+    "unresolved": [
+      "Does the condition check LP before payment only?",
+      "Can LP reach 0 after payment and still resolve?",
+      "What if the named terrain is absent or multiple copies exist?",
+      "Does replacement preserve slot, counter, ownership, attached enchantments, or trigger follow-up effects?",
+      "Confirm 3-counter initialization/decrement/reset and whether area labels are aliases."
+    ],
+    "executable": false
+  },
+  "records": [
+    {
+      "card_id": "16112610278",
+      "card_name": "스컬시티",
+      "TextBase": {
+        "source_key_present": true,
+        "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 다크마레마 히어로 포인트를 1증가시킨다. ※ 다크마레아(3카운터) [끝없이 해골이 쏟아지는 도시.]"
+      },
+      "TextExtra": {
+        "source_key_present": true,
+        "source_value": "※ 다크아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [스컬시티]1을 [해골도시]1로 변경시킨다."
+      },
+      "base_area_label": "다크마레아(3카운터)",
+      "extra_area_label": "다크아레아(3카운터)",
+      "lp_condition": 1,
+      "lp_cost": 1,
+      "terrain_from": "스컬시티",
+      "terrain_to": "해골도시",
+      "label_mismatch": true,
+      "evidence_status": "card_local_text_observed",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "external_reference_assessment": "NamuWiki/personal guides currently corroborate only general terrain/LP context, not this card-specific replacement."
+    },
+    {
+      "card_id": "16112610283",
+      "card_name": "지나간자리",
+      "TextBase": {
+        "source_key_present": true,
+        "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 머스마레마 히어로 포인트를 1증가시킨다. ※ 머스마레마(3카운터) [투스샌드웜이 지나간 자리.]"
+      },
+      "TextExtra": {
+        "source_key_present": true,
+        "source_value": "※ 어스아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [지나간자리]1을 [솟아난호수]1로 변경시킨다."
+      },
+      "base_area_label": "머스마레마(3카운터)",
+      "extra_area_label": "어스아레아(3카운터)",
+      "lp_condition": 1,
+      "lp_cost": 1,
+      "terrain_from": "지나간자리",
+      "terrain_to": "솟아난호수",
+      "label_mismatch": true,
+      "evidence_status": "card_local_text_observed",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "external_reference_assessment": "NamuWiki/personal guides currently corroborate only general terrain/LP context, not this card-specific replacement."
+    },
+    {
+      "card_id": "16112610282",
+      "card_name": "초복합연구실",
+      "TextBase": {
+        "source_key_present": true,
+        "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 메탈마레마 히어로 포인트를 1증가시킨다. ※ 메탈아레아(3카운터) [실험체를 피해 차원이동중...]"
+      },
+      "TextExtra": {
+        "source_key_present": true,
+        "source_value": "※ 메탈아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [초복합연구실]1을 [이동식연구소]1로 변경시킨다. "
+      },
+      "base_area_label": "메탈아레아(3카운터)",
+      "extra_area_label": "메탈아레아(3카운터)",
+      "lp_condition": 1,
+      "lp_cost": 1,
+      "terrain_from": "초복합연구실",
+      "terrain_to": "이동식연구소",
+      "label_mismatch": false,
+      "evidence_status": "card_local_text_observed",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "external_reference_assessment": "NamuWiki/personal guides currently corroborate only general terrain/LP context, not this card-specific replacement."
+    },
+    {
+      "card_id": "16112610280",
+      "card_name": "생환의도시",
+      "TextBase": {
+        "source_key_present": true,
+        "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 워터마레마 히어로 포인트를 1증가시킨다. ※ 워터마레마(3카운터) [강력한 바다 영수와 고대 문명.]"
+      },
+      "TextExtra": {
+        "source_key_present": true,
+        "source_value": "※ 워터아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [생환의도시]1을 [갑골위문명]1로 변경시킨다."
+      },
+      "base_area_label": "워터마레마(3카운터)",
+      "extra_area_label": "워터아레아(3카운터)",
+      "lp_condition": 1,
+      "lp_cost": 1,
+      "terrain_from": "생환의도시",
+      "terrain_to": "갑골위문명",
+      "label_mismatch": true,
+      "evidence_status": "card_local_text_observed",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "external_reference_assessment": "NamuWiki/personal guides currently corroborate only general terrain/LP context, not this card-specific replacement."
+    },
+    {
+      "card_id": "16112610279",
+      "card_name": "강자의왕국",
+      "TextBase": {
+        "source_key_present": true,
+        "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 파이어아레마 히어로 포인트를 1증가시킨다. ※ 파이어마레마(3카운터) [강자만의 질서, 강자만의 왕국.]"
+      },
+      "TextExtra": {
+        "source_key_present": true,
+        "source_value": "※ 파이어아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [강자의왕국]1을 [고블린왕국]1로 변경시킨다."
+      },
+      "base_area_label": "파이어마레마(3카운터)",
+      "extra_area_label": "파이어아레아(3카운터)",
+      "lp_condition": 1,
+      "lp_cost": 1,
+      "terrain_from": "강자의왕국",
+      "terrain_to": "고블린왕국",
+      "label_mismatch": true,
+      "evidence_status": "card_local_text_observed",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "external_reference_assessment": "NamuWiki/personal guides currently corroborate only general terrain/LP context, not this card-specific replacement."
+    },
+    {
+      "card_id": "16112610281",
+      "card_name": "숲의안식처",
+      "TextBase": {
+        "source_key_present": true,
+        "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 포레스마레마 히어로 포인트를 1증가시킨다. ※ 포레스마레마 (3카운터) [세계수의 아래 울창한 안식처.]"
+      },
+      "TextExtra": {
+        "source_key_present": true,
+        "source_value": "※ 포레스아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [숲의안식처]1을 [세계수의그늘]1로 변경시킨다."
+      },
+      "base_area_label": "포레스마레마 (3카운터)",
+      "extra_area_label": "포레스아레아(3카운터)",
+      "lp_condition": 1,
+      "lp_cost": 1,
+      "terrain_from": "숲의안식처",
+      "terrain_to": "세계수의그늘",
+      "label_mismatch": true,
+      "evidence_status": "card_local_text_observed",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "external_reference_assessment": "NamuWiki/personal guides currently corroborate only general terrain/LP context, not this card-specific replacement."
+    },
+    {
+      "card_id": "16112610284",
+      "card_name": "클라우드시티",
+      "TextBase": {
+        "source_key_present": true,
+        "source_value": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 홀리마레마 히어로 포인트를 1증가시킨다. ※ 폴리아레아(3카운터) [구름이 운반하는 공중도시.]"
+      },
+      "TextExtra": {
+        "source_key_present": true,
+        "source_value": "※ 홀리아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [클라우드시티]1을 [구름도시]1로 변경시킨다."
+      },
+      "base_area_label": "폴리아레아(3카운터)",
+      "extra_area_label": "홀리아레아(3카운터)",
+      "lp_condition": 1,
+      "lp_cost": 1,
+      "terrain_from": "클라우드시티",
+      "terrain_to": "구름도시",
+      "label_mismatch": true,
+      "evidence_status": "card_local_text_observed",
+      "semantic_review_status": "pending",
+      "runtime_status": "non_executable",
+      "external_reference_assessment": "NamuWiki/personal guides currently corroborate only general terrain/LP context, not this card-specific replacement."
+    }
+  ],
+  "test_matrix": [
+    "LP=1: verify cost/payment and resulting LP=0 behavior.",
+    "LP=0: condition fails; verify no terrain change and no LP payment.",
+    "named source terrain absent: verify failure/skip behavior.",
+    "multiple named source terrains: verify exact slot selection.",
+    "replace source terrain: verify slot and card state/counters/attached effects.",
+    "3-counter start, activation decrement, depletion, and reset timing.",
+    "TextBase/TextExtra area-name discrepancy: retain both exact spellings; determine alias only from source or engine."
+  ],
+  "policy": {
+    "db29_immutable": true,
+    "db30_issued": false,
+    "merge_to_main": false
+  }
+}

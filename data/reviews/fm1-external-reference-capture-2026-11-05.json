@@ -1,0 +1,260 @@
+{
+  "schema_version": "FM1-EXTERNAL-SOURCE-CAPTURE-1.0",
+  "captured_date": "2026-11-05",
+  "project_policy": {
+    "db29_immutable": true,
+    "db30_issued": false,
+    "merge_to_main": false,
+    "community_sources_supplemental": true,
+    "unverified_rules_executable": false
+  },
+  "sources": [
+    {
+      "source_id": "EXT-NAMU-OVERVIEW-MIRROR",
+      "title": "판타지 마스터즈 — overview, system, linked attribute/card pages",
+      "url": "https://namu.moe/w/판타지%20마스터즈",
+      "source_type": "community_wiki_mirror",
+      "retrieved": "web search result and accessible excerpts",
+      "evidence_status": "observed_partial",
+      "observed_facts": [
+        "Game history describes seven attributes, with later purple/event/legend attribute treatment becoming separate neutral (8 total).",
+        "Article includes sections for attributes, races/factions, card index, and eight attribute card sublists.",
+        "Article's service timeline reports service end in 2018; use only as historical context."
+      ],
+      "limitations": [
+        "Not the requested canonical namu.wiki domain capture; mirror and its version history may differ.",
+        "Full link graph not yet exhaustively traversed.",
+        "No individual card effects should be accepted solely from this overview."
+      ]
+    },
+    {
+      "source_id": "EXT-NAMU-ATTRIBUTE",
+      "title": "판타지 마스터즈/속성",
+      "url": "https://dark.namu.moe/w/판타지마스터즈/속성",
+      "source_type": "community_wiki_mirror",
+      "retrieved": "web search excerpt",
+      "evidence_status": "observed_partial",
+      "observed_facts": [
+        "Page gives qualitative and historical strategy descriptions by attribute."
+      ],
+      "limitations": [
+        "Strategy narrative is not normative rule text; verify specific claims by card ID and game version."
+      ]
+    },
+    {
+      "source_id": "EXT-NAMU-CARD-FORESTWORM",
+      "title": "포레스트웜",
+      "url": "https://www.namu.moe/w/포레스트웜",
+      "source_type": "community_wiki_card",
+      "retrieved": "web search excerpt",
+      "evidence_status": "observed_partial",
+      "observed_facts": [
+        "Card metadata excerpt: forest unit, episode 1, beast race, worm, level 7, AP/DP/HP coin stats, regeneration skill."
+      ],
+      "limitations": [
+        "Need DB29 exact ID match; metadata and patch-era details not yet cross-checked."
+      ]
+    },
+    {
+      "source_id": "EXT-NAMU-CARD-FROG",
+      "title": "개구리변신",
+      "url": "https://d.namu.moe/w/개구리변신",
+      "source_type": "community_wiki_skill",
+      "retrieved": "web search excerpt",
+      "evidence_status": "observed_partial",
+      "observed_facts": [
+        "Page describes a forest defensive magic with 4 soul cost and target/category changes after recall."
+      ],
+      "limitations": [
+        "Historical before/after recall text must be kept as versioned claims, not collapsed into one current effect."
+      ]
+    },
+    {
+      "source_id": "EXT-PERSONAL-NEGINOTE",
+      "title": "가이드북 | fantasymasters",
+      "url": "https://neginote.wixsite.com/fantasymasters/main-guide",
+      "source_type": "personal_guide",
+      "retrieved": "web search excerpt",
+      "evidence_status": "observed_partial",
+      "observed_facts": [
+        "Describes five card types: land, unit, item, magic, enchant; mentions 11 card grades.",
+        "Explains basic roles of land, unit, item, magic, enchant."
+      ],
+      "limitations": [
+        "Personal guide, ruleset/version date unclear; reference only until matched to primary card text and DB29."
+      ]
+    },
+    {
+      "source_id": "EXT-PERSONAL-SEORE",
+      "title": "문서:판타지 마스터즈",
+      "url": "https://seore.org/raw/문서%3A판타지%20마스터즈",
+      "source_type": "personal_site_wiki",
+      "retrieved": "web search excerpt",
+      "evidence_status": "observed_partial",
+      "observed_facts": [
+        "Describes land capacity, unit combat equation, four unit abilities, item attachment restrictions, and enchant as persistent slot effects with exceptions."
+      ],
+      "limitations": [
+        "Potentially historical/edited. Treat formula and exceptions as test candidates; not runtime truth without engine checks."
+      ]
+    },
+    {
+      "source_id": "EXT-OLD-ARTICLE-GAMECHOSUN",
+      "title": "Gamechosun 2002 Fantasy Masters introduction",
+      "url": "https://www.gamechosun.co.kr/webzine/article/view.php?from=articlelist&no=13712",
+      "source_type": "historical_press",
+      "retrieved": "web search excerpt",
+      "evidence_status": "observed_partial",
+      "observed_facts": [
+        "Explains early seven attributes, four card classes, turn battle and coin/RPG rank features."
+      ],
+      "limitations": [
+        "2002 source predates later neutral and enchant changes; explicitly label as early ruleset."
+      ]
+    },
+    {
+      "source_id": "EXT-NAVER-JLPLACE",
+      "title": "jlplace original guide",
+      "url": "https://m.blog.naver.com/jlplace/220468684977",
+      "source_type": "personal_blog_and_user_image",
+      "retrieved": "not retrieved in web results; user supplied narrow screenshot is currently not reliably legible for full transcription",
+      "evidence_status": "unreadable_or_inaccessible_pending",
+      "observed_facts": [],
+      "limitations": [
+        "No full transcription yet. Do not infer text from tiny screenshot/OCR; revisit with original-resolution image or accessible post body."
+      ]
+    }
+  ],
+  "user_provided_card_reference_names": [
+    "교향곡44번",
+    "노라이프킹",
+    "데스자르",
+    "마녀",
+    "본 드래곤",
+    "블랙 매지션",
+    "블랙홀",
+    "서큐버스",
+    "슬픈재회",
+    "아이바",
+    "아크낙룹",
+    "외딴묘비",
+    "천리안의마녀",
+    "루시퍼",
+    "메이",
+    "분화대",
+    "불꽃의자매",
+    "아크데몬",
+    "젊은조언자",
+    "피닉스스톰",
+    "화염의마녀",
+    "헬레이드",
+    "악마의화로",
+    "레비아탄",
+    "로어클라우드",
+    "듀드티",
+    "매직컨트롤",
+    "모비 딕",
+    "뮬도다",
+    "시서펜트",
+    "워터마스터",
+    "워터히어로",
+    "인어의애정",
+    "차가운악몽",
+    "티니아",
+    "케이티",
+    "개구리변신",
+    "굶주림",
+    "나무화",
+    "넝쿨엉킴",
+    "도깨비씨름",
+    "릴리아",
+    "마력흡수나무",
+    "만드라로즈",
+    "무",
+    "무리방어",
+    "버터플라이맨",
+    "번창하는숲",
+    "뷰티플라워",
+    "뿌리침투",
+    "사케크리에",
+    "샤와타의그물",
+    "숲속의대피처",
+    "시체부패",
+    "와일드엘프",
+    "웜의분노",
+    "유이",
+    "이그조스트리",
+    "색다른친구",
+    "수풀코끼리",
+    "숲의대피처",
+    "숲의지도자",
+    "신목",
+    "정글의독침수",
+    "집중공격",
+    "짙은안개",
+    "커글 카에삭",
+    "폐허의흔적",
+    "포레스테이머",
+    "포레스트웜",
+    "플로에모크",
+    "호접지몽",
+    "허기(판타지 마스터즈)",
+    "남방황제",
+    "노르니르",
+    "드래곤나이트",
+    "루어하크마하",
+    "마력결계진",
+    "밴디지메이지",
+    "클락솔저",
+    "석병팔진",
+    "성주의아들",
+    "스터두라엘",
+    "시계기마병",
+    "시계병사",
+    "시계투척병",
+    "소르다스의검",
+    "앤서토커",
+    "엘리온",
+    "울티메이터",
+    "울티밋퓨전",
+    "이레제",
+    "자크더애로우",
+    "타임키퍼",
+    "파소에",
+    "히사",
+    "랜드트랩퍼",
+    "샌드웜",
+    "모래요정",
+    "사나오일렌",
+    "알리바이",
+    "오데나사스",
+    "형천",
+    "게르던",
+    "글룸",
+    "라토스텐",
+    "랑부이에",
+    "메를린",
+    "세인마이어스",
+    "얀얀",
+    "탐정부장",
+    "포",
+    "할로윈걸",
+    "꼬마오덴",
+    "독도",
+    "리틀마스터",
+    "사랑의묘약",
+    "솔로의저주",
+    "시스카이",
+    "히로인"
+  ],
+  "followup": {
+    "next_action": "Map the user's NamuWiki-listed card names to exact DB29 card IDs, starting with clearly described mechanics, then record every linked card/skill/system page and source confidence.",
+    "priority_queue": [
+      "card name to exact ID mapping and OCR collision review",
+      "seven named terrain-counter rows with name/replace rule mismatches",
+      "card reference list IDs and type/eligibility",
+      "remaining summon profiles (separate 7 Eca-Mael, 1 sand profile, 1 conditional school profile)",
+      "manual review of Naver screenshots"
+    ]
+  }
+}
