@@ -619,3 +619,13 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - 8개 rule 분포: 기선제압 181(근거 175/누락 5), 헌신방어 66(63/3), 얼라이디펜스 44(44/0), 레이셜디펜스 35(35/0), 강한헌신방어 28(28/0), 격노 20(20/0), 홀리오오라 2(2/0), 프레셔 1(1/0).
 - 기선제압의 일반 피해 감소 vs 상대 AP 피해 감소, strict/inclusive level boundary, 홀리오오라의 절반 내림 여부 등 원문 변형 간 의미 차이를 별도 보존한다.
 - 누락 8건: 신비의바다(12111426500), 마왕(16102628565), 불의정령여왕(16110928590), 고대나무뿌리(6121340763), 용기의정령(8080640943), 순수한레비(14031227302), 설원고양이(16110228578), 어둠기사(16112328609). 미확보는 부재 증명이 아니며 enum label만으로 추정 실행 금지.
+
+
+## APK 전투 이벤트 dispatcher의 실전 게임 상태 연결 (PR #28 / run #141)
+
+- FM-OFFLINE branch `feat/combat-event-foundation`에 새 게임 상태 생성 시 match-local `combatEventDispatcher`를 초기화하도록 연결했다. 이전 이벤트 queue/dispatch path가 테스트 전용 상태에만 머물지 않도록 production `newGame()` 객체에 포함했다.
+- 회귀 테스트: 실제 `FM.newGame()`에서 dispatcher가 생성되고, 완료된 공격의 `unit_attack_resolved` event가 등록 subscriber에 전달된 뒤 queue가 drain되는지 검증.
+- PR #28 head: `26babaa030eda3323b8fa0c2678cf0122a444316`; Actions #141 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41942051518.
+- #141 JS game rule tests, Python converter, Android Debug APK build, package/signature/ZIP validation, artifact upload 모두 성공. 산출물 `FantasyMastersOffline-debug.apk` SHA-256: `5c18527bbd17bd7229fdd79d8377ca78ccb6abb2235e2a10d5456dadbfa11f46`.
+- Build artifact는 Debug APK와 build-status.txt. Signed Release APK는 signing secrets 미설정으로 생성되지 않았으며, DB29 SQLite 다운로드/Android data ZIP 생성, emulator install/launch는 해당 run에서 skip됐다. 따라서 실제 DB29 카드팩 설치/대전 검증 성공으로 표현하지 않는다.
+- PR #28은 open/draft/unmerged. PR #9도 open/unmerged. DB29 immutable, DB30 미발행, main 미병합.
