@@ -55,7 +55,7 @@
       "tests": [
         "LP accumulates but only one land can be installed per preparation phase; field cap stays ten"
       ],
-      "source_conflict": "Manual summary says LP-count placements; ready.htm says one terrain per turn. Test confirms current engine behavior only, not source resolution."
+      "source_conflict": "Manual conflict remains unresolved: the summary section permits LP-count placements while ready.htm states one terrain per turn. The test confirms current engine behavior only, not source resolution."
     },
     {
       "rule_id": "unit_neutral_soul_summon",
