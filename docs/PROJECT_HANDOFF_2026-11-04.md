@@ -490,3 +490,39 @@ DB29 불변, DB30 미발행, main 미병합. 다음 단계는 카드 목록 이�
 - Inven의 에카마엘 지형 최대 5장은 커뮤니티 보조 주장만으로 남기며 엔진 하드캡으로 사용하지 않는다.
 - 코스튬체인지 지정 아이템 중 생명의물약은 금속 아이템 분류 커먼 3레벨로 확인; 나머지 6개 이름의 정확 ID 매핑은 pending.
 - 신규 regression tests를 workflow의 명시적 목록에 연결. 전체 감사·DB30·main 병합은 없음.
+
+---
+
+## 2026-11-05 11:45 KST — 최신 DB29 전수 감사 기준 갱신 (#573 / #585)
+
+### 확인한 최신 실행
+- 전수 DB29 audit #573: https://github.com/dragonslayers-k/T/actions/runs/41970905894 — 성공, SHA `049a6623ae5caeacc1cf3fe7f3761d587abe801e`.
+- #573 semantic-review artifact ID: `13388874560`; progress artifact ID: `13389094021`.
+- 후속 경량 CI #585: https://github.com/dragonslayers-k/T/actions/runs/41973609836 — 성공, SHA `52f4ee671513505df542a71ad0490bfdbb174c37`.
+- #585는 경량 회귀 검증이며 전수 DB 감사를 새로 수행한 것은 아니다.
+- APK PR #28의 Actions #196도 사용자가 성공을 확인했다. APK 전투규칙 테스트는 DB source semantics와 연결해서 진행하되 CardDB의 데이터 완성 판정을 대체하지 않는다.
+
+### #573 실제 전수 산출물 집계
+- 카드 15,350장 / 원본 필드 55개 / field matrix 844,250 cells.
+- 필드 상태: source snapshot verified 600,142 / source absent confirmed 230,815 / source empty confirmed 13,293. 전 셀의 상태가 분류됨.
+- 원본 payload mismatch 0; field applicability candidate pairs/cells 0; confirmed not-applicable 100 field pairs / 230,815 cells.
+- 비용 미해석 0, 스킬 미매핑 0, 효과 low-confidence 0. **이것은 의미검토 완료와 동의어가 아니다.**
+- Skill1/Skill2 inferred mapping 4,016 rows; community mapping 985 rows. 이름/enum/추론을 source-verified로 올리지 않는다.
+- Skill2: 377 candidate rows / 8 rule groups; card-local evidence 369, actual additional_text evidence 368, missing excerpt 8. 나머지 8개는 신비의바다·마왕·불의정령여왕·고대나무뿌리·용기의정령·순수한레비·설원고양이·어둠기사이며, 빈 원문은 부정 증거가 아니라 source gap이다.
+- Soul semantic queue: 831 card rows / 842 token rows / 16 token groups. Hybrid 14 codes, 52 card rows. NCS 351 + BONUS 439 = 790 card rows; 이전 backlog 지표 779와 집계 정의가 달라 추세 숫자로 직접 비교하지 않는다.
+- Effect low-confidence queue 0과 별개로 semantic review pending 54 rows / 41 patterns가 남아 있다. 즉 “low confidence 0”을 DB 의미 완성으로 보고하지 않는다.
+- Named effect definitions 4,683 rows / 1,601 unique names; named-effect reference rows 3,113.
+
+### NamuWiki / Library 자료 적용 경계
+- Library의 통합 운영 기준서 및 `판타지마스터즈 3.4~3.6 통합 지식베이스 보강판`을 현재 기준으로 재참조했다.
+- [나무위키/나무모에 판타지 마스터즈](https://www.namu.moe/w/%ED%8C%90%ED%83%80%EC%A7%80%20%EB%A7%88%EC%8A%A4%ED%84%B0%EC%A6%88)와 3.4 속성, 3.5 종족·소속, 3.6 카드 목록은 taxonomy·용어·링크 교차참조용으로 사용한다. 3.6은 전체 카드 DB가 아니며, 문서/분류의 시기 차이와 일반 사전으로 이어지는 링크를 게임 고유 근거로 오인하지 않는다.
+- 카드의 실제 필드와 효과는 immutable DB29 원본 payload, TextBase/TextExtra, FM1 Manual.zip, 카드별 상세 URL을 우선한다. Namu/community claim은 보조근거로 분리한다.
+
+### 다음 묶음 — 속도 우선, 증거 경계 유지
+1. #460 semantic pending 54행을 기존 adjudication/crosswalk에 맞춰 묶어 재검토: source-backed reference, non-executable structured candidate, unresolved source/semantics로 disposition을 완결한다. 이미 ID exact-match된 명단을 중복 조사하지 않는다.
+2. Skill2 8개 source excerpt gap은 카드별 URL 및 immutable source payload를 확인한다. 원문이 실제 빈 경우 unmatched/pending으로 명시하고, enum만으로 실행 승인하지 않는다.
+3. 27 Manual Skill1 exact source mapping(3,158 rows)과 APK 테스트 coverage를 한 crosswalk로 통합하고, 현재 테스트가 규칙 정의/positive-negative-boundary-interaction을 실제로 검증하는지 batch-audit한다.
+4. 831 soul rows는 Manual이 입증한 일반 무색 소울 규칙과 NCS/BONUS/hybrid의 미확정 결제를 분리한다. NCS, BONUS, hybrid를 임의 합산/치환하지 않는다.
+5. 다음 CI는 문서·검토 데이터·테스트 변경 묶음에 대해 focused checks만 실행한다. full DB audit는 실제 data/parser batch가 누적된 뒤 1회 실행한다.
+
+DB29 immutable; PR #9 미병합; main 변경 및 DB30 발행은 사용자 승인 전 금지. Completion은 모든 source fields의 상태 정리와 의미/엔진 게이트별 disposition이 갖춰진 뒤 판정한다.
