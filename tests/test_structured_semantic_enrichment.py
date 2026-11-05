@@ -65,7 +65,7 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
         excerpt = definition["source_excerpt"]
         self.assertIn("인첸트 발동 페이즈", excerpt)
         self.assertIn("첫번째 인첸트부터 순서대로", excerpt)
-        self.assertFalse(definition["normalized_semantics"]["unresolved"]["runtime_executable"])
+        self.assertFalse(definition["unresolved"]["runtime_executable"])
         for record in records:
             self.assertEqual(record["linked_definition_id"], definition["definition_id"])
             self.assertTrue(record["source_detail_url"].startswith("https://fmlunatic.com/card/"))
@@ -107,6 +107,8 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
         self.assertEqual(len(data["claims"]), 7)
         matched = 0
         unmatched = 0
+        card_claims = 0
+        topic_claims = 0
         for claim in data["claims"]:
             self.assertEqual(claim["evidence_status"], "community_claim")
             self.assertEqual(claim["runtime_status"], "non_executable")
@@ -115,9 +117,12 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
             unmatched += claim.get("id_match_status") is None
             self.assertTrue(claim["source"]["url"])
             self.assertTrue(claim["claim"])
-            self.assertIn("card_id", claim)
+            card_claims += "card_name" in claim
+            topic_claims += "topic" in claim
         self.assertEqual(matched, 4)
         self.assertEqual(unmatched, 3)
+        self.assertEqual(card_claims, 4)
+        self.assertEqual(topic_claims, 3)
         self.assertEqual(data["policy"]["ruleset"], "FM1; historical version uncertain unless noted")
         self.assertFalse(data["policy"]["main_merge"])
 
