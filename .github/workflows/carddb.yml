@@ -23,10 +23,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "tests = lightweight checks; effect-review = export card-context effect queue only; audit-release = full audit; probe/crawl = inspect or collect source"
+        description: "tests = lightweight checks; effect-review = export card-context effect queue only; skill2-source-review = read-only DB29 Skill2 source examples; audit-release = full audit; probe/crawl = inspect or collect source"
         required: true
         type: choice
-        options: [tests, probe, effect-review, manual-source-match, audit-release, crawl]
+        options: [tests, probe, effect-review, skill2-source-review, manual-source-match, audit-release, crawl]
         default: tests
       source_release_tag:
         description: "Existing immutable DB Release used by audit-release or effect-review mode"
@@ -58,7 +58,7 @@ jobs:
     timeout-minutes: 360
     env:
       # [effect-review] rebuilds DB29-derived effect candidates and exports card context only; [full-db-audit]/[full-db-crawl] run full pipelines. PRs stay on lightweight tests.
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[effect-review]') && 'effect-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[manual-source-match]') && 'manual-source-match') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[effect-review]') && 'effect-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[skill2-source-review]') && 'skill2-source-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[manual-source-match]') && 'manual-source-match') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
@@ -228,7 +228,7 @@ jobs:
           tar -tzf data/images.tar.gz >/dev/null
 
       - name: Download immutable card source snapshot for focused effect review
-        if: ${{ env.MODE == 'effect-review' }}
+        if: ${{ env.MODE == 'effect-review' || env.MODE == 'skill2-source-review' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -242,6 +242,192 @@ jobs:
           gzip -dc data/source-archive/cards.jsonl.gz > data/raw/cards.jsonl
           cp data/source-archive/enumtable.json data/raw/enumtable.json
           cp data/source-archive/appsettings.json data/raw/appsettings.json
+
+
+      - name: Build Skill2 source representatives from immutable DB29 snapshot
+        if: ${{ env.MODE == 'skill2-source-review' }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/reviews
+          python - <<'PY'
+          import collections
+          import html
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          raw_path = Path("data/raw/cards.jsonl")
+          if not raw_path.is_file():
+              raise SystemExit("DB29 cards.jsonl is missing")
+
+          expected = {
+              18:  {"name": "기선제압", "rows": 181, "additional": 175, "card_text_only": 1, "missing": 5, "variants": 6},
+              175: {"name": "헌신방어", "rows": 66,  "additional": 63,  "card_text_only": 0, "missing": 3, "variants": 6},
+              100: {"name": "얼라이디펜스", "rows": 44, "additional": 44, "card_text_only": 0, "missing": 0, "variants": 3},
+              44:  {"name": "레이셜디펜스", "rows": 35, "additional": 35, "card_text_only": 0, "missing": 0, "variants": 2},
+              3:   {"name": "강한헌신방어", "rows": 28, "additional": 28, "card_text_only": 0, "missing": 0, "variants": 2},
+              5:   {"name": "격노", "rows": 20, "additional": 20, "card_text_only": 0, "missing": 0, "variants": 2},
+              181: {"name": "홀리오오라", "rows": 2,  "additional": 2,   "card_text_only": 0, "missing": 0, "variants": 2},
+              166: {"name": "프레셔", "rows": 1,  "additional": 1,   "card_text_only": 0, "missing": 0, "variants": 1},
+          }
+
+          def plain_text(value):
+              value = html.unescape(value or "")
+              value = re.sub(r"(?i)<br\\s*/?>", "\\n", value)
+              value = re.sub(r"<[^>]+>", "", value)
+              return re.sub(r"\\n{3,}", "\\n\\n", value).strip()
+
+          groups = collections.defaultdict(list)
+          with raw_path.open(encoding="utf-8") as stream:
+              for line in stream:
+                  if not line.strip():
+                      continue
+                  record = json.loads(line)
+                  payload = record.get("raw_payload") or {}
+                  try:
+                      enum_value = int(str(payload.get("Skill2", "")).strip())
+                  except (TypeError, ValueError):
+                      continue
+                  if enum_value not in expected:
+                      continue
+                  card_id = str(record.get("card_id") or payload.get("CardID") or "").strip()
+                  name = str(record.get("name") or payload.get("Name") or "").strip()
+                  text_base = payload.get("TextBase") if isinstance(payload.get("TextBase"), str) else ""
+                  text_extra = payload.get("TextExtra") if isinstance(payload.get("TextExtra"), str) else ""
+                  groups[enum_value].append({
+                      "card_id": card_id,
+                      "name": name,
+                      "card_type": str(payload.get("Category") or ""),
+                      "source_card_url": record.get("source_card_url") or (f"https://fmlunatic.com/card/{card_id}" if card_id else None),
+                      "TextBase": text_base,
+                      "TextExtra": text_extra,
+                      "TextBase_plain": plain_text(text_base),
+                      "TextExtra_plain": plain_text(text_extra),
+                  })
+
+          report_groups = []
+          total_cards = 0
+          total_additional = 0
+          total_card_text_only = 0
+          total_missing = 0
+          total_variants = 0
+          all_missing = []
+          all_card_text_only = []
+
+          for enum_value, rule in expected.items():
+              rows = sorted(groups.get(enum_value, []), key=lambda row: row["card_id"])
+              total_cards += len(rows)
+              additional_rows = [row for row in rows if row["TextExtra_plain"]]
+              card_text_only = [row for row in rows if row["TextBase_plain"] and not row["TextExtra_plain"]]
+              missing_rows = [row for row in rows if not row["TextBase_plain"] and not row["TextExtra_plain"]]
+              variants = collections.defaultdict(list)
+              for row in additional_rows:
+                  variants[row["TextExtra_plain"]].append(row)
+
+              actual = {
+                  "rows": len(rows),
+                  "additional": len(additional_rows),
+                  "card_text_only": len(card_text_only),
+                  "missing": len(missing_rows),
+                  "variants": len(variants),
+              }
+              expected_actual = {key: rule[key] for key in actual}
+              if actual != expected_actual:
+                  raise SystemExit(f"Skill2 source count mismatch for {rule['name']} enum={enum_value}: expected={expected_actual} actual={actual}")
+
+              variant_reports = []
+              for text_value, candidates in sorted(variants.items(), key=lambda item: item[0]):
+                  candidates = sorted(candidates, key=lambda row: row["card_id"])
+                  sample = candidates[0]
+                  variant_reports.append({
+                      "source_text_plain": text_value,
+                      "row_count": len(candidates),
+                      "candidate_card_ids": [row["card_id"] for row in candidates[:5]],
+                      "sample_card": sample,
+                  })
+
+              report_groups.append({
+                  "name": rule["name"],
+                  "enum": enum_value,
+                  **actual,
+                  "source_text_variants": variant_reports,
+              })
+              total_additional += len(additional_rows)
+              total_card_text_only += len(card_text_only)
+              total_missing += len(missing_rows)
+              total_variants += len(variants)
+              all_missing.extend(missing_rows)
+              all_card_text_only.extend(card_text_only)
+
+          summary = {
+              "candidate_rows": total_cards,
+              "distinct_card_ids": len({row["card_id"] for rows in groups.values() for row in rows}),
+              "rule_groups": len(report_groups),
+              "additional_text_rows": total_additional,
+              "card_text_only_rows": total_card_text_only,
+              "missing_card_local_excerpt_rows": total_missing,
+              "distinct_additional_text_variants": total_variants,
+              "source_card_verified_rows": 0,
+              "executable_rows": 0,
+          }
+          expected_summary = {
+              "candidate_rows": 377,
+              "distinct_card_ids": 377,
+              "rule_groups": 8,
+              "additional_text_rows": 368,
+              "card_text_only_rows": 1,
+              "missing_card_local_excerpt_rows": 8,
+              "distinct_additional_text_variants": 24,
+              "source_card_verified_rows": 0,
+              "executable_rows": 0,
+          }
+          if summary != expected_summary:
+              raise SystemExit(f"DB29 Skill2 summary mismatch: expected={expected_summary} actual={summary}")
+
+          report = {
+              "schema_version": "fm1-skill2-source-representatives-v1",
+              "source_release_tag": os.environ.get("SOURCE_RELEASE_TAG", "fm1-carddb-29"),
+              "read_only": True,
+              "summary": summary,
+              "groups": report_groups,
+              "card_text_only_records": all_card_text_only,
+              "missing_records": all_missing,
+              "promotion_policy": "Source examples and exact Skill2 enum matches are evidence only; no card mapping is promoted to source_card_verified or executable by this report.",
+          }
+          out_path = Path("data/reviews/fm1-skill2-source-representatives-db29.json")
+          out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+
+          print("DB29 Skill2 source evidence summary:")
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          for group in report_groups:
+              print(f"\\n## {group['name']} (enum={group['enum']})")
+              for variant in group["source_text_variants"]:
+                  sample = variant["sample_card"]
+                  print(json.dumps({
+                      "card_id": sample["card_id"],
+                      "name": sample["name"],
+                      "source_card_url": sample["source_card_url"],
+                      "variant_rows": variant["row_count"],
+                      "TextExtra": sample["TextExtra_plain"],
+                  }, ensure_ascii=False))
+          print(f"\\nWrote {out_path}")
+          PY
+
+          {
+            echo "## DB29 Skill2 source representatives"
+            echo
+            echo "| Skill2 | Enum | Rows | TextExtra rows | Variants | Sample card IDs |"
+            echo "|---|---:|---:|---:|---:|---|"
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("data/reviews/fm1-skill2-source-representatives-db29.json").read_text(encoding="utf-8"))
+          for group in report["groups"]:
+              ids = ", ".join(v["sample_card"]["card_id"] for v in group["source_text_variants"])
+              print(f"| {group['name']} | {group['enum']} | {group['rows']} | {group['additional']} | {group['variants']} | {ids} |")
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Archive freshly downloaded images
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]')) }}
@@ -405,6 +591,17 @@ jobs:
           if-no-files-found: error
           compression-level: 6
           retention-days: 7
+
+
+      - name: Upload Skill2 source representative report
+        if: ${{ always() && env.MODE == 'skill2-source-review' && hashFiles('data/reviews/fm1-skill2-source-representatives-db29.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-skill2-source-representatives-db29-${{ github.run_number }}
+          path: data/reviews/fm1-skill2-source-representatives-db29.json
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 14
 
       - name: Audit complete card, soul-cost, and skill mapping coverage
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
