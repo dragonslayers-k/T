@@ -11,7 +11,7 @@ on:
       - ".github/workflows/carddb.yml"
   pull_request:
     types: [opened, reopened, ready_for_review]
-    branches: [main]
+    branches: [main, feat/carddb-effect-semantic-pass]
     paths:
       - "scripts/**"
       - "tests/**"
