@@ -415,3 +415,12 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - 디스인첸트 22 패턴은 공통 TextExtra 정의를 참조하는 annotation이며 각 카드의 TextBase 효과와 분리한다. 7개 아레아/마레마는 TextBase/Extra 명칭 불일치까지 원문 그대로 보존한다.
 - 이 adjudication은 source context/참조 분류를 정리한 overlay다. 실행 handler/테스트 완료로 계산하지 않고 DB29 원본을 수정하지 않는다.
 - APK Actions #140 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41939595186. Effect transaction 종료 시 destruction dispatch 테스트가 통과했다. PR #28 open/draft/unmerged.
+
+
+## A50 누적 조사 갱신 (2026-11-05)
+
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a50-2026-11-05.md` — Skill1 빈도순 452~461위.
+- A50: **10 후보 행 / 9 원문 발췌 / 9 정확 문구 변형**. 서먼헌트(디멘션헌터, 13010241409)는 원문 발췌 0건.
+- A1~A50 누계: **2,408 후보 행 / 2,463 원문 발췌 / 707 정확 문구 변형**.
+- 카드 생성/소환과 랜덤 pool, NCS 소울, 핸드 공간 조건, 상대 유닛 장착은 각각 별도 규칙으로 유지하고 원문·대상·실패 경계가 확인되기 전까지 non_executable.
+- Semantic-review pass 3의 41-pattern/54-occurrence adjudication은 별도 source-context overlay이며 A50 Skill1 누계와 합산하지 않는다.
