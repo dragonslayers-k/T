@@ -29,7 +29,7 @@ on:
         options: [tests, probe, effect-review, skill2-source-review, manual-source-match, audit-release, crawl]
         default: tests
       source_release_tag:
-        description: "Existing immutable DB Release used by audit-release or effect-review mode"
+        description: "Existing immutable DB Release used by audit-release, effect-review, or skill2-source-review mode"
         required: false
         type: string
         default: fm1-carddb-29
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      # [effect-review] rebuilds DB29-derived effect candidates and exports card context only; [full-db-audit]/[full-db-crawl] run full pipelines. PRs stay on lightweight tests.
+      # [skill2-source-review] extracts read-only DB29 Skill2 card text; [effect-review] exports card-context effect candidates; [full-db-audit]/[full-db-crawl] run full pipelines. PRs stay on lightweight tests.
       MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[effect-review]') && 'effect-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[skill2-source-review]') && 'skill2-source-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[manual-source-match]') && 'manual-source-match') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
@@ -274,9 +274,9 @@ jobs:
 
           def plain_text(value):
               value = html.unescape(value or "")
-              value = re.sub(r"(?i)<br\\s*/?>", "\\n", value)
+              value = re.sub(r"(?i)<br\s*/?>", "\n", value)
               value = re.sub(r"<[^>]+>", "", value)
-              return re.sub(r"\\n{3,}", "\\n\\n", value).strip()
+              return re.sub(r"\n{3,}", "\n\n", value).strip()
 
           groups = collections.defaultdict(list)
           with raw_path.open(encoding="utf-8") as stream:
@@ -396,12 +396,12 @@ jobs:
               "promotion_policy": "Source examples and exact Skill2 enum matches are evidence only; no card mapping is promoted to source_card_verified or executable by this report.",
           }
           out_path = Path("data/reviews/fm1-skill2-source-representatives-db29.json")
-          out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+          out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
           print("DB29 Skill2 source evidence summary:")
           print(json.dumps(summary, ensure_ascii=False, indent=2))
           for group in report_groups:
-              print(f"\\n## {group['name']} (enum={group['enum']})")
+              print(f"\n## {group['name']} (enum={group['enum']})")
               for variant in group["source_text_variants"]:
                   sample = variant["sample_card"]
                   print(json.dumps({
@@ -411,7 +411,7 @@ jobs:
                       "variant_rows": variant["row_count"],
                       "TextExtra": sample["TextExtra_plain"],
                   }, ensure_ascii=False))
-          print(f"\\nWrote {out_path}")
+          print(f"\nWrote {out_path}")
           PY
 
           {
