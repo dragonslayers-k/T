@@ -352,3 +352,12 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - #137/#138 실패는 dispatcher 로직의 회귀가 아니라 테스트 fixture가 중복 조건과 subscriber 결과 수를 잘못 가정한 것이었다. #139에서는 동일 rule ID가 기존 event type에 구독된 상태에서 다중 event type 등록을 시도하도록 fixture를 바로잡았고, 등록 실패 시 앞선 event type에 부분 등록이 남지 않는 것을 검증했다.
 - Dispatcher는 reentrant drain을 차단한다. handler가 현재 dispatch 중 새 이벤트를 추가하거나 nested flush를 시도해도 현재 batch를 재귀 처리하지 않고 다음 명시적 boundary에서만 전달한다.
 - PR #28 최신 검증 SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`, open/draft/unmerged. 카드 효과 handler 등록/실행은 여전히 보류; 실제 DB29 pack/emulator 검증도 미실행.
+
+
+## A43 누적 조사 갱신 (2026-11-05)
+
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a43-2026-11-05.md` — Skill1 빈도순 382~391위 10개 그룹.
+- A43: **10 후보 행 / 11 원문 발췌 / 11 정확 문구 변형**. 메탈아레아(16113028637)는 원문 발췌 0건.
+- A1~A43 누계: **2,338 후보 행 / 2,382 원문 발췌 / 626 정확 문구 변형**.
+- 이 누계는 원문 후보 수치다. 카드별 의미 검증, source-card/manual 승격, 실행 handler, APK regression 수치와 혼합 금지.
+- APK PR #28 최신 검증은 Actions #139 성공 / SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. Dispatcher는 verified mapping gate, atomic registration, no reentrant dispatch까지 통과했다. 실제 카드별 subscriber handler 등록은 아직 보류한다.
