@@ -398,3 +398,20 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - APK Actions #140 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41939595186. Spell/effect transaction 종료 시 destruction event dispatch 테스트를 포함한 SHA `161b06e02c11d99ee950e4ea3c33890ad7076ed9`에서 JS 규칙 테스트, converter, Android Debug APK, APK ID/signature/ZIP 검증, artifact upload 전 단계 통과.
 - `applyEffect`로 적 유닛이 파괴되면 `unit_destroyed(cause=effect)` 이벤트가 효과 처리가 끝난 시점에 dispatch되는 것을 검증했다. 전투 공격의 dispatch boundary와 구분한다.
 - PR #28은 open/draft/unmerged. #140 역시 실제 DB29 data pack 설치/에뮬레이터/대전 테스트는 실행하지 않았다.
+
+
+## A49 및 semantic-review adjudication pass 3 (2026-11-05)
+
+### Skill1 A49
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a49-2026-11-05.md` — Skill1 빈도순 442~451위.
+- A49: **10 후보 행 / 9 원문 발췌 / 9 정확 문구 변형**. 샤이닝스파크는 원문 0건, 생명의꽃은 설명 문장으로 분리.
+- A1~A49 누계: **2,398 후보 행 / 2,454 원문 발췌 / 698 정확 문구 변형**.
+
+### Semantic review source-context adjudication pass 3
+- 신규 문서: `data/reviews/fm1-carddb-29-semantic-review-adjudication-pass-3-2026-11-05.md`.
+- Input queue 41 unique patterns / 54 occurrences를 카드 ID별 TextBase/TextExtra 문맥으로 재판정했다.
+- **39 patterns / 52 occurrences**의 문맥 판정을 완료: 22개 디스인첸트 공통 정의 참조, 7개 아레아/히어로 카운터 참조, 2개 카드 pool, 2개 소환 프로필, 2개 named variant, 4개 조건/분기/프로필 문맥.
+- **2 patterns / 2 occurrences**는 미해결 유지: 펭귄여왕투척의 `cwda!` opaque annotation, 고대의검의 단독 `상` fragment. 둘 다 실행 효과로 해석하지 않는다.
+- 디스인첸트 22 패턴은 공통 TextExtra 정의를 참조하는 annotation이며 각 카드의 TextBase 효과와 분리한다. 7개 아레아/마레마는 TextBase/Extra 명칭 불일치까지 원문 그대로 보존한다.
+- 이 adjudication은 source context/참조 분류를 정리한 overlay다. 실행 handler/테스트 완료로 계산하지 않고 DB29 원본을 수정하지 않는다.
+- APK Actions #140 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41939595186. Effect transaction 종료 시 destruction dispatch 테스트가 통과했다. PR #28 open/draft/unmerged.
