@@ -29,11 +29,11 @@ class SoulSemanticReviewSummaryTests(unittest.TestCase):
         ncs = next(g for g in groups if g["code"] == 82)
         bonus = next(g for g in groups if g["code"] == 83)
         self.assertEqual(len(hybrid), 14)
-        self.assertEqual(sum(g["card_rows"] for g in hybrid), 52)
+        self.assertEqual(sum(g["group_card_memberships"] for g in hybrid), 52)
         self.assertEqual(ncs["symbol"], "NCS")
-        self.assertEqual(ncs["card_rows"], 351)
+        self.assertEqual(ncs["group_card_memberships"], 351)
         self.assertEqual(bonus["symbol"], "BONUS")
-        self.assertEqual(bonus["card_rows"], 439)
+        self.assertEqual(bonus["group_card_memberships"], 439)
         self.assertNotEqual(ncs["candidate_color_mapping"], bonus["candidate_color_mapping"])
 
     def test_no_payment_semantics_are_promoted(self):
