@@ -299,7 +299,7 @@ jobs:
                       "card_id": card_id,
                       "name": name,
                       "card_type": str(payload.get("Category") or ""),
-                      "source_card_url": record.get("source_card_url") or (f"https://fmlunatic.com/card/{card_id}" if card_id else None),
+                      "source_card_url": record.get("source_card_url"),
                       "TextBase": text_base,
                       "TextExtra": text_extra,
                       "TextBase_plain": plain_text(text_base),
@@ -312,6 +312,7 @@ jobs:
           total_card_text_only = 0
           total_missing = 0
           total_variants = 0
+          total_missing_source_urls = 0
           all_missing = []
           all_card_text_only = []
 
@@ -361,6 +362,7 @@ jobs:
               total_card_text_only += len(card_text_only)
               total_missing += len(missing_rows)
               total_variants += len(variants)
+              total_missing_source_urls += sum(not row["source_card_url"] for row in rows)
               all_missing.extend(missing_rows)
               all_card_text_only.extend(card_text_only)
 
@@ -372,6 +374,7 @@ jobs:
               "card_text_only_rows": total_card_text_only,
               "missing_card_local_excerpt_rows": total_missing,
               "distinct_additional_text_variants": total_variants,
+              "missing_original_source_url_rows": total_missing_source_urls,
               "source_card_verified_rows": 0,
               "executable_rows": 0,
           }
