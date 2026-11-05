@@ -8,6 +8,7 @@ on:
       - "scripts/**"
       - "tests/**"
       - "data/rules/**"
+      - "data/reviews/**"
       - ".github/workflows/carddb.yml"
   pull_request:
     types: [opened, reopened, ready_for_review, synchronize]
@@ -15,6 +16,8 @@ on:
     paths:
       - "scripts/**"
       - "tests/**"
+      - "data/rules/**"
+      - "data/reviews/**"
       - ".github/workflows/carddb.yml"
   workflow_dispatch:
     inputs:
