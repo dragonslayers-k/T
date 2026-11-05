@@ -11,7 +11,8 @@ on:
       - "data/reviews/**"
       - ".github/workflows/carddb.yml"
   pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+    # Branch pushes already run the same tests; omit synchronize to avoid duplicate push+PR runs.
+    types: [opened, reopened, ready_for_review]
     branches: [main, feat/carddb-effect-semantic-pass]
     paths:
       - "scripts/**"
