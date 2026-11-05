@@ -891,3 +891,13 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - The current APK has baseline tests for these manual rules, but this match audit alone does not certify card-specific source text, interactions, or runtime completeness.
 - Next work is to choose a separate Skill1 candidate from the 704-group evidence inventory and add an exact card-local source gate plus deterministic positive/negative/boundary tests. Avoid bulk-promoting all candidate rows.
 - DB29 remains immutable; DB30 is not issued; PR #9 remains open/unmerged.
+
+
+## 2026-11-05 — 저장소 이력 재확인: CardDB Actions #560
+
+- 확인 시점 기준 PR #9는 open / unmerged이며 작업 HEAD는 `7df38189a54d16d2706e67a547413949df16f802`; main 기준선은 `af2d8af5e6a0126a9b7d8c7973561916e718e9d9`이다.
+- Actions #560: https://github.com/dragonslayers-k/T/actions/runs/41960628079 — 성공. 실행은 PR 이벤트로 경량 회귀 테스트를 수행했고, Manual Skill1 DB29 source-match 전용 단계는 skipped다. 따라서 #560은 #558 source-match 보고서를 새로 만들거나 DB 전체 감사를 재수행한 run으로 계산하지 않는다.
+- Actions #558: https://github.com/dragonslayers-k/T/actions/runs/41960519675 — immutable DB29 대상으로 source-match report 성공. #556/#558에서 27/27 Manual 규칙과 3,158개 exact Skill1 card rows 확인, unmatched 0, runtime promotion 0. Artifact: `FM1-Manual-Skill1-DB29-Source-Match`, #558 artifact ID 13384922100 (유효 여부는 GitHub artifact 화면에서 확인).
+- #549~#553: audit script / test / lightweight CI 도입 및 검증, 성공. #554~#557은 PR-triggered lightweight checks와 focused run들을 거쳐 진행; #558은 실제 immutable DB29 대조, #559/#560은 후속 PR checks.
+- 다음 단계의 의미: 27개 Skill1 매뉴얼 정의를 DB29 카드 행에 연결한 source inventory를 기준으로, 카드별 원문 조건을 포함해 검증 가능한 단일 규칙을 골라 테스트를 보강한다. 문자열 이름 매치만으로 실행 상태를 올리지 않는다.
+- DB29 불변, DB30 미발행, PR #9/#12 미병합, main 변경 없음. APK PR #28도 별도 유지한다.
