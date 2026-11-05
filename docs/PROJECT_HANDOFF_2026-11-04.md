@@ -526,3 +526,21 @@ DB29 불변, DB30 미발행, main 미병합. 다음 단계는 카드 목록 이�
 5. 다음 CI는 문서·검토 데이터·테스트 변경 묶음에 대해 focused checks만 실행한다. full DB audit는 실제 data/parser batch가 누적된 뒤 1회 실행한다.
 
 DB29 immutable; PR #9 미병합; main 변경 및 DB30 발행은 사용자 승인 전 금지. Completion은 모든 source fields의 상태 정리와 의미/엔진 게이트별 disposition이 갖춰진 뒤 판정한다.
+
+
+## 2026-11-05 11:50 KST — #586 성공 및 의미 검토 다음 단계
+
+- 경량 CI #586: https://github.com/dragonslayers-k/T/actions/runs/42013613425 — 성공, SHA `e1c07404232385e99d76aeda2374f0ea4ac161b6`.
+- 실행 job의 `Run all lightweight regression tests` 성공. 전체 카드 crawl/audit, DB 재구축, artifact/Release publish는 모두 skipped. 따라서 #586은 회귀 테스트 통과이며 15,350장 전수 재검증이 아니다.
+- 54행 검토 파일 `data/reviews/fm1-carddb-29-semantic-review-reference-adjudication-2026-11-04.json`의 summary는 54 source rows / 54 distinct card IDs, 원문 보존, 전부 non-executable을 유지한다.
+- 54행 분류 분포: named-effect reference 23, card name lists 8, summon profile references 8(에카마엘 7 + 모래의형상화 1), terrain/area counter 7, 기타 condition/branch/variant/incomplete/source annotation 8.
+- #573 Skill2 evidence audit의 8개 excerpt gap은 source absence를 기능 부정으로 취급하지 않는다. 377개 후보 모두 inferred이며 source-card-verified로 승격 금지.
+
+### 다음 처리 순서 — 재감사 최소화
+1. 54행 중 이미 연결된 23개 Disenchant shared-rule는 ID crosswalk를 반복하지 않고, 엔진 미검증 질문을 deterministic test specification으로 정리한다: 카운트 snapshot timing, 슬롯 순서/빈 슬롯, 양측 순차성, 제거/재생성/디스펠 상호작용.
+2. 에카마엘 7 profile은 DB29의 1~3 chapter·same level·same attribute 후보 ID pool을 추출해 ranked/event exclusions 및 exception list를 원문으로 검증한다. 지형 수 0/5 경계는 보조 커뮤니티 자료만으로 확정하지 않는다.
+3. 모래의형상화 1 profile과 추억→이서리얼 조건부 profile은 별도 계산표/경계 테스트로 분리한다. 소울 digit formula, 소각장/핸드/지형 snapshot, summon failure/slot handling은 pending 유지.
+4. 7 terrain counter records: TextBase/TextExtra labels, counter, LP cost and replacement names exact crosswalk. Name mismatch is an alias candidate, not auto-merge.
+5. Named card lists: exact card-name→ID/type/variant resolution and eligibility pool. Already confirmed 生명의물약 mapping remains; do not redo it.
+6. Remaining 8 rows: opaque annotation, conditional name diversity, failure branch, incomplete fragment, card variants, conditional unit profile—each gets a separate disposition. No semantic guessing for fragment “상” or opaque “CWDA!”.
+7. Commit one coherent source-backed review/test batch; run focused regressions only. Do not run full DB audit until material parser/data changes accumulate. DB29 immutable, PR #9 unmerged, DB30 not published.
