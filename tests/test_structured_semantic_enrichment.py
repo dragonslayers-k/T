@@ -69,8 +69,15 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
         for record in records:
             self.assertEqual(record["linked_definition_id"], definition["definition_id"])
             self.assertTrue(record["source_detail_url"].startswith("https://fmlunatic.com/card/"))
+            self.assertTrue(record["original_TextBase"]["source_key_present"])
             self.assertTrue(record["original_TextExtra"]["source_key_present"])
             self.assertIn("디스인첸트 카드", record["original_TextExtra"]["source_value"])
+            # The shared reference is an annotation in TextExtra, not a replacement for TextBase.
+            self.assertTrue(record["original_TextBase"]["source_value"])
+            self.assertNotEqual(
+                record["original_TextBase"]["source_value"],
+                record["original_TextExtra"]["source_value"]
+            )
             self.assertEqual(record["evidence_status"], "observed_in_DB29_TextExtra")
             self.assert_pending_non_executable(record)
 
