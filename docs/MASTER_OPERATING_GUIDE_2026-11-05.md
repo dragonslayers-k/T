@@ -667,3 +667,21 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 
 - Existing all-reference variant counts (31 across the 8 groups) include 7 `card_text` build-up/flavor references. The effect-only count is **24 variants across 368 additional_text rows**.
 - Updated detail: `data/reviews/fm1-skill2-source-text-variant-review-2026-11-05.md`. Keep the original all-reference totals and effect-only totals distinct.
+
+
+## Stacked structured-enrichment regression / Skill2 card-evidence boundary — 2026-11-05
+
+### CardDB PR #9 and PR #12 workflow
+- PR #9 branch workflow now listens to `pull_request.synchronize` for the stacked target branch `feat/carddb-effect-semantic-pass`. This is required because PR #12 is a draft PR whose base is the feature branch, not `main`.
+- The structured enrichment test is part of the base branch test suite, but runs conditionally only when all four review JSON records are present. This prevents false failures on PR #9's standalone branch and enables full test execution on PR #12's merge ref.
+- Regression file: `tests/test_structured_semantic_enrichment.py`. It checks 7 area-counter card-local records (6 label mismatches preserved), 23 shared disenchant references while preserving each original TextBase, 7 Eca-Mael profiles, and 7 supplemental community claims (4 card claims awaiting ID match, 3 topic-only claims). All remain pending/non-executable.
+- Actions #541 (push) and #542 (PR #9) succeeded on base commit `f403813fe6284e9e7fb17bb2570bd9d1b684502a`. Actions #543 succeeded on stacked PR #12 head `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`; the 5 structured enrichment regression tests ran and passed.
+- PR #9 and PR #12 remain open/unmerged. DB29 unchanged, DB30 not issued, main untouched.
+
+### APK Skill2 evidence and cost review policy update (cross-repository)
+- APK converter no longer promotes a Skill2 card from its enum/name alone. It requires a corresponding `card_rule_mappings` row and that card's own unit-card TextExtra to match the rule's source-evidence needle.
+- Skill2 catalogue evidence references now include card type and executable references are filtered to `unit` cards only. A unit combat handler cannot be verified by an item card's matching prose.
+- In DB29, Holy Aura's explicit floor-rounding phrase is present on an item, while the unit card omits the rounding qualifier. Therefore the group remains extracted/unverified with no executable rule ID; the Holy Aura runtime handler remains in the engine but cannot activate for any current DB29 unit mapping.
+- Source-card Skill2 verification now uses the card's own TextExtra and type; validator expects `unmapped` for named but non-verified cards and preserves raw mapping status separately.
+- DB29 has 817 non-land cost rows with mapping/semantic review flags (38 mapping-review + 779 semantic-review). The APK converter must expose these as review-required/non-playable, while preserving `candidateCost` for inspection. It must not label them `costKnown/costMapped` in the playable cost contract.
+- The full DB29/APK integration run #159 has passed the SQLite release verification and card pack build step; Android APK build and emulator install/launch were still in progress at this note. The stricter full-phrase Holy Aura source needle is in APK run #160 and will be validated separately.
