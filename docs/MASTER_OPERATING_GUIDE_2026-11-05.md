@@ -712,3 +712,31 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 ### 변경·운영 경계
 - DB29 및 Release `fm1-carddb-29` immutable. DB30 발행, `main` 수정, PR #9/#12/#28 병합은 사용자 명시 승인 전 금지.
 - 성공 Actions는 실제 수행한 단계만 성공으로 보고한다. 취소는 실패로 계산하지 않는다. 문서/CI 변경을 중복 실행하지 않고, 코드 변경은 focused tests를 먼저 통과시킨 뒤 필요한 통합 검증만 실행한다.
+
+
+## 2026-11-05 최신 상태 정정 — APK Actions #165 / 통합 기준선
+
+이 항목은 위의 이전 상태 스냅샷을 대체하는 최신 확인값이다.
+
+### 저장소·PR·Actions
+- T PR #9: HEAD `a594bad75355da6cd0696f35844d2c7e800ef9be`, base `main`, open/mergeable/unmerged. Actions #545 성공: https://github.com/dragonslayers-k/T/actions/runs/41952180153.
+- T PR #12: HEAD `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`, base `feat/carddb-effect-semantic-pass`, open/draft/unmerged. Actions #543 성공: https://github.com/dragonslayers-k/T/actions/runs/41949189458.
+- FM-OFFLINE PR #28: HEAD `1c49b88ddb584a20072b65fbcaba07b32e7687a1`, base `main`, open/draft/mergeable/unmerged. Actions #165 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41953502308.
+- 승인 없는 병합은 하지 않았다. DB29와 main은 변경하지 않았다.
+
+### APK 전투 이벤트 순서 보정
+- `resolveBattle()`의 전투 시작 능력치 판정에서 공격 유닛 또는 방어 유닛의 HP가 0 이하가 되어 파괴되는 경로는 `unit_destroyed` 이벤트를 큐에 넣은 뒤 즉시 dispatch하지 않아, 다음 유닛 공격 또는 직접 공격 뒤에 파괴 효과가 늦게 처리될 수 있었다.
+- 양쪽 경로 모두 `destroyUnit()` 직후 `dispatchPendingCombatEvents()`를 호출하도록 수정했다. 공격 측 유닛 파괴 시 다음 슬롯의 능력치 판정 전, 방어 측 유닛 파괴 시 직접 공격 전에 파괴 트리거가 처리된다.
+- 회귀 테스트 2개가 실제 production core dispatcher를 연결해 공격 측/방어 측 양쪽의 이벤트 순서와 큐 소진을 확인한다.
+- Actions #165: Node 규칙 테스트 **140 passed / 0 failed**, converter self-test 통과, Python 변환기 테스트 11개 통과, DB29 SQLite 무결성 및 release manifest 검증 통과, Android Debug APK 빌드 성공.
+- 에뮬레이터는 DB29 ZIP을 실제 앱 private storage로 가져온 후 importer와 WebView loader를 실행했다. 최종 로그: `Emulator card-data import + WebView load smoke test: PASS`, 카드 **15,350/15,350** 로딩 성공.
+- 산출물: `FM1-CardData-v1.3.0-IMPORT-DB29` artifact 13381348906 (406,085,126 bytes), `FantasyMastersOffline-build-output` artifact 13381269203 (669,064 bytes). 서명용 secrets가 없으므로 서명된 Release APK는 생성하지 않았다.
+
+### 동일 실행의 데이터 감사 스냅샷
+- DB29 카드 15,350장, 비지형 비용 known 14,244행, review-required 817행(매핑 검토 38 / 의미 검토 779).
+- Skill2 189 enum entries, active 188 names, 1,366 active cards, source mappings/references 10,381, executable rules **7**. 여덟 번째 핸들러가 코드에 등록되어 있다는 사실을 DB29의 여덟 실행 규칙 승인으로 표현하지 않는다. 홀리오오라는 현행 DB29 unit card-local 근거가 충족되지 않아 비실행 유지.
+- #162~#164는 새 테스트의 로그 자료형/production dispatcher 연결을 바로잡는 과정에서 발생한 테스트 실패이며, 최종 수정 SHA의 #165에서 140개 테스트 및 전체 통합 검증이 통과했다. 취소 건이 아니며 실패 이력은 숨기지 않는다.
+
+### CardDB 의미검토 현행값 재확인
+- 현행 pending overlay `data/reviews/fm1-carddb-29-semantic-review-pending-460.json`: low-confidence rows/patterns 0, semantic-review pending 54 rows / 41 patterns / 54 distinct card IDs; 모두 non-executable.
+- Actions #430의 `unparsed_effect_text 195`는 과거 큐 수치다. #454~#460 파서 보완 이후 현행 잔여량으로 사용하지 않는다. 최신 잔여량은 최신 audit 산출물로만 재산정한다.
