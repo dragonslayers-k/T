@@ -22,7 +22,7 @@ class SemanticReviewAdjudicationOverlayTests(unittest.TestCase):
         self.assertEqual(s["pending_occurrences"], 2)
 
     def test_adjudication_group_counts_match_pass3(self):
-        groups = {g["id"]: g for g in self.data["groups"]}
+        groups = {g["id"]: g for g in self.data["summary"]["groups"]}
         expected = {
             "shared_disenchant_rule_reference": (22, 23),
             "named_area_hero_counter_reference": (7, 7),
