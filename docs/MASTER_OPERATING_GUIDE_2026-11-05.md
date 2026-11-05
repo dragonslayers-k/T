@@ -740,3 +740,28 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 ### CardDB 의미검토 현행값 재확인
 - 현행 pending overlay `data/reviews/fm1-carddb-29-semantic-review-pending-460.json`: low-confidence rows/patterns 0, semantic-review pending 54 rows / 41 patterns / 54 distinct card IDs; 모두 non-executable.
 - Actions #430의 `unparsed_effect_text 195`는 과거 큐 수치다. #454~#460 파서 보완 이후 현행 잔여량으로 사용하지 않는다. 최신 잔여량은 최신 audit 산출물로만 재산정한다.
+
+
+## 2026-11-05 최신 운영 상태 재확인 — CardDB #546 / stacked PR #12 / APK #166
+
+### CardDB 저장소 운영
+- CardDB PR #9: `feat/carddb-effect-semantic-pass` → `main`, 현재 HEAD `d00a38f0939bfecffd17f3f6e084f32eca63cac4`, open/mergeable. 병합하지 않음.
+- PR #12: draft/open, base는 PR #9 feature branch. PR #12 head `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`. Actions #543에서 stacked merge ref로 구조화 의미 보강 테스트 5개가 실제 실행되어 통과했다. #546은 PR #9 feature branch의 경량 회귀 테스트 성공이며, stacked PR 전용 4개 JSON이 없어서 구조화 테스트가 skip된 정상 실행이다.
+- Actions #546: run `41954278248`, 성공. 컴파일 및 런타임 fallback, 비용, 효과 후보, Manual/Skill1/Skill2, 필드 적용성, 의미 백로그, 외부 참조, 디스인첸트 및 소환 프로필 테스트를 포함한 경량 회귀가 통과했다. 전체 15,350장 재크롤·DB 재생성·Release 발행은 수행하지 않았다.
+- immutable Release `fm1-carddb-29` 유지. DB30 미발행, `main` 미수정.
+
+### 의미 검토 큐의 실제 잔여와 분류 기준
+- 기준 파일: `data/reviews/fm1-carddb-29-semantic-review-pending-460.json`. 요약은 54행 / 41 패턴 / 54 distinct card IDs, low-confidence rows/patterns 0, 전부 non-executable.
+- Pass 3 구조화 결과는 54행 전체를 보존하면서 디스인첸트 공통 정의 23행, 에카마엘 프로필 7행, 지형 카운터/교체 명칭 불일치 7행, 지정 아이템 목록 8행, 기타 조건·실패·변형·불완전 원문을 분리했다. 구조화 추출은 엔진 검증 또는 실행 허가가 아니다.
+- 다음 CardDB 검토는 이름만으로 alias를 통합하지 않는다. 지형 7행의 TextBase/TextExtra 명칭 차이는 실제 DB29 카드 상세 원문과 ID 단위로 재확인한다. 코스튬체인지 지정 아이템 7종도 정확 카드 ID·장착 조건을 대조하기 전까지 참조 목록으로만 유지한다. Naver 캡처는 본문 판독이 불가능했던 것으로 기록하고 근거로 사용하지 않는다.
+- 23개 디스인첸트 근거 카드는 공통 원문 정의가 구조화되었지만, 인챈트 발동 페이즈의 카운트 시점·양측 처리 순서·빈 슬롯·재생성 상호작용 경계가 미검증이다. 전용 엔진 테스트 전까지 pending/non_executable.
+
+### APK 연동 상태 — 검증된 사실과 미검증 범위
+- APK PR #28은 open/draft/unmerged. 최신 확인 HEAD는 `9ae23d640dd2b4dc86ef108ea1de5891be2a73d3` 시점 Actions #166 성공. 이 실행에서 Node 140개 테스트, converter self-test, Python 11개 테스트, DB29 SQLite/release manifest, Debug APK 빌드·서명/ZIP 검사, 에뮬레이터 설치 및 앱 내부 ZIP import + WebView 15,350/15,350 로딩이 통과했다. artifact는 `13381988650` (build output), `13381744378` (Android import pack)이다.
+- #162~#164 실패는 ADB 자체 실패로 분류하지 않는다. Node 규칙 테스트 단계에서 중단되어 emulator/ADB 단계가 실행되지 않았다. #162의 테스트 오류는 이벤트 로그 배열 원소 타입을 문자열로 가정한 `line.includes is not a function`; #163~#164는 파괴 트리거 이벤트가 실제 공격 흐름에서 dispatch되지 않아 기대 상태와 다른 assertion이었다. #165에서 production dispatcher를 파괴 직후 호출하도록 고치고 양쪽(공격자/방어자) 슬롯 경계 테스트를 추가해 140/0으로 통과했고, #166에서도 실제 ADB install/import/WebView load가 재통과했다.
+- #166의 에뮬레이터 로그에 보이는 `qemu-system-x86_64-headless: warning: I/O thread spun for 1000 iterations`는 경고이며, 설치·실행·데이터 로딩 실패가 아니다. 최종 스모크는 PASS.
+- 이후 APK 이벤트 수명주기 확장(지형 설치·아이템 장착·마법 슬롯 배치 이벤트)은 별도 후속 커밋과 Actions에서 검증한다. 이 이벤트는 상태 변경 커밋 후에만 발생하고, 실패한 카드 배치에서는 이벤트가 발생하지 않아야 한다.
+
+### 통합 기준 재확인
+- CardDB는 원문·분류·근거·비실행 상태를 보존하고, APK는 확인된 카드별 매핑만 실행한다.
+- 빌드 성공, 카드팩 생성, 에뮬레이터 import, WebView 전체 로딩, 규칙 완전성은 각각 별도 검증 항목이다. #166은 앞의 네 단계까지 확인했으나 모든 카드 효과 또는 완전한 대전 규칙 구현을 뜻하지 않는다.
