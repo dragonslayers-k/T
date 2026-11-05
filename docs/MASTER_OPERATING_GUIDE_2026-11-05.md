@@ -330,3 +330,14 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - 아직 dispatcher에 새 카드 효과 handler를 연결하지 않았다. 이 변경은 안전한 구독 등록/전달 기반이며 카드 효과 구현 완료로 집계하지 않는다.
 - PR #28 최신 검증 SHA `fc3f2b9f231a34449cda48f1c457ad9f6179b5eb`, open/draft/unmerged. 선택형 DB29 data pack과 emulator 검증은 미실행.
 - 다음 단계: 이벤트 dispatcher를 game state의 controlled drain point와 연결하되, battle resolution 단계/중복 처리/재진입 방지 계약을 먼저 테스트한다. 카드별 handler는 source/Manual authority와 카드 ID 매핑이 검증된 것부터 단위별로 연결한다.
+
+
+## A38 및 APK controlled dispatch 검증 갱신 (2026-11-05)
+
+- A38 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a38-2026-11-05.md` — Skill1 빈도순 332~341위.
+- A38: 10 후보 행 / 12 원문 발췌 / 12 정확 문구 변형. 눈덩이연타와 다크아레아는 각각 카드 ID는 확인했지만 원문 발췌 0건으로 비실행 유지.
+- A1~A38 누계: **2,288 후보 행 / 2,328 원문 발췌 / 572 정확 문구 변형**.
+- APK Actions #136 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41938282568. Controlled drain integration과 경계 테스트 포함 SHA `ce9ff9d5b4aed6c4bc048fce4fc56230eba75c34`의 JS/converter/Android build/package 검증 통과.
+- `attachCombatEventDispatcher`로 dispatcher를 게임 state에 명시적으로 연결할 수 있다. `resolveUnitAttack`는 공격 완료 시점에, `applyEffect`는 효과 처리 완료 시점에 대기 이벤트를 한 번 drain/dispatch한다. dispatcher가 연결되지 않은 기존 경로는 이벤트를 queue에 보존한다.
+- Subscriber가 dispatch 중 새 이벤트를 enqueue하면 현재 drain에 재귀 포함하지 않고 다음 명시적 처리 경계까지 대기한다. 신규 카드 효과는 아직 등록하지 않았고 fail-closed gate 유지.
+- PR #28 검증 SHA `ce9ff9d5b4aed6c4bc048fce4fc56230eba75c34`, open/draft/unmerged. #136에서도 emulator와 선택형 DB29 data pack 검증은 skipped.
