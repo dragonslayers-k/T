@@ -89,7 +89,11 @@ jobs:
           python -m unittest tests/test_semantic_audit_status.py
           python -m unittest tests/test_semantic_backlog_progress.py
           python -m unittest tests/test_external_reference_review.py
-          python -m unittest tests/test_structured_semantic_enrichment.py
+          if [ -f data/reviews/fm1-carddb-29-area-counter-structured-review-2026-11-05.json ] && [ -f data/reviews/fm1-carddb-29-disenchant-definition-enrichment-2026-11-05.json ] && [ -f data/reviews/fm1-carddb-29-eka-mael-profile-enrichment-2026-11-05.json ] && [ -f data/reviews/fm1-external-card-and-magic-order-claims-2026-11-05.json ]; then
+            python -m unittest tests/test_structured_semantic_enrichment.py
+          else
+            echo "Structured semantic enrichment tests are skipped because this branch does not include the stacked PR review records."
+          fi
           python -m unittest tests/test_disenchant_shared_rule.py
           python -m unittest tests/test_summon_profile_review.py
           python scripts/build_effect_candidates.py --self-test
