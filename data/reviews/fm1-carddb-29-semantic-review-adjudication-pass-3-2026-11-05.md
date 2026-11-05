@@ -111,3 +111,13 @@ Pattern IDs:
 3. 실제 TextBase effect는 카드별 source mapping과 runtime handler/test를 별도로 가진다.
 4. source context resolved는 semantic implementation complete와 다르다. engine test, ordering, card ID mapping, failure path가 통과해야만 execution gate를 변경한다.
 5. DB29 immutable, DB30 미발행, main 미병합 원칙 유지.
+
+
+## 8. DB29 exact card-ID crosswalk follow-up (Actions #573)
+
+The reference-list names in section 3 have now been cross-referenced against the immutable DB29 card-field summary. See `data/reviews/fm1-semantic-reference-list-card-id-crosswalk-2026-11-05.md`.
+
+- Costume-change item pool: all 7/7 exact names resolve to unique DB29 Item IDs.
+- Nature's Wrath summon pool: 6/7 exact names resolve to unique DB29 Unit IDs.
+- `맨이터롯트N` has no exact DB29 name match. A base-name candidate `맨이터롯트` (ID `8111923692`) exists, but suffix `N` is not removed or inferred. Keep it pending.
+- These are name-to-ID resolutions only; random selection, target eligibility, failure handling and runtime behavior remain non-executable.
