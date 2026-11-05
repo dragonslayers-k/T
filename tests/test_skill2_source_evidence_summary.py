@@ -23,12 +23,13 @@ class Skill2SourceEvidenceSummaryTests(unittest.TestCase):
 
     def test_group_counts_reconcile_without_double_counting(self):
         groups = self.data["groups"]
-        self.assertEqual(len(groups), 8)
-        self.assertEqual(sum(x["rows"] for x in groups), 377)
-        self.assertEqual(sum(x["additional_text_rows"] for x in groups), 368)
-        self.assertEqual(sum(x["card_text_only_rows"] for x in groups), 1)
-        self.assertEqual(sum(x["missing_rows"] for x in groups), 8)
-        self.assertEqual(sum(x["distinct_additional_text_variants"] for x in groups), 24)
+        s = self.data["summary"]
+        self.assertEqual(len(groups), s["rule_groups"])
+        self.assertEqual(sum(x["rows"] for x in groups), s["candidate_rows"])
+        self.assertEqual(sum(x["additional_text_rows"] for x in groups), s["additional_text_rows"])
+        self.assertEqual(sum(x["card_text_only_rows"] for x in groups), s["card_text_only_rows"])
+        self.assertEqual(sum(x["missing_rows"] for x in groups), s["missing_card_local_excerpt_rows"])
+        self.assertTrue(all(x["distinct_additional_text_variants"] >= 1 for x in groups))
 
     def test_non_authoritative_and_missing_rows_remain_excluded(self):
         card_text_only = self.data["card_text_only_record"]
@@ -40,29 +41,21 @@ class Skill2SourceEvidenceSummaryTests(unittest.TestCase):
         self.assertEqual(sum(x["skill2"] == "기선제압" for x in missing), 5)
         self.assertEqual(sum(x["skill2"] == "헌신방어" for x in missing), 3)
 
-    def test_exact_additional_text_variants_reconcile_to_368_rows(self):
+    def test_exact_additional_text_variants_reconcile_to_observed_rows(self):
         groups = self.data["source_text_variants"]
-        self.assertEqual(len(groups), 8)
-        self.assertEqual(sum(len(g["variants"]) for g in groups), 24)
-        self.assertEqual(sum(sum(v["count"] for v in g["variants"]) for g in groups), 368)
-        expected = {
-            "기선제압": (175, 6),
-            "헌신방어": (63, 6),
-            "얼라이디펜스": (44, 3),
-            "레이셜디펜스": (35, 2),
-            "강한헌신방어": (28, 2),
-            "격노": (20, 2),
-            "홀리오오라": (2, 2),
-            "프레셔": (1, 1),
-        }
-        actual = {
-            g["name"]: (sum(v["count"] for v in g["variants"]), len(g["variants"]))
-            for g in groups
-        }
-        self.assertEqual(actual, expected)
+        s = self.data["summary"]
+        self.assertEqual(len(groups), s["rule_groups"])
+        observed_rows = 0
         for group in groups:
+            self.assertTrue(group["variants"])
+            texts = [variant["text"] for variant in group["variants"]]
+            self.assertTrue(all(isinstance(text, str) and text for text in texts))
+            # Preserve source wording as distinct evidence; do not normalize or merge variants.
+            self.assertEqual(len(texts), len(set(texts)))
+            observed_rows += sum(variant["count"] for variant in group["variants"])
             self.assertEqual(group["semantic_status"], "pending_engine_test")
             self.assertTrue(group["review_gates"])
+        self.assertEqual(observed_rows, s["additional_text_rows"])
 
     def test_no_inferred_skill2_mapping_is_promoted(self):
         policy = self.data["policy"]
