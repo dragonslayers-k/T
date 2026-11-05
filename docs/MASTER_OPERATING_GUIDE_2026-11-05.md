@@ -388,3 +388,13 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - A1~A46 누계: **2,368 후보 행 / 2,418 원문 발췌 / 662 정확 문구 변형**.
 - NCS 소울 소비, 상태 해제 시 파괴, 코인률 50% 변경, 공격/방어 턴 분기는 각기 별도 미검증 규칙으로 남긴다.
 - APK PR #28 마지막 성공 검증은 Actions #139 / SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. 다음 focused test는 spell/effect transaction 종료 시 destroy event가 안전하게 dispatch되는지 검증한다.
+
+
+## A48 및 APK effect-dispatch 경계 검증 (2026-11-05)
+
+- A48 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a48-2026-11-05.md` — Skill1 빈도순 432~441위.
+- A48: **10 후보 행 / 12 원문 발췌 / 12 정확 문구 변형**. 빅샌드트랩(아피아타, 13010226610)은 원문 발췌 0건.
+- A1~A48 누계: **2,388 후보 행 / 2,445 원문 발췌 / 689 정확 문구 변형**.
+- APK Actions #140 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41939595186. Spell/effect transaction 종료 시 destruction event dispatch 테스트를 포함한 SHA `161b06e02c11d99ee950e4ea3c33890ad7076ed9`에서 JS 규칙 테스트, converter, Android Debug APK, APK ID/signature/ZIP 검증, artifact upload 전 단계 통과.
+- `applyEffect`로 적 유닛이 파괴되면 `unit_destroyed(cause=effect)` 이벤트가 효과 처리가 끝난 시점에 dispatch되는 것을 검증했다. 전투 공격의 dispatch boundary와 구분한다.
+- PR #28은 open/draft/unmerged. #140 역시 실제 DB29 data pack 설치/에뮬레이터/대전 테스트는 실행하지 않았다.
