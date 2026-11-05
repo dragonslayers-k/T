@@ -36,6 +36,22 @@ class SoulSemanticReviewSummaryTests(unittest.TestCase):
         self.assertEqual(bonus["group_card_memberships"], 439)
         self.assertNotEqual(ncs["candidate_color_mapping"], bonus["candidate_color_mapping"])
 
+    def test_manual_confirms_only_general_mu_neutral_rules(self):
+        manual = self.data["manual_evidence"]
+        self.assertEqual(manual["revision"], "65f348bcc93d60972fdd5")
+        self.assertTrue(manual["extracted_text_verified"])
+        self.assertEqual(set(manual["verified_general_rule_ids"]), {
+            "unit_neutral_soul_summon",
+            "unit_neutral_soul_maintenance",
+            "unit_neutral_soul_shortfall",
+        })
+        limits = manual["scope_limitations"]
+        self.assertEqual(limits["literal_NCS_mentions"], 0)
+        self.assertEqual(limits["literal_BONUS_mentions"], 0)
+        self.assertFalse(limits["hybrid_enum_payment_rules_documented"])
+        self.assertTrue(limits["general_MU_neutral_rule_must_not_be_assumed_to_define_NCS_or_BONUS"])
+        self.assertTrue(limits["general_MU_neutral_rule_must_not_be_assumed_to_define_hybrid_codes"])
+
     def test_no_payment_semantics_are_promoted(self):
         self.assertEqual(self.data["summary"]["source_verified_rows"], 0)
         self.assertEqual(self.data["summary"]["executable_rows"], 0)

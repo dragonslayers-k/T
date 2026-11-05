@@ -183,5 +183,59 @@
     "15042927907",
     "7111423264",
     "9111124468"
-  ]
+  ],
+  "manual_evidence": {
+    "archive": "Manual.zip",
+    "dropbox_path": "/판마/Manual.zip",
+    "revision": "65f348bcc93d60972fdd5",
+    "extracted_text_verified": true,
+    "sources": [
+      {
+        "member": "soulcost.htm",
+        "section": "6-(e). 소울코스트",
+        "claims": [
+          "소울 코스트 룰은 무속성을 가진 유니트 카드에게만 적용된다.",
+          "무속성을 지닌 유니트 카드는 매턴 무속성만큼 소환 유지비용으로 소울을 사용한다.",
+          "소울을 지불하지 못하는 경우에는 그 수만큼 덱 카드를 파괴한다.",
+          "처음 소환을 할 때 무속성은 어떤 속성이든 상관없이 비용을 지불하고 유니트 필드에 내려놓아 사용할 수 있다.",
+          "그 다음 준비턴부터는 무속성은 계속해서 유니트를 유지하기 위한 비용으로 지불된다."
+        ]
+      },
+      {
+        "member": "ready.htm",
+        "section": "7-(b). 준비단계",
+        "claims": [
+          "암흑2 무1은 암흑 속성 소울 두 개와 아무 속성이나 한 개의 소울로 소환한다.",
+          "무속성이 있는 경우에는 매턴 소울 코스트를 지불한다."
+        ]
+      },
+      {
+        "member": "gamerule.htm",
+        "section": "6-(f). 게임진행룰",
+        "claims": [
+          "카드를 받기 전 소울 코스트 룰이 적용된다.",
+          "소울 코스트를 지불하지 못하는 경우에는 그만큼의 덱 카드가 파괴된다."
+        ]
+      },
+      {
+        "member": "cardtype.htm",
+        "section": "6-(a). 카드의 종류와 설명",
+        "claims": [
+          "무속성을 사용해서 소환된 유니트 카드는 매턴 소울 코스트를 지불한다."
+        ]
+      }
+    ],
+    "verified_general_rule_ids": [
+      "unit_neutral_soul_summon",
+      "unit_neutral_soul_maintenance",
+      "unit_neutral_soul_shortfall"
+    ],
+    "scope_limitations": {
+      "literal_NCS_mentions": 0,
+      "literal_BONUS_mentions": 0,
+      "hybrid_enum_payment_rules_documented": false,
+      "general_MU_neutral_rule_must_not_be_assumed_to_define_NCS_or_BONUS": true,
+      "general_MU_neutral_rule_must_not_be_assumed_to_define_hybrid_codes": true
+    }
+  }
 }
