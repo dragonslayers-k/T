@@ -599,3 +599,12 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - 이전 A1~A74 cumulative 2,648 / 2,738 / 982는 초기 다중 카드 그룹 집계가 누락되어 과소 집계됐다. 이 최종 원본 재집계 수치가 이전 누계를 대체한다. 원문 발췌는 모든 evidence references, 변형 수는 각 Skill1 그룹 안의 unique effectText 수를 합산한 값이다.
 - 이 수치는 근거 인벤토리만 의미한다. 의미 검증, manual/card-source 승인, 실행 handler, APK regression test 완료 수와 혼합하지 않는다.
 - Skill2는 별도 field이며 위 합계에 포함되지 않는다. DB29 immutable, DB30 미발행, PR #9 미병합 원칙 유지.
+
+
+## A75 완료 및 전체 Skill1 인벤토리 최종 기준
+
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a75-2026-11-05.md` — 원본 Counter.most_common() 702~704위 마지막 3개 그룹.
+- A75: **3 후보 행 / 3 원문 발췌 / 3 정확 문구 변형**. 이 source artifact의 Skill1 고유 그룹은 총 704개다.
+- 원본 전체 재집계 최종값: **704 그룹 / 2,655 후보 카드 행 / 2,767 원문 발췌 / 그룹별 unique effectText 합계 1,004**.
+- 이전 누적 합계 2,648 / 2,738 / 982는 초기 배치 집계가 과소였으므로 A75 최종 문서의 전체 원본 재집계 값으로 대체한다.
+- 이는 원문 후보 인벤토리의 종료점일 뿐 의미 검증/실행 승인/엔진 구현 완료가 아니다. Skill2는 별도 집계.
