@@ -44,11 +44,21 @@ class ManualSkillEngineTestSpecTests(unittest.TestCase):
                     case["status"] == "design_only"
                     for case in item["test_design"]["cases"]
                 ))
-                self.assertIsNone(item["card_source_matching"]["card_id"])
+                match = item["card_source_matching"]
+                # A representative exact Skill1 label match is recorded, but the
+                # full card-local effect packet/runtime promotion is still pending.
+                self.assertIsNone(match["card_id"])
+                self.assertIsNone(match["exact_db29_source_text"])
+                self.assertIsNone(match["source_card_url"])
                 self.assertEqual(
-                    item["card_source_matching"]["status"],
-                    "pending_db29_raw_inventory",
+                    match["status"],
+                    "exact_skill1_label_matched_effect_semantics_pending",
                 )
+                self.assertEqual(match["exact_db29_skill1_label"], item["skill_name_exact"])
+                self.assertGreater(match["matched_card_rows"], 0)
+                self.assertEqual(match["representative_card"]["source_field"], "Skill1")
+                self.assertEqual(match["representative_card"]["exact_source_label"], item["skill_name_exact"])
+                self.assertTrue(match["representative_card"]["source_card_url"].startswith("https://fmlunatic.com/card/"))
 
     def test_baseline_guardrails_remain_explicit(self):
         self.assertEqual(self.spec["baseline"]["db_release"], "DB29")
