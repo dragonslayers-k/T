@@ -908,3 +908,34 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - Actions #561: https://github.com/dragonslayers-k/T/actions/runs/41961011552 — success; PR-triggered lightweight regression test step passed.
 - Source-match mode and full DB audit were skipped in #561. Therefore #561 is not a new DB29 Manual Skill1 source-match report and does not change the #558 verified result (27/27 rule labels, 3,158 exact source card rows, unmatched 0, runtime promotions 0).
 - PR #9 remains open/unmerged; DB29 immutable, DB30 not issued, main unchanged. Keep exact source-card evidence and runtime execution approvals separate.
+
+
+---
+
+## 2026-11-05 — 통합기준서 병렬 작업 운영 업데이트 (재개 지시)
+
+### 병렬 처리 원칙
+이후 카드DB와 FM-OFFLINE 작업은 규칙 한 건씩 사용자 응답을 기다리는 직렬 검토 방식이 아니라, 서로 독립적인 검증 가능한 묶음으로 병렬 진행한다. 단, 한 묶음 안에서 근거·상태·테스트가 섞이지 않도록 아래 lane을 분리하고, 변경은 해당 PR 작업 브랜치에만 기록한다.
+
+| Lane | 범위 | 산출물 | 승인 경계 |
+|---|---|---|---|
+| A — Manual Skill1 bulk | 27개 Manual Skill1 전체 exact DB29 source-row inventory를 규칙별로 분할·정렬하고, 이미 구현된 handler와 중복 구현을 대조 | rule×card ID×원문×source URL 매칭표, 구현/테스트 갭 매트릭스 | exact source match만으로 runtime promotion 금지 |
+| B — Skill1 test batch | 현행 APK에 존재하는 공통 handler·effect primitives의 여러 규칙을 하나의 테스트 묶음으로 다룸. positive/negative/boundary/interaction을 함께 구성 | deterministic Node test batch 및 handler-to-rule mapping | source semantics가 확인되지 않은 card-local effect는 실행 승인하지 않음 |
+| C — Skill2 / combat lifecycle | unit damage prevention, HP damage, destroy, summon/land/equip/spell/attack lifecycle 이벤트의 다중 이벤트 순서·재진입·slot ownership 경계 검증 | event coverage matrix, event ordering tests, unhandled subscriber inventory | 관찰 이벤트와 executable handler 수를 별도 집계 |
+| D — Card-local evidence | 377 Skill2 candidate rows 및 704 Skill1 evidence groups에서 카드별 exact ID/TextBase/TextExtra/URL을 교차 연결 | source-verified / partial / unmatched / collision 분리 보고 | inferred mapping, card_text 보조 근거, community-only claim은 pending |
+| E — CardDB semantic batch | #460 54행 및 잔여 Skill1/soul/field counter/profile 후보를 유형별로 함께 검토 | batch review JSON/CSV, claim conflict, exact-match and missing-evidence reports | 미확인 수치·조건·순서·duration을 채워 넣지 않음 |
+| F — CI efficiency | 문서+테스트 변경마다 적합한 focused checks만 실행, full audit/DB pack/emulator는 합쳐서 의미 있는 변경 시 1회 | run scope, pass/fail/skip reason, artifacts | 중복 Action 실행 금지; skipped는 pass로 집계 금지 |
+
+### 병렬 작업 조정 및 품질 게이트
+1. 각 lane은 동일한 frozen DB29 input과 동일한 PR head SHA를 명시한다. 병렬 실행 중 head가 바뀌면 산출물을 새 head에 자동 적용하지 말고 rebase/refresh 후 다시 검사한다.
+2. 각 task는 source_evidence, rule_id, card_ids, implementation_path, test_ids, status, blocker를 기록한다. Status enum: source_verified, test_verified, pending_source, pending_semantics, implemented_unverified, non_executable, blocked.
+3. 중복 handler 또는 기존 테스트가 발견되면 신규 구현 대신 mapping/coverage 보강으로 처리한다. 기능을 두 번 구현하지 않는다.
+4. 효과 한 개를 고를 때마다 작업을 멈추지 않는다. 같은 evidence class와 event family의 여러 규칙을 묶어 테스트하되, 개별 카드의 근거·판정은 행 단위로 보존한다.
+5. 순서상 선행 의존성(상태 수명주기, target selector, duration, tie-break, slot ownership)이 불명확한 카드는 batch 안에서 pending_semantics로 남기고, 그와 독립된 후보의 작업은 계속한다.
+6. 각 lane의 완료 여부는 commit/PR diff와 focused test output으로 보고한다. 새 Actions run은 동일한 head의 중복 실행을 금지하고, 기존 CI가 이미 실행 중이면 그 결과를 기다린다.
+7. PR #9/#12/#28 미병합, DB29 불변, DB30 미발행, main 수정 금지 상태는 그대로 유지한다.
+
+### 현재 재개 스냅샷 — #562 / #173
+- CardDB Actions #562: 성공한 PR lightweight regression이다. Exact Manual Skill1 source-match, full DB audit 및 semantic review 단계는 실행되지 않았으므로 #558의 source-match 결과(27/27 labels, 3,158 exact rows, unmatched 0, runtime promotion 0)만 유지한다.
+- FM-OFFLINE Actions #173: 성공. SDK download retry 및 Debug APK build/package verification/emulator execution smoke test가 통과했다. 이는 현재 카드 효과의 전면 실행 완성을 의미하지 않는다.
+- 다음 묶음의 즉시 목표: (i) Manual Skill1 27개 × 3,158 exact source rows와 현재 rules.js/tests를 일괄 crosswalk, (ii) dispatcher lifecycle 및 Skill2 8 handler / 7 source-verified executable distinction의 regression coverage, (iii) source-local evidence join의 unmatched/collision report를 동시에 갱신한다. 이 결과가 나오기 전에는 카드 효과를 임의 승격하지 않는다.
