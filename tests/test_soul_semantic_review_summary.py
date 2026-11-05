@@ -14,8 +14,14 @@ class SoulSemanticReviewSummaryTests(unittest.TestCase):
         self.assertEqual(s["pending_card_rows"], 831)
         self.assertEqual(s["token_rows"], 842)
         self.assertEqual(s["groups"], 16)
-        self.assertEqual(sum(g["card_rows"] for g in self.data["groups"]), 831)
+        self.assertEqual(sum(g["group_card_memberships"] for g in self.data["groups"]), 842)
+        self.assertEqual(s["distinct_pending_card_rows"], 831)
+        self.assertEqual(s["multi_group_card_ids"], 11)
+        self.assertEqual(s["extra_group_memberships"], 11)
+        self.assertEqual(len(self.data["overlapping_group_card_ids"]), 11)
+        self.assertEqual(len(set(self.data["overlapping_group_card_ids"])), 11)
         self.assertEqual(sum(g["token_rows"] for g in self.data["groups"]), 842)
+        self.assertEqual(sum(g["group_card_memberships"] for g in self.data["groups"]), 842)
 
     def test_hybrid_ncs_and_bonus_remain_separate(self):
         groups = self.data["groups"]
