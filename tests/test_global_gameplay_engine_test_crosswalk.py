@@ -14,14 +14,15 @@ class GlobalGameplayEngineTestCrosswalkTests(unittest.TestCase):
         self.assertEqual(len(self.data["rules"]), 15)
         self.assertEqual(len({x["rule_id"] for x in self.data["rules"]}), 15)
 
-    def test_fourteen_rules_have_test_evidence_and_one_gap_is_explicit(self):
+    def test_all_fifteen_rules_have_engine_test_evidence(self):
         rules = self.data["rules"]
         covered = [x for x in rules if x["tests"]]
         missing = [x for x in rules if not x["tests"]]
-        self.assertEqual(len(covered), 14)
-        self.assertEqual(len(missing), 1)
-        self.assertEqual(missing[0]["rule_id"], "opponent_concession_win")
-        self.assertEqual(self.data["summary"]["rules_without_engine_test_evidence"], 1)
+        self.assertEqual(len(covered), 15)
+        self.assertEqual(len(missing), 0)
+        self.assertEqual(self.data["summary"]["rules_without_engine_test_evidence"], 0)
+        concession = next(x for x in rules if x["rule_id"] == "opponent_concession_win")
+        self.assertIn("conceding while a match is active awards the win to the opponent", concession["tests"])
 
     def test_manual_terrain_conflict_is_not_resolved_by_engine_behavior(self):
         rule = next(x for x in self.data["rules"] if x["rule_id"] == "terrain_placement_limit_conflict")

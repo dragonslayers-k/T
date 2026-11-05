@@ -9,11 +9,13 @@
   "engine_evidence": {
     "repository": "dragonslayers-k/FM-OFFLINE",
     "branch": "feat/combat-event-foundation",
-    "commit": "28de5d2ff49d65ce23730818b1c8becc402c58cc",
-    "workflow_run_number": 208,
-    "workflow_run_id": 42032079550,
-    "workflow_conclusion": "success",
-    "test_file": "tests/rules.test.cjs"
+    "commit": "dab504f649a0a110efa310d4378f682bcee8930d",
+    "workflow_run_number": 209,
+    "workflow_run_id": 42038631879,
+    "workflow_conclusion": "in_progress",
+    "test_file": "tests/rules.test.cjs",
+    "test_step_conclusion": "success",
+    "test_step_name": "Check JavaScript and run game rule tests"
   },
   "source_evidence": {
     "archive": "Manual.zip",
@@ -28,10 +30,10 @@
   },
   "summary": {
     "global_rule_count": 15,
-    "rules_with_engine_test_evidence": 14,
-    "rules_without_engine_test_evidence": 1,
+    "rules_with_engine_test_evidence": 15,
+    "rules_without_engine_test_evidence": 0,
     "manual_conflict_rules": 1,
-    "engine_test_status": "partial_coverage_actions_208",
+    "engine_test_status": "all_15_rules_test_step_passed_actions_209_full_build_in_progress",
     "runtime_rule_promotions": 0
   },
   "rules": [
@@ -172,8 +174,11 @@
     {
       "rule_id": "opponent_concession_win",
       "name": "상대 이탈 승리",
-      "coverage_status": "no_engine_test_found",
-      "tests": []
+      "coverage_status": "engine_tested_partial",
+      "tests": [
+        "conceding while a match is active awards the win to the opponent",
+        "concession rejects unknown sides and incomplete match state"
+      ]
     }
   ]
 }
