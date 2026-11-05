@@ -901,3 +901,10 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - #549~#553: audit script / test / lightweight CI 도입 및 검증, 성공. #554~#557은 PR-triggered lightweight checks와 focused run들을 거쳐 진행; #558은 실제 immutable DB29 대조, #559/#560은 후속 PR checks.
 - 다음 단계의 의미: 27개 Skill1 매뉴얼 정의를 DB29 카드 행에 연결한 source inventory를 기준으로, 카드별 원문 조건을 포함해 검증 가능한 단일 규칙을 골라 테스트를 보강한다. 문자열 이름 매치만으로 실행 상태를 올리지 않는다.
 - DB29 불변, DB30 미발행, PR #9/#12 미병합, main 변경 없음. APK PR #28도 별도 유지한다.
+
+
+## 2026-11-05 — CardDB Actions #561
+
+- Actions #561: https://github.com/dragonslayers-k/T/actions/runs/41961011552 — success; PR-triggered lightweight regression test step passed.
+- Source-match mode and full DB audit were skipped in #561. Therefore #561 is not a new DB29 Manual Skill1 source-match report and does not change the #558 verified result (27/27 rule labels, 3,158 exact source card rows, unmatched 0, runtime promotions 0).
+- PR #9 remains open/unmerged; DB29 immutable, DB30 not issued, main unchanged. Keep exact source-card evidence and runtime execution approvals separate.
