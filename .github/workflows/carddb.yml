@@ -91,6 +91,7 @@ jobs:
           python -m unittest tests/test_skill2_engine_test_crosswalk.py
           python -m unittest tests/test_manual_skill1_engine_test_crosswalk.py
           python -m unittest tests/test_global_gameplay_engine_test_crosswalk.py
+          python -m unittest tests/test_semantic_review_adjudication_overlay.py
           python -m unittest tests/test_card_field_coverage.py
           python -m unittest tests/test_raw_field_applicability.py
           python -m unittest tests/test_name_only_skill_image_probe.py
