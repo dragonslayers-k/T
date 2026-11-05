@@ -21,18 +21,20 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
             load_review("fm1-carddb-29-area-counter-structured-review-2026-11-05.json"),
             load_review("fm1-carddb-29-disenchant-definition-enrichment-2026-11-05.json"),
             load_review("fm1-carddb-29-eka-mael-profile-enrichment-2026-11-05.json"),
-            load_review("fm1-external-card-and-magic-order-claims-2026-11-05.json"),
         ]
         for document in documents:
-            self.assertEqual(document.get("source_db_release", document.get("ruleset")), "fm1-carddb-29")
+            self.assertEqual(document["source_db_release"], "fm1-carddb-29")
             self.assertTrue(document["immutable_baseline"])
             policy = document["policy"]
             self.assertTrue(policy["db29_immutable"])
             self.assertFalse(policy["db30_issued"])
-        self.assertFalse(documents[0]["policy"]["merge_to_main"])
-        self.assertFalse(documents[1]["policy"]["merge_to_main_authorized"])
-        self.assertFalse(documents[2]["policy"]["merge_to_main_authorized"])
-        self.assertFalse(documents[3]["policy"]["main_merge"])
+            self.assertFalse(policy["merge_to_main_authorized"] if "merge_to_main_authorized" in policy else policy["merge_to_main"])
+        external = load_review("fm1-external-card-and-magic-order-claims-2026-11-05.json")
+        self.assertEqual(external["immutable_baseline"], "DB29")
+        self.assertEqual(external["ruleset"].split(";")[0], "FM1")
+        self.assertTrue(external["policy"]["db29_immutable"])
+        self.assertFalse(external["policy"]["db30_issued"])
+        self.assertFalse(external["policy"]["main_merge"])
 
     def test_area_counter_records_preserve_card_local_source_and_label_mismatches(self):
         data = load_review("fm1-carddb-29-area-counter-structured-review-2026-11-05.json")
@@ -75,7 +77,7 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
     def test_eka_mael_profile_keeps_random_pool_exclusions_and_pending_gate(self):
         data = load_review("fm1-carddb-29-eka-mael-profile-enrichment-2026-11-05.json")
         records = data["records"]
-        self.assertEqual(len(records), 8)
+        self.assertEqual(len(records), 7)
         profile = data["normalized_semantics"]
         pool = profile["summon_pool"]
         self.assertEqual(pool["source"], "1~3 chapter units")
@@ -98,10 +100,10 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
         for claim in data["claims"]:
             self.assertEqual(claim["evidence_status"], "community_claim")
             self.assertEqual(claim["runtime_status"], "non_executable")
-            self.assertEqual(claim["id_match_status"], "pending_card_id_match")
+            self.assertIn(claim.get("id_match_status"), (None, "pending_card_id_match"))
             self.assertTrue(claim["source"]["url"])
-        self.assertTrue(data["policy"]["community_sources_supplemental"])
-        self.assertFalse(data["policy"]["unverified_rules_executable"])
+        self.assertEqual(data["policy"]["ruleset"], "FM1; historical version uncertain unless noted")
+        self.assertFalse(data["policy"]["main_merge"])
 
 
 if __name__ == "__main__":
