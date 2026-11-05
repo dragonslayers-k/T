@@ -40,6 +40,30 @@ class Skill2SourceEvidenceSummaryTests(unittest.TestCase):
         self.assertEqual(sum(x["skill2"] == "기선제압" for x in missing), 5)
         self.assertEqual(sum(x["skill2"] == "헌신방어" for x in missing), 3)
 
+    def test_exact_additional_text_variants_reconcile_to_368_rows(self):
+        groups = self.data["source_text_variants"]
+        self.assertEqual(len(groups), 8)
+        self.assertEqual(sum(len(g["variants"]) for g in groups), 24)
+        self.assertEqual(sum(sum(v["count"] for v in g["variants"]) for g in groups), 368)
+        expected = {
+            "기선제압": (175, 6),
+            "헌신방어": (63, 6),
+            "얼라이디펜스": (44, 3),
+            "레이셜디펜스": (35, 2),
+            "강한헌신방어": (28, 2),
+            "격노": (20, 2),
+            "홀리오오라": (2, 2),
+            "프레셔": (1, 1),
+        }
+        actual = {
+            g["name"]: (sum(v["count"] for v in g["variants"]), len(g["variants"]))
+            for g in groups
+        }
+        self.assertEqual(actual, expected)
+        for group in groups:
+            self.assertEqual(group["semantic_status"], "pending_engine_test")
+            self.assertTrue(group["review_gates"])
+
     def test_no_inferred_skill2_mapping_is_promoted(self):
         policy = self.data["policy"]
         self.assertEqual(policy["mapping_status"], "inferred")
