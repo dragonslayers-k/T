@@ -1,0 +1,182 @@
+{
+  "schema_version": "FM1-SKILL2-SOURCE-EVIDENCE-SUMMARY-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source": {
+    "workflow_run_number": 573,
+    "workflow_run_id": 41970905894,
+    "artifact_id": 13388874560,
+    "artifact_member": "gap-reports/skill2-execution-review.jsonl"
+  },
+  "policy": {
+    "mapping_status": "inferred",
+    "source_excerpt_availability_is_not_semantic_approval": true,
+    "card_text_only_is_not_effect_evidence": true,
+    "missing_excerpt_does_not_prove_skill_absence": true,
+    "no_runtime_promotion": true
+  },
+  "summary": {
+    "candidate_rows": 377,
+    "distinct_card_ids": 377,
+    "rule_groups": 8,
+    "additional_text_rows": 368,
+    "additional_text_references": 368,
+    "card_text_only_rows": 1,
+    "card_text_references": 7,
+    "missing_card_local_excerpt_rows": 8,
+    "source_card_verified_rows": 0,
+    "executable_rows": 0
+  },
+  "groups": [
+    {
+      "name": "기선제압",
+      "enum": 18,
+      "rows": 181,
+      "additional_text_rows": 175,
+      "card_text_only_rows": 1,
+      "missing_rows": 5,
+      "distinct_additional_text_variants": 6
+    },
+    {
+      "name": "헌신방어",
+      "enum": 175,
+      "rows": 66,
+      "additional_text_rows": 63,
+      "card_text_only_rows": 0,
+      "missing_rows": 3,
+      "distinct_additional_text_variants": 6
+    },
+    {
+      "name": "얼라이디펜스",
+      "enum": 100,
+      "rows": 44,
+      "additional_text_rows": 44,
+      "card_text_only_rows": 0,
+      "missing_rows": 0,
+      "distinct_additional_text_variants": 3
+    },
+    {
+      "name": "레이셜디펜스",
+      "enum": 44,
+      "rows": 35,
+      "additional_text_rows": 35,
+      "card_text_only_rows": 0,
+      "missing_rows": 0,
+      "distinct_additional_text_variants": 2
+    },
+    {
+      "name": "강한헌신방어",
+      "enum": 3,
+      "rows": 28,
+      "additional_text_rows": 28,
+      "card_text_only_rows": 0,
+      "missing_rows": 0,
+      "distinct_additional_text_variants": 2
+    },
+    {
+      "name": "격노",
+      "enum": 5,
+      "rows": 20,
+      "additional_text_rows": 20,
+      "card_text_only_rows": 0,
+      "missing_rows": 0,
+      "distinct_additional_text_variants": 2
+    },
+    {
+      "name": "홀리오오라",
+      "enum": 181,
+      "rows": 2,
+      "additional_text_rows": 2,
+      "card_text_only_rows": 0,
+      "missing_rows": 0,
+      "distinct_additional_text_variants": 2
+    },
+    {
+      "name": "프레셔",
+      "enum": 166,
+      "rows": 1,
+      "additional_text_rows": 1,
+      "card_text_only_rows": 0,
+      "missing_rows": 0,
+      "distinct_additional_text_variants": 1
+    }
+  ],
+  "card_text_only_record": {
+    "card_id": "6082340724",
+    "name": "패황의전투마",
+    "skill2": "기선제압",
+    "enum": 18,
+    "source_card_url": "https://fmlunatic.com/card/6082340724",
+    "disposition": "exclude_from_skill2_effect_evidence"
+  },
+  "missing_records": [
+    {
+      "card_id": "12111426500",
+      "name": "신비의바다",
+      "skill2": "기선제압",
+      "enum": 18,
+      "source_card_url": "https://fmlunatic.com/card/12111426500",
+      "source_note": "TextBase empty; no matched card-local excerpt in #573"
+    },
+    {
+      "card_id": "16102628565",
+      "name": "마왕",
+      "skill2": "기선제압",
+      "enum": 18,
+      "source_card_url": "https://fmlunatic.com/card/16102628565",
+      "source_note": "TextBase/TextExtra empty"
+    },
+    {
+      "card_id": "16110928590",
+      "name": "불의정령여왕",
+      "skill2": "기선제압",
+      "enum": 18,
+      "source_card_url": "https://fmlunatic.com/card/16110928590",
+      "source_note": "TextBase/TextExtra empty"
+    },
+    {
+      "card_id": "6121340763",
+      "name": "고대나무뿌리",
+      "skill2": "기선제압",
+      "enum": 18,
+      "source_card_url": "https://fmlunatic.com/card/6121340763",
+      "source_note": "Item; TextExtra empty"
+    },
+    {
+      "card_id": "8080640943",
+      "name": "용기의정령",
+      "skill2": "기선제압",
+      "enum": 18,
+      "source_card_url": "https://fmlunatic.com/card/8080640943",
+      "source_note": "Item; TextExtra empty"
+    },
+    {
+      "card_id": "14031227302",
+      "name": "순수한레비",
+      "skill2": "헌신방어",
+      "enum": 175,
+      "source_card_url": "https://fmlunatic.com/card/14031227302",
+      "source_note": "TextBase empty; no matched Skill2 excerpt"
+    },
+    {
+      "card_id": "16110228578",
+      "name": "설원고양이",
+      "skill2": "헌신방어",
+      "enum": 175,
+      "source_card_url": "https://fmlunatic.com/card/16110228578",
+      "source_note": "TextBase/TextExtra empty"
+    },
+    {
+      "card_id": "16112328609",
+      "name": "어둠기사",
+      "skill2": "헌신방어",
+      "enum": 175,
+      "source_card_url": "https://fmlunatic.com/card/16112328609",
+      "source_note": "TextBase empty; no matched Skill2 excerpt"
+    }
+  ]
+}
