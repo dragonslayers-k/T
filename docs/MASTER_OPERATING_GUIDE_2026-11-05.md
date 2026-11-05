@@ -341,3 +341,14 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - `attachCombatEventDispatcher`로 dispatcher를 게임 state에 명시적으로 연결할 수 있다. `resolveUnitAttack`는 공격 완료 시점에, `applyEffect`는 효과 처리 완료 시점에 대기 이벤트를 한 번 drain/dispatch한다. dispatcher가 연결되지 않은 기존 경로는 이벤트를 queue에 보존한다.
 - Subscriber가 dispatch 중 새 이벤트를 enqueue하면 현재 drain에 재귀 포함하지 않고 다음 명시적 처리 경계까지 대기한다. 신규 카드 효과는 아직 등록하지 않았고 fail-closed gate 유지.
 - PR #28 검증 SHA `ce9ff9d5b4aed6c4bc048fce4fc56230eba75c34`, open/draft/unmerged. #136에서도 emulator와 선택형 DB29 data pack 검증은 skipped.
+
+
+## A42 및 APK dispatcher 안정화 갱신 (2026-11-05)
+
+- A42 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a42-2026-11-05.md` — Skill1 빈도순 372~381위.
+- A42: 10 후보 행 / 9 원문 발췌 / 9 정확 문구 변형. 매직펌프킨은 원문 발췌 0건.
+- A1~A42 누계: **2,328 후보 행 / 2,371 원문 발췌 / 615 정확 문구 변형**.
+- APK Actions #139 성공: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41938848148. atomic multi-event subscription validation 수정본에서 JS 규칙 테스트, converter, Android Debug APK build, APK package validation 모두 성공.
+- #137/#138 실패는 dispatcher 로직의 회귀가 아니라 테스트 fixture가 중복 조건과 subscriber 결과 수를 잘못 가정한 것이었다. #139에서는 동일 rule ID가 기존 event type에 구독된 상태에서 다중 event type 등록을 시도하도록 fixture를 바로잡았고, 등록 실패 시 앞선 event type에 부분 등록이 남지 않는 것을 검증했다.
+- Dispatcher는 reentrant drain을 차단한다. handler가 현재 dispatch 중 새 이벤트를 추가하거나 nested flush를 시도해도 현재 batch를 재귀 처리하지 않고 다음 명시적 boundary에서만 전달한다.
+- PR #28 최신 검증 SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`, open/draft/unmerged. 카드 효과 handler 등록/실행은 여전히 보류; 실제 DB29 pack/emulator 검증도 미실행.
