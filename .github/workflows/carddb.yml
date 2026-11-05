@@ -22,7 +22,7 @@ on:
         description: "tests = lightweight checks; effect-review = export card-context effect queue only; audit-release = full audit; probe/crawl = inspect or collect source"
         required: true
         type: choice
-        options: [tests, probe, effect-review, audit-release, crawl]
+        options: [tests, probe, effect-review, manual-source-match, audit-release, crawl]
         default: tests
       source_release_tag:
         description: "Existing immutable DB Release used by audit-release or effect-review mode"
@@ -54,7 +54,7 @@ jobs:
     timeout-minutes: 360
     env:
       # [effect-review] rebuilds DB29-derived effect candidates and exports card context only; [full-db-audit]/[full-db-crawl] run full pipelines. PRs stay on lightweight tests.
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[effect-review]') && 'effect-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-crawl]') && 'crawl') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[effect-review]') && 'effect-review') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[manual-source-match]') && 'manual-source-match') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
@@ -102,6 +102,52 @@ jobs:
           python scripts/quality_audit.py --self-test
           python scripts/decode_soul_costs.py --self-test
           python scripts/build_db.py --self-test
+
+      - name: Run exact Manual Skill1 source matching against immutable DB29
+        if: ${{ env.MODE == 'manual-source-match' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${SOURCE_RELEASE_TAG}"
+          mkdir -p data/source-archive data/reviews
+          curl --fail --location --retry 3 --retry-delay 2 --retry-all-errors "${BASE}/fm1_cards.sqlite.gz" -o data/source-archive/fm1_cards.sqlite.gz
+          curl --fail --location --retry 3 --retry-delay 2 --retry-all-errors "${BASE}/sqlite-build-summary.json" -o data/source-archive/sqlite-build-summary.json
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path("data/source-archive")
+          summary=json.loads((root/"sqlite-build-summary.json").read_text(encoding="utf-8"))
+          actual=hashlib.sha256((root/"fm1_cards.sqlite.gz").read_bytes()).hexdigest()
+          if summary.get("integrity")!="ok" or summary.get("cards")!=15350:
+              raise SystemExit("Selected source release is not the audited 15,350-card DB")
+          if actual.lower()!=str(summary.get("sqliteGzipSha256","")).lower():
+              raise SystemExit("DB29 SQLite gzip SHA-256 mismatch")
+          PY
+          gzip -t data/source-archive/fm1_cards.sqlite.gz
+          gzip -dc data/source-archive/fm1_cards.sqlite.gz > data/source-archive/fm1_cards.sqlite
+          python - data/source-archive/fm1_cards.sqlite <<'PY'
+          import sqlite3, sys
+          db=sqlite3.connect(sys.argv[1])
+          if db.execute("PRAGMA integrity_check").fetchone()[0]!="ok":
+              raise SystemExit("SQLite integrity_check failed")
+          if db.execute("SELECT count(*) FROM cards").fetchone()[0]!=15350:
+              raise SystemExit("Unexpected DB29 card count")
+          if db.execute("SELECT count(*) FROM card_fields WHERE field_key='Skill1'").fetchone()[0]<1000:
+              raise SystemExit("Skill1 source inventory appears incomplete")
+          PY
+          python scripts/audit_manual_skill_card_source_matches.py \
+            --db data/source-archive/fm1_cards.sqlite \
+            --output data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json
+
+      - name: Upload exact Manual Skill1 source match report
+        if: ${{ env.MODE == 'manual-source-match' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: FM1-Manual-Skill1-DB29-Source-Match
+          path: data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Install image decoder for full audits
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
