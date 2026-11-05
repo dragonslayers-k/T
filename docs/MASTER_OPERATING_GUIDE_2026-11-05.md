@@ -361,3 +361,12 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - A1~A43 누계: **2,338 후보 행 / 2,382 원문 발췌 / 626 정확 문구 변형**.
 - 이 누계는 원문 후보 수치다. 카드별 의미 검증, source-card/manual 승격, 실행 handler, APK regression 수치와 혼합 금지.
 - APK PR #28 최신 검증은 Actions #139 성공 / SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. Dispatcher는 verified mapping gate, atomic registration, no reentrant dispatch까지 통과했다. 실제 카드별 subscriber handler 등록은 아직 보류한다.
+
+
+## A44 누적 조사 갱신 (2026-11-05)
+
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a44-2026-11-05.md` — Skill1 빈도순 392~401위.
+- A44: **10 후보 행 / 14 원문 발췌 / 14 정확 문구 변형**.
+- A1~A44 누계: **2,348 후보 행 / 2,396 원문 발췌 / 640 정확 문구 변형**.
+- 무구소환/무구장착은 동일 전쟁의여신 이름 계열이지만 장착 아이템 대응이 반대이므로 별도 규칙으로 보존한다. 묘비명파멸/미러메이즈의 히어로 카운터와 능력 사용은 분리한다.
+- APK PR #28 기준: Actions #139 성공 / SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. Fail-closed dispatcher, atomic subscription registration, reentrant dispatch guard가 통과했다. 아직 신규 효과 handler는 등록하지 않았다.
