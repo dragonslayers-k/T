@@ -650,3 +650,20 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - Artifact `FantasyMastersOffline-debug.apk` SHA-256: `cfe22709e6e85dfd621c5c5d0c78a6d4314a33b8c8b1c3918b3b2d7e8f5e1caa`.
 - Signed Release APK was not generated (signing secrets not configured). DB29 data pack download/import and emulator install/launch were skipped; no claim of full in-device card-pack validation.
 - No PR merge or DB29/DB30/main mutation.
+
+
+## Skill2 defensive effects moved to source-gated combat event handlers (APK PR #28 / run #145)
+
+- Production match dispatcher now handles six of eight Skill2 rules through source-matched events: 헌신방어, 강한헌신방어, 얼라이디펜스, 레이셜디펜스, 프레셔, 격노.
+- Pre-damage event `unit_damage_prevention_requested` applies only verified affiliation/race ally counts and empty-slot pressure reduction. Post-HP-loss event `unit_hp_damage_applied` converts actual surviving HP loss into Wrath AP before retaliation.
+- 기선제압 and 홀리오오라 remain explicit inline rules pending their source wording/rounding boundary reconciliation; they were not silently folded into the event handlers.
+- Every event handler requires `source_card_verified`, `card_source`, `source-card-rule-implemented`, exact Skill2 rule ID, and exact source name. Inferred mappings remain inert. Tests cover inferred Alliance Defense fail-closed behavior.
+- APK PR #28 head `3a9cfebb4135976f7e0245e35b2d18894a7f7179`, open/draft/unmerged. Actions #145 success: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41943617434.
+- Node tests: **135 passed / 0 failed / 0 skipped**. Android Debug APK, package/signature validation, and ZIP integrity checks passed.
+- Debug APK SHA-256: `d7e158e97df4e499f3d6c9e9bf2b04185f69751495918cd5e042e6fec5598cce`. Signed Release APK is not configured; DB29 data ZIP and emulator installation/launch were skipped in this run.
+- Run #144 had one incorrect expected-value assertion (base AP 3 + actual HP loss 3 was expected as 5 instead of 6). Test expectation was corrected; #145 passed all 135 tests.
+
+## Skill2 effect-only source variant reconciliation
+
+- Existing all-reference variant counts (31 across the 8 groups) include 7 `card_text` build-up/flavor references. The effect-only count is **24 variants across 368 additional_text rows**.
+- Updated detail: `data/reviews/fm1-skill2-source-text-variant-review-2026-11-05.md`. Keep the original all-reference totals and effect-only totals distinct.
