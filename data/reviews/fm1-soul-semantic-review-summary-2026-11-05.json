@@ -1,0 +1,170 @@
+{
+  "schema_version": "FM1-SOUL-SEMANTIC-REVIEW-SUMMARY-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source": {
+    "workflow_run_number": 573,
+    "workflow_run_id": 41970905894,
+    "artifact_id": 13388874560,
+    "artifact_member": "gap-reports/soul-semantic-review-queue.json"
+  },
+  "policy": {
+    "original_require_soul_tokens_preserved": true,
+    "hybrid_identity_must_not_be_flattened_to_single_color": true,
+    "ncs_and_bonus_must_remain_distinct": true,
+    "token_parsing_is_not_payment_rule_verification": true,
+    "no_runtime_promotion": true
+  },
+  "summary": {
+    "pending_card_rows": 831,
+    "token_rows": 842,
+    "groups": 16,
+    "hybrid_groups": 14,
+    "hybrid_card_rows": 52,
+    "ncs_card_rows": 351,
+    "bonus_card_rows": 439,
+    "source_verified_rows": 0,
+    "executable_rows": 0
+  },
+  "groups": [
+    {
+      "code": 12,
+      "symbol": "DARK_EARTH",
+      "candidate_color_mapping": "dark+earth",
+      "card_rows": 3,
+      "token_rows": 3,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 13,
+      "symbol": "DARK_FIRE",
+      "candidate_color_mapping": "dark+fire",
+      "card_rows": 4,
+      "token_rows": 4,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 14,
+      "symbol": "DARK_LIGHT",
+      "candidate_color_mapping": "dark+light",
+      "card_rows": 4,
+      "token_rows": 4,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 15,
+      "symbol": "DARK_WATER",
+      "candidate_color_mapping": "dark+water",
+      "card_rows": 3,
+      "token_rows": 3,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 22,
+      "symbol": "FIRE_FOREST",
+      "candidate_color_mapping": "fire+forest",
+      "card_rows": 4,
+      "token_rows": 4,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 23,
+      "symbol": "FIRE_IRON",
+      "candidate_color_mapping": "fire+iron",
+      "card_rows": 3,
+      "token_rows": 3,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 24,
+      "symbol": "FIRE_WATER",
+      "candidate_color_mapping": "fire+water",
+      "card_rows": 5,
+      "token_rows": 5,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 32,
+      "symbol": "WATER_EARTH",
+      "candidate_color_mapping": "earth+water",
+      "card_rows": 3,
+      "token_rows": 3,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 33,
+      "symbol": "WATER_FOREST",
+      "candidate_color_mapping": "forest+water",
+      "card_rows": 4,
+      "token_rows": 4,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 42,
+      "symbol": "FOREST_IRON",
+      "candidate_color_mapping": "forest+iron",
+      "card_rows": 4,
+      "token_rows": 4,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 43,
+      "symbol": "FOREST_LIGHT",
+      "candidate_color_mapping": "forest+light",
+      "card_rows": 3,
+      "token_rows": 3,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 52,
+      "symbol": "IRON_EARTH",
+      "candidate_color_mapping": "earth+iron",
+      "card_rows": 4,
+      "token_rows": 4,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 53,
+      "symbol": "IRON_LIGHT",
+      "candidate_color_mapping": "iron+light",
+      "card_rows": 3,
+      "token_rows": 3,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 62,
+      "symbol": "EARTH_LIGHT",
+      "candidate_color_mapping": "earth+light",
+      "card_rows": 5,
+      "token_rows": 5,
+      "status": "hybrid_identity_preserved_pending_rule"
+    },
+    {
+      "code": 82,
+      "symbol": "NCS",
+      "candidate_color_mapping": "ncs",
+      "card_rows": 351,
+      "token_rows": 351,
+      "status": "special_identity_preserved_pending_rule"
+    },
+    {
+      "code": 83,
+      "symbol": "BONUS",
+      "candidate_color_mapping": "bonus",
+      "card_rows": 439,
+      "token_rows": 439,
+      "status": "special_identity_preserved_pending_rule"
+    }
+  ],
+  "next_review_gates": [
+    "Determine whether each hybrid code requires both colors or permits a choice/substitution; do not infer from code naming.",
+    "Verify whether NCS is a distinct payment resource, a colorless substitute, or a separate eligibility/payment class.",
+    "Verify BONUS semantics independently from NCS, including whether it discounts or replaces colored/neutral costs.",
+    "Separate summon payment from upkeep payment and validate payment order with reproducible game evidence.",
+    "Keep every unresolved mapping non-executable until source and engine evidence agree."
+  ]
+}
