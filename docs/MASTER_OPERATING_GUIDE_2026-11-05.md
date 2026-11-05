@@ -636,7 +636,7 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - 신규 문서: `data/reviews/fm1-low-confidence-effect-triage-pass-1-2026-11-05.md`.
 - DB29 low-confidence queue 206개 중 conditional/reference candidate 11개를 분류했다: 미완성 조건 2, 명명 능력 정의 필요 1, stat-marker effect 후보 1, rarity metadata 1, 카드 pool 1, profile 2, opaque unknown 2, card mapping reference 1.
 - 이 중 실행 가능한 효과로 승격된 항목은 0. 포메이션제로의 상향고정 marker와 간절한기도의 순화능력은 원문 정의/테스트 전까지 pending.
-- 나머지 unparsed_effect_text 195개는 미판정 유지. 원문 텍스트를 추정으로 고치거나 DB29를 수정하지 않는다.
+- `unparsed_effect_text 195`는 Actions #430에서 생성된 과거 큐의 수치다. 파서 보완 #454~#460 이후의 현행 잔여량으로 재사용하지 않는다. 최신 큐는 최신 성공 감사 실행의 산출물로 다시 산정하며, 과거 큐는 이력 자료로만 보존한다. 원문 텍스트를 추정으로 고치거나 DB29를 수정하지 않는다.
 
 
 ## Verified Skill2 event handlers in production dispatcher (APK PR #28 / run #143)
@@ -685,3 +685,30 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - Source-card Skill2 verification now uses the card's own TextExtra and type; validator expects `unmapped` for named but non-verified cards and preserves raw mapping status separately.
 - DB29 has 817 non-land cost rows with mapping/semantic review flags (38 mapping-review + 779 semantic-review). The APK converter must expose these as review-required/non-playable, while preserving `candidateCost` for inspection. It must not label them `costKnown/costMapped` in the playable cost contract.
 - The full DB29/APK integration run #159 has passed the SQLite release verification and card pack build step; Android APK build and emulator install/launch were still in progress at this note. The stricter full-phrase Holy Aura source needle is in APK run #160 and will be validated separately.
+
+
+## 2026-11-05 재개 작업 기준 갱신 — APK #160 / CardDB #543·#544
+
+### 실제 DB29 카드팩 앱 내부 통합 검증
+- FM-OFFLINE PR #28 최신 HEAD: `56f2cd5378de3bb528ed298d36c7487cf506e6b7`; PR #28 open/draft/unmerged, base `main`.
+- APK Actions #160: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41949790050 — **success**. 동일 실행에서 JS 규칙 테스트 **138/138**, Python 변환기 self-test 11개, DB29 SQLite integrity check, Android Debug APK 빌드·패키지 검증, emulator 설치·실행 및 앱 내부 ZIP import가 통과했다.
+- 에뮬레이터 스모크는 DB29 카드 데이터 ZIP `FM1-CARD-DATA 1.3.0`을 Debug 앱의 private files로 넣고 실제 importer와 WebView loader를 거쳤다. 로그의 `Emulator card-data import + WebView load smoke test: PASS`와 `WEBVIEW_CARDS_LOADED=15350/15350`을 확인했다. 이는 DB29 카드팩 15,350장 로딩 검증이며, 실기기 네트워크/로그인/온라인 기능 검증이나 실제 대전 전체 시나리오 검증과는 구분한다.
+- 산출물: `FM1-CardData-v1.3.0-IMPORT-DB29` (artifact 13379674035), `FantasyMastersOffline-build-output` (artifact 13379164984). Release signing secrets가 없어 서명된 Release APK 생성은 별도 상태로 남는다.
+- 카드팩 감사 요약: 15,350 cards; non-land cost known 14,244; review-required 817 (mapping review 38, semantic review 779); cost/effect review rows are not silently made playable. Skill2: 189 enum entries, 188 active names, 1,366 active cards, 10,381 source mappings/references, **7 executable rules**.
+
+### Skill2 실행 게이트 정정
+- APK runtime core dispatcher는 여덟 Skill2 handler를 모두 등록한다: 기선제압, 헌신방어, 격노, 홀리오오라, 얼라이디펜스, 레이셜디펜스, 강한헌신방어, 프레셔. Handler 등록 수 8은 현재 DB29에서 실행 가능한 규칙 수와 같지 않다.
+- DB29 카드팩 기준으로 현재 실행 가능 매핑은 **7개**다. 홀리오오라는 DB29의 unit card-local TextExtra가 요구하는 정확한 내림 문구를 포함하지 않고, 그 문구가 item reference에만 있어 unit Skill2 실행 근거로 승격하지 않는다. 따라서 handler/test는 존재하지만 현행 DB29 unit mapping은 비실행이다.
+- synthetic unit test는 홀리오오라 산식의 경계 동작만 검증한다. 이는 현행 DB29 카드 매핑을 승인하는 근거가 아니다.
+- Skill2 데이터 감사는 `entries=189`, `activeSkills=188`, `activeCards=1366`, `sourceMappings=10381`, `cardReferences=10381`, `executableRules=7`로 고정 기록한다. 이후 카드별 원문 근거가 추가되면 해당 규칙만 다시 승격하고 별도 regression을 추가한다.
+
+### CardDB 현행 semantic queue / PR
+- T PR #9 HEAD `ffaab03b9a97ecc9d981fd605f58972aed2a0d9c`, open/unmerged. Actions #544 success (경량 회귀 테스트).
+- T PR #12 HEAD `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`, base `feat/carddb-effect-semantic-pass`, open/draft/unmerged. Actions #543 success; structured enrichment 5 tests executed on the stacked PR merge ref.
+- 현재 `fm1-carddb-29-semantic-review-pending-460.json`의 요약은 low-confidence rows/patterns 0, semantic-review pending 54 rows / 41 patterns / 54 distinct card IDs이며 모든 원문 행은 non-executable로 보존된다. Pass 3 adjudication은 source context 보완 overlay이지 DB29 원문 수정이나 실행 승인 자료가 아니다.
+- 기존 `unparsed_effect_text 195`는 run #430 시점의 과거 큐다. #454~#460 parser 보완 이후의 현재 backlog 수치로 쓰지 않는다. 현행 잔여량은 최신 audit artifact로만 산정한다.
+- Skill1 원문 인벤토리 최종값은 704 groups / 2,655 candidate card rows / 2,767 source excerpts / 1,004 group-local exact text variants다. 이는 근거 인벤토리이며 의미 검증·실행 규칙 수가 아니다. Skill2는 완전히 별도 집계한다.
+
+### 변경·운영 경계
+- DB29 및 Release `fm1-carddb-29` immutable. DB30 발행, `main` 수정, PR #9/#12/#28 병합은 사용자 명시 승인 전 금지.
+- 성공 Actions는 실제 수행한 단계만 성공으로 보고한다. 취소는 실패로 계산하지 않는다. 문서/CI 변경을 중복 실행하지 않고, 코드 변경은 focused tests를 먼저 통과시킨 뒤 필요한 통합 검증만 실행한다.
