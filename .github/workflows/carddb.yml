@@ -87,6 +87,7 @@ jobs:
           python -m unittest tests/test_infer_unmapped_skills.py
           python -m unittest tests/test_skill2_execution_review.py
           python -m unittest tests/test_skill2_source_evidence_summary.py
+          python -m unittest tests/test_skill2_devoted_defense_adjudication.py
           python -m unittest tests/test_soul_semantic_review_summary.py
           python -m unittest tests/test_skill2_engine_test_crosswalk.py
           python -m unittest tests/test_manual_skill1_engine_test_crosswalk.py
