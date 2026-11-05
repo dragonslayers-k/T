@@ -467,3 +467,12 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - A1~A57 누계: **2,478 후보 행 / 2,544 원문 발췌 / 788 정확 문구 변형**.
 - A53 정정본은 원본 Counter.most_common() 순위를 사용한다. 이후 모든 배치도 동일한 원본 순위로 산출한다.
 - 어스브레스/어스스크림의 방체 단계별 피해, 이름 수 산식, AP/DP 기호, 지형 생성은 공식 수식/실행 테스트 전까지 비실행.
+
+
+## A58~A59 누적 조사 갱신 (2026-11-05)
+
+- A58: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a58-2026-11-05.md` — 532~541위, 10 후보 행 / 13 원문 발췌 / 13 정확 문구 변형.
+- A59: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a59-2026-11-05.md` — 542~551위, 10 후보 행 / 10 원문 발췌 / 10 정확 문구 변형.
+- A1~A59 누계: **2,498 후보 행 / 2,567 원문 발췌 / 811 정확 문구 변형**.
+- A53 정정 원칙에 따라 원본 Counter.most_common() 순위 유지. card_text 설명, 유닛 고유능력, Skill1 effect, Skill2/방어기술을 섞지 않는다.
+- coin rate/코인 제거, 기술 수 기반 소환, 카드 영역 이동, NCS 소울 교체는 source context와 runtime validation을 분리한다.
