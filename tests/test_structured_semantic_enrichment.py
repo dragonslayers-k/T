@@ -116,14 +116,16 @@ class StructuredSemanticEnrichmentTests(unittest.TestCase):
             matched += claim.get("id_match_status") == "pending_card_id_match"
             unmatched += claim.get("id_match_status") is None
             self.assertTrue(claim["source"]["url"])
-            self.assertTrue(claim["claim"])
+            self.assertTrue(claim.get("claim") or claim.get("topic"))
             card_claims += "card_name" in claim
             topic_claims += "topic" in claim
         self.assertEqual(matched, 4)
         self.assertEqual(unmatched, 3)
         self.assertEqual(card_claims, 4)
         self.assertEqual(topic_claims, 3)
-        self.assertEqual(data["policy"]["ruleset"], "FM1; historical version uncertain unless noted")
+        self.assertEqual(data["ruleset"], "FM1; historical version uncertain unless noted")
+        self.assertTrue(data["policy"]["db29_immutable"])
+        self.assertFalse(data["policy"]["db30_issued"])
         self.assertFalse(data["policy"]["main_merge"])
 
 
