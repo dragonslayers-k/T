@@ -78,3 +78,25 @@
 2. 원문 변형마다 Rule ID 및 처리 조건을 독립 검증한다.
 3. 미확인/의미 불일치 후보는 fail-closed 상태로 둔다.
 4. DB29 및 main 병합 없이 리뷰 산출물과 테스트만 갱신한다.
+
+
+## 2026-11-05 effect-only evidence reconciliation addendum
+
+The initial unique-variant counts above include all matched card-local references. A later source-type audit separated actual `additional_text` effect clauses from `card_text` annotations/build-up prose:
+
+| Skill2 | Initial all-reference variants | Actual additional_text variants | additional_text rows | Missing rows |
+|---|---:|---:|---:|---:|
+| 기선제압 | 10 | 6 | 175 | 5 |
+| 헌신방어 | 8 | 6 | 63 | 3 |
+| 얼라이디펜스 | 3 | 3 | 44 | 0 |
+| 레이셜디펜스 | 2 | 2 | 35 | 0 |
+| 강한헌신방어 | 2 | 2 | 28 | 0 |
+| 격노 | 3 | 2 | 20 | 0 |
+| 홀리오오라 | 2 | 2 | 2 | 0 |
+| 프레셔 | 1 | 1 | 1 | 0 |
+| **합계** | **31** | **24** | **368** | **8** |
+
+- 377 Skill2 candidate rows: 368 rows have `additional_text` effect evidence; 1 row has only `card_text` and is not a Skill2 effect; 8 rows have no matched local excerpt.
+- Seven `card_text` references are excluded from effect evidence. One is the only reference for 고대의반지 (9071541045); six co-occur with a separate `additional_text` reference.
+- All 377 mappings remain `inferred`; no card is promoted to `source_card_verified` by this reconciliation.
+- The original 10/8/3 variant figures remain valid as all-reference counts; the 6/6/2 figures above are effect-only counts. Keep both definitions explicit and do not mix them.
