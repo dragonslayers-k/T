@@ -370,3 +370,12 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - A1~A44 누계: **2,348 후보 행 / 2,396 원문 발췌 / 640 정확 문구 변형**.
 - 무구소환/무구장착은 동일 전쟁의여신 이름 계열이지만 장착 아이템 대응이 반대이므로 별도 규칙으로 보존한다. 묘비명파멸/미러메이즈의 히어로 카운터와 능력 사용은 분리한다.
 - APK PR #28 기준: Actions #139 성공 / SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. Fail-closed dispatcher, atomic subscription registration, reentrant dispatch guard가 통과했다. 아직 신규 효과 handler는 등록하지 않았다.
+
+
+## A45 누적 조사 갱신 (2026-11-05)
+
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a45-2026-11-05.md` — Skill1 빈도순 402~411위.
+- A45: **10 후보 행 / 9 원문 발췌 / 9 정확 문구 변형**. 배틀타워(이엔루와르, 13010226609)는 원문 발췌 0건.
+- A1~A45 누계: **2,358 후보 행 / 2,405 원문 발췌 / 649 정확 문구 변형**.
+- 후보 인벤토리는 DB29의 Skill1 전용 순위 기준으로 계속 이어간다. 원문 발췌 0건, tooltip 수정 예정, 정의가 불명확한 능력은 실행 후보와 분리해 기록한다.
+- APK PR #28의 마지막 검증은 Actions #139 성공 SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. 이후 변경은 아직 없으며, PR은 open/draft/unmerged다.
