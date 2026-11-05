@@ -1,0 +1,95 @@
+{
+  "schema_version": "FM1-SKILL2-ENGINE-TEST-CROSSWALK-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "engine_evidence": {
+    "repository": "dragonslayers-k/FM-OFFLINE",
+    "branch": "feat/combat-event-foundation",
+    "commit": "28de5d2ff49d65ce23730818b1c8becc402c58cc",
+    "workflow_run_number": 208,
+    "workflow_run_id": 42032079550,
+    "workflow_conclusion": "success",
+    "test_file": "tests/rules.test.cjs"
+  },
+  "policy": {
+    "handler_test_pass_is_not_card_mapping_promotion": true,
+    "source_skill2_fixtures_use_explicit_source_card_verified_metadata": true,
+    "actual_db29_skill2_mappings_remain_inferred_until_card_local_adjudication": true,
+    "no_db30_or_main_merge": true
+  },
+  "summary": {
+    "catalog_rule_count": 8,
+    "positive_rule_tests": 8,
+    "boundary_tests": 5,
+    "engine_test_status": "passed_in_actions_208",
+    "db29_skill2_candidate_rows": 377,
+    "db29_rows_with_additional_text": 368,
+    "db29_card_text_only_rows": 1,
+    "db29_rows_missing_excerpt": 8,
+    "db29_source_card_verified_rows": 0,
+    "db29_executable_rows": 0
+  },
+  "rules": [
+    {
+      "rule_id": "skill2_tactical_initiative",
+      "name": "기선제압",
+      "test_name": "source Skill2 Tactical Initiative reduces incoming damage by one at equal or lower attacker level"
+    },
+    {
+      "rule_id": "skill2_devoted_defense",
+      "name": "헌신방어",
+      "test_name": "source Skill2 Devoted Defense buffs the next friendly field unit when the owner is destroyed"
+    },
+    {
+      "rule_id": "skill2_frenzy_defense",
+      "name": "격노",
+      "test_name": "source Skill2 Wrath converts actual HP lost while defending into immediate AP"
+    },
+    {
+      "rule_id": "skill2_holy_aura",
+      "name": "홀리오오라",
+      "test_name": "source Skill2 Holy Aura prevents damage when attacker AP is at or below half of defender DP plus HP"
+    },
+    {
+      "rule_id": "skill2_alliance_defense",
+      "name": "얼라이디펜스",
+      "test_name": "source Skill2 Alliance Defense reduces damage by each other field unit with the same affiliation"
+    },
+    {
+      "rule_id": "skill2_racial_defense",
+      "name": "레이셜디펜스",
+      "test_name": "source Skill2 Racial Defense reduces damage by each other field unit with the same race"
+    },
+    {
+      "rule_id": "skill2_strong_devoted_defense",
+      "name": "강한헌신방어",
+      "test_name": "source Skill2 Strong Devoted Defense buffs every surviving friendly field unit when destroyed"
+    },
+    {
+      "rule_id": "skill2_pressure_defense",
+      "name": "프레셔",
+      "test_name": "source Skill2 Pressure reduces damage by half the number of empty friendly field slots, rounded down"
+    }
+  ],
+  "boundary_tests": [
+    "source Skill2 Pressure rounds down with one empty slot and reduces damage with two",
+    "source Skill2 Alliance and Racial Defense never reduce incoming damage below zero",
+    "source Skill2 Tactical Initiative does not reduce damage when attacker level is higher",
+    "source Skill2 Devoted Defense buffs the unit immediately after the destroyed field position",
+    "source Skill2 Devoted Defense has no target when the destroyed unit was last on field"
+  ],
+  "fail_closed_tests": [
+    "production Skill2 dispatcher remains fail-closed for inferred card mappings",
+    "production defensive handlers ignore inferred Alliance Defense mappings",
+    "Skill2 dispatcher requires exact card-source rule tuple and canonical name"
+  ],
+  "remaining_work": [
+    "Resolve or retain the eight missing card-local Skill2 excerpts without copying neighboring-card text.",
+    "Adjudicate source wording variants before widening mappings, especially Tactical Initiative damage-origin and level-boundary variants.",
+    "Only promote individual card mappings after exact card ID, source excerpt, rule semantics, and engine regression all agree."
+  ]
+}
