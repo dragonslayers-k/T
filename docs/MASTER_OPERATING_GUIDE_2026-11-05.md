@@ -637,3 +637,16 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - DB29 low-confidence queue 206개 중 conditional/reference candidate 11개를 분류했다: 미완성 조건 2, 명명 능력 정의 필요 1, stat-marker effect 후보 1, rarity metadata 1, 카드 pool 1, profile 2, opaque unknown 2, card mapping reference 1.
 - 이 중 실행 가능한 효과로 승격된 항목은 0. 포메이션제로의 상향고정 marker와 간절한기도의 순화능력은 원문 정의/테스트 전까지 pending.
 - 나머지 unparsed_effect_text 195개는 미판정 유지. 원문 텍스트를 추정으로 고치거나 DB29를 수정하지 않는다.
+
+
+## Verified Skill2 event handlers in production dispatcher (APK PR #28 / run #143)
+
+- Production `newGame()` now creates a match-local core dispatcher with source-matched handlers for `skill2_devoted_defense` and `skill2_strong_devoted_defense`.
+- Destruction events carry a snapshot of the destroyed unit's Skill2 rule ID, mapping status, authority, execution status, and source skill name. The dispatcher invokes a handler only when all source-card-verified gates and the exact rule name match.
+- Existing isolated/custom states without the core dispatcher retain a compatibility path; production newGame states use the event handler path.
+- Tests prove: verified Devoted Defense buffs the next friendly field unit; verified Strong Devoted Defense buffs all remaining friendly units; inferred mapping does not activate either handler.
+- APK PR #28 head `72daa079d428a67ce7e0fc8045be83d052caff52`, open/draft/unmerged. Actions #143 success: https://github.com/dragonslayers-k/FM-OFFLINE/actions/runs/41942737447.
+- Node test suite: **131 passed / 0 failed / 0 skipped**. Android Debug APK build, package validation, compressed APK integrity, and artifact upload passed.
+- Artifact `FantasyMastersOffline-debug.apk` SHA-256: `cfe22709e6e85dfd621c5c5d0c78a6d4314a33b8c8b1c3918b3b2d7e8f5e1caa`.
+- Signed Release APK was not generated (signing secrets not configured). DB29 data pack download/import and emulator install/launch were skipped; no claim of full in-device card-pack validation.
+- No PR merge or DB29/DB30/main mutation.
