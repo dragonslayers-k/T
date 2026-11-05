@@ -139,6 +139,15 @@ jobs:
           python scripts/audit_manual_skill_card_source_matches.py \
             --db data/source-archive/fm1_cards.sqlite \
             --output data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path("data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json").read_text(encoding="utf-8"))
+          for row in report["rules"]:
+              cards=row["matched_card_rows"]
+              sample=",".join(item["card_id"] for item in cards[:5])
+              print(f'MANUAL_SKILL_MATCH {row["rule_id"]} | {row["manual_skill_name"]} | cards={len(cards)} | sample_ids={sample}')
+          PY
 
       - name: Upload exact Manual Skill1 source match report
         if: ${{ env.MODE == 'manual-source-match' }}
