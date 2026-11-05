@@ -379,3 +379,12 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 - A1~A45 누계: **2,358 후보 행 / 2,405 원문 발췌 / 649 정확 문구 변형**.
 - 후보 인벤토리는 DB29의 Skill1 전용 순위 기준으로 계속 이어간다. 원문 발췌 0건, tooltip 수정 예정, 정의가 불명확한 능력은 실행 후보와 분리해 기록한다.
 - APK PR #28의 마지막 검증은 Actions #139 성공 SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. 이후 변경은 아직 없으며, PR은 open/draft/unmerged다.
+
+
+## A46 누적 조사 갱신 (2026-11-05)
+
+- 신규 문서: `data/reviews/fm1-skill1-source-evidence-manifest-batch-a46-2026-11-05.md` — Skill1 빈도순 412~421위.
+- A46: **10 후보 행 / 13 원문 발췌 / 13 정확 문구 변형**.
+- A1~A46 누계: **2,368 후보 행 / 2,418 원문 발췌 / 662 정확 문구 변형**.
+- NCS 소울 소비, 상태 해제 시 파괴, 코인률 50% 변경, 공격/방어 턴 분기는 각기 별도 미검증 규칙으로 남긴다.
+- APK PR #28 마지막 성공 검증은 Actions #139 / SHA `b1b545690009c5ecaaab7af088b5596ac9ad2152`. 다음 focused test는 spell/effect transaction 종료 시 destroy event가 안전하게 dispatch되는지 검증한다.
