@@ -33,6 +33,14 @@ class ManualSkill1EngineTestCrosswalkTests(unittest.TestCase):
         self.assertEqual(len(differences), 8)
         self.assertTrue(self.data["policy"]["manual_and_engine_names_preserved_separately"])
 
+    def test_every_rule_retains_exact_db29_source_locator(self):
+        for row in self.data["rules"]:
+            self.assertEqual(row["source_field"], "Skill1")
+            self.assertTrue(row["source_card_url"].startswith("https://fmlunatic.com/card/"))
+            self.assertTrue(row["exact_source_label"])
+            self.assertIsNotNone(row["source_enum_value"])
+            self.assertGreater(row["matched_db29_card_rows"], 0)
+
     def test_engine_tests_do_not_promote_db29_card_mappings(self):
         self.assertFalse(self.data["summary"]["db29_mapping_semantic_promotion_authorized"])
         self.assertTrue(self.data["policy"]["db29_card_mapping_not_promoted_by_engine_test_alone"])

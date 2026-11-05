@@ -40,55 +40,100 @@
       "rule_id": "normal_attack",
       "manual_name": "일반공격",
       "engine_name": "일반공격",
-      "card_id": "10020341112"
+      "card_id": "10020341112",
+      "card_name": "은룡의검",
+      "source_field": "Skill1",
+      "source_enum_value": 552,
+      "exact_source_label": "일반공격",
+      "source_card_url": "https://fmlunatic.com/card/10020341112"
     },
     {
       "rule_id": "defense_bypass",
       "manual_name": "방어무시",
       "engine_name": "방어무시",
-      "card_id": "10091525193"
+      "card_id": "10091525193",
+      "card_name": "카오틱비스트",
+      "source_field": "Skill1",
+      "source_enum_value": 243,
+      "exact_source_label": "방어무시",
+      "source_card_url": "https://fmlunatic.com/card/10091525193"
     },
     {
       "rule_id": "frenzy_attack",
       "manual_name": "광분공격",
       "engine_name": "광분공격",
-      "card_id": "10010624538"
+      "card_id": "10010624538",
+      "card_name": "다크퍼밀리어",
+      "source_field": "Skill1",
+      "source_enum_value": 54,
+      "exact_source_label": "광분공격",
+      "source_card_url": "https://fmlunatic.com/card/10010624538"
     },
     {
       "rule_id": "ability_seal",
       "manual_name": "기술봉쇄",
       "engine_name": "봉쇄공격",
-      "card_id": "10020324644"
+      "card_id": "10020324644",
+      "card_name": "환상낚시꾼",
+      "source_field": "Skill1",
+      "source_enum_value": 82,
+      "exact_source_label": "기술봉쇄",
+      "source_card_url": "https://fmlunatic.com/card/10020324644"
     },
     {
       "rule_id": "copy_attack",
       "manual_name": "공격복제",
       "engine_name": "복제공격",
-      "card_id": "10050441147"
+      "card_id": "10050441147",
+      "card_name": "진실의거울",
+      "source_field": "Skill1",
+      "source_enum_value": 42,
+      "exact_source_label": "공격복제",
+      "source_card_url": "https://fmlunatic.com/card/10050441147"
     },
     {
       "rule_id": "defensive_use",
       "manual_name": "방어이용",
       "engine_name": "방어이용",
-      "card_id": "10010624568"
+      "card_id": "10010624568",
+      "card_name": "포춘텔러",
+      "source_field": "Skill1",
+      "source_enum_value": 245,
+      "exact_source_label": "방어이용",
+      "source_card_url": "https://fmlunatic.com/card/10010624568"
     },
     {
       "rule_id": "taunt_attack",
       "manual_name": "조롱공격",
       "engine_name": "조롱",
-      "card_id": "10030324709"
+      "card_id": "10030324709",
+      "card_name": "다크조커",
+      "source_field": "Skill1",
+      "source_enum_value": 598,
+      "exact_source_label": "조롱공격",
+      "source_card_url": "https://fmlunatic.com/card/10030324709"
     },
     {
       "rule_id": "confusion_attack",
       "manual_name": "혼란공격",
       "engine_name": "혼란공격",
-      "card_id": "10040724804"
+      "card_id": "10040724804",
+      "card_name": "견습수도사",
+      "source_field": "Skill1",
+      "source_enum_value": 767,
+      "exact_source_label": "혼란공격",
+      "source_card_url": "https://fmlunatic.com/card/10040724804"
     },
     {
       "rule_id": "stealth_attack",
       "manual_name": "은폐공격",
       "engine_name": "은폐공격",
-      "card_id": "10040724812"
+      "card_id": "10040724812",
+      "card_name": "블라인드랩터",
+      "source_field": "Skill1",
+      "source_enum_value": 533,
+      "exact_source_label": "은폐공격",
+      "source_card_url": "https://fmlunatic.com/card/10040724812"
     }
   ],
   "rules": [
@@ -105,7 +150,12 @@
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
         "a Skill2-only ability never falls through to the Skill1 combat handler"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 552,
+      "exact_source_label": "일반공격",
+      "source_card_url": "https://fmlunatic.com/card/10020341112",
+      "matched_db29_card_rows": 68
     },
     {
       "rule_id": "defense_bypass",
@@ -139,7 +189,12 @@
         "combat dispatcher sends isolated event copies to every subscriber in stable order",
         "compact DB29 Skill1 mapping executes only source-authorized Manual rules in combat",
         "compact DB29 Manual defense-bypass Skill1 clamps zero attack power and preserves target HP"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 243,
+      "exact_source_label": "방어무시",
+      "source_card_url": "https://fmlunatic.com/card/10091525193",
+      "matched_db29_card_rows": 234
     },
     {
       "rule_id": "fatal_attack",
@@ -158,7 +213,12 @@
         "combat dispatcher sends isolated event copies to every subscriber in stable order",
         "compact DB29 Manual fatal attack preserves the one-HP floor at lethal boundary",
         "DB29 Manual Fatal Attack does not revive an already-zero-HP defender"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 643,
+      "exact_source_label": "치명공격",
+      "source_card_url": "https://fmlunatic.com/card/10012024612",
+      "matched_db29_card_rows": 153
     },
     {
       "rule_id": "piercing_attack",
@@ -174,7 +234,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual piercing and weakening attacks follow their exact AP and DP effects",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 51,
+      "exact_source_label": "관통공격",
+      "source_card_url": "https://fmlunatic.com/card/10091525214",
+      "matched_db29_card_rows": 172
     },
     {
       "rule_id": "weaken_attack",
@@ -193,7 +258,12 @@
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills",
         "DB29 Manual Skill1 stat effects respect per-stat marker directions"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 454,
+      "exact_source_label": "약화공격",
+      "source_card_url": "https://fmlunatic.com/card/10091525190",
+      "matched_db29_card_rows": 141
     },
     {
       "rule_id": "petrify_attack",
@@ -212,7 +282,12 @@
         "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "DB29 Manual Skill1 stat effects respect per-stat marker directions"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 339,
+      "exact_source_label": "석화공격",
+      "source_card_url": "https://fmlunatic.com/card/10010624589",
+      "matched_db29_card_rows": 120
     },
     {
       "rule_id": "vampiric_attack",
@@ -229,7 +304,12 @@
         "DB29 Manual Vampiric Attack uses actual HP damage, rounds half up, and respects HP markers",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 788,
+      "exact_source_label": "흡혈공격",
+      "source_card_url": "https://fmlunatic.com/card/10010624542",
+      "matched_db29_card_rows": 115
     },
     {
       "rule_id": "aging_attack",
@@ -245,7 +325,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 106,
+      "exact_source_label": "노화공격",
+      "source_card_url": "https://fmlunatic.com/card/13020626691",
+      "matched_db29_card_rows": 53
     },
     {
       "rule_id": "charge_attack",
@@ -262,7 +347,12 @@
         "DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 135,
+      "exact_source_label": "돌진공격",
+      "source_card_url": "https://fmlunatic.com/card/10010624588",
+      "matched_db29_card_rows": 189
     },
     {
       "rule_id": "beast_tamer",
@@ -278,7 +368,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 450,
+      "exact_source_label": "야수조련",
+      "source_card_url": "https://fmlunatic.com/card/11011925567",
+      "matched_db29_card_rows": 63
     },
     {
       "rule_id": "bravery_attack",
@@ -295,7 +390,12 @@
         "Manual bravery/fear use the defender level relation and add AP before DP even at AP zero",
         "DB29 Manual bravery and fear attacks apply level-gated bonus damage at zero AP",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 508,
+      "exact_source_label": "용맹공격",
+      "source_card_url": "https://fmlunatic.com/card/10010624545",
+      "matched_db29_card_rows": 221
     },
     {
       "rule_id": "regeneration",
@@ -311,7 +411,12 @@
         "DB29 Manual Regeneration restores one HP on attack even when defender DP blocks all damage",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 572,
+      "exact_source_label": "재생능력",
+      "source_card_url": "https://fmlunatic.com/card/10010624560",
+      "matched_db29_card_rows": 157
     },
     {
       "rule_id": "frenzy_attack",
@@ -325,7 +430,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 54,
+      "exact_source_label": "광분공격",
+      "source_card_url": "https://fmlunatic.com/card/10010624538",
+      "matched_db29_card_rows": 110
     },
     {
       "rule_id": "consecutive_attack",
@@ -341,7 +451,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "DB29 Manual Consecutive Attack applies AP-minus-one doubling with DP and boundary clamps"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 482,
+      "exact_source_label": "연속공격",
+      "source_card_url": "https://fmlunatic.com/card/10050441142",
+      "matched_db29_card_rows": 116
     },
     {
       "rule_id": "fear_attack",
@@ -358,7 +473,12 @@
         "Manual bravery/fear use the defender level relation and add AP before DP even at AP zero",
         "DB29 Manual bravery and fear attacks apply level-gated bonus damage at zero AP",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 49,
+      "exact_source_label": "공포공격",
+      "source_card_url": "https://fmlunatic.com/card/10050424835",
+      "matched_db29_card_rows": 167
     },
     {
       "rule_id": "charm_attack",
@@ -374,7 +494,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual charm attack disables AP only when DP prevents all HP damage",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 198,
+      "exact_source_label": "매료공격",
+      "source_card_url": "https://fmlunatic.com/card/10020324637",
+      "matched_db29_card_rows": 127
     },
     {
       "rule_id": "ability_seal",
@@ -392,7 +517,12 @@
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills",
         "compact DB29 Manual Skill1 fields activate only the mapped canonical rule ID",
         "combat event dispatcher accepts only known verified mappings and dispatches isolated events in order"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 82,
+      "exact_source_label": "기술봉쇄",
+      "source_card_url": "https://fmlunatic.com/card/10020324644",
+      "matched_db29_card_rows": 203
     },
     {
       "rule_id": "spell_suppression",
@@ -409,7 +539,12 @@
         "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 602,
+      "exact_source_label": "주문봉쇄",
+      "source_card_url": "https://fmlunatic.com/card/10010624550",
+      "matched_db29_card_rows": 56
     },
     {
       "rule_id": "weapon_suppression",
@@ -426,7 +561,12 @@
         "DB29 Manual beast tamer, spell suppression and weapon suppression require the exact target ability",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 224,
+      "exact_source_label": "무기봉쇄",
+      "source_card_url": "https://fmlunatic.com/card/10010624543",
+      "matched_db29_card_rows": 48
     },
     {
       "rule_id": "copy_attack",
@@ -441,7 +581,12 @@
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 42,
+      "exact_source_label": "공격복제",
+      "source_card_url": "https://fmlunatic.com/card/10050441147",
+      "matched_db29_card_rows": 48
     },
     {
       "rule_id": "shield_break",
@@ -460,7 +605,12 @@
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "Manual canonical shield-break label normalizes to the engine keyword",
         "DB29 Manual Skill1 stat effects respect per-stat marker directions"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 249,
+      "exact_source_label": "방패파괴",
+      "source_card_url": "https://fmlunatic.com/card/10010624551",
+      "matched_db29_card_rows": 96
     },
     {
       "rule_id": "curse_attack",
@@ -476,7 +626,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual shield-break and curse attacks apply their source-defined stat changes",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 576,
+      "exact_source_label": "저주공격",
+      "source_card_url": "https://fmlunatic.com/card/10030324708",
+      "matched_db29_card_rows": 84
     },
     {
       "rule_id": "defensive_use",
@@ -490,7 +645,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 245,
+      "exact_source_label": "방어이용",
+      "source_card_url": "https://fmlunatic.com/card/10010624568",
+      "matched_db29_card_rows": 164
     },
     {
       "rule_id": "taunt_attack",
@@ -504,7 +664,12 @@
         "FM1 intimidation taunt leaves target at 1 HP and transfers lost HP to its AP",
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 598,
+      "exact_source_label": "조롱공격",
+      "source_card_url": "https://fmlunatic.com/card/10030324709",
+      "matched_db29_card_rows": 47
     },
     {
       "rule_id": "confusion_attack",
@@ -517,7 +682,12 @@
       "matching_engine_test_names": [
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 767,
+      "exact_source_label": "혼란공격",
+      "source_card_url": "https://fmlunatic.com/card/10040724804",
+      "matched_db29_card_rows": 94
     },
     {
       "rule_id": "stealth_attack",
@@ -531,7 +701,12 @@
         "FM1 manual special attacks apply their named stat conditions",
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "FM1 opponent-facing special effects require rolled AP of at least one, except explicit self/bonus skills"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 533,
+      "exact_source_label": "은폐공격",
+      "source_card_url": "https://fmlunatic.com/card/10040724812",
+      "matched_db29_card_rows": 86
     },
     {
       "rule_id": "defense_convert",
@@ -550,7 +725,12 @@
         "DB29 Manual catalogue exposes all 27 rule IDs with their actual source Skill1 labels",
         "actual Skill1 aliases for source enum names execute the mapped Manual baseline rules",
         "DB29 Manual Skill1 stat effects respect per-stat marker directions"
-      ]
+      ],
+      "source_field": "Skill1",
+      "source_enum_value": 244,
+      "exact_source_label": "방어변환",
+      "source_card_url": "https://fmlunatic.com/card/10010624563",
+      "matched_db29_card_rows": 26
     }
   ]
 }
