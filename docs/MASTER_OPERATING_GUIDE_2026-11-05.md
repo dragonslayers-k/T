@@ -826,3 +826,17 @@ DB 의미 조사가 끝날 때까지 엔진 개발을 대기시키지 않는다.
 5. 문서·테스트를 한 묶음으로 정리한 후 focused Actions를 실행한다. 전체 DB audit, 대형 데이터팩 생성, emulator run은 의미 있는 변경이 누적된 시점에만 선택 실행한다.
 6. PR #9/#12/#28 병합, DB30 발행, main 수정은 사용자 명시 승인 전 금지한다.
 
+
+
+---
+
+## 2026-11-05 — DB29 Manual Skill1 exact-source matching pipeline
+
+- Added `scripts/audit_manual_skill_card_source_matches.py`. It compares the immutable DB29 SQLite `Skill1` field against the 27 Manual-authority rule names and catalog aliases using Unicode NFKC + whitespace normalization and exact equality only.
+- The report preserves card ID, card name, raw source value, normalized source label, match type, and source card URL. Substring/inferred matches are excluded.
+- The matcher is evidence inventory only: it cannot authorize runtime promotion and does not mutate DB29 or issue DB30.
+- Added `tests/test_manual_skill_card_source_match_audit.py` covering exact canonical/alias matching, false-positive rejection, source provenance, and the non-promotion guard.
+- Added the script and test to the lightweight CI checks.
+- Commits: `b04216a` (script), `6f477af` (tests), `24b0713` (CI).
+- Actions #553 for commit `24b0713` passed. This verifies the audit script/test infrastructure; the actual DB29 matcher report is not yet generated because the release SQLite must be supplied as the script input. Do not state match counts until it has run against that DB.
+- Next: execute the matcher against the immutable DB29 SQLite, review card-local evidence, then select one source-backed rule for engine tests. Maintain DB29 immutable, DB30 not issued, and PRs unmerged.
