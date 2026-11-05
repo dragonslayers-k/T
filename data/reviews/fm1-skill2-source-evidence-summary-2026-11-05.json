@@ -178,5 +178,202 @@
       "source_card_url": "https://fmlunatic.com/card/16112328609",
       "source_note": "TextBase empty; no matched Skill2 excerpt"
     }
+  ],
+  "source_text_variants": [
+    {
+      "name": "강한헌신방어",
+      "rows": 28,
+      "variants": [
+        {
+          "text": "자신 파괴시, 아군 필드 유닛 전체의 공방체가 1증가한다.",
+          "count": 21
+        },
+        {
+          "text": "자신 파괴시, 아군 필드 유닛 전체의 공방체를 1씩 증가시킨다.",
+          "count": 7
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "destroyed_owner_excluded_from_targets",
+        "surviving_friendly_field_units_only",
+        "temporary_stat_duration_and_cleanup"
+      ]
+    },
+    {
+      "name": "격노",
+      "rows": 20,
+      "variants": [
+        {
+          "text": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+          "count": 19
+        },
+        {
+          "text": "방어시 적군 유닛의 공격을 받으면 HP가 깎인 수치만큼 AP 상승.",
+          "count": 1
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "actual_hp_damage_only",
+        "defender_survival_or_destruction",
+        "ap_update_before_counterattack_roll"
+      ]
+    },
+    {
+      "name": "기선제압",
+      "rows": 175,
+      "variants": [
+        {
+          "text": "적군이 아군보다 이하 레벨일 경우 데미지를 1 덜 받는다.",
+          "count": 133
+        },
+        {
+          "text": "방어시, 상대의 레벨 수치가 자신 레벨 수치 이하이면 자신이 받는 데미지를 1 감소시킨다.",
+          "count": 18
+        },
+        {
+          "text": "적군이 아군보다 이하 레벨인 경우 상대 AP로 인한 데미지를 1 덜 받는다.",
+          "count": 16
+        },
+        {
+          "text": "방어시, 상대의 레벨이 자신보다 이하면 받는 데미지를 1 감소시킨다.",
+          "count": 6
+        },
+        {
+          "text": "방어시, 상대의 레벨이 자신보다 낮은 경우 받는 데미지를 1 감소시킨다.",
+          "count": 1
+        },
+        {
+          "text": "적군LV이 아군 이하일 경우 데미지를 1 덜 받는다",
+          "count": 1
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "strict_vs_inclusive_level_boundary",
+        "all_damage_vs_attacker_ap_damage_only",
+        "damage_reduction_floor_zero"
+      ]
+    },
+    {
+      "name": "레이셜디펜스",
+      "rows": 35,
+      "variants": [
+        {
+          "text": "방어시, 자신을 제외한 자신과 동일한 종족의 필드 유닛 수 만큼 받는 데미지 감소.",
+          "count": 30
+        },
+        {
+          "text": "방어시, 자신을 제외한 아군 필드 유닛 중 자신과 동일한 종족을 가진 유닛 수 만큼 자신이 받는 데미지를 감소시킨다.",
+          "count": 5
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "self_exclusion",
+        "friendly_side_scope",
+        "exact_race_match",
+        "damage_reduction_floor_zero"
+      ]
+    },
+    {
+      "name": "얼라이디펜스",
+      "rows": 44,
+      "variants": [
+        {
+          "text": "방어시, 자신을 제외한 자신과 동일한 소속의 필드 유닛 수 만큼 받는 데미지 감소.",
+          "count": 40
+        },
+        {
+          "text": "방어시, 자신을 제외한 자신과 동일한 소속의 필드 유닛 수 만큼 받는 데 미지 감소.",
+          "count": 2
+        },
+        {
+          "text": "방어시, 자신을 제외한 아군 필드 유닛 중 자신과 동일한 소속을 가진 유닛 수 만큼 자신이 받는 데미지를 감소시킨다.",
+          "count": 2
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "self_exclusion",
+        "friendly_side_scope",
+        "exact_affiliation_match",
+        "damage_reduction_floor_zero"
+      ]
+    },
+    {
+      "name": "프레셔",
+      "rows": 1,
+      "variants": [
+        {
+          "text": "방어시, 아군 필드 빈공간수 절반(내림) 만큼 받은 데미지를 감소시킨다",
+          "count": 1
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "empty_slot_count_snapshot_timing",
+        "floor_rounding_at_0_to_5_slots",
+        "damage_reduction_floor_zero"
+      ]
+    },
+    {
+      "name": "헌신방어",
+      "rows": 63,
+      "variants": [
+        {
+          "text": "자신 파괴시 아군 필드 다음 유닛 공방체 +1",
+          "count": 45
+        },
+        {
+          "text": "자신 파괴시 아군 필드 다음 유닛 공방체 +1.",
+          "count": 12
+        },
+        {
+          "text": "자신 파괴시 아군 필드 다음 유닛 공방체+1",
+          "count": 3
+        },
+        {
+          "text": "자신 파괴시 아군필드 다음 유닛 공방체 +1",
+          "count": 1
+        },
+        {
+          "text": "자신 파괴시, 아군 필드 다음 유닛의 AP/DP/HP를 1 증가시킨다.",
+          "count": 1
+        },
+        {
+          "text": "자신 파괴시 아군 다음 유닛 공방체 +1",
+          "count": 1
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "next_unit_field_order_after_destroyed_slot",
+        "gaps_and_wrap_behavior",
+        "no_next_friendly_unit_behavior",
+        "temporary_hp_and_stat_cleanup"
+      ]
+    },
+    {
+      "name": "홀리오오라",
+      "rows": 2,
+      "variants": [
+        {
+          "text": "방어시 적군 유닛의 AP가 자신 방/체 합 1/2 이하일경우에는 데미지를 입지 않는다.",
+          "count": 1
+        },
+        {
+          "text": "방어시 적군 유닛의 AP가 자신 방/체 합 1/2 이하(내림)일경우에는 데미지를 입지 않는다.",
+          "count": 1
+        }
+      ],
+      "semantic_status": "pending_engine_test",
+      "review_gates": [
+        "floor_rounding_of_dp_plus_hp_half",
+        "inclusive_ap_threshold",
+        "rolled_vs_current_dp_hp_timing"
+      ]
+    }
   ]
 }
