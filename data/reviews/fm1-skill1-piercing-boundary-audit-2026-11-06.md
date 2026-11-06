@@ -45,3 +45,24 @@ The negative-DP result is an explicit conservative runtime interpretation, not a
 - Exact DB29 Skill1 label matches: 96 rows, representative 해적전투원 / `10010624551` / `방패파괴`, source value 249. The T spec's exact card-local effect text is still null/pending. Do not treat exact label matching as evidence that the card-detail packet has been retrieved.
 - APK PR #28 test commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`, Actions #361 / run `42223636601`: 236 JS / 0 fail; Python converter passed. The tests assert AP0 does not trigger; DP0 baseline; positive DP is set to zero; negative DP remains unchanged; `△` blocks decrease; `▽` allows decrease; no post-attack HP spillover from the shield-break effect.
 - This is focused Manual rule fixture evidence, not an SQLite row / card-local HTML extract / pack provenance promotion. Keep `runtime_status` and `implementation_status` distinctions in the machine-readable spec pending resolution of its accepted status vocabulary.
+
+
+## 2026-11-06 — Manual Skill1 shield-break and curse test evidence
+
+### Shield Break — §21
+
+- Rule definition: after an attack, set target DP to 0; if target DP is negative, no effect.
+- DB29 exact Skill1 label: 해적전투원 / `10010624551` / `방패파괴`, source value 249; 96 exact label rows in the T spec. The representative row's exact card-local effect text is still pending (`exact_db29_source_text=null`).
+- APK #361 / run `42223636601`, commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`: success, 236 JS / 0 fail, Python converter passed. Checks AP0 no trigger; DP0 ordinary hit; negative DP no effect; positive DP set to zero after attack; `△` blocks decrease; `▽` permits decrease. Shield-break does not convert the removed DP into extra HP damage.
+
+### Curse Attack — §22
+
+- Rule definition: the attacked target receives AP−2 and DP−2.
+- DB29 exact Skill1 label: 다크조커 / `10030324708` / `저주공격`.
+- APK #363 / run `42224203597`, commit `51222519ffa6f22b015bf0cea9ef16829b92ea73`: success, 236 JS / 0 fail, Python converter passed. Checks AP0 no-trigger; AP `△` protection paired with DP `▽` allowed decrease; AP `▽` allowed decrease paired with DP `△` protection.
+
+### Interpretation boundary
+
+- Common marker directions are from Manual `cardability.htm`; rule wording is from `specialability.htm` §§21–22.
+- T machine-readable spec still says `implementation_status=pending_engine_test` for Shield Break and has no card-local exact text. The focused fixture test is evidence that the handler path is tested, but accepted spec enum values were not established; do not invent one. Exact label matching is not card-local source evidence.
+- These are deterministic fixture tests only. No runtime code, source mapping, DB29 SQLite, pack or Release was changed. DB29 remains preserved; DB30 unpublished.
