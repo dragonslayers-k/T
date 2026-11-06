@@ -459,3 +459,25 @@ DB29 remains preserved; DB30 remains unpublished; all designated PRs remain unme
 
 ### Remaining final gate
 After #301 completes, update PR #28 with the explicit `[build-card-pack] [run-emulator]` markers once. Confirm the generated data pack has 15,350/15,350 valid runtime costs, 8,633/8,633 finite unit upkeep profiles, 48,281/48,281 terminal effect-clause dispositions, zero card-wide blockers, and a same-SHA emulator install/launch. Do not run a second full pack or emulator job on the same SHA.
+
+---
+
+## OPS-011 — 2026-11-06 — per-card action terminal-state gate / CI cost control
+
+### Latest verified checks
+- T PR #9 HEAD `2aad86adf76a823446296f6754181b1cdb4da294` passed Actions #716 / run `42191294766`. Scope: lightweight regression tests and runtime overlay self-test; not a full DB29 audit.
+- APK PR #28 HEAD `ce1918` passed Actions #313 / run `42192048398`: JS rule tests, Python converter tests, Gradle Debug APK build, application ID/package/signature/ZIP checks. DB29 pack and emulator steps were skipped.
+- APK PR #28 latest HEAD `cba3519cc1744b03b583461aece515a7f33a4ede` includes the runtime action audit, partial item fallback correction, safe simple-spell inference boundary, and explicit CI gate policy. Actions #319 / run `42192469551` is pending; this run is lightweight-only by design.
+
+### Actual card-action readiness gate
+- The full pack validator now simulates the actual `FM.playCard()` path for every one of the 15,350 cards with synthetic but legal resources/LP/targets. It checks success, hand removal, a type-appropriate terminal zone/queue, and `playedAnyCardThisPhase` completion.
+- Required result: runtimeActionAudit 15,350 attempted / 15,350 completed / 0 blocked, with terminal states split by card type. This is separate from cost readiness and structural validation.
+- Item fallback ignores only unsupported source clauses; known owner/race/affiliation/allowed-ability restrictions remain enforced in both rules engine and target-selection UI.
+- Exact simple spell inference is limited to one simple clause plus supported attack/defend/battle-start timing and a valid effect target. All enchants remain effect-only fallback until event/duration slot execution exists.
+
+### CI cost control
+- Normal PR synchronize now runs JS/Python checks only; Gradle/Android SDK setup is skipped.
+- PR title `[build-apk]` requests APK build; `[build-card-pack]` requests DB29 data pack plus APK; both `[build-card-pack]` and `[run-emulator]` request emulator install/launch.
+- Main pushes still build APK automatically. Manual workflow_dispatch expensive inputs default false; emulator requires card-pack generation.
+
+DB29 remains preserved; DB30 unpublished; designated PRs remain open and unmerged. PR #13 base SHA is still older than PR #9 base, and the main-branch control center is not yet synchronized; PR-branch documentation is not main synchronization.
