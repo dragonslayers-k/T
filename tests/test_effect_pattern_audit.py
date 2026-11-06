@@ -1,8 +1,12 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from scripts.effect_pattern_audit import analyze, split_clause_candidates
 from scripts.build_gap_reports import classify_cost_review
 from scripts.build_gap_reports import expand_cost_token_review_rows
+from scripts.build_gap_reports import write_jsonl_rows
 from scripts.soul_costs import parse_require_soul
 
 
@@ -253,12 +257,28 @@ class CostTokenReviewQueueTests(unittest.TestCase):
         ]
         rows = expand_cost_token_review_rows([card], {card["card_id"]: tokens})
         self.assertEqual([row["symbol"] for row in rows], ["NCS", "BONUS"])
-        self.assertTrue(all(row["review_status"] == "bonus_semantics_unverified" for row in rows))
+        self.assertTrue(all(row["review_status"] == "multiple_review_dimensions" for row in rows))
+        self.assertEqual(
+            rows[0]["review_dimensions"],
+            ["ncs_semantics_unverified", "bonus_semantics_unverified"],
+        )
         self.assertEqual([row["ordinal"] for row in rows], [0, 1])
-        self.assertEqual(rows[0]["token_review_relevance"], "context_only")
-        self.assertEqual(rows[0]["token_dimensions"], [])
+        self.assertEqual(rows[0]["token_review_relevance"], "direct_token_evidence")
+        self.assertEqual(rows[0]["token_dimensions"], ["ncs_semantics_unverified"])
         self.assertEqual(rows[1]["token_review_relevance"], "direct_token_evidence")
         self.assertEqual(rows[1]["token_dimensions"], ["bonus_semantics_unverified"])
+
+    def test_jsonl_queue_writes_one_parseable_record_per_line(self):
+        rows = [
+            {"card_id": "CARD-1", "symbol": "NCS"},
+            {"card_id": "CARD-2", "symbol": "BONUS"},
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "queue.jsonl"
+            write_jsonl_rows(path, rows)
+            lines = path.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertEqual([json.loads(line) for line in lines], rows)
 
 
 if __name__ == "__main__":
