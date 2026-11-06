@@ -2,7 +2,7 @@
 """Read-only DB29 SQLite inventory for the runtime overlay workstream."""
 import argparse, collections, hashlib, json, sqlite3
 from pathlib import Path
-from scripts.soul_costs import parse_require_soul
+from soul_costs import parse_require_soul
 
 def inspect_db(path):
     digest=hashlib.sha256(path.read_bytes()).hexdigest()
