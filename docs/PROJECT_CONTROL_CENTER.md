@@ -566,3 +566,14 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - APK PR #28 commit `9f24fe688845a0a0c67fd5d523adcb7ae0fcce7d` adds a true `FM.playCard()` regression for an unmapped Skill2 unit. The unit pays its cost, leaves hand, enters the field and completes the preparation-phase action while its unverified Skill2 remains disabled and never falls through to Skill1.
 - Actions #333 / run `42203252263` passed on code HEAD `300dd507850175e3aa19168633c6d33a1f1c6c55`; the exact new test appears in logs and `fail 0`. This is lightweight JS/Python test only, not a new DB29 pack/APK/emulator run.
 - APK `docs/PROJECT_STATUS.md` and `docs/SKILL2_RULES_IMPLEMENTATION.md` contain this distinction and regression result. DB29 is unchanged; DB30 remains unpublished; all designated PRs remain open/unmerged.
+
+
+## OPS-016 — 2026-11-06 — Manual Skill1 DP/stat-marker boundary verification
+
+- Dropbox `/판마/Manual.zip` (modified 2026-11-01; 5,118,143 bytes) was fetched and `specialability.htm` / `cardability.htm` were read directly. The source states: §27 defense conversion, `공격당한 상대는 DP에 - 가 붙게 됩니다.`; §6 petrification applies `=0 / +1 / 0`; cardability marker rules say ▲ prevents decreases and ▼ prevents increases.
+- APK test commit `56f26aa9b30756c99adc0aca4a395ea8eb1403d7` passed Actions #336 / run `42203965191`: DB29 Manual defense-convert source card 리듬포이 / `10010624563` with positive DP +4 → −4, zero DP → 0, and negative DP −2 preserved.
+- APK test commit `98f5678291aad551c865aae32339d5662b5723c7` passed Actions #337 / run `42204718679`: the source-backed petrify test separately checks AP ▲ blocks =0 and DP ▼ blocks +1 while the other stat still changes; weakening attack now includes both a no-HP-damage case and a positive 2-HP-damage case with AP/DP −1.
+- Test results are focused handler/source assertions, not a source mapping promotion or full pack/whole-match certification. No runtime code or DB29 source was changed.
+- T PR #9 audit follow-up commit `9b32c8ff54bc4ebebb8e637abec1316277e13ec0` passed Actions #725 / run `42204919214` (lightweight tests + compact DB29 runtime source inventory; full crawl/image/SQLite/Release audit skipped).
+- APK docs follow-up commit `78484df92cb75482d323ab53c15c6001298fe872` passed Actions #338 / run `42204933506` (lightweight JS/Python; DB29 pack/APK/emulator skipped).
+- Current PRs remain open and unmerged. DB29 stays preserved; DB30 stays unpublished.
