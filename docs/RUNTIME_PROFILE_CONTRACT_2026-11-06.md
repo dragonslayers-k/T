@@ -93,3 +93,11 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - Fix commit `59384b9381cad328ed60801895635077ecdeefba` compares the terminal log with the actual fixture `ai.name`. Actions #346 / run `42215917221` passed: 235 JS tests / 0 failures; Python converter 13 / OK.
 - The test executes `FM.endPhase()` → opponent AI `beginPhase()` → `drawToSix()` with five cards in hand and an empty AI deck. It verifies no phantom draw, the player wins, state becomes finished, round does not advance, and `runAIPhase()` does not start after the terminal state.
 - This covers a second terminal route distinct from #342's direct deck attack: preparation draw exhaustion. This is still fixture-level lightweight integration; DB29 pack/APK/emulator skipped and no full 15,350-card match is certified.
+
+
+## 11. NCS upkeep deck-exhaustion terminal transition — 2026-11-06
+
+- APK PR #28 test HEAD `c4bb96875778d3a038fba6e3a058191e943fa4a4`, Actions #348 / run `42216514570`: success; 236 JS tests / 0 failures, 13 Python converter tests / OK.
+- The test traverses `FM.endPhase()` → AI `beginPhase()` → `payNeutralUpkeep()`. A single NCS upkeep remains unpaid because the AI has no available souls; the final deck card is destroyed; the human wins; AI hand refill/card review/action and round transition are prevented.
+- Source basis: Dropbox Manual.zip `soulcost.htm` rules for neutral-cost units, upkeep each preparation turn, and deck-card destruction equal to unpaid amount. The test verifies the terminal boundary without modifying upkeep logic.
+- The distinct terminal paths now have focused integration tests: #342 direct deck hit, #346 draw-to-six exhaustion, #348 unpaid NCS upkeep. These are fixtures and do not equal a full DB29 production-deck match. DB29 pack/APK/emulator remain separately evidenced by #325.
