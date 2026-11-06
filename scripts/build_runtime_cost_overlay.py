@@ -82,8 +82,10 @@ def profile_for_card(card, cost_row):
             raise ValueError(f"Invalid runtime cost for {card.get('card_id')}: {key}={value}")
 
     ncs_upkeep = max(0, int(colors.get("ncs") or 0)) if card.get("card_type") == "유닛" else 0
+    source_review = bool(cost_row and (cost_row.get("mapping_review") or cost_row.get("semantic_review")))
+    bonus_amount = max(0, int(colors.get("bonus") or 0))
     status = "fallback_payable" if fallback else (
-        "implemented_inferred" if inference else "implemented_verified"
+        "implemented_inferred" if source_review or bonus_amount else "implemented_verified"
     )
     return {
         "cardId": str(card["card_id"]),
