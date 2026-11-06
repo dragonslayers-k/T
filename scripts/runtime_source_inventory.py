@@ -21,7 +21,7 @@ def inspect_db(path):
                 FROM card_fields f JOIN cards c USING(card_id) WHERE f.field_key=?
                 AND f.source_value_json IS NOT NULL AND f.source_value_json NOT IN ('null','""') GROUP BY c.card_type''',(key,))}
         field_matrix={}
-        for row in db.execute("SELECT field_key,card_type,COUNT(DISTINCT card_id) n FROM card_fields GROUP BY field_key,card_type"):
+        for row in db.execute("SELECT f.field_key,c.card_type,COUNT(DISTINCT f.card_id) n FROM card_fields f JOIN cards c USING(card_id) GROUP BY f.field_key,c.card_type"):
             field_matrix.setdefault(row["field_key"],{})[row["card_type"]]=int(row["n"])
         land_fields={key:value.get("지형",0) for key,value in field_matrix.items() if value.get("지형",0)}
         token_code_status={}
