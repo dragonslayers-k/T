@@ -101,3 +101,12 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - The test traverses `FM.endPhase()` → AI `beginPhase()` → `payNeutralUpkeep()`. A single NCS upkeep remains unpaid because the AI has no available souls; the final deck card is destroyed; the human wins; AI hand refill/card review/action and round transition are prevented.
 - Source basis: Dropbox Manual.zip `soulcost.htm` rules for neutral-cost units, upkeep each preparation turn, and deck-card destruction equal to unpaid amount. The test verifies the terminal boundary without modifying upkeep logic.
 - The distinct terminal paths now have focused integration tests: #342 direct deck hit, #346 draw-to-six exhaustion, #348 unpaid NCS upkeep. These are fixtures and do not equal a full DB29 production-deck match. DB29 pack/APK/emulator remain separately evidenced by #325.
+
+
+## 12. Manual Skill1 secondary cluster — charge/frenzy AP-zero DP boundaries
+
+- APK PR #28 test commit `9575dcd77738daacd0d57ede0baa6e6f9fc928c2`, Actions #350 / run `42217090860`: success; 236 JS tests / 0 failures; Python converter 13 / OK.
+- Manual `specialability.htm` §9: charge attacks with own AP and DP, including AP 0 / *0. DB29 Pathfinder `10010624588`: AP0 + own DP3 − defender DP2 = 1; AP0 + own DP1 − defender DP3 = 0.
+- Manual §13: frenzy sets own HP to one and adds sacrificed HP to attack damage. DB29 Dark Familiar `10010624538`: AP0, HP4 sacrifices 3; defender DP2 reduces resulting damage to 1; attacker stays at 1 HP.
+- The remaining secondary cluster review also checked Fatal Attack HP=1 floor/no-revive, Bravery/Fear equal-level thresholds at AP0, and Regeneration +1 at printed max HP / HP marker boundary. These tests were already present; no duplicate tests were added.
+- #350 adds assertions only; no runtime code or source mappings were changed. This is not a full DB29 pack/emulator revalidation or full original-rules certification.
