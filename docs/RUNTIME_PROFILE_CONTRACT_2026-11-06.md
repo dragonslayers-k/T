@@ -64,4 +64,17 @@ Lightweight JavaScript/Python tests run on ordinary PR synchronization. The larg
 
 ## 7. Current implementation work
 
-APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, a runtime cost resolver in the rules engine, finite upkeep handling, item target fallback, and deterministic terminal spell/enchant fallbacks. The validator has been changed to distinguish source review from runtime readiness. Final DB29 pack validation and emulator smoke must still be completed on the final combined HEAD before claiming the 15,350-card runtime gate passes.
+APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, a runtime cost resolver in the rules engine, finite upkeep handling, item target fallback, and deterministic terminal spell/enchant fallbacks. The validator has been changed to distinguish source review from runtime readiness. Final DB29 pack validation and emulator smoke passed on APK code HEAD `60681acc02974f6f6e8721def63b24f0823a6d6e` in Actions #325. Later app.js/UI and workflow-only commits are recorded separately; the final current branch status must be rechecked before additional claims.
+
+
+## 8. Integrated verification checkpoint — 2026-11-06
+
+- T PR #9 HEAD `2aad86adf76a823446296f6754181b1cdb4da294` passed Actions #716 / run `42191294766`. Scope: lightweight regression tests, runtime overlay self-test and Python compile. This was not a new full DB29 audit or release.
+- APK PR #28 code HEAD `60681acc02974f6f6e8721def63b24f0823a6d6e` passed Actions #325 / run `42192845020`: DB29 SQLite integrity/source checks, 15,350-card pack conversion and manifest validation, runtime profile/action audit, Debug APK packaging/signature/ZIP validation, emulator install/import, and WebView load of 15,350/15,350.
+- At that exact SHA, the validator measured 15,350 runtime cost profiles ready / 0 blocked and 15,350 runtime action attempts / 15,350 completed / 0 blocked. Per-card terminal action probe is an execution-readiness check, not proof that every original semantic clause behaves identically in a full match.
+- The action audit reported 48,281 effect clauses: 18 `implemented_inferred`, 48,263 `fallback_noop`; unsupported effects close only the affected clause while payment/action terminal state proceeds. Source review remains a separate axis. Do not describe this as full original effect semantics.
+- CI-cost gate commit `0be807b9dd3b67e5555ea9140e9083d698301bf5` passed #327 / run `42197420334`; only JS/Python checks ran, while DB29 pack, JDK/SDK/Gradle/APK/emulator were skipped.
+- UI/CI clarification SHA `77e1ee9723d6c10263498c68e8b65342fa28646f` passed #328 / run `42199670675`; lightweight JS/Python only. It did not rebuild APK.
+- The card-detail UI warning mismatch was corrected on APK PR #28 commit `6dbdcf7ecabd645f20dd0073435999468409ff4a`. Source-review state now explains the actual runtime cost path where available; unsupported spell/enchant clause copy states that only the effect falls back and card payment/action/turn completion remains normal. Actions #329 / run `42202046670` succeeded with JS/Python checks and Debug APK build/application-ID/signature/ZIP integrity; DB29 pack and emulator were skipped.
+- Remaining semantic work is evidence-linked triage of 48,263 fallback clauses and 1,249 low-confidence source rows, plus a fixed-seed end-to-end combat/turn scenario. Do not promote a clause without its evidence, guardrails and focused engine test.
+- DB29 remains read-only and preserved; DB30 is not published; T PR #9/#12/#13 and APK PR #28/#26/#25/#9 stay open and unmerged.
