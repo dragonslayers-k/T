@@ -211,6 +211,10 @@ class CostTokenReviewQueueTests(unittest.TestCase):
         self.assertTrue(all(row["review_dimensions"] == ["hybrid_mapping_review_pending"] for row in rows))
         self.assertEqual(rows[0]["raw_token"], "1302")
         self.assertEqual(rows[1]["raw_token"], "5101")
+        self.assertEqual(rows[0]["token_review_relevance"], "direct_token_evidence")
+        self.assertEqual(rows[0]["token_dimensions"], ["hybrid_mapping_review_pending"])
+        self.assertEqual(rows[1]["token_review_relevance"], "context_only")
+        self.assertEqual(rows[1]["token_dimensions"], [])
 
     def test_preserves_card_review_when_token_evidence_is_missing(self):
         card = {
@@ -251,6 +255,10 @@ class CostTokenReviewQueueTests(unittest.TestCase):
         self.assertEqual([row["symbol"] for row in rows], ["NCS", "BONUS"])
         self.assertTrue(all(row["review_status"] == "bonus_semantics_unverified" for row in rows))
         self.assertEqual([row["ordinal"] for row in rows], [0, 1])
+        self.assertEqual(rows[0]["token_review_relevance"], "context_only")
+        self.assertEqual(rows[0]["token_dimensions"], [])
+        self.assertEqual(rows[1]["token_review_relevance"], "direct_token_evidence")
+        self.assertEqual(rows[1]["token_dimensions"], ["bonus_semantics_unverified"])
 
 
 if __name__ == "__main__":
