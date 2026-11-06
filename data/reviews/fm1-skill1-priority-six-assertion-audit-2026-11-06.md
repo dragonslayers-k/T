@@ -62,3 +62,12 @@
 - APK test commit `56f26aa9b30756c99adc0aca4a395ea8eb1403d7` expands the DB29 source-card fixture `리듬포이 / 10010624563` to assert three independent outcomes: DP +4 blocks one damage then becomes -4; DP 0 allows 1 damage and remains 0; DP -2 allows 3 damage and remains -2.
 - The implementation condition remains restricted to a successful attack against a defender and positive rolled DP; no speculative new effect was added.
 - This is a focused source-backed boundary test addition. Do not promote the rule beyond the existing verified status until the new APK PR check for the exact test commit completes.
+
+
+### Verified results — 2026-11-06 Actions #336 / #337
+
+- The Manual-backed defense-convert three-way DP sign test passed on APK PR #28 commit `56f26aa9b30756c99adc0aca4a395ea8eb1403d7`, Actions #336 / run `42203965191`. The log records the exact test and `fail 0`.
+- T PR #9 documentation follow-up commit `3f1707149b531562cea75b0fbda12d81393a23c4` passed Actions #724 / run `42204057551` (lightweight regression + compact DB29 runtime inventory; large crawl/full image/SQLite/Release stages skipped).
+- Subsequent APK test commit `98f5678291aad551c865aae32339d5662b5723c7`, Actions #337 / run `42204718679`, passed `DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules` and `DB29 Manual piercing and weakening attacks follow their exact AP and DP effects`, with `fail 0`.
+- The expanded petrify assertions apply `cardability.htm` stat-marker rules independently: AP `▲` blocks the `=0` decrease while DP `▼` blocks the `+1` increase; the other stat effect still applies. The weakening positive-damage case confirms the AP/DP −1 effect also occurs when the attack deals 2 HP damage, alongside the existing zero-HP-damage case.
+- These are focused rule tests, not DB29 full-pack or emulator revalidation. No source mapping is promoted solely by these fixtures.
