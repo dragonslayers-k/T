@@ -593,3 +593,12 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - Fix commit `59384b9381cad328ed60801895635077ecdeefba` uses `ai.name` in the assertion. Actions #346 / run `42215917221` passed: 235 JS tests / 0 failures; Python converter 13 / OK.
 - The passing integration path calls `FM.endPhase()` and transfers into AI `beginPhase()`. AI hand count 5 + empty deck triggers `drawToSix()` terminal check; verifies player win, no phantom draw, no round advance, and no AI auto-play after finish.
 - Distinct from #342 direct attack end-game test; this is the draw-refill route. Both are lightweight fixture tests only. DB29 pack/APK/emulator not run. DB29 preserved; DB30 unpublished.
+
+
+## OPS-020 — 2026-11-06 — NCS upkeep terminal deck loss
+
+- Test commit `c4bb96875778d3a038fba6e3a058191e943fa4a4`, APK PR #28 Actions #348 / run `42216514570`: success; 236 JS tests / 0 failures; 13 Python converter tests / OK.
+- The new regression takes the human `endPhase()` into AI `beginPhase()` and verifies an unpaid neutral upkeep destroys the AI's only remaining deck card. The human wins, no AI hand refill or automated play starts, and the round remains unchanged.
+- The exact Manual basis is `soulcost.htm`: only units with a neutral bead owe upkeep each preparation turn; unpaid amount destroys the same number of deck cards.
+- Adjacent AI draw-to-six terminal test had initial #345 failure due to hardcoded fixture log capitalization; fixed using `ai.name`, then #346 passed 235 tests / 0 failures. This was a test expectation correction, not runtime engine change.
+- #342 direct-attack, #346 draw-to-six and #348 NCS-upkeep terminal paths are deterministic fixture tests, not full DB29 15,350-card production match certification. All runs kept DB29 pack/APK/emulator skipped.
