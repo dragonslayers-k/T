@@ -1,3 +1,8 @@
+> **최신 정책 우선 공지 — OPS-003 / 2026-11-06**  
+> 이 문서는 v4.9 이전에 작성된 일부 상태·표현을 포함한다. 아래 **OPS-003 최신 기준점**이 과거의 충돌하는 문구를 명시적으로 대체한다. 최신 통합 마스터는 Library의 `FM-OFFLINE_통합_마스터_총괄본_2026-11-06_v4.9.md`이며, 특히 부록 29의 게임 플레이 우선 정책을 적용한다.  
+> 중요: `pending_source_review`, `semantic_pending`, `non_executable`은 출처/검토 상태일 뿐 카드 전체 사용을 차단하지 않는다. 합리적 추정 runtime handler를 우선 적용하고, 추정 불가한 효과 clause만 deterministic fallback/no-op으로 종료한다. 비용·기본 행동·턴 진행은 반드시 완료되어야 한다.  
+> DB29는 운영상 보존 대상이며 API의 `immutable=false`가 확인된 적이 있으므로 기술적으로 잠금되었다고 표현하지 않는다. DB30 발행 및 지정 PR 병합은 별도 명시 승인 전 금지한다.
+
 # FM-OFFLINE / CardDB 프로젝트 통합 운영 기준점
 
 - 기준일: 2026-11-06 (KST)
@@ -249,3 +254,55 @@ Boundaries:
 - First-pass queue labels: FAQ/help 26; named card/item 108; named state/status 16; condition/formula 417; metadata/flavor candidate 19; unclassified semantic candidate 663. These labels are heuristics only; all records remain pending and non-executable.
 - Library now has v4.6 master and the detailed JSON triage index `fm1-db29-low-confidence-effect-cluster-triage-663.json`. Continue from these exact records rather than asking the user for the same artifact.
 - Next CardDB work: source-grounded adjudication clusters. Do not run full audit #663 again; #663 already passed on main and the current review is card-level data triage, not a rebuild.
+
+
+---
+
+## OPS-003 — 2026-11-06 — v4.9 게임플레이 우선 정책 및 최신 실행 상태 동기화
+
+### 1) 기준 문서와 최신 대화 반영
+- 최신 통합 기준: Library `FM-OFFLINE_통합_마스터_총괄본_2026-11-06_v4.9.md`.
+- 사용자가 2026-11-06 재확인한 절대 목표: DB 15,350장 전부 조회·덱 구성·실제 플레이 가능. 원본 자료를 최대한 조사하고도 부족한 필수값은 카드군/유사 카드/규칙/밸런스 기반으로 합리적으로 추정한다.
+- 원본값과 추정값은 별도 보존한다: source_value, normalized_value, inferred_value, runtime_value, fallback_value, provenance/evidence/confidence/test IDs.
+- 출처 검증 커버리지와 런타임 플레이 가능 커버리지는 별도 지표다. 출처 pending만으로 카드 전체를 선택/덱 구성/사용 불가 처리하지 않는다.
+- 필수 런타임 값은 null/blank로 남기지 않는다. 비용을 무조건 0으로 만들지 않고 보수적이며 지불 가능한 카드별 값으로 추정한다.
+- 효과는 clause별 implemented_verified / implemented_inferred / fallback_noop / not_applicable 중 하나로 종결한다. 추정이 위험하거나 근거가 부족한 clause만 deterministic no-op 처리하고, 그 외 카드 행동/비용/턴은 정상 종료한다. 즉사·무한루프·무한자원·확정승리 등 과도한 효과를 추정하지 않는다.
+- E663-0014 [용의위압] 7개 카드는 상태 메커니즘 근거가 부족하므로 해당 clause만 pending + fallback_noop이며, 카드 자체는 플레이 가능해야 한다.
+- 이 정책은 기존 DATABASE_CONTRACT.md의 “근거 확인 전까지 자동 실행하지 않는다” 및 과거 OPS 로그의 “pending/non-executable” 문구와 충돌할 경우 우선한다. 원본 보존/근거 추적 원칙은 계속 유효하다.
+
+### 2) 2026-11-06 실제 GitHub 상태 스냅샷
+조회 시점: 2026-11-06 (KST, 실행 시각 기준). 다음 SHA는 점검 당시 확인값이며 이후 실행에서 재조회한다.
+
+| Repository | Ref | SHA / 상태 |
+|---|---|---|
+| T | main | `75584d92ac4b4812f94d99fbc34f1360ea68eaf7` |
+| T | PR #9 | Open; `feat/carddb-effect-semantic-pass`; HEAD `3a4dd713f55e4761f9bc3704eb13e97e47e95fc6`; base main `af2d8af5e6a0126a9b7d8c7973561916e718e9d9` |
+| T | PR #13 | Open; `docs/ops-artifact-access-guard-2026-11-06`; HEAD `58e7956ea18a098c985856f903ec5ba87155feae`; base main `75584d92ac4b4812f94d99fbc34f1360ea68eaf7` |
+| T | PR #12 | Open / Draft; HEAD `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`; base is an older PR #9 branch SHA; treat as dependent, not independently mergeable |
+| FM-OFFLINE | main | `8d28ac39ecc493cef40167c2c30dafa43db43f0e` |
+| FM-OFFLINE | PR #28 | Open / Draft; `feat/combat-event-foundation`; HEAD `671b73736e4fbbce5f2cd9e2df0ca2dfffb46a75`; base main `8d28ac39ecc493cef40167c2c30dafa43db43f0e` |
+| FM-OFFLINE | PR #26/#25/#9 | Open; no merge authorization |
+
+### 3) 최신 검증 결과
+- T PR #9 HEAD `3a4dd713...`: Actions #682 / run `42182837792` succeeded. Scope: lightweight regression tests only; not a full DB audit or all-card semantic verification.
+- T PR #13 HEAD `58e7956e...`: Actions #675 / run `42179071984` succeeded. Scope: lightweight regression tests only.
+- FM-OFFLINE PR #28 HEAD `671b7373...`: Actions #261 / run `42183008394` completed successfully. Confirmed job steps include JavaScript rule tests, Firestore-to-Android converter checks, DB29 SQLite download and Android data ZIP build, Debug APK/optional signed Release APK build, package/signature/ZIP integrity checks, Android emulator install and launch, and artifact uploads.
+- #261 artifacts reported: `FantasyMastersOffline-build-output` (670,974 bytes) and `FM1-CardData-v1.3.0-IMPORT-DB29` (406,080,839 bytes). Do not download the 406 MB archive again solely to repeat already completed lineage validation.
+- #261 success is tied to PR #28 HEAD above. It does not establish all-card semantic effect completion, fixed-seed match coverage, or real-device acceptance.
+- PR #28's earlier audit note inspected code at `1bf65ab2...`; it identified runtime hard gates but did not implement fixes. The audit is a backlog, not a code completion claim.
+
+### 4) DB29 / DB30 / approvals
+- DB29 tag `fm1-carddb-29` target observed: `7e2736ac49133409e7f8051ce90e21bcdeb0472e`. Preserve as-is.
+- Release API previously reported `immutable=false`; treat protection as operational policy, not a platform-enforced lock.
+- DB30 tag and release were both absent (404) at this check.
+- No PR merge, DB30 publication, tag mutation, or workflow manual dispatch is authorized by this checkpoint.
+
+### 5) Immediate next implementation work
+1. T PR #9: create a versioned per-card runtime overlay contract and builder/validator over the DB29 SQLite source. The overlay must keep source values immutable and materialize card-specific inferred/fallback runtime values for every required field; do not fill all costs with zero or all effects with arbitrary no-ops.
+2. Produce separate counts for source-confirmed, inferred, fallback, and still-unresolved runtime fields/effect clauses. Every card must have a terminal playability profile; unresolved provenance may remain.
+3. Then update APK adapter/engine to consume the overlay, remove source-review-only play gates, guarantee finite upkeep, and resolve every unsupported effect clause to a terminal no-op without blocking cost/action/turn.
+4. Start with focused tests and small representative cohorts; do not repeat successful #261 at the same SHA. Run pack/emulator validation only after a new overlay/data pack exists.
+5. Keep DB29 preserved, DB30 unpublished, and all named PRs unmerged pending explicit user approval.
+
+### 6) History and scope note
+This append-only correction supersedes outdated status snapshots and conflicting interpretation in earlier sections; it does not delete prior history. The exact numbered conversation range was not exhaustively available as one transcript during this update. The policy is grounded in the latest v4.9 master, accessible recent conversation summary, and the GitHub commits/PR/Actions above; future checkpoints must report missing numbered conversation records rather than claiming full transcript coverage.
