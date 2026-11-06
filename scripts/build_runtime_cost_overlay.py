@@ -160,13 +160,18 @@ def self_test():
         ({"card_id":"c","name":"bonus","card_type":"아이템"}, {"source_text":"11018301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"dark":1,"neutral":1}, "implemented_inferred"),
         ({"card_id":"d","name":"hybrid","card_type":"유닛"}, {"source_text":"1201","mapping_review":1,"semantic_review":0,"verification_status":"mapping_review"}, {"dark":1,"earth":1}, "implemented_inferred"),
         ({"card_id":"e","name":"no-cost","card_type":"마법"}, {"source_text":"0100","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":0}, "implemented_verified"),
-        ({"card_id":"f","name":"unknown","card_type":"유닛"}, {"source_text":"9901","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable")
+        ({"card_id":"f","name":"unknown","card_type":"유닛"}, {"source_text":"9901","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable"),
+        ({"card_id":"g","name":"mixed","card_type":"유닛"}, {"source_text":"82018302","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":3}, "implemented_inferred")
     ]
     for card, row, expected, status in cases:
         result = profile_for_card(card, row)
         assert result["runtimeCost"] == expected, (result, expected)
         assert result["runtimeCostStatus"] == status, (result, status)
         assert result["playable"] is True
+        if card["card_id"] in {"b", "g"}:
+            assert result["runtimeUpkeepCost"] == {"neutral": 1}, result
+        if card["card_id"] == "c":
+            assert result["runtimeUpkeepCost"] == {"neutral": 0}, result
     print("runtime cost overlay self-test: PASS")
 
 
