@@ -68,3 +68,14 @@ Provenance가 pending/non_executable이어도 그것만으로 카드 선택, 덱
 ## 8. 해석 우선순위
 
 이 정책은 과거 review note의 `pending_source_review` / `non_executable` 표현을 원작 의미 검증 상태로 한정한다. 이를 카드 전체의 런타임 사용 차단으로 해석하는 문구와 충돌하면 본 정책과 통합 마스터 v4.9 부록 29를 우선 적용한다.
+
+## 9. 구현 데이터 계약 및 Android 연결
+
+상세 필드 계약은 같은 브랜치의 `docs/RUNTIME_PROFILE_CONTRACT_2026-11-06.md`를 따른다. 특히 다음 경계를 고정한다.
+
+- `sourceRequireSoul` / `candidateCost`는 원본·후보 의미를 보존하고, `runtimeCost`는 엔진 허용 키(`dark/fire/water/forest/metal/earth/light/neutral`)만 사용한다.
+- NCS는 범용 결제이며 유닛의 `runtimeUpkeepCost.neutral`에만 유지비로 반영한다. BONUS는 범용 1회 결제로 `runtimeCost.neutral`에 합산하지만 반복 유지비에는 포함하지 않는다.
+- 누락·미해석 비용은 0/무료로 만들지 않고 지불 가능한 보수적 neutral fallback을 부여한다. source review flag는 그대로 보존한다.
+- 모든 effect candidate clause는 별도 `runtimeDisposition`을 갖는다. 카드별 검증 handler가 없는 clause는 `fallback_noop`으로 종료하고, 원본 후보 텍스트/구간은 수정하지 않는다.
+- APK pack validator는 15,350장의 runtime cost와 8,633 유닛의 유한 upkeep, 48,281 effect clause의 terminal disposition, 카드별 runtime action readiness를 검사한다. source-verified coverage는 별도로 집계한다.
+- DB29/DB30/PR 병합 승인 경계는 기존과 동일하다.
