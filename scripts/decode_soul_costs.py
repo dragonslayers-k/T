@@ -132,8 +132,14 @@ def main():
         assert hybrid["known"] and hybrid["mapping_review"]
         assert hybrid["colors"]["forest"] == 1 and hybrid["colors"]["light"] == 2
         assert parse_require_soul("5301")["colors"]["iron"] == 1
-        assert parse_require_soul("8201")["colors"]["ncs"] == 1
-        assert parse_require_soul("8301")["colors"]["bonus"] == 1
+        ncs = parse_require_soul("8201")
+        assert ncs["known"] and not ncs["semantic_review"]
+        assert ncs["colors"]["ncs"] == 1
+        assert ncs["tokens"][0]["status"] == "manual_semantics_verified"
+        bonus = parse_require_soul("8301")
+        assert bonus["known"] and bonus["semantic_review"]
+        assert bonus["colors"]["bonus"] == 1
+        assert bonus["tokens"][0]["status"] == "semantic_review"
         sample = run([{"card_id": "x", "raw_payload": {"RequireSoul": "7101"}, "source_card_url": "https://source.example/card/x"}])
         assert sample["validationStatus"] == "not_available_no_reference_costs"
         assert sample["decoded"][0]["sourceCardUrl"] == "https://source.example/card/x"

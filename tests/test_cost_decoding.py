@@ -19,13 +19,39 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["light"], 1)
         self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
 
-    def test_ncs_and_bonus_are_separate_semantic_review_tokens(self):
+    def test_ncs_is_manual_verified_colorless_payment(self):
+        parsed = parse_require_soul("8201")
+        self.assertTrue(parsed["known"])
+        self.assertFalse(parsed["semantic_review"])
+        self.assertEqual(parsed["colors"]["ncs"], 1)
+        self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertEqual(parsed["tokens"][0]["status"], "manual_semantics_verified")
+        self.assertEqual(parsed["tokens"][0]["inference"], "manual_colorless_any_color_payment")
+
+    def test_bonus_remains_separate_and_semantically_unverified(self):
+        parsed = parse_require_soul("8302")
+        self.assertTrue(parsed["known"])
+        self.assertTrue(parsed["semantic_review"])
+        self.assertEqual(parsed["colors"]["bonus"], 2)
+        self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertEqual(parsed["tokens"][0]["status"], "semantic_review")
+        self.assertEqual(parsed["tokens"][0]["inference"], "bonus_semantics_unverified")
+
+    def test_mixed_ncs_and_bonus_keep_independent_semantic_statuses(self):
         parsed = parse_require_soul("82018302")
         self.assertTrue(parsed["known"])
         self.assertTrue(parsed["semantic_review"])
         self.assertEqual(parsed["colors"]["ncs"], 1)
         self.assertEqual(parsed["colors"]["bonus"], 2)
-        self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertEqual([x["status"] for x in parsed["tokens"]],
+                         ["manual_semantics_verified", "semantic_review"])
+
+    def test_human_readable_ncs_and_bonus_keep_independent_statuses(self):
+        parsed = parse_require_soul("NCS 1 BONUS 2")
+        self.assertTrue(parsed["known"])
+        self.assertTrue(parsed["semantic_review"])
+        self.assertEqual([x["status"] for x in parsed["tokens"]],
+                         ["manual_semantics_verified", "semantic_review"])
 
     def test_korean_text_cost(self):
         p = parse_require_soul("숲 2, 물 1")

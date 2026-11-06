@@ -20,7 +20,8 @@ HYBRID_SOUL_CODES = {
     "43": ("forest", "light"), "52": ("earth", "iron"),
     "53": ("iron", "light"), "62": ("earth", "light"),
 }
-SPECIAL_SOUL_CODES = {"82": "ncs", "83": "bonus"}
+NCS_SOUL_CODE = "82"
+BONUS_SOUL_CODE = "83"
 NO_COST_CODE = "01"
 
 
@@ -57,9 +58,18 @@ def _parse_human_readable_cost(raw: str, result: dict) -> bool:
         count=int(match.group("count") or match.group("count_first"))
         color=TEXT_SOUL_ALIASES[name.casefold()]
         result["colors"][color]+=count
-        result["tokens"].append({"raw":match.group(0),"code":None,"count":count,
+        token={"raw":match.group(0),"code":None,"count":count,
             "symbol":name,"icon":None,"normalized_color":color,
-            "status":"text_decoded","source_format":"human_readable"})
+            "status":"text_decoded","source_format":"human_readable"}
+        if color=="ncs":
+            token["status"]="manual_semantics_verified"
+            token["inference"]="manual_colorless_any_color_payment"
+            token["manualMeaning"]="무속성: 소환 시 모든 속성 소울로 지불 가능; 유지비는 유닛에만 적용"
+        elif color=="bonus":
+            token["status"]="semantic_review"
+            token["inference"]="bonus_semantics_unverified"
+            result["semantic_review"]=True
+        result["tokens"].append(token)
     result["known"]=True
     result["source_format"]="human_readable"
     return True
@@ -134,13 +144,21 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             token_result["status"] = "inferred_hybrid_both_colors"
             token_result["inference"] = "hybrid_code_components_each_required"
             result["mapping_review"] = True
-        elif code in SPECIAL_SOUL_CODES:
-            color = SPECIAL_SOUL_CODES[code]
-            # Keep source identity; the APK converter applies the inferred neutral payment rule.
-            result["colors"][color] += amount
-            token_result["normalized_color"] = color
-            token_result["status"] = "inferred_flexible_neutral"
-            token_result["inference"] = "special_soul_as_flexible_neutral"
+        elif code == NCS_SOUL_CODE:
+            # Manual.zip soulcost.htm defines NCS/무속성 as payable with any
+            # attribute at summon; recurring upkeep is a separate unit-only rule.
+            result["colors"]["ncs"] += amount
+            token_result["normalized_color"] = "ncs"
+            token_result["status"] = "manual_semantics_verified"
+            token_result["inference"] = "manual_colorless_any_color_payment"
+            token_result["manualMeaning"] = "무속성: 소환 시 모든 속성 소울로 지불 가능; 유지비는 유닛에만 적용"
+        elif code == BONUS_SOUL_CODE:
+            # The extracted Manual soulcost.htm text does not define BONUS.
+            # Preserve it as a separate token and do not infer neutral payment.
+            result["colors"]["bonus"] += amount
+            token_result["normalized_color"] = "bonus"
+            token_result["status"] = "semantic_review"
+            token_result["inference"] = "bonus_semantics_unverified"
             result["semantic_review"] = True
         else:
             known = False
