@@ -75,7 +75,7 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py
+          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_compact_effect_review.py
           python -m unittest tests/test_cost_decoding.py
@@ -89,6 +89,56 @@ jobs:
           python scripts/quality_audit.py --self-test
           python scripts/decode_soul_costs.py --self-test
           python scripts/build_db.py --self-test
+
+      - name: Build compact DB29 runtime source inventory (explicit marker only)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          set -euo pipefail
+          if ! git log -1 --format=%B | grep -Fq '[runtime-inventory]'; then
+            echo "No [runtime-inventory] commit marker; skipping DB29 source download."
+            exit 0
+          fi
+          mkdir -p "$RUNNER_TEMP/runtime-source"
+          BASE="https://github.com/dragonslayers-k/T/releases/download/fm1-carddb-29"
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "$BASE/fm1_cards.sqlite.gz" -o "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite.gz"
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "$BASE/sqlite-build-summary.json" -o "$RUNNER_TEMP/runtime-source/sqlite-build-summary.json"
+          python - "$RUNNER_TEMP/runtime-source" <<'PY'
+          import hashlib, json, sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          summary=json.loads((root/"sqlite-build-summary.json").read_text(encoding="utf-8"))
+          actual=hashlib.sha256((root/"fm1_cards.sqlite.gz").read_bytes()).hexdigest()
+          expected=summary.get("sqliteGzipSha256")
+          if not expected or actual.lower()!=str(expected).lower():
+              raise SystemExit(f"DB29 SQLite gzip checksum mismatch: {actual} != {expected}")
+          if summary.get("sourceReleaseTag") not in (None, "fm1-carddb-29"):
+              raise SystemExit("SQLite summary is not from the DB29 release")
+          print(json.dumps({
+              "sourceReleaseTag":"fm1-carddb-29",
+              "sqliteGzipSha256":actual,
+              "cards":summary.get("cards"),
+              "categories":summary.get("categories"),
+              "integrity":summary.get("integrity")
+          },ensure_ascii=False))
+          PY
+          gzip -t "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite.gz"
+          gzip -dc "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite.gz" > "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite"
+          python scripts/runtime_source_inventory.py \
+            --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
+            --output data/runtime-source-inventory.json
+          echo "RUN_RUNTIME_INVENTORY=true" >> "$GITHUB_ENV"
+
+      - name: Upload compact DB29 runtime source inventory
+        if: ${{ always() && env.RUN_RUNTIME_INVENTORY == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-db29-runtime-source-inventory-${{ github.run_number }}
+          path: data/runtime-source-inventory.json
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
 
       - name: Install image decoder for full audits
         if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
