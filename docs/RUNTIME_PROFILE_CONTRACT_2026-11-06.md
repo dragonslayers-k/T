@@ -152,3 +152,12 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - DB29 exact Skill1 label representative: Dark Countess `10010624542` / `흡혈공격`, source value 788; exact-label group 115 rows. Card-local source packet remains a separate gate.
 - APK PR #28 test commit `15162b6d46043e9e297392feecf48bc40d3bacce`, Actions #365 / `42228582000`: 236 JS / 0 fail, Python converter 13 passed. Adds HP `△` permits half-up +2 healing on 3 actual damage, HP `▽` blocks positive healing, and HP `*` blocks all healing. Existing tests cover 1/2/5 actual damage, blocked damage and `▼`.
 - Lightweight test only; DB29 pack/APK/emulator skipped. No runtime mapping/source/DB29 mutation. Formal test spec remains design-only and must not be promoted based on fixture alone.
+
+
+## 15. Manual Skill1 Aging Attack AP boundary evidence — 2026-11-06
+
+- Manual.zip `specialability.htm` §8 defines Aging Attack as applying AP−2 to the attacked target. Common AP marker directions follow `cardability.htm`: `△` prevents decrease; `▽` permits decrease.
+- Representative DB29 exact Skill1 label row: 타락자 `13020626691` / `노화공격`; T spec records 53 exact label matches. Card-local `exact_db29_source_text` remains null and `effect_excerpt_status=pending_card_local_semantic_packet`.
+- APK PR #28 test commit `b88db5b55576854a2f8fe94ec5b72d2f078b66f6`, Actions #367 / run `42229779160`: success, 236 JS / 0 failures, Python converter 13 / OK.
+- Added test cases: AP0 no-trigger; AP1 against defender DP2 where HP damage is 0 but the attack still applies AP−2; AP `△` blocks decrease; AP `▽` allows decrease; target AP1 receives full −2 and reaches −1.
+- Fixture-level engine test only. Formal test-spec remains design-only (27 rules, 108 cases, zero executable rules); card-local source and data-pack lineage are separate gates. No mapping or DB29 data promotion.
