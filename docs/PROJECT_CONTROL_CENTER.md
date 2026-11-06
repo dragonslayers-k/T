@@ -577,3 +577,11 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - T PR #9 audit follow-up commit `9b32c8ff54bc4ebebb8e637abec1316277e13ec0` passed Actions #725 / run `42204919214` (lightweight tests + compact DB29 runtime source inventory; full crawl/image/SQLite/Release audit skipped).
 - APK docs follow-up commit `78484df92cb75482d323ab53c15c6001298fe872` passed Actions #338 / run `42204933506` (lightweight JS/Python; DB29 pack/APK/emulator skipped).
 - Current PRs remain open and unmerged. DB29 stays preserved; DB30 stays unpublished.
+
+
+## OPS-017 — 2026-11-06 — fixed-seed battle flow and final deck victory
+
+- APK PR #28 HEAD `be42ec585f6b124ceb310b875f7f08ae0d12b155` Actions #341 / run `42206456060` succeeded: 233 JS tests, 0 failures; 13 Python converter tests. The fixed-seed integration test exercised player land purchase/installation, unit deployment, AI land/unit actions, paired slot attack and counter, round 2, attacker rotation, and next-phase handoff.
+- APK PR #28 test commit/HEAD `3837301571449a17e28a09d08911cd5ce87f3336`, Actions #342 / run `42214419550` succeeded: 234 JS tests, 0 failures; Python converter checks success. The test `fixed-seed slot battle ends the match on direct deck depletion without advancing the round` used actual `resolveBattle()` slot flow; a two-soul attacker removes the defender's last two deck cards, makes player the winner, and prevents round/attacker/preparation transition.
+- #341/#342 were lightweight PR runs only. DB29 pack generation, Gradle/APK and emulator were skipped. This is a deterministic fixture integration path, not a 15,350-card imported live-data full-match certification. #325 remains the full pack/import gate on its earlier core code SHA.
+- APK PR #28 remains Open/Draft and unmerged; DB29 preserved; DB30 not published. T PR #9/#12/#13 remain open/unmerged.
