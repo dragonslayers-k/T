@@ -75,7 +75,8 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py
+          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py scripts/build_runtime_cost_overlay.py
+          python scripts/build_runtime_cost_overlay.py --self-test
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_compact_effect_review.py
           python -m unittest tests/test_cost_decoding.py
@@ -130,6 +131,9 @@ jobs:
           python scripts/runtime_source_inventory.py \
             --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
             --output data/runtime-source-inventory.json
+          python scripts/build_runtime_cost_overlay.py \
+            --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
+            --output data/runtime-cost-overlay.json
           echo "RUN_RUNTIME_INVENTORY=true" >> "$GITHUB_ENV"
 
       - name: Upload compact DB29 runtime source inventory
@@ -137,7 +141,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fm1-db29-runtime-source-inventory-${{ github.run_number }}
-          path: data/runtime-source-inventory.json
+          path: |
+            data/runtime-source-inventory.json
+            data/runtime-cost-overlay.json
           if-no-files-found: error
           compression-level: 6
           retention-days: 30
