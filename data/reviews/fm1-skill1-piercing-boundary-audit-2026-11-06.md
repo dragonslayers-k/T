@@ -37,3 +37,11 @@ The negative-DP result is an explicit conservative runtime interpretation, not a
 - No source-row mapping, Skill1 authority, converter output, SQLite source row, DB29 tag or Release was changed.
 - This audit does not promote the rule to end-to-end DB29 source execution. The T specification's card-local semantic packet remains pending; exact source label matching (172 rows) is not semantic approval.
 - DB29 remains preserved; DB30 remains unpublished; T PR #9/#12/#13 and APK PR #28/#26/#25/#9 remain open and unmerged.
+
+
+## Follow-up — shield-break is a distinct rule and its card-local packet remains pending
+
+- Manual.zip `specialability.htm` §21: after an attack, target DP becomes 0; negative target DP is unaffected.
+- Exact DB29 Skill1 label matches: 96 rows, representative 해적전투원 / `10010624551` / `방패파괴`, source value 249. The T spec's exact card-local effect text is still null/pending. Do not treat exact label matching as evidence that the card-detail packet has been retrieved.
+- APK PR #28 test commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`, Actions #361 / run `42223636601`: 236 JS / 0 fail; Python converter passed. The tests assert AP0 does not trigger; DP0 baseline; positive DP is set to zero; negative DP remains unchanged; `△` blocks decrease; `▽` allows decrease; no post-attack HP spillover from the shield-break effect.
+- This is focused Manual rule fixture evidence, not an SQLite row / card-local HTML extract / pack provenance promotion. Keep `runtime_status` and `implementation_status` distinctions in the machine-readable spec pending resolution of its accepted status vocabulary.
