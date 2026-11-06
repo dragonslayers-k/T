@@ -380,7 +380,7 @@ jobs:
           if (
               integrity != "ok" or cards != 15350 or unique_ids != 15350
               or categories != expected_categories or costs != 15350 or token_known != 15350
-              or mapping_review != 52 or semantic_review != 779 or tokens != 24166
+              or mapping_review != 52 or semantic_review != 439 or tokens != 24166
               or images != 30700 or verified_images != 30700 or detail_urls != 15350
               or search_rows != 15350 or korean_hits < 1 or ncs_hits < 1 or fk_errors
               or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000
