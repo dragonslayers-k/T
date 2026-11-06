@@ -618,3 +618,13 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - APK test commit `d95bbed32445de4b6577efe4600a0fa3cc0abb46`, Actions #352 / run `42218090054`: success, JS 236 / 0 failures, Python 13 / OK. DB29 Manual fixture Black Unicorn `10091525214` covers AP2 vs DP4 (remaining DP2, zero HP damage) and AP3 vs DP0 (3 HP damage); existing AP4 vs DP2 remains.
 - Manual §4 does not expressly resolve already-negative defender DP for piercing. That branch remains review-only; do not infer extra damage by applying the generic AP-DP formula.
 - No runtime rules/data/source mapping/DB29 change. Focused test-only validation.
+
+
+## OPS-023 — 2026-11-06 — 관통공격 DP marker/overflow regression
+
+- Source: Manual.zip `specialability.htm` §4 says attacker AP destroys target DP and only the AP left after DP reaches zero damages HP. The same Manual's shared stat-marker paragraph says `△` prevents decreases and `▽` prevents increases.
+- T spec `fm1-manual-skill-engine-test-spec-2026-11-05.json` identifies `piercing_attack` / `관통공격`, 172 exact DB29 Skill1 label rows, and representative 블랙유니콘 `10091525214` (source value 51; URL recorded). It still marks the card-local effect excerpt pending; source label match is not semantic approval.
+- APK #355 / `42221259328` passed AP=DP and negative DP guard cases (236 JS / 0 fail; Python 13 OK). Negative DP is explicitly conservative and not a verbatim special-attack rule.
+- APK #356 / `42221573459` exposed the bug: `△` prevented DP reduction, but old damage calculation sent all 4 AP to HP (236 tests / 1 failure).
+- APK fix commit `6d736aa9e56c677aa7f2dcbfe94571b9a54d818b`, #357 / `42221699683`, passed: 236 JS / 0 fail; Python 13 OK. Overflow now reaches HP only after DP is actually broken or already <=0; `△` prevents overflow, `▽` still permits the DP decrease.
+- #357 did not run DB29 pack/APK/emulator; no source mapping/data was promoted. The T spec remains non-executable/pending card-local semantic packet until release-row → converter → package lineage is verified.
