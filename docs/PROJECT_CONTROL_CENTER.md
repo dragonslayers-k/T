@@ -520,3 +520,40 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - 문서 전용 변경 및 단순 PR synchronize는 고비용 pack/emulator를 실행하지 않는다.
 - 검증 축소가 목적이 아니라 불필요한 반복만 제거한다.
 - DB29 보존, DB30 미발행, 지정 PR 병합 금지 경계는 유지한다.
+
+
+## OPS-014 — 2026-11-06 — 실제 런타임 게이트 및 최신 CI/문서 정합성
+
+이 항목은 앞선 OPS-001~OPS-013의 당시 snapshot을 보존하면서 최신 GitHub 조회와 실제 검증 결과를 보충한다. 이전 단락의 오래된 SHA/Actions 번호는 해당 시점의 기록이다.
+
+### 최신 PR 및 검증 포인터
+
+- T PR #9: Open/non-draft, HEAD `2aad86adf76a823446296f6754181b1cdb4da294`, base main SHA `af2d8af5e6a0126a9b7d8c7973561916e718e9d9`. Actions #716 / run `42191294766` 성공 (경량 regression/runtime overlay self-test/Python compile). 전체 DB29 audit·Release 검증은 아님.
+- T PR #12: Open/Draft, HEAD `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`, base PR #9의 과거 SHA `f2ba6161859c3e21c27e340438933927cedf6b51`. 현재 PR #9 HEAD와 324 commits 차이가 확인되어 stacked dependency가 오래됨. 독립 병합 대상으로 취급하지 말고 base/patch lineage를 별도 재검토한다.
+- T PR #13: Open/non-draft, 이 OPS-014 추가 커밋 후 HEAD를 다시 확인한다. 현재 base main SHA는 `75584d92ac4b4812f94d99fbc34f1360ea68eaf7`이고 T PR #9 base `af2d8af5e6a0126a9b7d8c7973561916e718e9d9`보다 한 커밋 뒤다. 이 PR branch의 문서 갱신은 T main에 반영된 것이 아니다.
+- APK PR #28: Open/Draft, latest application/UI correction commit `6dbdcf7ecabd645f20dd0073435999468409ff4a`의 Actions #329 / run `42202046670` 성공. JS/Python, JDK/SDK/Gradle setup, Debug APK build, application ID/signature/ZIP integrity가 통과했고 DB29 pack/emulator는 skip됐다. 최신 PR HEAD는 실행 후 재조회한다.
+
+### Android #322 오류 원인과 후속 검증
+
+- #322 / run `42192589114`는 DB29 SQLite download/conversion 및 15,350-card data ZIP까지 완료한 뒤 `scripts/fm1-offline/validate-app-card-pack.cjs:551`에서 `ReferenceError: manifest is not defined`로 실패했다. 데이터 원본 손상은 아니었다.
+- 수정 code SHA `60681acc02974f6f6e8721def63b24f0823a6d6e`의 #325 / run `42192845020`는 DB29 SQLite integrity/source checks, 15,350-card pack + manifest validation, APK package/signature/ZIP checks, emulator install/import and WebView 15,350/15,350 load까지 성공했다.
+- #325 audit: runtime cost 15,350 ready / 0 blocked; actual `FM.playCard()` probe 15,350 attempted / 15,350 completed / 0 blocked. Terminal actions: 8,633 unit summons, 3,857 spell terminal actions (3,839 paid fallbacks + 18 queued), 1,748 item equips, 823 enchant fallback terminals, 289 land installs.
+- Effect semantics remain incomplete: 48,281 clauses, 18 implemented_inferred and 48,263 fallback_noop. Source-linked triage found 716 normalized patterns and 1,249 low-confidence rows; these are not a disjoint total and require evidence-linked clause review. Synthetic per-card terminal probes do not certify every original effect or an entire seeded match.
+- UI detail warning mismatch (card was said to be blocked although fallback_noop actually completes payment/card action/turn) was fixed in APK commit `6dbdcf7ecabd645f20dd0073435999468409ff4a`; #329 rebuilt Debug APK and passed integrity checks.
+- #327 / run `42197420334` proves CI title markers no longer launch expensive PR stages; it is lightweight-only. #328 / run `42199670675` also ran lightweight tests only; do not conflate either with #325.
+
+### CI cost policy verified against the current workflow
+
+- Ordinary PR opened/synchronize/reopened: JS/Python lightweight regression checks.
+- PR title `[build-apk]`: APK-only build.
+- PR title `[build-card-pack]` or `[run-emulator]`: does not trigger large DB29 pack or emulator steps.
+- DB29 pack/emulator: explicit workflow_dispatch boolean inputs; or approved main-push commit markers. Emulator requires pack build as well.
+- PR-only concurrency cancels superseded PR runs; main/manual runs are not canceled.
+- Do not rerun a successful verification for the same SHA. Full DB29 pack/emulator remains a one-off integrated gate after meaningful converter/rules changes.
+
+### 문서 및 승인 동기화 판정
+
+- This OPS-014 is only on T PR #13 branch until a future separately approved merge. T main control center still retains stale v4.4 text at its current main HEAD; do not claim main synchronized.
+- T PR #9 contains the v4.9 gameplay-first policy and runtime profile contract. Its runtime contract now records #325/#329 and the outstanding semantic/match gates.
+- APK PR #28 carries its updated project status/README and runtime card-detail warning correction. APK main remains an older baseline until a separately authorized merge.
+- DB29 remains an operationally protected source; GitHub API previously returned immutable=false, so do not call it technically locked. DB30 is not published. T PR #9/#12/#13 and APK PR #28/#26/#25/#9 remain unmerged.
