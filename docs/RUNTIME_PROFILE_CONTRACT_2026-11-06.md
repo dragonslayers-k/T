@@ -85,3 +85,11 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - APK PR #28 HEAD `be42ec585f6b124ceb310b875f7f08ae0d12b155`, Actions #341 / run `42206456060`: deterministic player+AI preparation, paid land installation, unit summon, paired battle/counter, round-2 transition and attacker rotation passed (233 JS tests, 0 failures; Python 13 passed).
 - APK PR #28 test HEAD `3837301571449a17e28a09d08911cd5ce87f3336`, Actions #342 / run `42214419550`: direct deck-depletion terminal path through `resolveBattle()` passed. Two-soul direct attack removes the defender's final two cards; player wins and the round/attacker/preparation state does not advance (234 JS tests, 0 failures; Python 13 passed).
 - Both are lightweight deterministic fixture tests; DB29 pack/APK/emulator were skipped. They prove the tested state transitions, not all card-effect semantics or a full match from the production 15,350-card deck. Retain #325 as the separate full DB29 pack/APK/emulator evidence.
+
+
+## 10. AI draw-to-six terminal transition — 2026-11-06
+
+- APK PR #28 test commit `de07a48573b8752a635e81667e5d905614c19550`, Actions #345 / run `42215759449`, initially failed one new assertion (234/235 pass). The test incorrectly hardcoded `AI` in the expected log while the test fixture's player name is `ai`; match state and winner assertions had already passed.
+- Fix commit `59384b9381cad328ed60801895635077ecdeefba` compares the terminal log with the actual fixture `ai.name`. Actions #346 / run `42215917221` passed: 235 JS tests / 0 failures; Python converter 13 / OK.
+- The test executes `FM.endPhase()` → opponent AI `beginPhase()` → `drawToSix()` with five cards in hand and an empty AI deck. It verifies no phantom draw, the player wins, state becomes finished, round does not advance, and `runAIPhase()` does not start after the terminal state.
+- This covers a second terminal route distinct from #342's direct deck attack: preparation draw exhaustion. This is still fixture-level lightweight integration; DB29 pack/APK/emulator skipped and no full 15,350-card match is certified.
