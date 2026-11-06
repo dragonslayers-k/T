@@ -54,3 +54,11 @@
 - DB29 원본 유지, DB30 발행 금지.
 - PR #9 / #28 병합 금지.
 - 어떤 Skill1도 이 문서만으로 실행 가능 규칙으로 승격하지 않는다.
+
+
+## 2026-11-06 follow-up — defense_convert DP sign boundaries
+
+- Primary Manual source was re-read from Dropbox `/판마/Manual.zip`, `specialability.htm`, section `27. 방어전환기술`: `공격당한 상대는 DP에 - 가 붙게 됩니다.` The exact sentence is retained as evidence, not paraphrased into a broader effect.
+- APK test commit `56f26aa9b30756c99adc0aca4a395ea8eb1403d7` expands the DB29 source-card fixture `리듬포이 / 10010624563` to assert three independent outcomes: DP +4 blocks one damage then becomes -4; DP 0 allows 1 damage and remains 0; DP -2 allows 3 damage and remains -2.
+- The implementation condition remains restricted to a successful attack against a defender and positive rolled DP; no speculative new effect was added.
+- This is a focused source-backed boundary test addition. Do not promote the rule beyond the existing verified status until the new APK PR check for the exact test commit completes.
