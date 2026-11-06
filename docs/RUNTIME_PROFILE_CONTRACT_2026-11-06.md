@@ -33,7 +33,7 @@ Special soul handling:
 - Unit AP/DP/HP use source values when valid. A nonpositive/missing HP uses a tagged minimum-one runtime fallback while source values remain preserved.
 - An item whose native target condition cannot be mapped receives `runtimeItemConditionStatus: fallback_any_unit`. Keep a parsed own/enemy owner restriction where available; do not block the item solely because race/affiliation wording is unresolved.
 - Standard lands use decoded source production. MagicLand retains its unresolved source effect but installs with zero invented ordinary production and `runtimeLandProductionStatus: fallback_noop`.
-- Spell/enchant effect clauses are assigned a terminal disposition. Unsupported clauses use deterministic no-op; the card still pays its runtime cost, leaves the hand, enters its terminal zone, and marks the action complete.
+- A single exact simple-text spell effect with a supported attack/defend/battle-start trigger may use a tested inferred handler. Unsupported spell clauses use deterministic no-op. Enchants remain fallback_noop until the Android engine has a correct event/duration-bound slot handler; the card still pays its runtime cost, leaves the hand, enters its terminal zone, and marks the action complete.
 - Unit Skill1/Skill2 handlers use only source/manual-verified or tested inferred mappings. Unmapped individual clauses use fallback; provenance does not disable the unit.
 - Upkeep must always be finite. Missing legacy upkeep metadata must never become positive Infinity or automatically end a match.
 
