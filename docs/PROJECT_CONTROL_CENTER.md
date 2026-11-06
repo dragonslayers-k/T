@@ -557,3 +557,12 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - T PR #9 contains the v4.9 gameplay-first policy and runtime profile contract. Its runtime contract now records #325/#329 and the outstanding semantic/match gates.
 - APK PR #28 carries its updated project status/README and runtime card-detail warning correction. APK main remains an older baseline until a separately authorized merge.
 - DB29 remains an operationally protected source; GitHub API previously returned immutable=false, so do not call it technically locked. DB30 is not published. T PR #9/#12/#13 and APK PR #28/#26/#25/#9 remain unmerged.
+
+
+## OPS-015 — 2026-11-06 — Skill2 실행 규칙 수와 카드 사용 허용 분리
+
+- APK PR #28의 #325 DB29 pack manifest는 Skill2 enum 189, active skill names 188, active cards 1,366, source mappings/references 10,381, **executable rules 7**을 기록했다. rules.js 핸들러가 8개 등록된 것은 8개 전부가 DB29 실제 카드 매핑으로 실행 가능하다는 뜻이 아니다.
+- 홀리오오라는 핸들러와 분리된 arithmetic/dispatcher tests가 있지만 현재 DB29 카드별 source verification/executable mapping은 보류한다. 두 원문 변형 중 하나만 내림 표기를 명시하고, 아이템의 source text를 유닛 전투 규칙의 근거로 전용하지 않는다.
+- APK PR #28 commit `9f24fe688845a0a0c67fd5d523adcb7ae0fcce7d` adds a true `FM.playCard()` regression for an unmapped Skill2 unit. The unit pays its cost, leaves hand, enters the field and completes the preparation-phase action while its unverified Skill2 remains disabled and never falls through to Skill1.
+- Actions #333 / run `42203252263` passed on code HEAD `300dd507850175e3aa19168633c6d33a1f1c6c55`; the exact new test appears in logs and `fail 0`. This is lightweight JS/Python test only, not a new DB29 pack/APK/emulator run.
+- APK `docs/PROJECT_STATUS.md` and `docs/SKILL2_RULES_IMPLEMENTATION.md` contain this distinction and regression result. DB29 is unchanged; DB30 remains unpublished; all designated PRs remain open/unmerged.
