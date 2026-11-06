@@ -35,3 +35,14 @@ D형은 파일 손상 또는 사용자 측 문제라고 단정하지 않는다. 
 
 ## 적용할 프로젝트 승인 경계
 DB29 보존, DB30 발행 금지, T PR #9/#12 및 APK PR #28/#26/#25/#9 병합 금지는 기존 PROJECT_CONTROL_CENTER 규칙을 그대로 따른다. 본 규칙은 발행·병합 승인이 아니다.
+
+
+## 실제 적용 기록 — 2026-11-06 / D형 / Actions #663
+
+- 대상: T run #663 (42173417874), SHA 75584d92ac4b4812f94d99fbc34f1360ea68eaf7, DB29 source, publish=false.
+- 정확한 장애: GitHub connector artifact download 성공 및 materialization 경로 생성 후 Python/container가 ClientError로 접근 실패. 아티팩트 ZIP 손상 여부를 판정하지 않는다.
+- 사용자에게 요청하지 않고 사용한 우회: Actions run/job metadata 및 logs에서 완료 단계와 집계값을 확인.
+- 복구된 집계: 15,350 cards / unique IDs; 613,435 fields (55 types); 17,407 effect texts; 48,281 pattern splits; 0 missing interpretation; 1,249 low-confidence interpretations; 0 unmapped skill rows; 30,700/30,700 images checked; 52 hybrid cost mapping review; 779 special semantics review; 0 FK errors.
+- 남은 제약: aggregate logs alone cannot reconstruct the card-level review records; queue overlap is unknown; no claim of semantic/engine completion.
+- 영구 개선 작업: workflow should print concise summary and upload a compact JSON/CSV containing card IDs, original text, source URL, review reason/status, and evidence pointers. Ensure this can be fetched as text or parsed from job logs; do not require full ZIP local extraction.
+- 다음 재발 시 우선: logs and GitHub API -> compact artifact/text file -> targeted workflow output changes -> only then consider asking user for a concrete missing permission/input. Never ask the user to upload the same artifact or manually dispatch the same workflow just because the runtime failed.
