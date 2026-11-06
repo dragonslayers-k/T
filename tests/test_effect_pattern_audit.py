@@ -2,6 +2,7 @@ import unittest
 
 from scripts.effect_pattern_audit import analyze, split_clause_candidates
 from scripts.build_gap_reports import classify_cost_review
+from scripts.build_gap_reports import expand_cost_token_review_rows
 from scripts.soul_costs import parse_require_soul
 
 
@@ -182,6 +183,74 @@ class SoulCostParserReviewTests(unittest.TestCase):
         self.assertTrue(parsed["mapping_review"])
         self.assertFalse(parsed["semantic_review"])
         self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
+
+
+class CostTokenReviewQueueTests(unittest.TestCase):
+    def test_expands_each_token_occurrence_without_collapsing_card_identity(self):
+        card = {
+            "card_id": "CARD-HYBRID-01",
+            "name": "Hybrid Example",
+            "card_type": "유닛",
+            "source_text": "1302",
+            "soul_known": 1,
+            "mapping_review": 1,
+            "semantic_review": 0,
+            "lp_known": 1,
+        }
+        tokens = [
+            {"ordinal": 0, "raw_token": "1302", "code": 13, "count": 2,
+             "symbol": "DARK_FIRE", "normalized_color": "dark+fire", "parse_status": "inferred"},
+            {"ordinal": 1, "raw_token": "5101", "code": 51, "count": 1,
+             "symbol": "IRON", "normalized_color": "iron", "parse_status": "enum_decoded"},
+        ]
+        rows = expand_cost_token_review_rows([card], {card["card_id"]: tokens})
+        self.assertEqual(len(rows), 2)
+        self.assertEqual([row["ordinal"] for row in rows], [0, 1])
+        self.assertTrue(all(row["card_id"] == "CARD-HYBRID-01" for row in rows))
+        self.assertTrue(all(row["review_status"] == "hybrid_mapping_review_pending" for row in rows))
+        self.assertTrue(all(row["review_dimensions"] == ["hybrid_mapping_review_pending"] for row in rows))
+        self.assertEqual(rows[0]["raw_token"], "1302")
+        self.assertEqual(rows[1]["raw_token"], "5101")
+
+    def test_preserves_card_review_when_token_evidence_is_missing(self):
+        card = {
+            "card_id": "CARD-NO-TOKEN",
+            "name": "Missing Evidence",
+            "card_type": "유닛",
+            "source_text": "UNKNOWN",
+            "soul_known": 0,
+            "mapping_review": 0,
+            "semantic_review": 0,
+            "lp_known": 1,
+        }
+        rows = expand_cost_token_review_rows([card], {})
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["review_scope"], "card_without_token_evidence")
+        self.assertEqual(rows[0]["review_status"], "source_cost_unresolved")
+        self.assertIsNone(rows[0]["ordinal"])
+        self.assertEqual(rows[0]["source_text"], "UNKNOWN")
+
+    def test_bonus_and_ncs_occurrences_remain_separately_identified(self):
+        card = {
+            "card_id": "CARD-SPECIAL",
+            "name": "Special Soul",
+            "card_type": "유닛",
+            "source_text": "8201;8301",
+            "soul_known": 1,
+            "mapping_review": 0,
+            "semantic_review": 1,
+            "lp_known": 1,
+        }
+        tokens = [
+            {"ordinal": 0, "raw_token": "8201", "code": 82, "count": 1,
+             "symbol": "NCS", "normalized_color": "ncs", "parse_status": "manual_semantics_verified"},
+            {"ordinal": 1, "raw_token": "8301", "code": 83, "count": 1,
+             "symbol": "BONUS", "normalized_color": "bonus", "parse_status": "semantic_review"},
+        ]
+        rows = expand_cost_token_review_rows([card], {card["card_id"]: tokens})
+        self.assertEqual([row["symbol"] for row in rows], ["NCS", "BONUS"])
+        self.assertTrue(all(row["review_status"] == "bonus_semantics_unverified" for row in rows))
+        self.assertEqual([row["ordinal"] for row in rows], [0, 1])
 
 
 if __name__ == "__main__":
