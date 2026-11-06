@@ -39,7 +39,7 @@ class ManualSkillCardSourceMatchAuditTests(unittest.TestCase):
         db.executemany("INSERT INTO card_fields VALUES(?,?,?,?)", [
             ("1001", "Skill1", '"일반공격기술"', "일반공격기술"),
             ("1002", "Skill1", '"방어무시"', "방어무시"),
-            ("1003", "Skill1", '"방어무시기술"', "방어무시기술"),
+            ("1003", "Skill1", '"일반공격의흔적"', "일반공격의흔적"),
             ("1004", "Skill1", '"방어무시"', "방어무시"),
             ("1001", "TextBase", '"기본 카드 설명"', "기본 카드 설명"),
             ("1001", "TextExtra", '"<b>추가 원문</b>"', "<b>추가 원문</b>"),
