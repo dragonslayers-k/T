@@ -154,11 +154,13 @@ jobs:
           PY
           python scripts/audit_manual_skill_card_source_matches.py \
             --db data/source-archive/fm1_cards.sqlite \
-            --output data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json
+            --catalog data/rules/fm1-skill-catalog-v1.json \
+            --source-release-tag "${SOURCE_RELEASE_TAG}" \
+            --output data/reviews/fm1-manual-skill-db29-source-match-2026-11-06.json
           python - <<'PY'
           import json
           from pathlib import Path
-          report=json.loads(Path("data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json").read_text(encoding="utf-8"))
+          report=json.loads(Path("data/reviews/fm1-manual-skill-db29-source-match-2026-11-06.json").read_text(encoding="utf-8"))
           for row in report["rules"]:
               cards=row["matched_card_rows"]
               sample=",".join(item["card_id"] for item in cards[:5])
