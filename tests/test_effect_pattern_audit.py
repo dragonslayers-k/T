@@ -260,7 +260,7 @@ class CostTokenReviewQueueTests(unittest.TestCase):
         self.assertTrue(all(row["review_status"] == "multiple_review_dimensions" for row in rows))
         self.assertEqual(
             rows[0]["review_dimensions"],
-            ["ncs_semantics_unverified", "bonus_semantics_unverified"],
+            ["bonus_semantics_unverified", "ncs_semantics_unverified"],
         )
         self.assertEqual([row["ordinal"] for row in rows], [0, 1])
         self.assertEqual(rows[0]["token_review_relevance"], "direct_token_evidence")
