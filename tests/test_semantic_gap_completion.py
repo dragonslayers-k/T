@@ -1,0 +1,170 @@
+import unittest
+from scripts.infer_unmapped_skills import extract_definitions, operations_from_text
+from scripts.infer_effect_interpretations import parse
+from scripts.import_community_skill_reference import extract_skill_definitions
+from scripts.infer_unmapped_skills import infer_one
+import sqlite3, json
+
+class SkillExtractionTests(unittest.TestCase):
+    def test_split_skill_heading_and_body(self):
+        text="각인의결계\n\n: 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다."
+        rows=extract_definitions("각인의결계",text)
+        self.assertTrue(rows)
+        self.assertIn("가장 높은 수치",rows[0]["body"])
+    def test_alias_with_next_line_body(self):
+        text="구원자의인장\n\n자신 파괴시 아군 핸드필드 유닛 전체 공방체 +1"
+        rows=extract_definitions("구원자의인정",text)
+        self.assertTrue(rows)
+        self.assertIn("공방체 +1",rows[0]["body"])
+    def test_coin_operation_retains_formula(self):
+        ops=operations_from_text("공격시 적 유닛의 체력 코인을 -C5로 영구 변경한다.")
+        self.assertTrue(any(x["kind"]=="modify_coin" for x in ops))
+
+
+    def test_unmapped_skill_rule_is_inserted_and_attached_to_cards(self):
+        db=sqlite3.connect(":memory:")
+        db.executescript("""
+        CREATE TABLE cards(card_id TEXT PRIMARY KEY,name TEXT,source_card_url TEXT);
+        CREATE TABLE card_texts(text_id INTEGER PRIMARY KEY,card_id TEXT,text_type TEXT,plain_text TEXT,source_text TEXT);
+        CREATE TABLE card_rule_mappings(
+          card_id TEXT,source_field TEXT,source_enum_value TEXT,source_name TEXT,rule_id TEXT,
+          mapping_status TEXT,confidence TEXT,evidence_references_json TEXT,
+          PRIMARY KEY(card_id,source_field));
+        CREATE TABLE skill_enum_inventory(
+          source_field TEXT,source_enum_value TEXT,source_name TEXT,card_count INTEGER,
+          mapped_card_count INTEGER,manual_verified_card_count INTEGER,
+          community_candidate_card_count INTEGER,mapping_status TEXT,rule_id TEXT,
+          PRIMARY KEY(source_field,source_enum_value,source_name));
+        CREATE TABLE game_rule_catalog(
+          rule_id TEXT PRIMARY KEY,rule_family TEXT NOT NULL,canonical_name TEXT NOT NULL,
+          aliases_json TEXT NOT NULL,definition_json TEXT NOT NULL,source_authority TEXT NOT NULL,
+          confidence TEXT NOT NULL,verification_status TEXT NOT NULL,implementation_status TEXT NOT NULL,
+          source_references_json TEXT NOT NULL,source_conflicts_json TEXT NOT NULL,
+          playable_by_default INTEGER NOT NULL DEFAULT 0,catalogue_version INTEGER NOT NULL);
+        INSERT INTO cards VALUES('c1','테스트1','https://fmlunatic.com/card/c1');
+        INSERT INTO cards VALUES('c2','테스트2','https://fmlunatic.com/card/c2');
+        INSERT INTO card_texts VALUES(1,'c1','card_text','각인의결계' || char(10) || char(10) || ': 방어시 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.','');
+        INSERT INTO card_texts VALUES(2,'c2','card_text','각인의결계' || char(10) || char(10) || ': 방어시 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.','');
+        INSERT INTO card_rule_mappings VALUES('c1','Skill1','500','각인의결계',NULL,'unmapped','unreviewed','[]');
+        INSERT INTO card_rule_mappings VALUES('c2','Skill1','500','각인의결계',NULL,'unmapped','unreviewed','[]');
+        INSERT INTO skill_enum_inventory VALUES('Skill1','500','각인의결계',2,0,0,0,'unmapped',NULL);
+        """)
+        result=infer_one(db,"Skill1","500","각인의결계",2)
+        self.assertEqual(result["mappedCardRows"],2)
+        self.assertEqual(db.execute("SELECT COUNT(*) FROM game_rule_catalog").fetchone()[0],1)
+        self.assertEqual(db.execute("SELECT COUNT(*) FROM card_rule_mappings WHERE mapping_status='inferred' AND rule_id IS NOT NULL").fetchone()[0],2)
+        self.assertEqual(db.execute("SELECT mapping_status FROM skill_enum_inventory").fetchone()[0],"inferred")
+        definition=json.loads(db.execute("SELECT definition_json FROM game_rule_catalog").fetchone()[0])
+        self.assertIn("가장 높은 수치",definition["rawEffectText"])
+        db.close()
+
+class CommunityReferenceTests(unittest.TestCase):
+    def test_split_line_community_skill_heading(self):
+        page="\n".join(["각인의결계", "", ": 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 3 감소시킨다.", "다른 기술: 별도 정의"])
+        found=extract_skill_definitions(page,{"각인의결계":"각인의결계"})
+        self.assertTrue(found.get("각인의결계"))
+        self.assertIn("가장 높은 수치를 3 감소",found["각인의결계"][0])
+
+class EffectInterpretationTests(unittest.TestCase):
+    def test_grouped_stats(self):
+        result=parse("아군 필드 유닛 전체의 공방체를 영구히 1 증가시킨다.")
+        self.assertEqual(result["confidence"],"medium")
+        self.assertTrue(any(x["kind"]=="modify_combat_stats" for x in result["operations"]))
+    def test_coin_effect(self):
+        result=parse("공격시 아군 유닛의 +코인 수치를 1 증가시킨다.")
+        self.assertTrue(any(x["kind"]=="modify_coin" for x in result["operations"]))
+    def test_transform_effect(self):
+        result=parse("3턴마다 다음 단계 유닛으로 성장한다.")
+        self.assertTrue(any(x["kind"]=="transform_or_move_card" for x in result["operations"]))
+    def test_metadata_classification(self):
+        result=parse("1차 강화 유닛 특징")
+        self.assertEqual(result["classification"],"reference_or_metadata")
+        self.assertEqual(result["confidence"],"not_applicable")
+    def test_catalogue_reference(self):
+        result=parse("기선제압",{"기선제압":"skill_first_strike"})
+        self.assertEqual(result["classification"],"ability_name_reference")
+        self.assertEqual(result["operations"][0]["ruleId"],"skill_first_strike")
+
+    def test_compound_stat_selector_effect(self):
+        result=parse("각인의결계: 방어시 상대 유닛 AP/DP/HP 중 가장 높은 수치를 영구히 3 감소시킨다.")
+        self.assertTrue(any(x["kind"]=="modify_selected_combat_stat" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_generic_action_verb_effect(self):
+        result=parse("적 유닛의 다음 공격을 1회 무효화한다.")
+        self.assertTrue(any(x["kind"]=="generic_effect_operation" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_direct_hp_attack_rule(self):
+        result=parse("상대의 DP를 무시하고 HP를 직접공격한다.")
+        op=next(x for x in result["operations"] if x["kind"]=="direct_hp_damage")
+        self.assertTrue(op["ignoresDefenderDP"])
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_attack_with_ap_and_dp_formula(self):
+        result=parse("상대를 공격시 자신의 AP에 DP를 더해 공격.")
+        self.assertTrue(any(x["kind"]=="attack_with_ap_and_dp" for x in result["operations"]))
+        self.assertEqual(result["confidence"],"medium")
+
+    def test_dp_decrease_qualitative_rule(self):
+        result=parse("AP1 이상으로 공격시 상대의 DP도 깎는다.")
+        op=next(x for x in result["operations"] if x["kind"]=="modify_stat" and x.get("stat")=="dp")
+        self.assertEqual(op["direction"],"decrease")
+        self.assertIsNone(op["value"])
+
+    def test_special_skill_to_normal_conversion(self):
+        result=parse("AP1 이상으로 공격시 상대의 특수기술이 일반기술로 바뀐다.")
+        self.assertTrue(any(x["kind"]=="modify_skill" and x.get("operation")=="replace_special_with_normal" for x in result["operations"]))
+
+    def test_consecutive_attack_formula(self):
+        result=parse("AP1 이상으로 공격시 AP 1 감소후 x2 의 AP로 공격한다.")
+        self.assertTrue(any(x["kind"]=="sequential_attack_formula" for x in result["operations"]))
+
+    def test_faq_note_is_not_effect(self):
+        result=parse('자세한 사항은 FAQ에서 "랭크 카드 안내" 로 검색해 보세요.')
+        self.assertEqual(result["classification"],"reference_or_metadata")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_conditional_card_reference_branch(self):
+        result=parse("1 ~ 3레벨: 마법개구리.")
+        self.assertEqual(result["confidence"],"medium")
+        self.assertTrue(any(x["kind"]=="conditional_branch_reference" for x in result["operations"]))
+
+    def test_time_digit_attack_formula(self):
+        result=parse("AP1이상으로 공격시, Turn의 1의 자리수로 상대를 공격한다.")
+        self.assertTrue(any(x["kind"]=="dynamic_attack_formula" for x in result["operations"]))
+
+    def test_dp_sign_reversal(self):
+        result=parse("AP1 이상으로 공격시 상대의 DP기호가 반대로 변환된다.")
+        self.assertTrue(any(x["kind"]=="modify_stat_marks" and x.get("operation")=="reverse_sign" for x in result["operations"]))
+
+    def test_enemy_dp_to_self_hp_formula(self):
+        result=parse("AP1이상으로 공격시, 적군 DP만큼 자신 HP증가.")
+        self.assertTrue(any(x["kind"]=="modify_stat" and x.get("stat")=="hp" for x in result["operations"]))
+
+    def test_rank_profile_note_is_not_effect(self):
+        result=parse("수집랭커 유니크는 수집랭커 1레벨 이상의 유저분만 구매가 가능합니다.")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+    def test_explanatory_example_is_not_effect(self):
+        result=parse("ex) 해당 마법과 관련 있는 스페셜 유닛이 필드에 있는 경우 ②번 효과가 발동.")
+        self.assertEqual(result["confidence"],"not_applicable")
+
+
+    def test_named_status_effect_is_captured_without_executable_claim(self):
+        result=parse("공격시 적 유닛에게 빙결 상태를 부여한다.")
+        self.assertTrue(any(x["kind"]=="apply_or_change_named_status" for x in result["operations"]))
+        self.assertFalse(any(x.get("executable") is True for x in result["operations"]))
+
+    def test_legacy_trigger_receive_attack(self):
+        result=parse("공격을 받을 때 상대에게 피해를 되돌려준다.")
+        self.assertIn("on_receive_attack",result["triggers"])
+
+    def test_legacy_move_and_disable_verbs_are_typed(self):
+        result=parse("적 유닛을 소각장으로 보내고 특수기술을 봉인한다.")
+        op=next(x for x in result["operations"] if x["kind"]=="generic_effect_operation")
+        self.assertIn("move_or_select",op["actionCandidates"])
+        self.assertIn("remove_or_disable",op["actionCandidates"])
+
+if __name__=="__main__":
+    unittest.main()

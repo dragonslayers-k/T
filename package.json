@@ -1,0 +1,14 @@
+{
+  "name": "fm1-carddb-rebuild",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "probe": "node scripts/probe.mjs",
+    "crawl": "node scripts/crawl.mjs",
+    "download-images": "node scripts/download_images.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
