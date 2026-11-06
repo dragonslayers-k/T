@@ -306,3 +306,33 @@ Boundaries:
 
 ### 6) History and scope note
 This append-only correction supersedes outdated status snapshots and conflicting interpretation in earlier sections; it does not delete prior history. The exact numbered conversation range was not exhaustively available as one transcript during this update. The policy is grounded in the latest v4.9 master, accessible recent conversation summary, and the GitHub commits/PR/Actions above; future checkpoints must report missing numbered conversation records rather than claiming full transcript coverage.
+
+
+---
+
+## OPS-004 — 2026-11-06 — DB29 runtime cost overlay generation completed
+
+### Latest CardDB PR #9 state
+- PR #9 remains Open / unmerged on `feat/carddb-effect-semantic-pass`.
+- Latest HEAD at this append: `df80ff2448942c3eedb923f27251b0fed8e730fd`.
+- Added read-only source inventory and runtime overlay tooling:
+  - `scripts/runtime_source_inventory.py`
+  - `scripts/build_runtime_cost_overlay.py`
+  - `data/reviews/fm1-runtime-profile-source-snapshot-inventory-2026-11-06.md`
+- The workflow downloads only the DB29 SQLite source and summary when the commit message contains `runtime-inventory`; it verifies the release checksum and does not run full audit or image downloads.
+- Successful final focused run: Actions #703 / run `42186841634`, tested workflow HEAD `bd7dffd2b5db82fe18c59805722a009b04e6978f`. Artifact `fm1-db29-runtime-source-inventory-703`, ID `13488350675`, 601,956 bytes.
+- Generated profile summary: 15,350/15,350 card profiles; 14,859 `implemented_verified`; 491 `implemented_inferred`; zero cost-profile fallback rows. This is profile generation only, not APK gameplay completion.
+- Intermediate focused-workflow issues were corrected: PR merge SHA versus head SHA marker lookup, card_fields/card_type join, decoder import path, and zero-valued color slots. #701 was a self-test failure; #702 was canceled by the superseding run; #703 passed. No full audit was run and no same-SHA successful run was repeated.
+
+### Source and inference findings
+- DB29 `card_costs`: 15,350 rows; RequireSoul present and parsed for 15,350; RequireLP present for all 289 lands.
+- Current decoder status: 14,859 cards without review; 439 BONUS semantic-review cards; 52 hybrid mapping-review cards. The old DB29 stored semantic-review count of 779 included 351 NCS tokens that the current parser now classifies as Manual-semantics-verified.
+- Runtime overlay: 52 hybrid cards infer both component colors; 439 BONUS cards retain a separate bonus field and use a tagged generic one-time payment inference with no NCS-style recurring upkeep. Source review flags remain preserved.
+- **Enum namespaces are distinct:** RequireSoul code 82=NCS, code 83=BONUS; EarnSoul code 82=MU02, code 83=MU03, code 02=SPELL/MagicLand. The land `소원의보름달` with EarnSoulList 8301 is MU03, not BONUS production.
+- All 289 lands have RequireLP/RequireSoul/EarnSoulList/MuSoul source fields. 50 MagicLand cards use EarnSoulList 0201 and MuSoul 0; their special effect/playability gate remains unresolved and must not block card installation.
+- Unit AP/DP/HP source fields exist for all 8,633 units; item stat fields also exist for 1,748 items. This does not by itself prove their effects are implemented.
+
+### APK state and next task
+- APK PR #28 remains Open / Draft at HEAD `671b73736e4fbbce5f2cd9e2df0ca2dfffb46a75`. Actions #261 succeeded at that SHA, including data pack build, Debug APK, emulator install/launch, and artifact upload. It did not consume the newly generated runtime overlay.
+- Next implementation: update APK PR #28's pack adapter and rules engine to consume source-separated `runtimeCost`; support BONUS as inferred generic one-time payment without recurring NCS upkeep; keep source review flags for provenance; allow MagicLand installation with only its unresolved effect clause receiving deterministic fallback/no-op. Add focused payment/turn-resolution tests, then one APK pack/emulator run on the new SHA.
+- No PR merged, no DB29 mutation, no DB30 tag/release, no APK code changes by this OPS-004 append.
