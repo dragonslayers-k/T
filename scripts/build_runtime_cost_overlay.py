@@ -97,8 +97,8 @@ def build_overlay(db_path):
         integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
         if integrity != "ok":
             raise RuntimeError(f"DB29 SQLite integrity_check failed: {integrity}")
-        cards = db.execute("SELECT card_id,name,card_type,attribute FROM cards ORDER BY card_id").fetchall()
-        costs = {r["card_id"]: r for r in db.execute("SELECT * FROM card_costs")}
+        cards = [dict(r) for r in db.execute("SELECT card_id,name,card_type,attribute FROM cards ORDER BY card_id")]
+        costs = {r["card_id"]: dict(r) for r in db.execute("SELECT * FROM card_costs")}
         profiles = [profile_for_card(card, costs.get(card["card_id"])) for card in cards]
         ids = [p["cardId"] for p in profiles]
         if len(profiles) != 15350 or len(set(ids)) != len(ids):
