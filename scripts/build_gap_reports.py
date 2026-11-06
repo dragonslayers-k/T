@@ -13,11 +13,13 @@ def classify_cost_review(row, token_evidence):
     if bool(row.get("mapping_review")):
         dimensions.append("hybrid_mapping_review_pending")
     if bool(row.get("semantic_review")):
-        if "BONUS" in symbols or "bonus" in normalized:
+        has_bonus = "BONUS" in symbols or "bonus" in normalized
+        has_ncs = "NCS" in symbols or "ncs" in normalized
+        if has_bonus:
             dimensions.append("bonus_semantics_unverified")
-        elif "NCS" in symbols or "ncs" in normalized:
+        if has_ncs:
             dimensions.append("ncs_semantics_unverified")
-        else:
+        if not has_bonus and not has_ncs:
             dimensions.append("semantic_review_unclassified")
     if not bool(row.get("soul_known")):
         dimensions.append("source_cost_unresolved")
@@ -25,6 +27,13 @@ def classify_cost_review(row, token_evidence):
         dimensions.append("land_lp_unresolved")
     status=dimensions[0] if len(dimensions)==1 else "multiple_review_dimensions" if dimensions else "verified"
     return status,dimensions
+
+def write_jsonl_rows(path, rows):
+    """Write one independently parseable JSON object per physical line."""
+    with Path(path).open("w", encoding="utf-8") as stream:
+        for row in rows:
+            stream.write(json.dumps(row, ensure_ascii=False) + "\n")
+
 
 def expand_cost_token_review_rows(cost_rows, token_rows_by_card):
     """Expand pending card-level cost reviews into immutable token-occurrence evidence rows."""
@@ -165,9 +174,7 @@ def build(db_path: Path, out_dir: Path):
             r["interpretationStatus"],r["reviewDimensions"]=classify_cost_review(r,token_evidence)
             cost_review.append(r)
     token_review_rows=expand_cost_token_review_rows(cost_review,cost_tokens_by_card)
-    with (out_dir/"cost-token-review-queue.jsonl").open("w",encoding="utf-8") as f:
-        for row in token_review_rows:
-            f.write(json.dumps(row,ensure_ascii=False)+"\\n")
+    write_jsonl_rows(out_dir/"cost-token-review-queue.jsonl", token_review_rows)
     with (out_dir/"cost-token-review-queue.csv").open("w",newline="",encoding="utf-8-sig") as f:
         columns=list(token_review_rows[0]) if token_review_rows else [
             "card_id","name","card_type","source_text","review_status","review_dimensions",
