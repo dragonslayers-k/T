@@ -144,3 +144,11 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - Curse Attack: APK PR #28 test commit `51222519ffa6f22b015bf0cea9ef16829b92ea73`, Actions #363 / `42224203597`, passed 236 JS / 0 fail and Python converter. DB29 exact label fixture Dark Joker `10030324708`; Manual §22 says target AP/DP −2. Tests verify zero-AP no-trigger and the AP/DP marker directions independently (AP △ with DP ▽, and AP ▽ with DP △).
 - Shared marker source is Manual `cardability.htm`. Both tests are fixture-level Manual rule evidence, not SQLite→converter→Android pack or actual device execution. No source mapping/data was promoted.
 - The T Skill1 spec currently labels shield_break `pending_engine_test` while focused fixture assertions now exist; exact card-local effect packet remains pending. Do not invent a new status enum or treat exact Skill1 label identity as a recovered card-local effect excerpt.
+
+
+## 15. Manual Skill1 Vampiric Attack HP marker directions — 2026-11-06
+
+- Manual `specialability.htm` §7: restore 50% of actual HP damage, odd values round half-up. `cardability.htm` §6(b): `*` prohibits all stat changes, `△` prohibits decreases but allows increases, `▽` prohibits increases but allows decreases.
+- DB29 exact Skill1 label representative: Dark Countess `10010624542` / `흡혈공격`, source value 788; exact-label group 115 rows. Card-local source packet remains a separate gate.
+- APK PR #28 test commit `15162b6d46043e9e297392feecf48bc40d3bacce`, Actions #365 / `42228582000`: 236 JS / 0 fail, Python converter 13 passed. Adds HP `△` permits half-up +2 healing on 3 actual damage, HP `▽` blocks positive healing, and HP `*` blocks all healing. Existing tests cover 1/2/5 actual damage, blocked damage and `▼`.
+- Lightweight test only; DB29 pack/APK/emulator skipped. No runtime mapping/source/DB29 mutation. Formal test spec remains design-only and must not be promoted based on fixture alone.
