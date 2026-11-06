@@ -118,3 +118,13 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - Manual `specialability.htm` §4: destroy defender DP by own AP; when defender DP reaches zero, remaining AP causes HP damage. DB29 Manual card fixture Black Unicorn `10091525214` now tests AP2 vs DP4 (DP2 remains, no HP damage) and AP3 vs DP0 (3 HP damage). Prior AP4 vs DP2 (2 HP damage) remains.
 - Negative target DP is not explicitly defined by this special-attack clause. Keep review-only and do not assume the general AP-minus-DP formula transfers to piercing.
 - This is a test-only boundary addition, not a source mapping promotion or full data-pack/runtime validation.
+
+
+## 14. Manual Skill1 piercing — stat-marker protected DP overflow
+
+- Manual.zip `specialability.htm` §4: attacker AP destroys target DP; only the AP left after defender DP reaches zero becomes HP damage. The Manual's shared stat-marker paragraph says `△` prevents decreases and `▽` prevents increases.
+- T specification `fm1-manual-skill-engine-test-spec-2026-11-05.json` identifies `piercing_attack` / `관통공격`, 172 exact DB29 Skill1 label rows, representative 블랙유니콘 `10091525214`, source value 51 and a recorded card URL. It still marks card-local effect text pending and has no exact card-local source text packet. This is label identity, not semantic approval.
+- APK test commit `c665a105de796bb4eb10a60bdf1650990e52f2bd`, Actions #356 / run `42221573459`: one assertion failed (236 tests, 1 failure). With `△`, DP reduction was blocked but old logic incorrectly caused 4 HP damage.
+- APK fix commit `6d736aa9e56c677aa7f2dcbfe94571b9a54d818b`, Actions #357 / run `42221699683`: success, 236 JS tests / 0 failures, Python converter 13 / OK. HP overflow now occurs only when positive DP was actually reduced to zero or defender DP was already <=0. `△` blocks both DP decrease and HP overflow; `▽` permits decrease and normal overflow.
+- #355 / run `42221259328` also passed exact AP=DP and pre-existing negative-DP conservative cases. Negative DP is treated as already exhausted and never adds its magnitude as bonus damage; Manual §4 does not explicitly define that case.
+- #357 was lightweight JS/Python only. DB29 pack, APK, emulator and source-row→pack→Android import lineage were not run. No mapping/data promotion is authorized by these tests.
