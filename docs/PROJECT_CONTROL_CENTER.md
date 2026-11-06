@@ -636,3 +636,12 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - APK test commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`, Actions #361 / run `42223636601`: success; 236 JS tests / 0 failures and Python converter passed. It covers AP0 trigger guard, DP0 baseline, negative DP no-effect, positive DP set-to-zero, `△` decrease prohibition and `▽` allowed decrease. No additional HP spillover occurs from shield-break itself.
 - Test-only change: rules.js, source mapping, SQLite/DB29 data and Android pack unchanged. DB29 pack/APK/emulator intentionally skipped. Card-local packet remains pending and no source mapping is promoted.
 - Update the T spec's stale `pending_engine_test` status only after verifying its schema/consumer accepted enum; do not invent a status value. PR #13 OPS-024 stays branch-only; it does not synchronize T main.
+
+
+## OPS-025 — 2026-11-06 — Manual Skill1 shield-break and curse marker tests
+
+- APK #361 / run `42223636601`, test HEAD `74ce501d4b97081ad4223b9868eb9bb26711ea68`: success; JS 236 / 0 fail, Python converter passed. Pirate Combatant `10010624551` Shield Break covers AP0, DP0, negative DP, positive DP, `△` blocked decrease and `▽` allowed decrease.
+- APK #363 / run `42224203597`, test HEAD `51222519ffa6f22b015bf0cea9ef16829b92ea73`: success; JS 236 / 0 fail, Python converter passed. Dark Joker `10030324708` Curse Attack covers AP0 no-trigger and independent AP/DP `△`/`▽` marker directions.
+- Manual source is `specialability.htm` §§21–22; common marker definitions are `cardability.htm`. Exact card-local shield-break effect excerpt is still pending in the T spec (96 exact Skill1 label rows are not equivalent to HTML card-local semantic evidence).
+- Both are focused fixture tests; no code handler/source mapping/SQLite/DB29 asset changed. DB29 pack/APK/emulator skipped. DB29 preserved, DB30 unpublished, PRs not merged.
+- Do not change the T spec's `implementation_status=pending_engine_test` until its accepted enum/schema is verified. Keep focused test evidence in the audit/contract separate from card-local source packet and pack lineage.
