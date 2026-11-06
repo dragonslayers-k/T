@@ -71,3 +71,10 @@
 - Subsequent APK test commit `98f5678291aad551c865aae32339d5662b5723c7`, Actions #337 / run `42204718679`, passed `DB29 Manual source-backed Skill1 cards preserve petrify, aging and charge attack rules` and `DB29 Manual piercing and weakening attacks follow their exact AP and DP effects`, with `fail 0`.
 - The expanded petrify assertions apply `cardability.htm` stat-marker rules independently: AP `▲` blocks the `=0` decrease while DP `▼` blocks the `+1` increase; the other stat effect still applies. The weakening positive-damage case confirms the AP/DP −1 effect also occurs when the attack deals 2 HP damage, alongside the existing zero-HP-damage case.
 - These are focused rule tests, not DB29 full-pack or emulator revalidation. No source mapping is promoted solely by these fixtures.
+
+
+## 2026-11-06 follow-up — seeded match-end regression
+
+- APK PR #28 Actions #341 / run `42206456060` passed a fixed-seed preparation/AI/paired battle/round handoff integration test (233 JS tests / 0 failures; 13 Python tests).
+- APK PR #28 Actions #342 / run `42214419550` passed a new direct deck-depletion terminal test through `FM.resolveBattle()` (234 JS tests / 0 failures; 13 Python tests). It verifies the final two enemy deck cards are removed by a 2-soul direct hit, player wins, and round/attacker/preparation do not rotate after the terminal result.
+- These are code/fixture-level integration tests, not proof of a full match with all 15,350 DB29 cards or complete semantic effects; no source mapping was promoted.
