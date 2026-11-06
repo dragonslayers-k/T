@@ -222,3 +222,21 @@ This append-only checkpoint supersedes stale state pointers above. Recheck live 
 3. Continue DB29 → card pack → APK importer → normalized runtime lineage checks as a separate unverified task.
 4. Keep DB29 preserved, DB30 unpublished, and PR #9/#12/#28/#26/#25/#9 unmerged.
 
+
+
+## 9. Correction — APK PR #28 Actions #260 proved DB29 pack lineage (2026-11-06)
+
+The previous checkpoint's next-work pointer said DB29 → pack → APK lineage remained unverified. That statement is superseded by direct inspection of Actions #260 logs (run `42166629234`, APK PR #28 HEAD `1bf65ab2dc80035a6329b10dd8c3b80dffd78114`). This CI actually ran the lineage scripts; do not repeat the same verification unchanged.
+
+Verified by #260:
+- Source release: `fm1-carddb-29`; source SQLite summary was checked against the release SHA/checksum and SQLite integrity; 15,350 cards.
+- Converter generated `FM1-CardData-v1.3.0.zip`.
+- Representative Skill1 pack lineage: `verify-db29-skill1-pack-lineage.py` PASS for 6 source-linked examples.
+- All-source Skill1/Skill2 mapping lineage: `verify-db29-skill-mapping-pack-lineage.py` PASS across 15,350 cards; SQLite has 10,381 Skill1 and 10,381 Skill2 rows; 20,762 pack mapping rows matched with enum/source, mapping status, confidence, evidence, authority and rule fields preserved.
+- Runtime normalization: `verify-db29-skill1-runtime-normalization.cjs` PASS; 15,350 cards normalized in pages of 250 and six representative records checked for source URL, source Skill1/Skill2, rule metadata, and execution-status isolation.
+- Emulator smoke: imported data pack and loaded WebView for 15,350 cards, PASS.
+
+Boundaries:
+- This is a valid DB29 source SQLite → Android pack → runtime-normalizer lineage pass at the above CI SHA.
+- It does not certify every Skill1/Skill2 semantic behavior or 27-rule source-card-specific engine assertion, nor every battle scenario. Those remain the CardDB/APK semantic coverage workstream.
+- APK PR #28 remains open and unmerged; the CI pass does not authorize merging it or issuing DB30.
