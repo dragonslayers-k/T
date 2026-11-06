@@ -354,3 +354,14 @@ This append-only correction supersedes outdated status snapshots and conflicting
 - Not yet changed: UI cost label does not yet display the inferred runtime-cost status; 50 MagicLand cards still hit the old special-effect installation gate; enchant candidate-only and other effect gates remain.
 - Next focused steps after #263: inspect generated pack manifest/runtime-cost coverage; update the UI to show inferred runtime costs without erasing source-review status; make MagicLand installation playable with its unresolved effect clause receiving deterministic fallback/no-op; then run one final pack/emulator validation.
 - No PR merged, no DB29 mutation, no DB30 publication.
+
+
+---
+
+## OPS-006 — 2026-11-06 — APK runtime-cost validation checkpoint correction
+
+- Correct the OPS-005 in-progress snapshot: APK PR #28 is now at HEAD `988c45282f0c5ae87851c0e2d74a3eb285e69f0f`.
+- Actions #263 completed failure because its run used the preceding merge snapshot and still observed the old Korean diagnostic text. The follow-up commit updated that message while retaining fail-closed behavior when neither source cost nor runtime cost exists.
+- Actions #264 / run `42187725403` is the current validation run. JavaScript rule tests and Firestore-to-Android converter passed; DB29 SQLite-to-Android data ZIP generation is still in progress at this checkpoint. No APK build/emulator result is available yet.
+- Do not rerun #264 or start another workflow while it is active. After completion, inspect the first failing step if any; only continue to APK build/emulator if data-pack generation succeeds.
+- The runtimeCost implementation is not merged. Source cost review remains preserved. The UI inferred-cost label and MagicLand fallback are still pending.
