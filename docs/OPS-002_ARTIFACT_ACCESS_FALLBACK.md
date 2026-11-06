@@ -46,3 +46,13 @@ DB29 보존, DB30 발행 금지, T PR #9/#12 및 APK PR #28/#26/#25/#9 병합 �
 - 남은 제약: aggregate logs alone cannot reconstruct the card-level review records; queue overlap is unknown; no claim of semantic/engine completion.
 - 영구 개선 작업: workflow should print concise summary and upload a compact JSON/CSV containing card IDs, original text, source URL, review reason/status, and evidence pointers. Ensure this can be fetched as text or parsed from job logs; do not require full ZIP local extraction.
 - 다음 재발 시 우선: logs and GitHub API -> compact artifact/text file -> targeted workflow output changes -> only then consider asking user for a concrete missing permission/input. Never ask the user to upload the same artifact or manually dispatch the same workflow just because the runtime failed.
+
+
+## D형 재시도 경로 성공 — 2026-11-06 / run #663
+
+- 동일 artifact ID 13481939094를 connector로 다시 다운로드하자 `/mnt/data/semantic-review-663-retry.zip`에 직접 materialize 되었고, container `ls` 및 `unzip -l`로 ZIP 정상과 실제 entry를 확인했다.
+- 이전 `/mnt/data/files/semantic-review-663.zip` 경로는 런타임에서 ClientError가 났지만, 이번 direct path는 접근 가능했다. 이는 path/materialization route 장애와 ZIP 손상을 구분해야 함을 보여준다.
+- ZIP 2.2 MiB, expanded files 45,551,502 bytes. Effect queue JSONL 1,020,911 bytes / 1,249 card-level rows; 716 normalized patterns. Full inferred-skill file (42.7 MB) was not needed for this focused task.
+- Card-level effect rows were parsed successfully; exact raw text, card ID/name/type, clause index, interpretation candidate, verification status, and source URL were preserved in a triage queue uploaded to the Library as `fm1-db29-low-confidence-effect-cluster-triage-663.json`.
+- Deterministic first-pass labels only organize pending review: FAQ/external help 26 rows; named card/item reference 108; named state/status 16; condition/formula 417; metadata/flavor candidate 19; unclassified semantic candidate 663. All remain `pending_source_review` and `non_executable`; labels do not resolve meaning.
+- Revised retry precedence: (1) connector re-download -> inspect exact direct path, (2) validate ZIP listing and extract the smallest needed file, (3) parse relevant JSONL, (4) use job logs/compact summary as secondary, (5) update workflow output for future runs. User upload or manual dispatch remains last resort only for a missing permission/input.
