@@ -86,3 +86,5 @@ def main():
     print('REVIEW_QUEUE_JSON='+json.dumps(result['reviewQueue'],ensure_ascii=False,separators=(',',':')))
     print(json.dumps({'cards':result['cardCount'],'byType':result['cardsByType'],'costs':result['costs'],'stats':result['runtimeStatSourceFields'],'effects':result['effectsAndSkills'],'landSourceFieldPresence':result['landSourceFieldPresence'],'reviewCohorts':result['reviewCohorts'],'output':str(a.output)},ensure_ascii=False))
 if __name__=='__main__': main()
+
+# Inventory extension pending: field_matrix must join cards for card_type.
