@@ -85,3 +85,21 @@
 1. 8개 Skill2 그룹 중 남은 `기선제압` 175행의 원문 변형/경계 테스트를 현재 APK HEAD와 다시 교차검토한다. 이전 #617의 evidence adjudication을 현재 HEAD와 비교해 stale 여부를 확인한다.
 2. 그 다음 8개 그룹의 crosswalk 결과를 통합해 원문 증거/테스트 커버리지/미해결 경계를 한 표로 집계한다.
 3. 모든 카드 매핑은 실제 source row/DB29 데이터 경로가 검증되기 전까지 inferred로 유지한다.
+
+
+## 6. 후속 APK 보완 — Pressure Defense 슬롯 계수
+
+- APK 저장소: `dragonslayers-k/FM-OFFLINE`
+- APK 브랜치: `feat/combat-event-foundation`
+- 변경 커밋: `4cfbed7a9583eb6e2f03df3bc14f2105235bfc22`
+- 변경 파일: `app/src/main/assets/game/rules.js`, `tests/rules.test.cjs`
+
+기존 구현은 `5 - owner.units.length`로 빈 슬롯을 계산했다. 후속 수정에서는 화면의 5개 물리 슬롯 렌더링 규칙과 동일하게 슬롯 인덱스(미지정 시 배열 위치 fallback)를 적용하고, 1~5 범위의 고유 점유 슬롯 수를 기준으로 빈 슬롯을 계산한다.
+
+추가한 생산 경로 회귀 테스트:
+1. `production Pressure Defense counts unique visible slots when fallback and explicit slot indices collide`
+2. `production Pressure Defense ignores units outside the five rendered field slots`
+
+이 수정은 슬롯 점유 계산을 보완한 것이며, DB29의 프레셔 카드 매핑을 `source_card_verified` 또는 `executable`로 승격하지 않는다. CI 검증은 APK Actions #255에서 진행 중이며, 결과가 확정되기 전까지 성공으로 간주하지 않는다.
+
+DB29 불변, DB30 미발행, T PR #9 미병합 원칙은 유지한다.
