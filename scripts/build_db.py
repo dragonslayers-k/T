@@ -46,8 +46,12 @@ if "--self-test" in sys.argv:
  assert sample["known"] and sample["mapping_review"]
  assert sample["colors"]["forest"]==1 and sample["colors"]["light"]==2
  assert parse_soul("5301")["colors"]["iron"]==1
- assert parse_soul("8201")["semantic_review"] and parse_soul("8201")["colors"]["ncs"]==1
- assert parse_soul("8301")["semantic_review"] and parse_soul("8301")["colors"]["bonus"]==1
+ ncs=parse_soul("8201")
+ assert ncs["known"] and not ncs["semantic_review"] and ncs["colors"]["ncs"]==1
+ assert ncs["tokens"][0]["status"]=="manual_semantics_verified"
+ bonus=parse_soul("8301")
+ assert bonus["known"] and bonus["semantic_review"] and bonus["colors"]["bonus"]==1
+ assert bonus["tokens"][0]["status"]=="semantic_review"
  assert parse_soul("0100")["known"] and not parse_soul("0101")["known"]
  assert not parse_soul("9901")["known"] and not parse_soul("")["known"]
  print("SQLite builder RequireSoul self-test passed")
