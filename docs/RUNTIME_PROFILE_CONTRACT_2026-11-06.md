@@ -161,3 +161,12 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - APK PR #28 test commit `b88db5b55576854a2f8fe94ec5b72d2f078b66f6`, Actions #367 / run `42229779160`: success, 236 JS / 0 failures, Python converter 13 / OK.
 - Added test cases: AP0 no-trigger; AP1 against defender DP2 where HP damage is 0 but the attack still applies AP−2; AP `△` blocks decrease; AP `▽` allows decrease; target AP1 receives full −2 and reaches −1.
 - Fixture-level engine test only. Formal test-spec remains design-only (27 rules, 108 cases, zero executable rules); card-local source and data-pack lineage are separate gates. No mapping or DB29 data promotion.
+
+
+## 16. Manual Skill1 target-ability AP marker boundaries — 2026-11-06
+
+- Manual `specialability.htm` §§10/18/19: Beast Tamer, Magic Suppression and Weapon Suppression set target AP to zero only for the respective target ability. Common AP markers: `△` prevents decrease; `▽` permits decrease.
+- Representative DB29 exact Skill1 label fixtures: 네추럴마스터 `11011925567` (63 matching rows), 혼드비스트 `10010624550` (56), 데크라프 `10010624543` (48). Exact card-local effect packet/runtime data-pack provenance remain separate from exact Skill1 label matching.
+- APK PR #28 test commit `7c18d444f0b9d1e852abb7a8cef49dc0b0dec84c`, Actions #369 / run `42231717568`: success; 236 JS / 0 failures; Python converter 13 / OK.
+- Each rule now covers AP0 no-trigger; matching target + AP `△` blocks AP=0; matching target + AP `▽` permits AP=0. Existing matching/nonmatching target ability checks remain.
+- Fixture-level test only. No runtime code/source mapping/DB29 data change. The formal engine test spec remains 27 rules / 108 design-only cases / 0 executable pending its separate promotion contract.
