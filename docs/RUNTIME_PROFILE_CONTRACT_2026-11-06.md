@@ -128,3 +128,11 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - APK fix commit `6d736aa9e56c677aa7f2dcbfe94571b9a54d818b`, Actions #357 / run `42221699683`: success, 236 JS tests / 0 failures, Python converter 13 / OK. HP overflow now occurs only when positive DP was actually reduced to zero or defender DP was already <=0. `△` blocks both DP decrease and HP overflow; `▽` permits decrease and normal overflow.
 - #355 / run `42221259328` also passed exact AP=DP and pre-existing negative-DP conservative cases. Negative DP is treated as already exhausted and never adds its magnitude as bonus damage; Manual §4 does not explicitly define that case.
 - #357 was lightweight JS/Python only. DB29 pack, APK, emulator and source-row→pack→Android import lineage were not run. No mapping/data promotion is authorized by these tests.
+
+
+## 13. Manual Skill1 shield-break DP boundary and marker interactions — 2026-11-06
+
+- APK PR #28 test commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`, Actions #361 / run `42223636601`: success; JS 236 tests / 0 failures; Python converter success.
+- Exact Skill1 label fixture is DB29 해적전투원 `10010624551` / `방패파괴`; the Manual.zip source is `specialability.htm` §21: after an attack set target DP to zero; if target DP is negative, no effect. T spec records 96 exact label matches, but exact card-local effect excerpt remains pending; the test is Manual-rule fixture evidence only.
+- Added boundaries: AP0 no-trigger; DP0 leaves ordinary AP damage active; negative DP unchanged; positive DP set to zero post-attack; `△` blocks the DP decrease, and no AP spillover is created; `▽` permits reduction. The skill's post-attack DP change does not create extra HP damage.
+- Runtime code/source mapping/DB29 data were not changed. `implementation_status=pending_engine_test` in the T spec has not yet been revised because its accepted status vocabulary was not established here; track the new focused test evidence separately and resolve the schema/status field in a later explicit spec update. This avoids inventing an enum.
