@@ -20,6 +20,8 @@ def profile_for_card(card, cost_row):
 
     for source_color, raw_amount in colors.items():
         amount = int(raw_amount or 0)
+        if amount == 0:
+            continue
         if amount < 0:
             fallback = True
             continue
