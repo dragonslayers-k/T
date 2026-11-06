@@ -240,3 +240,12 @@ Boundaries:
 - This is a valid DB29 source SQLite → Android pack → runtime-normalizer lineage pass at the above CI SHA.
 - It does not certify every Skill1/Skill2 semantic behavior or 27-rule source-card-specific engine assertion, nor every battle scenario. Those remain the CardDB/APK semantic coverage workstream.
 - APK PR #28 remains open and unmerged; the CI pass does not authorize merging it or issuing DB30.
+
+
+### 8.4 D형 복구 성공 — #663 artifact 직접 경로
+
+- Artifact ID `13481939094` 재다운로드 시 connector가 `/mnt/data/semantic-review-663-retry.zip`을 생성했고, container `ls` / `unzip -l` / extraction이 성공했다. 앞선 materialize 경로 `/mnt/data/files/semantic-review-663.zip`의 ClientError는 ZIP 손상을 뜻하지 않았다.
+- ZIP size 2.2 MiB; expanded size 45,551,502 bytes. `effect-gap-report.jsonl` 1,020,911 bytes, 1,249 rows / 716 normalized patterns.
+- First-pass queue labels: FAQ/help 26; named card/item 108; named state/status 16; condition/formula 417; metadata/flavor candidate 19; unclassified semantic candidate 663. These labels are heuristics only; all records remain pending and non-executable.
+- Library now has v4.6 master and the detailed JSON triage index `fm1-db29-low-confidence-effect-cluster-triage-663.json`. Continue from these exact records rather than asking the user for the same artifact.
+- Next CardDB work: source-grounded adjudication clusters. Do not run full audit #663 again; #663 already passed on main and the current review is card-level data triage, not a rebuild.
