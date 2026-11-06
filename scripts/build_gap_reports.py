@@ -171,7 +171,8 @@ def build(db_path: Path, out_dir: Path):
     with (out_dir/"cost-token-review-queue.csv").open("w",newline="",encoding="utf-8-sig") as f:
         columns=list(token_review_rows[0]) if token_review_rows else [
             "card_id","name","card_type","source_text","review_status","review_dimensions",
-            "review_scope","ordinal","raw_token","code","count","symbol","normalized_color","parse_status"]
+            "token_dimensions","card_level_dimensions","token_review_relevance","review_scope",
+            "ordinal","raw_token","code","count","symbol","normalized_color","parse_status"]
         w=csv.DictWriter(f,fieldnames=columns)
         w.writeheader()
         for row in token_review_rows:
@@ -277,6 +278,8 @@ def build(db_path: Path, out_dir: Path):
       "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
       "cost_review_token_occurrence_rows":sum(1 for r in token_review_rows if r["review_scope"]=="token_occurrence"),
+      "cost_review_direct_token_evidence_rows":sum(1 for r in token_review_rows if r["token_review_relevance"]=="direct_token_evidence"),
+      "cost_review_context_only_token_rows":sum(1 for r in token_review_rows if r["token_review_relevance"]=="context_only"),
       "cost_review_card_without_token_evidence_rows":sum(1 for r in token_review_rows if r["review_scope"]=="card_without_token_evidence"),
       "cost_review_token_symbol_counts":dict(sorted(Counter(str(r["symbol"] or "unlabelled") for r in token_review_rows).items())),
       "cost_review_status_counts":dict(sorted(cost_review_status_counts.items())),
