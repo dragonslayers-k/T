@@ -14,6 +14,7 @@ def profile_for_card(card, cost_row):
     raw = cost_row["source_text"] if cost_row else None
     parsed = parse_require_soul(raw)
     colors = parsed.get("colors") or {}
+    candidate = {}
     runtime = {}
     inference = []
     fallback = False
@@ -26,29 +27,43 @@ def profile_for_card(card, cost_row):
             fallback = True
             continue
         if source_color == "ncs":
+            candidate["ncs"] = candidate.get("ncs", 0) + amount
             runtime["neutral"] = runtime.get("neutral", 0) + amount
+            inference.append("ncs_generic_payment_unit_only_upkeep")
         elif source_color == "bonus":
-            # Inferred: BONUS is a separate one-time generic requirement.
-            # Keep its identity separate from NCS so it does not inherit
-            # Manual's unit-only recurring NCS upkeep rule.
-            runtime["bonus"] = runtime.get("bonus", 0) + amount
-            inference.append("bonus_generic_one_time_payment")
+            # BONUS is a one-time generic payment. It is deliberately
+            # normalized to neutral for the engine, while its source identity
+            # remains in candidateCost and its amount is excluded from upkeep.
+            candidate["bonus"] = candidate.get("bonus", 0) + amount
+            runtime["neutral"] = runtime.get("neutral", 0) + amount
+            inference.append("bonus_generic_one_time_payment_no_upkeep")
         elif source_color == "iron":
+            candidate["iron"] = candidate.get("iron", 0) + amount
             runtime["metal"] = runtime.get("metal", 0) + amount
-        else:
+        elif source_color in {"dark", "fire", "water", "forest", "metal", "earth", "light"}:
+            candidate[source_color] = candidate.get(source_color, 0) + amount
             runtime[source_color] = runtime.get(source_color, 0) + amount
+        else:
+            candidate[source_color] = candidate.get(source_color, 0) + amount
+            runtime["neutral"] = runtime.get("neutral", 0) + max(1, amount)
+            inference.append("unknown_source_color_conservative_payable_fallback")
+            fallback = True
 
-    for token in parsed.get("tokens") or []:
+    tokens = parsed.get("tokens") or []
+    for token in tokens:
         status = token.get("status")
         if status == "inferred_hybrid_both_colors":
             inference.append("hybrid_requires_both_component_colors")
-        elif status == "manual_review":
+        elif status in {"manual_review", "unmapped", "unknown", "unresolved"}:
             amount = max(1, int(token.get("amount") or 1))
             runtime["neutral"] = runtime.get("neutral", 0) + amount
             inference.append("unknown_token_conservative_payable_fallback")
             fallback = True
 
-    if not parsed.get("known") and not any(t.get("status") == "manual_review" for t in parsed.get("tokens", [])):
+    if not parsed.get("known") and not any(
+        t.get("status") in {"manual_review", "unmapped", "unknown", "unresolved"}
+        for t in tokens
+    ):
         runtime["neutral"] = runtime.get("neutral", 0) + 1
         inference.append("missing_or_invalid_source_cost_conservative_payable_fallback")
         fallback = True
@@ -61,11 +76,15 @@ def profile_for_card(card, cost_row):
             inference.append("missing_source_cost_conservative_payable_fallback")
             fallback = True
 
+    allowed = {"dark", "fire", "water", "forest", "metal", "earth", "light", "neutral"}
     for key, value in runtime.items():
-        if not isinstance(value, int) or value < 0:
+        if key not in allowed or not isinstance(value, int) or value < 0:
             raise ValueError(f"Invalid runtime cost for {card.get('card_id')}: {key}={value}")
 
-    status = "fallback_payable" if fallback else ("implemented_inferred" if inference else "implemented_verified")
+    ncs_upkeep = max(0, int(colors.get("ncs") or 0)) if card.get("card_type") == "유닛" else 0
+    status = "fallback_payable" if fallback else (
+        "implemented_inferred" if inference else "implemented_verified"
+    )
     return {
         "cardId": str(card["card_id"]),
         "name": str(card.get("name") or ""),
@@ -76,15 +95,14 @@ def profile_for_card(card, cost_row):
         "sourceMappingReview": bool(cost_row and cost_row.get("mapping_review")),
         "sourceSemanticReview": bool(cost_row and cost_row.get("semantic_review")),
         "sourceVerificationStatus": str(cost_row.get("verification_status") or "missing") if cost_row else "missing",
-        "sourceTokens": parsed.get("tokens") or [],
+        "sourceTokens": tokens,
+        "candidateCost": candidate,
         "runtimeCost": runtime,
         "runtimeCostStatus": status,
         "runtimeCostInference": sorted(set(inference)),
-        "playable": True,
-        "upkeepPolicy": {
-            "neutral": "manual_unit_only_upkeep",
-            "bonus": "one_time_only_no_upkeep_inference"
-        }
+        "runtimeUpkeepCost": {"neutral": ncs_upkeep},
+        "runtimeUpkeepStatus": "manual_verified_ncs_only" if ncs_upkeep else "zero_upkeep",
+        "playable": True
     }
 
 
@@ -139,7 +157,7 @@ def self_test():
     cases = [
         ({"card_id":"a","name":"dark","card_type":"유닛"}, {"source_text":"1101","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"dark":1}, "implemented_verified"),
         ({"card_id":"b","name":"ncs","card_type":"유닛"}, {"source_text":"8201","mapping_review":0,"semantic_review":0,"verification_status":"manual_semantics_verified"}, {"neutral":1}, "implemented_verified"),
-        ({"card_id":"c","name":"bonus","card_type":"아이템"}, {"source_text":"11018301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"dark":1,"bonus":1}, "implemented_inferred"),
+        ({"card_id":"c","name":"bonus","card_type":"아이템"}, {"source_text":"11018301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"dark":1,"neutral":1}, "implemented_inferred"),
         ({"card_id":"d","name":"hybrid","card_type":"유닛"}, {"source_text":"1201","mapping_review":1,"semantic_review":0,"verification_status":"mapping_review"}, {"dark":1,"earth":1}, "implemented_inferred"),
         ({"card_id":"e","name":"no-cost","card_type":"마법"}, {"source_text":"0100","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":0}, "implemented_verified"),
         ({"card_id":"f","name":"unknown","card_type":"유닛"}, {"source_text":"9901","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable")
