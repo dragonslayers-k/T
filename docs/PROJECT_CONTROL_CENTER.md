@@ -492,3 +492,31 @@ DB29 remains preserved; DB30 unpublished; designated PRs remain open and unmerge
 - APK Actions #325 / run 42192845020 is queued on the corrected HEAD 60681acc02974f6f6e8721def63b24f0823a6d6e with the same full pack/APK/emulator markers. Inspect its first failure if any; do not rerun the unchanged #322 SHA.
 
 DB29 remains preserved; DB30 remains unpublished; all designated PRs remain open/unmerged.
+
+## OPS-013 — GitHub Actions 실행량·실패 비용 통제 (2026-11-06)
+
+### 확인된 실행 이력
+- T PR #9 Actions #716: 경량 회귀 테스트 및 compact source inventory 생성 성공. 전체 DB 감사/크롤링/Release 단계는 skip.
+- T PR #13 Actions #719: 경량 회귀 테스트 성공. 전체 DB 감사/크롤링/Release 단계는 skip.
+- FM-OFFLINE PR #28 Actions #322: JS/Python 검사와 DB29 다운로드·15,350장 변환·ZIP 생성까지 성공했으나 validate-app-card-pack.cjs 551행의 ReferenceError: manifest is not defined로 실패. 데이터 원본 실패가 아닌 validator 코드 결함.
+- FM-OFFLINE PR #28 Actions #325: 수정 SHA 60681acc에서 DB29 pack, APK, APK 무결성, emulator install/launch까지 성공.
+- FM-OFFLINE PR #28 CI gate 수정 커밋 0be807b9dd3b67e5555ea9140e9083d698301bf5의 Actions #327: 성공. JS/Python 검사는 수행했고 DB29 pack, JDK/SDK/Gradle, APK, emulator 단계는 모두 skip됨.
+
+### 원인
+기존 Android CI는 PR 제목에 [build-card-pack] / [run-emulator]가 들어 있으면 PR의 모든 synchronize에서도 DB29 대용량 다운로드·변환과 emulator를 실행했다. PR #28 제목에 두 marker가 상시 포함되어 있어 코드 수정마다 고비용 검증이 반복될 수 있었다. pull_request.edited와 cancel-in-progress: false도 제목 편집/구버전 실행 누적 위험을 높였다.
+
+### 수정
+FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
+1. PR 이벤트 edited 제거; opened/synchronize/reopened만 유지.
+2. PR에만 cancel-in-progress: true 적용; main push와 수동 workflow_dispatch는 취소하지 않음.
+3. PR 제목 marker에 의한 DB29 pack 및 emulator 실행 경로 제거.
+4. PR 제목 [build-apk]는 APK 전용 빌드 gate로 유지.
+5. DB29 pack/emulator는 workflow_dispatch의 명시적 boolean 입력으로만 요청 가능. main의 승인된 push marker는 유지.
+6. 동일 SHA 성공 검증은 재실행하지 않고, 실패 시 최초 실패 step/log 확인 후 새 SHA에서 필요한 최소 검증만 수행.
+
+### 운영 기준
+- PR마다 JS/Python 경량 회귀 테스트는 유지한다.
+- 대형 DB29 pack + APK + emulator는 최종 통합 SHA에서 한 번 수행한다.
+- 문서 전용 변경 및 단순 PR synchronize는 고비용 pack/emulator를 실행하지 않는다.
+- 검증 축소가 목적이 아니라 불필요한 반복만 제거한다.
+- DB29 보존, DB30 미발행, 지정 PR 병합 금지 경계는 유지한다.
