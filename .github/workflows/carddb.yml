@@ -210,6 +210,69 @@ jobs:
           assert r.get("unmapped_skill_card_rows",0)==0, r
           PY
 
+      - name: Build compact card-level effect review output
+        if: ${{ always() && (env.MODE == 'audit-release' || env.MODE == 'crawl') && hashFiles('data/gap-reports/effect-gap-report.jsonl') != '' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv, json, os
+          from collections import Counter
+          from pathlib import Path
+
+          source = Path("data/gap-reports/effect-gap-report.jsonl")
+          output = Path("data/gap-reports/effect-review-compact.csv")
+          summary_path = Path("data/gap-reports/effect-review-compact-summary.json")
+          rows = []
+          for line in source.read_text(encoding="utf-8").splitlines():
+              if not line.strip():
+                  continue
+              row = json.loads(line)
+              try:
+                  interpretation = json.loads(row.get("interpretation_json") or "{}")
+              except (TypeError, json.JSONDecodeError):
+                  interpretation = {}
+              rows.append({
+                  "card_id": row.get("card_id", ""),
+                  "name": row.get("name", ""),
+                  "card_type": row.get("card_type", ""),
+                  "clause_index": row.get("clause_index", ""),
+                  "confidence": row.get("confidence", ""),
+                  "classification": interpretation.get("classification", "unknown"),
+                  "segment_text": row.get("segment_text", ""),
+                  "source_detail_url": row.get("source_detail_url", ""),
+                  "verification_status": row.get("verification_status", ""),
+              })
+          columns = ["card_id", "name", "card_type", "clause_index", "confidence",
+                     "classification", "segment_text", "source_detail_url", "verification_status"]
+          with output.open("w", newline="", encoding="utf-8-sig") as handle:
+              writer = csv.DictWriter(handle, fieldnames=columns)
+              writer.writeheader()
+              writer.writerows(rows)
+          pattern_counts = Counter(" ".join(row["segment_text"].split()) or "(empty)" for row in rows)
+          classification_counts = Counter(row["classification"] for row in rows)
+          summary = {
+              "rows": len(rows),
+              "unique_card_ids": len({row["card_id"] for row in rows}),
+              "unique_text_patterns": len(pattern_counts),
+              "classification_counts": dict(sorted(classification_counts.items())),
+              "top_text_patterns": [{"text": text, "count": count}
+                                    for text, count in pattern_counts.most_common(20)],
+              "csv": output.name,
+              "note": "Rows are review candidates, not proof of incorrect semantics or engine behavior."
+          }
+          summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          with open(Path(os.environ["GITHUB_STEP_SUMMARY"]), "a", encoding="utf-8") as handle:
+              handle.write("## Compact effect review queue\\n\\n")
+              handle.write(f"- Rows: {summary['rows']}\\n")
+              handle.write(f"- Unique card IDs: {summary['unique_card_ids']}\\n")
+              handle.write(f"- Unique text patterns: {summary['unique_text_patterns']}\\n")
+              handle.write("- Classification counts: " + json.dumps(summary["classification_counts"], ensure_ascii=False) + "\\n")
+              handle.write("\\nFull card-level source text and URLs are in the compact CSV artifact.\\n")
+          if len(rows) != len([line for line in source.read_text(encoding="utf-8").splitlines() if line.strip()]):
+              raise SystemExit("Compact effect review output row count mismatch")
+          PY
+
       - name: Upload focused semantic review queues
         if: ${{ always() && (env.MODE == 'audit-release' || env.MODE == 'crawl') && hashFiles('data/gap-reports/effect-gap-report.jsonl') != '' }}
         uses: actions/upload-artifact@v4
@@ -218,6 +281,8 @@ jobs:
           path: |
             data/gap-reports/effect-gap-report.jsonl
             data/gap-reports/effect-low-confidence-summary.json
+            data/gap-reports/effect-review-compact.csv
+            data/gap-reports/effect-review-compact-summary.json
             data/gap-reports/inferred-skill-report.jsonl
             data/gap-reports/community-skill-report.jsonl
             data/gap-reports/cost-inference-report.jsonl
