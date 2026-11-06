@@ -1,6 +1,7 @@
 import unittest
 
 from scripts.effect_pattern_audit import analyze, split_clause_candidates
+from scripts.build_gap_reports import classify_cost_review
 
 
 class EffectPatternAuditTests(unittest.TestCase):
@@ -76,6 +77,80 @@ class EffectPatternAuditTests(unittest.TestCase):
         self.assertIn("stat_ap", parsed["topic_candidates"])
         self.assertIn("damage", parsed["topic_candidates"])
         self.assertEqual(parsed["number_candidates"], ["+2", "25%"])
+
+
+class CostReviewClassificationTests(unittest.TestCase):
+    def row(self, **updates):
+        value = {
+            "card_type": "유닛",
+            "soul_known": 1,
+            "mapping_review": 0,
+            "semantic_review": 0,
+            "lp_known": 1,
+        }
+        value.update(updates)
+        return value
+
+    def test_hybrid_cost_is_pending_mapping_not_playable(self):
+        status, dimensions = classify_cost_review(
+            self.row(mapping_review=1),
+            [{"symbol": "DARK_FIRE", "normalized_color": "dark+fire"}],
+        )
+        self.assertEqual(status, "hybrid_mapping_review_pending")
+        self.assertEqual(dimensions, ["hybrid_mapping_review_pending"])
+
+    def test_bonus_cost_is_never_labelled_flexible_neutral(self):
+        status, dimensions = classify_cost_review(
+            self.row(semantic_review=1),
+            [{"symbol": "BONUS", "normalized_color": "bonus"}],
+        )
+        self.assertEqual(status, "bonus_semantics_unverified")
+        self.assertEqual(dimensions, ["bonus_semantics_unverified"])
+
+    def test_ncs_semantic_review_stays_distinct_from_bonus(self):
+        status, dimensions = classify_cost_review(
+            self.row(semantic_review=1),
+            [{"symbol": "NCS", "normalized_color": "ncs"}],
+        )
+        self.assertEqual(status, "ncs_semantics_unverified")
+        self.assertEqual(dimensions, ["ncs_semantics_unverified"])
+
+    def test_unidentified_semantic_review_is_not_guessed(self):
+        status, dimensions = classify_cost_review(
+            self.row(semantic_review=1), []
+        )
+        self.assertEqual(status, "semantic_review_unclassified")
+        self.assertEqual(dimensions, ["semantic_review_unclassified"])
+
+    def test_source_unknown_cost_is_separate_from_semantic_review(self):
+        status, dimensions = classify_cost_review(
+            self.row(soul_known=0), []
+        )
+        self.assertEqual(status, "source_cost_unresolved")
+        self.assertEqual(dimensions, ["source_cost_unresolved"])
+
+    def test_land_lp_review_is_reported_separately(self):
+        status, dimensions = classify_cost_review(
+            self.row(card_type="지형", lp_known=0), []
+        )
+        self.assertEqual(status, "land_lp_unresolved")
+        self.assertEqual(dimensions, ["land_lp_unresolved"])
+
+    def test_multiple_review_dimensions_are_preserved(self):
+        status, dimensions = classify_cost_review(
+            self.row(mapping_review=1, semantic_review=1),
+            [{"symbol": "BONUS", "normalized_color": "bonus"}],
+        )
+        self.assertEqual(status, "multiple_review_dimensions")
+        self.assertEqual(
+            dimensions,
+            ["hybrid_mapping_review_pending", "bonus_semantics_unverified"],
+        )
+
+    def test_verified_cost_has_no_pending_dimensions(self):
+        status, dimensions = classify_cost_review(self.row(), [])
+        self.assertEqual(status, "verified")
+        self.assertEqual(dimensions, [])
 
 
 if __name__ == "__main__":
