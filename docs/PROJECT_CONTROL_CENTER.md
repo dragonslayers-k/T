@@ -662,3 +662,12 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - Exact Skill1 label fixture: 타락자 `13020626691` / `노화공격`, 53 matched rows in the T spec; exact card-local effect excerpt remains pending.
 - APK test commit `b88db5b55576854a2f8fe94ec5b72d2f078b66f6`, Actions #367 / `42229779160`: success; 236 JS / 0 fail, Python 13 / OK. Cases cover AP0 no-trigger, AP1 with defender DP fully absorbing HP damage yet aging still applying, AP `△`/`▽`, and AP1→−1.
 - Test-only; runtime handler, mapping, DB29 and release data unchanged. Formal T test-spec remains design-only; card-local source and pack lineage pending.
+
+
+## OPS-028 — 2026-11-06 — Beast/Magic/Equipment target-ability Skill1 boundaries
+
+- Manual.zip `specialability.htm` §§10, 18, 19 define Beast Tamer, Magic Suppression and Weapon Suppression. They set target AP to zero only when the attacked unit has the required Beast/Magic/Equipment ability.
+- APK test commit `7c18d444f0b9d1e852abb7a8cef49dc0b0dec84c`, Actions #369 / `42231717568`: success; 236 JS / 0 fail, Python converter 13 / OK.
+- Exact DB29 Skill1 label fixtures: 네추럴마스터 `11011925567`, 혼드비스트 `10010624550`, 데크라프 `10010624543`. All three now assert AP0 no-trigger, correct ability matching, and AP `△` protected / `▽` permitted decrease.
+- Test-only; no runtime mapping, converter, DB29 SQLite, pack, tag or Release changed. Formal test-spec remains design-only and card-local source packets pending.
+- OPS-028 is PR #13 branch-only, not T main synchronization. DB29 preserved; DB30 unpublished; PRs not merged.
