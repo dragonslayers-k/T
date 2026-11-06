@@ -78,3 +78,10 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - The card-detail UI warning mismatch was corrected on APK PR #28 commit `6dbdcf7ecabd645f20dd0073435999468409ff4a`. Source-review state now explains the actual runtime cost path where available; unsupported spell/enchant clause copy states that only the effect falls back and card payment/action/turn completion remains normal. Actions #329 / run `42202046670` succeeded with JS/Python checks and Debug APK build/application-ID/signature/ZIP integrity; DB29 pack and emulator were skipped.
 - Remaining semantic work is evidence-linked triage of 48,263 fallback clauses and 1,249 low-confidence source rows, plus a fixed-seed end-to-end combat/turn scenario. Do not promote a clause without its evidence, guardrails and focused engine test.
 - DB29 remains read-only and preserved; DB30 is not published; T PR #9/#12/#13 and APK PR #28/#26/#25/#9 stay open and unmerged.
+
+
+## 9. Seeded battle-cycle and terminal victory regression — 2026-11-06
+
+- APK PR #28 HEAD `be42ec585f6b124ceb310b875f7f08ae0d12b155`, Actions #341 / run `42206456060`: deterministic player+AI preparation, paid land installation, unit summon, paired battle/counter, round-2 transition and attacker rotation passed (233 JS tests, 0 failures; Python 13 passed).
+- APK PR #28 test HEAD `3837301571449a17e28a09d08911cd5ce87f3336`, Actions #342 / run `42214419550`: direct deck-depletion terminal path through `resolveBattle()` passed. Two-soul direct attack removes the defender's final two cards; player wins and the round/attacker/preparation state does not advance (234 JS tests, 0 failures; Python 13 passed).
+- Both are lightweight deterministic fixture tests; DB29 pack/APK/emulator were skipped. They prove the tested state transitions, not all card-effect semantics or a full match from the production 15,350-card deck. Retain #325 as the separate full DB29 pack/APK/emulator evidence.
