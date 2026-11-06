@@ -1,7 +1,30 @@
 #!/usr/bin/env python3
 """Create card-by-card gap queues without changing immutable source values."""
 import argparse, csv, hashlib, json, sqlite3
+from collections import Counter
 from pathlib import Path
+
+
+def classify_cost_review(row, token_evidence):
+    """Classify pending cost dimensions from explicit source tokens; never infer BONUS as neutral."""
+    symbols={str(token.get("symbol") or "").upper() for token in (token_evidence or [])}
+    normalized={str(token.get("normalized_color") or "").lower() for token in (token_evidence or [])}
+    dimensions=[]
+    if bool(row.get("mapping_review")):
+        dimensions.append("hybrid_mapping_review_pending")
+    if bool(row.get("semantic_review")):
+        if "BONUS" in symbols or "bonus" in normalized:
+            dimensions.append("bonus_semantics_unverified")
+        elif "NCS" in symbols or "ncs" in normalized:
+            dimensions.append("ncs_semantics_unverified")
+        else:
+            dimensions.append("semantic_review_unclassified")
+    if not bool(row.get("soul_known")):
+        dimensions.append("source_cost_unresolved")
+    if row.get("card_type")=="지형" and not bool(row.get("lp_known")):
+        dimensions.append("land_lp_unresolved")
+    status=dimensions[0] if len(dimensions)==1 else "multiple_review_dimensions" if dimensions else "verified"
+    return status,dimensions
 
 def build(db_path: Path, out_dir: Path):
     db=sqlite3.connect(db_path)
@@ -79,10 +102,11 @@ def build(db_path: Path, out_dir: Path):
     cost_review=[]
     for r in costs:
         if not r["soul_known"] or r["mapping_review"] or r["semantic_review"] or (r["card_type"]=="지형" and not r["lp_known"]):
-            r["tokenEvidence"]=[dict(x) for x in db.execute(
+            token_evidence=[dict(x) for x in db.execute(
                 "SELECT ordinal,raw_token,code,count,symbol,normalized_color,parse_status FROM card_soul_cost_tokens WHERE card_id=? ORDER BY ordinal",
                 (r["card_id"],))]
-            r["interpretationStatus"]="inferred_hybrid_both_colors" if r["mapping_review"] else "inferred_flexible_neutral" if r["semantic_review"] else "unresolved"
+            r["tokenEvidence"]=token_evidence
+            r["interpretationStatus"],r["reviewDimensions"]=classify_cost_review(r,token_evidence)
             cost_review.append(r)
     with (out_dir/"cost-gap-report.jsonl").open("w",encoding="utf-8") as f:
         for r in cost_review:
@@ -172,12 +196,19 @@ def build(db_path: Path, out_dir: Path):
     (out_dir/"effect-low-confidence-summary.json").write_text(
       json.dumps(effect_low_summary,ensure_ascii=False,indent=2),encoding="utf-8")
 
+    cost_review_status_counts=Counter(r["interpretationStatus"] for r in cost_review)
+    cost_review_dimension_counts=Counter(
+        dimension for r in cost_review for dimension in r["reviewDimensions"]
+    )
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
       "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),
       "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
+      "cost_review_status_counts":dict(sorted(cost_review_status_counts.items())),
+      "cost_review_dimension_counts":dict(sorted(cost_review_dimension_counts.items())),
+      "cost_review_count_note":"Status counts are mutually exclusive; dimension counts may overlap when one card has multiple pending review dimensions.",
       "unresolved_cost_rows":sum(1 for r in costs if not r["soul_known"] or (r["card_type"]=="지형" and not r["lp_known"])),
       "unmapped_skill_card_rows":sum(1 for r in skills if r["mapping_status"]=="unmapped"),
       "inferred_skill_card_rows":len(inferred_skills),
