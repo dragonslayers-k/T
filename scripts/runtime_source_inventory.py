@@ -83,6 +83,25 @@ def inspect_db(path):
         if "EarnSoulList" in {row["field_key"] for row in db.execute("SELECT DISTINCT field_key FROM card_fields")}:
             for row in db.execute("SELECT source_value_json FROM card_fields f JOIN cards c USING(card_id) WHERE c.card_type='지형' AND f.field_key='EarnSoulList'"):
                 land_production[str(row[0])]+=1
+        land_pairs=[]
+        for row in db.execute("""
+            SELECT e.source_value_json AS earn, m.source_value_json AS mu, COUNT(*) AS cards
+            FROM cards c
+            LEFT JOIN card_fields e ON e.card_id=c.card_id AND e.field_key='EarnSoulList'
+            LEFT JOIN card_fields m ON m.card_id=c.card_id AND m.field_key='MuSoul'
+            WHERE c.card_type='지형'
+            GROUP BY e.source_value_json,m.source_value_json
+            ORDER BY cards DESC,e.source_value_json,m.source_value_json
+        """):
+            try:
+                earn=json.loads(row["earn"]) if row["earn"] is not None else None
+                mu=json.loads(row["mu"]) if row["mu"] is not None else None
+            except (TypeError,ValueError,json.JSONDecodeError):
+                earn=row["earn"];mu=row["mu"]
+            raw=str(earn or "")
+            tokens=[raw[i:i+4] for i in range(0,len(raw),4) if len(raw[i:i+4])==4]
+            land_pairs.append({"earnSoulList":earn,"muSoul":mu,"cards":int(row["cards"]),
+                "tokenCodes":[t[:2] for t in tokens],"tokenAmounts":[t[2:] for t in tokens],"tokenCount":len(tokens)})
         land_examples=[]
         for row in db.execute("""
             SELECT c.card_id,c.name,
@@ -105,7 +124,7 @@ def inspect_db(path):
             'costs':{'rows':costs['rows'],'lpKnownRows':costs['lp'],'soulKnownRows':costs['soul'],
                 'semanticReviewRows':costs['semantic'],'mappingReviewRows':costs['mapping'],'sourceFieldPresenceByType':fields,
                 'soulTokenStatus':token_status,'topSoulVectors':[{'vector':json.loads(k),'cards':v} for k,v in vectors.most_common(30)]},
-            'runtimeStatSourceFields':stat_fields,'landSourceFieldPresence':land_fields,'landEarnSoulListValues':dict(land_production),'landExamples':land_examples,'statFieldPresenceByType':stat_by_type,'fieldPresenceByType':field_matrix,'tokenCodeStatus':token_code_status,'reviewCohorts':review_cohorts,'reviewQueue':review_queue,'currentDecoderReparse':reparsed_summary,'effectsAndSkills':effects}
+            'runtimeStatSourceFields':stat_fields,'landSourceFieldPresence':land_fields,'landEarnSoulListValues':dict(land_production),'landProductionPairs':land_pairs,'landExamples':land_examples,'statFieldPresenceByType':stat_by_type,'fieldPresenceByType':field_matrix,'tokenCodeStatus':token_code_status,'reviewCohorts':review_cohorts,'reviewQueue':review_queue,'currentDecoderReparse':reparsed_summary,'effectsAndSkills':effects}
     finally: db.close()
 
 def main():
@@ -113,7 +132,7 @@ def main():
     result=inspect_db(a.db);a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(json.dumps(result,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8')
     print('REVIEW_QUEUE_JSON='+json.dumps(result['reviewQueue'],ensure_ascii=False,separators=(',',':')))
-    print(json.dumps({'cards':result['cardCount'],'byType':result['cardsByType'],'costs':result['costs'],'stats':result['runtimeStatSourceFields'],'effects':result['effectsAndSkills'],'landSourceFieldPresence':result['landSourceFieldPresence'],'landEarnSoulListValues':result['landEarnSoulListValues'],'landExamples':result['landExamples'],'statFieldPresenceByType':result['statFieldPresenceByType'],'currentDecoderReparse':result['currentDecoderReparse'],'reviewCohorts':result['reviewCohorts'],'output':str(a.output)},ensure_ascii=False))
+    print(json.dumps({'cards':result['cardCount'],'byType':result['cardsByType'],'costs':result['costs'],'stats':result['runtimeStatSourceFields'],'effects':result['effectsAndSkills'],'landSourceFieldPresence':result['landSourceFieldPresence'],'landEarnSoulListValues':result['landEarnSoulListValues'],'landProductionPairs':result['landProductionPairs'],'landExamples':result['landExamples'],'statFieldPresenceByType':result['statFieldPresenceByType'],'currentDecoderReparse':result['currentDecoderReparse'],'reviewCohorts':result['reviewCohorts'],'output':str(a.output)},ensure_ascii=False))
 if __name__=='__main__': main()
 
 # Inventory extension pending: field_matrix must join cards for card_type.
