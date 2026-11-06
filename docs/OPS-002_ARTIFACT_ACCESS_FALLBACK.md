@@ -56,3 +56,52 @@ DB29 보존, DB30 발행 금지, T PR #9/#12 및 APK PR #28/#26/#25/#9 병합 �
 - Card-level effect rows were parsed successfully; exact raw text, card ID/name/type, clause index, interpretation candidate, verification status, and source URL were preserved in a triage queue uploaded to the Library as `fm1-db29-low-confidence-effect-cluster-triage-663.json`.
 - Deterministic first-pass labels only organize pending review: FAQ/external help 26 rows; named card/item reference 108; named state/status 16; condition/formula 417; metadata/flavor candidate 19; unclassified semantic candidate 663. All remain `pending_source_review` and `non_executable`; labels do not resolve meaning.
 - Revised retry precedence: (1) connector re-download -> inspect exact direct path, (2) validate ZIP listing and extract the smallest needed file, (3) parse relevant JSONL, (4) use job logs/compact summary as secondary, (5) update workflow output for future runs. User upload or manual dispatch remains last resort only for a missing permission/input.
+
+
+## 원천 원인 진단·복구 프로토콜 — D형 실행 런타임 ClientError (2026-11-06 보강)
+
+### 현재 사례와 판정 범위
+- 이번 반복 장애: \`container.exec\`의 단순 \`pwd\`/\`echo\`/\`ls\`와 Python 최소 실행이 모두 \`ClientError\`로 실패했다. Files API와 GitHub connector는 별도 응답했다.
+- 이 양상은 JSON 파서·특정 ZIP·프로젝트 코드보다는 **대화의 로컬 실행 컨테이너/도구 연결 계층** 문제 가능성을 높인다. 내부 서비스 로그가 노출되지 않으므로 backend provisioning, 세션, 스토리지, 라우팅 중 무엇인지는 미확정이다.
+- 이전 run #663에는 materialization 경로 차이로 성공한 시도도 기록되어 있다. 그러므로 모든 장애를 무조건 컨테이너 전역 장애로 판정하지 않고 아래 순서로 분리한다.
+- Assistant는 실행 컨테이너를 재시작하거나 backend를 수정할 권한이 없다. 확인할 수 없는 내부 로그를 추측하지 말고, 재현 가능한 증거를 기록한다.
+
+### 진단 단계 — 순서대로 1회씩, 반복 호출 금지
+1. **도구 상태 분리:** Files/GitHub connector 응답 여부와 로컬 실행 도구 상태를 별도로 기록한다.
+2. **최소 probe:** \`container.exec\`에서 \`pwd\` 또는 \`echo\` 1회, Python에서 \`print(1)\` 1회. 둘 다 \`ClientError\`면 프로젝트 파일·코드 검사를 중단한다.
+3. **경로·mount 분리:** 재다운로드 전에 materialize 응답의 실제 path·size·file ref를 기록한다. 기존 성공 경로와 다른 경로가 근거상 존재할 때만 1회 경로 확인을 한다. 경로를 추측하지 않는다.
+4. **작은 입력 probe:** 최소 probe가 정상일 때만 작은 텍스트 파일/간단한 파일 목록을 검사한다. 큰 artifact를 장애 진단용으로 쓰지 않는다.
+5. **계층 분류:**
+   - connector 성공 + 최소 런타임 probe 전부 실패 → runtime/tool-session 후보
+   - 최소 probe 성공 + 특정 path 실패 → mount/path/permission 후보
+   - 작은 파일 성공 + 큰 파일 실패 → size/transfer/resource/format 후보
+   - ZIP 목록 성공 + extraction/parser 실패 → 압축·데이터·메모리·코드 후보
+   - workflow/job 자체 실패 → Actions 계층 후보
+6. **증거 기록:** KST 시각, 도구·명령·정확한 오류, file ref·실제 반환 path·size, 성공한 connector, 이전 성공 경로와 사용자 요청 여부. 토큰·비밀값은 기록하지 않는다.
+
+### 원천 복구와 지속 가능한 우회
+A. **Assistant가 가능한 원천 진단:** 동일 세션에서 반복 호출을 멈춘다. 가능하면 새 대화/새 실행 세션에서 최소 probe를 수행해 세션 한정 여부를 비교한다. 새 세션에서도 재현되면 프로젝트 작업을 무한 재시도하지 말고 ChatGPT/OpenAI 지원에 재현 기록을 제출한다. 새 세션 시도는 복구 확인이지, 해결 완료 주장이 아니다.
+B. **경로 재시도:** connector가 반환한 정확한 materialized path만 사용한다. 임의의 \`/mnt/data\` 경로를 가정하지 않는다. 이전 성공 경로가 명확할 때만 path variation을 1회 시험한다.
+C. **컨테이너 우회:** Files search/read로 텍스트를 분할 조회하고, GitHub Contents API로 저장소의 텍스트 소스를 읽는다. Actions logs에는 핵심 집계와 상태를 출력한다.
+D. **Artifact 구조 개선:** 단일 대형 ZIP에만 의존하지 않는다. 압축 없이 작은 \`summary.json\`(집계·버전·SHA·검증범위), \`manifest.json\`(파일명·크기·SHA-256·schema), 카드 단위 \`review.csv/jsonl\`(ID·원문·source URL·검토상태)를 별도 제공한다. 상세 산출물은 chunk/partition으로 나눠 필요한 부분만 접근 가능하게 한다.
+E. **생성 단계 검증:** row count, schema/version, file size, SHA-256, JSONL parse count를 로그와 manifest에 남긴다. 다운로드/도구 호출 실패와 데이터 파싱 실패를 서로 다른 상태로 기록한다.
+F. **사용자 요청 최소화:** 동일 파일 재업로드나 같은 Actions 수동 실행을 요청하지 않는다. 권한/입력이 실제로 없고 대체 경로가 모두 막혔을 때만 구체적인 단일 요청을 한다.
+
+### 재발 기록 양식
+- Incident ID / KST timestamp:
+- Repository / run ID / commit SHA / immutable DB release:
+- Layer: workflow / artifact generation / connector / materialize path / container runtime / parser / permission:
+- Minimal probe + exact error:
+- File ref / exact path / size / checksum:
+- Known-good path/session and result:
+- Root-cause confidence: confirmed / probable / undetermined; evidence:
+- Immediate recovery / durable fix:
+- User action (none unless unavoidable):
+- Next occurrence: first three exact steps:
+
+### 이번 사건 판정
+- Classification: D형. **실행 컨테이너/도구 연결 계층 장애 가능성 높음; 내부 원인 미확정.**
+- Confirmed: container.exec 및 Python 최소 probe가 ClientError; Files/GitHub connector 응답.
+- Not confirmed: artifact 손상, 프로젝트 소스 결함, 내부 backend의 구체적 root cause.
+- Immediate action: 컨테이너 반복 호출 중지; Files/GitHub connector 및 compact outputs로 진행.
+- Durable action: 향후 OPS-002 장애 분류에 이 증상 시그니처를 포함하고, 새 세션에서도 재현될 경우 지원팀 보고 대상으로 분류한다. 프로젝트 문서 수정만으로 플랫폼 런타임이 고쳐졌다고 표현하지 않는다.
