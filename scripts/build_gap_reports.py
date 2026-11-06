@@ -37,6 +37,27 @@ def expand_cost_token_review_rows(cost_rows, token_rows_by_card):
         if not tokens:
             tokens=[{}]
         for token in tokens:
+            symbol=str(token.get("symbol") or "").upper()
+            normalized=str(token.get("normalized_color") or "").lower()
+            parse_status=str(token.get("parse_status") or "").lower()
+            token_dimensions=[]
+            if "hybrid_mapping_review_pending" in dimensions and ("+" in normalized or "hybrid" in parse_status):
+                token_dimensions.append("hybrid_mapping_review_pending")
+            if "bonus_semantics_unverified" in dimensions and (symbol=="BONUS" or normalized=="bonus"):
+                token_dimensions.append("bonus_semantics_unverified")
+            if "ncs_semantics_unverified" in dimensions and (symbol=="NCS" or normalized=="ncs"):
+                token_dimensions.append("ncs_semantics_unverified")
+            if "semantic_review_unclassified" in dimensions:
+                token_dimensions.append("semantic_review_unclassified")
+            card_level_dimensions=[d for d in dimensions if d in {
+                "source_cost_unresolved","land_lp_unresolved"
+            }]
+            if not token:
+                token_relevance="no_token_evidence"
+            elif token_dimensions:
+                token_relevance="direct_token_evidence"
+            else:
+                token_relevance="context_only"
             expanded.append({
                 "card_id":card["card_id"],
                 "name":card.get("name"),
@@ -44,6 +65,9 @@ def expand_cost_token_review_rows(cost_rows, token_rows_by_card):
                 "source_text":card.get("source_text"),
                 "review_status":status,
                 "review_dimensions":dimensions,
+                "token_dimensions":token_dimensions,
+                "card_level_dimensions":card_level_dimensions,
+                "token_review_relevance":token_relevance,
                 "review_scope":"token_occurrence" if token else "card_without_token_evidence",
                 "ordinal":token.get("ordinal"),
                 "raw_token":token.get("raw_token"),
