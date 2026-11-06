@@ -170,3 +170,10 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - APK PR #28 test commit `7c18d444f0b9d1e852abb7a8cef49dc0b0dec84c`, Actions #369 / run `42231717568`: success; 236 JS / 0 failures; Python converter 13 / OK.
 - Each rule now covers AP0 no-trigger; matching target + AP `△` blocks AP=0; matching target + AP `▽` permits AP=0. Existing matching/nonmatching target ability checks remain.
 - Fixture-level test only. No runtime code/source mapping/DB29 data change. The formal engine test spec remains 27 rules / 108 design-only cases / 0 executable pending its separate promotion contract.
+
+## 2026-11-07 — Runtime cost fallback boundary tests (#763)
+
+- Added overlay self-test cases for NCS cost on a non-unit card: payment remains generic, but recurring upkeep is zero.
+- Added a missing source-cost row case: the profile remains playable with a conservative neutral fallback, records source parse as unknown, and exposes the fallback inference rather than silently becoming free.
+- Commit `187dd6bd68261a8d82c43b88e3b8fa01c31b17f3`; Actions #763 / run `42305530316` passed lightweight T regression tests, including runtime cost overlay self-test and compact DB29 source inventory. Full 15,350-card rebuild, image audit, SQLite release and DB30 publication were not run.
+- DB29 immutable; no new release or main merge.
