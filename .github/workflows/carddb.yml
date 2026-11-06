@@ -7,19 +7,22 @@ on:
     paths:
       - "scripts/**"
       - "tests/**"
-      - "docs/**"
       - "data/rules/**"
-      - "data/reviews/**"
-      - "**/*.md"
+      - "data/raw/**"
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "package*.json"
       - ".github/workflows/carddb.yml"
   pull_request:
     branches: [main]
     paths:
       - "scripts/**"
       - "tests/**"
-      - "docs/**"
-      - "data/reviews/**"
-      - "**/*.md"
+      - "data/rules/**"
+      - "data/raw/**"
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "package*.json"
       - ".github/workflows/carddb.yml"
   workflow_dispatch:
     inputs:
