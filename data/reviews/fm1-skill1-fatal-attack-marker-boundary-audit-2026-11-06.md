@@ -33,3 +33,10 @@ The APK suite already checks the Fatal Attack one-HP floor for target HP 1, 2, a
 ## Next
 
 After the lightweight Actions result is confirmed, continue the per-rule ledger only where a source-backed assertion gap remains. Do not repeat the HP 1/2/5 floor or HP=0 no-revive assertions. The production DB29 source-to-pack lineage gate remains a separate, higher-value integration task.
+
+
+## Follow-up — production DB29 Skill1 lineage gate extended
+
+- APK PR #28 added the exact Fatal Attack representative `10012024612` / 선더골렘 / `fatal_attack` / `치명공격` to both `verify-db29-skill1-pack-lineage.py` and `verify-db29-skill1-runtime-normalization.cjs` expected-card sets.
+- Intended gate: verify the immutable DB29 SQLite mapping and source enum, generated pack fields, and the actual `FMCardSchema.normalizeMany` output for this card, alongside the existing six-card priority cohort.
+- This is a validator extension only. It has not yet been exercised against a fresh DB29 pack/emulator run in this turn; the full source→pack→Android lineage remains pending. Ordinary PR CI can pass while these expensive pack/import steps are skipped.
