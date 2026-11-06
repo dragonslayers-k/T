@@ -10,7 +10,7 @@
 - 대상 저장소:
   - 카드DB: https://github.com/dragonslayers-k/T
   - Android 앱: https://github.com/dragonslayers-k/FM-OFFLINE
-- 상위 기술·규칙 문서: 각 저장소의 기존 상세 문서와 `FM-OFFLINE 통합 마스터 총괄본 v4.4`. 이 문서는 상세 설계를 복제하지 않고, 현재 작업 포인터와 운영 규칙을 관리한다.
+- 상위 기술·규칙 문서: 각 저장소의 기존 상세 문서와 `FM-OFFLINE 통합 마스터 총괄본 v4.9`. 이 문서는 상세 설계를 복제하지 않고, 현재 작업 포인터와 운영 규칙을 관리한다.
 
 > 이 문서의 GitHub 기본 브랜치 최신본이 대화 기억보다 우선한다. 단, 실시간 상태는 매 작업 시작 시 GitHub API에서 SHA/PR/Actions를 다시 확인한다. 문서의 스냅샷은 갱신 시점 이후 자동으로 최신이라고 간주하지 않는다.
 
@@ -27,7 +27,7 @@
 | APK PR #28 | 병합 금지. 사용자 승인 전 Open 유지 |
 | APK PR #26 / #25 / #9 | 병합 금지. 각각 독립 검토 전까지 Open 유지 |
 | 기능 작업 | DB 완성 우선 원칙 유지. DB 검증에 필요한 APK 소비자 측 변경만 예외 |
-| 데이터 해석 | 출처·근거 없는 추정으로 원본값을 덮지 않음. 미확정 값은 pending / non-executable 유지 |
+| 데이터 해석 | 원본값은 보존하고 source pending을 유지하되, runtime에는 근거 기반 추정 또는 deterministic fallback을 반드시 적용. pending/non_executable만으로 카드 사용을 차단하지 않음 |
 
 DB29 Release API의 `immutable` 속성은 2026-11-06 조회 시 `false`였다. 따라서 DB29 불변성은 현재 **운영 정책**으로 지키고 있으며 GitHub Release 설정 차원의 기술적 잠금이 확인된 상태는 아니다. 태그/릴리스 덮어쓰기 금지는 계속 적용한다.
 
@@ -71,7 +71,7 @@ APK PR #28의 #260 성공은 해당 HEAD에서 수행한 CI 범위의 성공이�
 1. **실제 GitHub 현재 상태**: 기본 브랜치 SHA, PR head/base SHA, Actions run 결과, Release/tag 메타데이터.
 2. **이 문서의 최신 갱신 항목**: 현재 작업 포인터, 승인 경계, 마지막 완료/차단 작업.
 3. **상세 기술 문서**: T의 DB 계약·효과 파이프라인·완료 계획·Release 정책 및 APK의 PROJECT_STATUS/CARD_SCHEMA/RULES_SOURCES.
-4. **통합 마스터 총괄본 v4.4 및 과거 대화**: 기술 배경과 결정 이력. GitHub보다 오래된 SHA·상태는 현재값으로 사용하지 않는다.
+4. **통합 마스터 총괄본 v4.9 및 과거 대화**: 기술 배경과 결정 이력. 부록 29가 게임 플레이 우선 정책의 최상위 기준이다. GitHub보다 오래된 SHA·상태는 현재값으로 사용하지 않는다.
 
 충돌 시 원본 기록을 삭제하거나 조용히 덮지 않는다. 어떤 문서의 어느 항목이 오래되었는지 이력에 남기고, 최신 상태를 이 문서에 갱신한다.
 
@@ -377,3 +377,34 @@ This append-only correction supersedes outdated status snapshots and conflicting
 - The validator reports 802 cards as `unresolved or review-required soul cost incorrectly accepted`. Root cause is the legacy pack validator still interpreting source review flags as runtime playability blockers, even though the pack now preserves those flags and emits separate `runtimeCost` fields.
 - Next change must update the exact validator to check two independent conditions: source review flags and `costKnown` remain honest; `runtimeCostKnown/runtimeCost` are present, valid, and non-free for every profile. Do not delete or suppress source review flags. Then run one focused pack validation and only proceed to Android build/emulator if it passes.
 - #264 is not to be rerun. No APK build/emulator success, no PR merge, no DB29 mutation, and no DB30 publication.
+
+---
+
+## OPS-008 — 2026-11-06 — v4.9 runtime profile / playability synchronization
+
+### Governing policy
+- The latest Library master is `FM-OFFLINE_통합_마스터_총괄본_2026-11-06_v4.9.md`, Appendix 29. It supersedes older v4.4/v4.8 language in this control center and historical review notes.
+- Source verification and runtime playability are separate axes. `pending_source_review`, `semantic_pending`, `non_executable`, mapping review, or semantic review must not by themselves block deck selection, card use, cost payment, basic action completion, or turn progression.
+- T's `docs/RUNTIME_PROFILE_CONTRACT_2026-11-06.md` is the field-level data contract. It is present on PR #9's branch; it is not on main until that PR is merged.
+
+### Current CardDB T PR #9 implementation
+- PR #9 remains Open / non-draft / unmerged, base main, branch `feat/carddb-effect-semantic-pass`, current HEAD `751af024e9e9880b72a209494be41f7ef1c47720`.
+- Commit `fd217a39cabb9d3962f5b77fbf3c6fc576d424f7` fixes the runtime-cost overlay: BONUS is represented as a one-time generic neutral payment while its source identity stays in candidate provenance; NCS is the only special token that contributes unit recurring upkeep.
+- Commit `4432162f87c5ada12ba66d558caec3a666ae8ed7` adds self-tests for mixed NCS/BONUS and upkeep separation.
+- Commit `8fb9ec7db25674b0e2af0335da5e49142088f448` adds the field-level runtime profile contract.
+- Commit `751af024e9e9880b72a209494be41f7ef1c47720` links that contract from the gameplay completion policy.
+- No PR #9 Actions run is confirmed for this exact latest SHA in the current check; do not claim its new builder tests passed until a matching run is inspected.
+
+### Current Android FM-OFFLINE PR #28 implementation
+- PR #28 remains Open / Draft / unmerged, base main, branch `feat/combat-event-foundation`, current HEAD `8a4def7ad294a0790d44f48db90659b6dcbc3801`.
+- Runtime cost resolver, DB29 SQLite converter, finite upkeep, item target fallback, MagicLand install fallback, and paid terminal spell/enchant no-op paths have been changed on this branch.
+- The converter now adds a separate `runtimeDisposition=fallback_noop` to each source effect clause while preserving source clause text/spans. The pack validator now requires all 48,281 candidate clauses to have a terminal disposition.
+- Pack validator now checks runtime payment profiles for all 15,350 cards separately from source cost review counts. It must not reject a runtime-usable card just because its source cost remains under review.
+- Latest Actions #276 / run `42189332608` is running on HEAD `8a4def7...` with JavaScript rule tests and converter tests successful, DB29 pack intentionally skipped, and Debug APK build in progress. This is not the full DB29 pack or emulator gate.
+- Earlier full pack run #270 failed with 40 item cards whose parsed condition text remained unmapped. The subsequent schema change assigns those items `fallback_any_unit`; a new full DB29 pack validation is still required. Do not rerun #270 unchanged.
+
+### Verification and safety
+- Runtime-cost/source-cost counts, 15,350-card readiness, 8,633 unit upkeep profiles, and 48,281 effect clause dispositions must be reported separately.
+- DB29 tag/release/source database remain preserved by operating policy. DB30 is not published. T PR #9/#12/#13 and APK PR #28/#26/#25/#9 remain unmerged.
+- Ordinary PR sync should run lightweight tests only. Full DB29 pack and emulator smoke are explicitly gated; perform them once on the final combined HEAD using workflow dispatch inputs or both explicit markers.
+- The scheduled baseline-check automation remains read-only. This conversation's explicit development authorization does not grant future scheduled runs permission to edit repositories.
