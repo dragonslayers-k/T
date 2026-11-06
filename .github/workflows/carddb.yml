@@ -92,11 +92,15 @@ jobs:
           python scripts/build_db.py --self-test
 
       - name: Build compact DB29 runtime source inventory (explicit marker only)
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
         run: |
           set -euo pipefail
-          PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          git fetch --no-tags --depth=1 origin "$PR_HEAD_SHA"
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+            git fetch --no-tags --depth=1 origin "$PR_HEAD_SHA"
+          else
+            PR_HEAD_SHA="$GITHUB_SHA"
+          fi
           if ! git log -1 --format=%B "$PR_HEAD_SHA" | grep -Fq 'runtime-inventory'; then
             echo "No [runtime-inventory] marker on PR head $PR_HEAD_SHA; skipping DB29 source download."
             exit 0
