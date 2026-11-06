@@ -110,3 +110,11 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - Manual §13: frenzy sets own HP to one and adds sacrificed HP to attack damage. DB29 Dark Familiar `10010624538`: AP0, HP4 sacrifices 3; defender DP2 reduces resulting damage to 1; attacker stays at 1 HP.
 - The remaining secondary cluster review also checked Fatal Attack HP=1 floor/no-revive, Bravery/Fear equal-level thresholds at AP0, and Regeneration +1 at printed max HP / HP marker boundary. These tests were already present; no duplicate tests were added.
 - #350 adds assertions only; no runtime code or source mappings were changed. This is not a full DB29 pack/emulator revalidation or full original-rules certification.
+
+
+## 13. Manual Skill1 piercing attack — AP limit and zero-DP boundary
+
+- APK PR #28 test HEAD `d95bbed32445de4b6577efe4600a0fa3cc0abb46`, Actions #352 / run `42218090054`: success; 236 JS tests / 0 failures; Python converter 13 / OK.
+- Manual `specialability.htm` §4: destroy defender DP by own AP; when defender DP reaches zero, remaining AP causes HP damage. DB29 Manual card fixture Black Unicorn `10091525214` now tests AP2 vs DP4 (DP2 remains, no HP damage) and AP3 vs DP0 (3 HP damage). Prior AP4 vs DP2 (2 HP damage) remains.
+- Negative target DP is not explicitly defined by this special-attack clause. Keep review-only and do not assume the general AP-minus-DP formula transfers to piercing.
+- This is a test-only boundary addition, not a source mapping promotion or full data-pack/runtime validation.
