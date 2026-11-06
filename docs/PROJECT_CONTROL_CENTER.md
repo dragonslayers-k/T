@@ -197,3 +197,28 @@ APK PR #28의 #260 성공은 해당 HEAD에서 수행한 CI 범위의 성공이�
 - OPS-002 document exists on branch `docs/ops-artifact-access-guard-2026-11-06`; it must be linked from this control center and submitted as a documentation PR. No merge is authorized.
 - Next CardDB work: implement compact card-level semantic-review output for the existing review workflow and test it at PR #9's branch SHA. Do not rerun full audit #663, which was main-only.
 - Preserve DB29; do not publish DB30; do not merge T PR #9/#12 or APK PR #28/#26/#25/#9.
+
+
+## 8. OPS-002 incident and live restart checkpoint (2026-11-06 15:35 KST)
+
+This append-only checkpoint supersedes stale state pointers above. Recheck live GitHub SHA at every subsequent resume.
+
+### Live state (GitHub API)
+- T main: `75584d92ac4b4812f94d99fbc34f1360ea68eaf7`.
+- T PR #9: Open, non-draft, `feat/carddb-effect-semantic-pass` HEAD `abc39b0a9fd47abb4ddc6206894bdf4c60e05d53`, base `af2d8af5e6a0126a9b7d8c7973561916e718e9d9`; latest exact-HEAD CI #660 success (run `42169246867`).
+- T PR #12: Open Draft, HEAD `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`; base points to historic PR #9 SHA `f2ba6161859c3e21c27c340438933927cedf6b51`, dependency remains unresolved.
+- T main audit #663 success (run `42173417874`) was on main SHA `75584d92ac4b4812f94d99fbc34f1360ea68eaf7`, DB29 source, publish false. It is not PR #9 validation. #662 was cancelled.
+- APK main: `8d28ac39ecc493cef40167c2c30dafa43db43f0e`. PR #28 Open Draft HEAD `1bf65ab2dc80035a6329b10dd8c3b80dffd78114`, #260 success (run `42166629234`). PR #26/#25/#9 remain Open at `9882d0823712a4e461a69d9f17597a91d7d2bdc9`, `44f7c477d2cb09d1a0724afa6d9faa3b84a655f9`, and `c84a56ec6ae4e7e86d447b1271a5c84d4cf93b2`.
+- DB29 tag `fm1-carddb-29` targets `7e2736ac49133409e7f8051ce90e21bcdeb0472e`; API says immutable=false, so preserve by operating policy. No DB30.
+
+### OPS-002 artifact/runtime incident
+- Run #663 artifact download succeeded, but the 2.2 MB semantic review ZIP could not be accessed by Python/container (ClientError). Classification: type D, runtime access failure; not evidence of archive corruption.
+- Run #663 log-derived counts: 15,350 cards and unique IDs; 613,435 fields / 55 types; 17,407 effect texts; 48,281 effect splits; 0 missing interpretations; 1,249 low-confidence interpretations; 0 unmapped skill rows; 30,700/30,700 images checked; 52 hybrid-cost mapping reviews; 779 special-semantics reviews; 0 FK errors. Review queues may overlap. Counts are structural/log results, not semantic or engine completeness.
+- On recurrence, inspect job logs and GitHub API/text first. If row-level output is missing, modify the workflow to emit a compact deterministic JSON/CSV/manifest and print core values in logs. Do not ask the user to upload the same artifact or manually run Actions before exhausting these alternatives.
+
+### Next work pointer
+1. Integrate OPS-002 into the control center via this documentation PR (do not merge without user authorization).
+2. Continue focused CardDB review on PR #9 HEAD; do not repeat the 492 MiB full audit solely to extract rows.
+3. Continue DB29 → card pack → APK importer → normalized runtime lineage checks as a separate unverified task.
+4. Keep DB29 preserved, DB30 unpublished, and PR #9/#12/#28/#26/#25/#9 unmerged.
+
