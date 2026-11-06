@@ -628,3 +628,11 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - APK #356 / `42221573459` exposed the bug: `△` prevented DP reduction, but old damage calculation sent all 4 AP to HP (236 tests / 1 failure).
 - APK fix commit `6d736aa9e56c677aa7f2dcbfe94571b9a54d818b`, #357 / `42221699683`, passed: 236 JS / 0 fail; Python 13 OK. Overflow now reaches HP only after DP is actually broken or already <=0; `△` prevents overflow, `▽` still permits the DP decrease.
 - #357 did not run DB29 pack/APK/emulator; no source mapping/data was promoted. The T spec remains non-executable/pending card-local semantic packet until release-row → converter → package lineage is verified.
+
+
+## OPS-024 — 2026-11-06 — Manual Skill1 shield-break boundaries
+
+- Manual.zip `specialability.htm` §21 defines shield-break as a post-attack DP=0 effect with no effect when target DP is negative. DB29 exact Skill1 label fixture: 해적전투원 `10010624551`; T spec has 96 exact label rows, but the card-local effect excerpt is still pending.
+- APK test commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`, Actions #361 / run `42223636601`: success; 236 JS tests / 0 failures and Python converter passed. It covers AP0 trigger guard, DP0 baseline, negative DP no-effect, positive DP set-to-zero, `△` decrease prohibition and `▽` allowed decrease. No additional HP spillover occurs from shield-break itself.
+- Test-only change: rules.js, source mapping, SQLite/DB29 data and Android pack unchanged. DB29 pack/APK/emulator intentionally skipped. Card-local packet remains pending and no source mapping is promoted.
+- Update the T spec's stale `pending_engine_test` status only after verifying its schema/consumer accepted enum; do not invent a status value. PR #13 OPS-024 stays branch-only; it does not synchronize T main.
