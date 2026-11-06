@@ -365,3 +365,15 @@ This append-only correction supersedes outdated status snapshots and conflicting
 - Actions #264 / run `42187725403` is the current validation run. JavaScript rule tests and Firestore-to-Android converter passed; DB29 SQLite-to-Android data ZIP generation is still in progress at this checkpoint. No APK build/emulator result is available yet.
 - Do not rerun #264 or start another workflow while it is active. After completion, inspect the first failing step if any; only continue to APK build/emulator if data-pack generation succeeds.
 - The runtimeCost implementation is not merged. Source cost review remains preserved. The UI inferred-cost label and MagicLand fallback are still pending.
+
+
+---
+
+## OPS-007 — 2026-11-06 — APK runtime-cost pack validator remains the blocker
+
+- APK PR #28 HEAD: `988c45282f0c5ae87851c0e2d74a3eb285e69f0f`.
+- Actions #264 / run `42187725403` completed failure. JavaScript tests and Firestore converter passed, including the new BONUS runtime-payment regression. DB29 SQLite was downloaded and the 15,350-card Android pack was generated, but pack validation failed; Android/Gradle/emulator stages were skipped.
+- Pack source summary: 15,350 cards; non-land cost review 817; mapping review non-land 38; semantic review non-land 779; land install cost review 0; hybrid mapping review for land installation 14.
+- The validator reports 802 cards as `unresolved or review-required soul cost incorrectly accepted`. Root cause is the legacy pack validator still interpreting source review flags as runtime playability blockers, even though the pack now preserves those flags and emits separate `runtimeCost` fields.
+- Next change must update the exact validator to check two independent conditions: source review flags and `costKnown` remain honest; `runtimeCostKnown/runtimeCost` are present, valid, and non-free for every profile. Do not delete or suppress source review flags. Then run one focused pack validation and only proceed to Android build/emulator if it passes.
+- #264 is not to be rerun. No APK build/emulator success, no PR merge, no DB29 mutation, and no DB30 publication.
