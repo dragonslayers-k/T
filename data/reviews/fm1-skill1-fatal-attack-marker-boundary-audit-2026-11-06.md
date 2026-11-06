@@ -25,7 +25,7 @@ The APK suite already checks the Fatal Attack one-HP floor for target HP 1, 2, a
 
 ## Verification state
 
-- APK PR #28 Actions run #371 / `42235607730`: pending at the time this audit was recorded. Do not report it as passed until the run completes and the exact SHA matches the test commit.
+- APK PR #28 Actions #371 / run `42235607730`: success on exact test SHA `7395be721af431753ebfa96ff0e8f17ae8402a1e`. Node suite: 237 passed / 0 failed; Python converter tests: 13 passed; converter and enchant audit self-tests passed. DB29 pack, Gradle/APK build and emulator steps were skipped by the lightweight PR gate.
 - DB29 remains immutable; DB30 is not issued.
 - PR #9 and PR #28 remain open/unmerged.
 - This test does not complete the formal T Skill1 promotion gate, card-local source packet, or SQLite → converter → Android import lineage.
