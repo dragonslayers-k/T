@@ -115,8 +115,8 @@ jobs:
           expected=summary.get("sqliteGzipSha256")
           if not expected or actual.lower()!=str(expected).lower():
               raise SystemExit(f"DB29 SQLite gzip checksum mismatch: {actual} != {expected}")
-          if summary.get("sourceReleaseTag") not in (None, "fm1-carddb-29"):
-              raise SystemExit("SQLite summary is not from the DB29 release")
+          if summary.get("cards") != 15350 or summary.get("integrity") != "ok":
+              raise SystemExit("Downloaded SQLite summary does not describe a valid 15,350-card DB29 dataset")
           print(json.dumps({
               "sourceReleaseTag":"fm1-carddb-29",
               "sqliteGzipSha256":actual,
