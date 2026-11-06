@@ -481,3 +481,14 @@ After #301 completes, update PR #28 with the explicit `[build-card-pack] [run-em
 - Main pushes still build APK automatically. Manual workflow_dispatch expensive inputs default false; emulator requires card-pack generation.
 
 DB29 remains preserved; DB30 unpublished; designated PRs remain open and unmerged. PR #13 base SHA is still older than PR #9 base, and the main-branch control center is not yet synchronized; PR-branch documentation is not main synchronization.
+---
+
+## OPS-012 — 2026-11-06 — first full pack gate / manifest validator correction
+
+- APK Actions #322 / run 42192589114 on HEAD cba3519cc1744b03b583461aece515a7f33a4ede successfully downloaded the protected DB29 release assets, verified the release metadata/hash/SQLite integrity and 15,350-card count, converted all 15,350 cards, and generated the Android data ZIP. It then failed in the pack validator with ReferenceError: manifest is not defined because the validator's new manifest cross-check referenced a manifest object that was not an input.
+- This was a validator wiring defect, not a DB29 download/hash failure, converter failure, or card-level action blocker. No DB29/Release data was changed.
+- Correction: validator now accepts the extracted manifest as its fifth input and verifies canonical fields cardsCount, sourceDatabase.releaseTag, and sourceDatabase.cardCount; workflow extracts manifest.json from the generated ZIP and passes it to the validator. The validator then cross-checks manifest/card/clause effect dispositions.
+- Fix commits: validator manifest load 560c16a433bedaedf7da378dd42d2492707cb2c6; workflow manifest extraction 60681acc02974f6f6e8721def63b24f0823a6d6e.
+- APK Actions #325 / run 42192845020 is queued on the corrected HEAD 60681acc02974f6f6e8721def63b24f0823a6d6e with the same full pack/APK/emulator markers. Inspect its first failure if any; do not rerun the unchanged #322 SHA.
+
+DB29 remains preserved; DB30 remains unpublished; all designated PRs remain open/unmerged.
