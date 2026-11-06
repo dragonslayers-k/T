@@ -645,3 +645,12 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - Manual source is `specialability.htm` §§21–22; common marker definitions are `cardability.htm`. Exact card-local shield-break effect excerpt is still pending in the T spec (96 exact Skill1 label rows are not equivalent to HTML card-local semantic evidence).
 - Both are focused fixture tests; no code handler/source mapping/SQLite/DB29 asset changed. DB29 pack/APK/emulator skipped. DB29 preserved, DB30 unpublished, PRs not merged.
 - Do not change the T spec's `implementation_status=pending_engine_test` until its accepted enum/schema is verified. Keep focused test evidence in the audit/contract separate from card-local source packet and pack lineage.
+
+
+## OPS-026 — 2026-11-06 — Vampiric Attack HP marker-direction regression
+
+- APK PR #28 test HEAD `15162b6d46043e9e297392feecf48bc40d3bacce`, Actions #365 / run `42228582000`: success; 236 JS / 0 fail, Python converter 13 passed.
+- Manual basis: `specialability.htm` §7 (50% actual HP damage, odd rounds half-up) and `cardability.htm` §6(b) (`*`, `△`, `▽` direction rules). DB29 exact Skill1 representative Dark Countess `10010624542` / `흡혈공격`.
+- Added HP `△` permitted heal, HP `▽` blocked heal and HP `*` all-change-block tests; prior actual damage/rounding and `▼` cases remain.
+- T dedicated audit file `data/reviews/fm1-skill1-vampiric-hp-marker-boundary-audit-2026-11-06.md` created separately. Formal spec test-design status, exact card-local packet and pack lineage remain pending; no status enum guessed.
+- Lightweight JS/Python only; no runtime/data/DB29 changes, no main merge, DB30 unpublished.
