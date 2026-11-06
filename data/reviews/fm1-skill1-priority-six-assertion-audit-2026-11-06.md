@@ -78,3 +78,11 @@
 - APK PR #28 Actions #341 / run `42206456060` passed a fixed-seed preparation/AI/paired battle/round handoff integration test (233 JS tests / 0 failures; 13 Python tests).
 - APK PR #28 Actions #342 / run `42214419550` passed a new direct deck-depletion terminal test through `FM.resolveBattle()` (234 JS tests / 0 failures; 13 Python tests). It verifies the final two enemy deck cards are removed by a 2-soul direct hit, player wins, and round/attacker/preparation do not rotate after the terminal result.
 - These are code/fixture-level integration tests, not proof of a full match with all 15,350 DB29 cards or complete semantic effects; no source mapping was promoted.
+
+
+## 2026-11-06 follow-up — piercing AP/DP boundaries (Actions #352)
+
+- Manual source rechecked: Dropbox `/판마/Manual.zip`, `specialability.htm` §4: target DP is destroyed by attacker AP; when target DP reaches zero, remaining AP damages HP.
+- DB29 Manual card fixture Black Unicorn / `10091525214` now asserts AP2 vs DP4 leaves DP2 and deals 0 HP damage, and AP3 vs DP0 deals 3 HP damage. Existing AP4 vs DP2 case deals 2 HP damage.
+- Test commit `d95bbed32445de4b6577efe4600a0fa3cc0abb46`, Actions #352 / run `42218090054`: success, 236 JS tests / 0 failures and 13 Python converter tests / OK.
+- The Manual clause does not explicitly define already-negative defender DP. That case remains unadjudicated; do not infer generic AP-minus-negative-DP behavior for piercing. No runtime source code or card mapping was promoted.
