@@ -96,7 +96,7 @@ jobs:
           set -euo pipefail
           PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
           git fetch --no-tags --depth=1 origin "$PR_HEAD_SHA"
-          if ! git log -1 --format=%B "$PR_HEAD_SHA" | grep -Fq '[runtime-inventory]'; then
+          if ! git log -1 --format=%B "$PR_HEAD_SHA" | grep -Fq 'runtime-inventory'; then
             echo "No [runtime-inventory] marker on PR head $PR_HEAD_SHA; skipping DB29 source download."
             exit 0
           fi
