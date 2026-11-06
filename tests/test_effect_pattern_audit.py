@@ -2,6 +2,7 @@ import unittest
 
 from scripts.effect_pattern_audit import analyze, split_clause_candidates
 from scripts.build_gap_reports import classify_cost_review
+from scripts.soul_costs import parse_require_soul
 
 
 class EffectPatternAuditTests(unittest.TestCase):
@@ -151,6 +152,36 @@ class CostReviewClassificationTests(unittest.TestCase):
         status, dimensions = classify_cost_review(self.row(), [])
         self.assertEqual(status, "verified")
         self.assertEqual(dimensions, [])
+
+
+class SoulCostParserReviewTests(unittest.TestCase):
+    def test_ncs_is_separate_and_manual_semantics_verified(self):
+        parsed = parse_require_soul("8201")
+        self.assertTrue(parsed["known"])
+        self.assertEqual(parsed["colors"]["ncs"], 1)
+        self.assertEqual(parsed["colors"]["bonus"], 0)
+        self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertFalse(parsed["semantic_review"])
+        self.assertEqual(parsed["tokens"][0]["status"], "manual_semantics_verified")
+
+    def test_bonus_is_separate_and_remains_semantic_review(self):
+        parsed = parse_require_soul("8301")
+        self.assertTrue(parsed["known"], "token parsing is distinct from playable-cost approval")
+        self.assertEqual(parsed["colors"]["bonus"], 1)
+        self.assertEqual(parsed["colors"]["ncs"], 0)
+        self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertTrue(parsed["semantic_review"])
+        self.assertEqual(parsed["tokens"][0]["status"], "semantic_review")
+        self.assertEqual(parsed["tokens"][0]["inference"], "bonus_semantics_unverified")
+
+    def test_hybrid_token_preserves_both_candidate_colors_but_requires_mapping_review(self):
+        parsed = parse_require_soul("1301")
+        self.assertTrue(parsed["known"], "token parsing is distinct from playable-cost approval")
+        self.assertEqual(parsed["colors"]["dark"], 1)
+        self.assertEqual(parsed["colors"]["fire"], 1)
+        self.assertTrue(parsed["mapping_review"])
+        self.assertFalse(parsed["semantic_review"])
+        self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
 
 
 if __name__ == "__main__":
