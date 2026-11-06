@@ -610,3 +610,11 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - Existing tests also retain Fatal Attack target HP 1/2/5 floor and no-revive, Bravery/Fear level thresholds at AP0, and Regeneration +1 at printed max HP with marker protection.
 - Test commit `9575dcd77738daacd0d57ede0baa6e6f9fc928c2`, APK PR #28 Actions #350 / run `42217090860`: success; 236 JS tests / 0 failures; Python converter 13 passed.
 - This is test-only; source mapping status, DB29 and runtime handlers were not promoted or altered. Full pack/APK/emulator skipped.
+
+
+## OPS-022 — 2026-11-06 — Manual Skill1 piercing AP/DP limit
+
+- Manual.zip `specialability.htm` §4 describes piercing as destroying target DP by the attacker's AP and forwarding leftover AP to HP once DP reaches zero.
+- APK test commit `d95bbed32445de4b6577efe4600a0fa3cc0abb46`, Actions #352 / run `42218090054`: success, JS 236 / 0 failures, Python 13 / OK. DB29 Manual fixture Black Unicorn `10091525214` covers AP2 vs DP4 (remaining DP2, zero HP damage) and AP3 vs DP0 (3 HP damage); existing AP4 vs DP2 remains.
+- Manual §4 does not expressly resolve already-negative defender DP for piercing. That branch remains review-only; do not infer extra damage by applying the generic AP-DP formula.
+- No runtime rules/data/source mapping/DB29 change. Focused test-only validation.
