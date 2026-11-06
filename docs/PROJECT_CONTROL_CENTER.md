@@ -585,3 +585,11 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - APK PR #28 test commit/HEAD `3837301571449a17e28a09d08911cd5ce87f3336`, Actions #342 / run `42214419550` succeeded: 234 JS tests, 0 failures; Python converter checks success. The test `fixed-seed slot battle ends the match on direct deck depletion without advancing the round` used actual `resolveBattle()` slot flow; a two-soul attacker removes the defender's last two deck cards, makes player the winner, and prevents round/attacker/preparation transition.
 - #341/#342 were lightweight PR runs only. DB29 pack generation, Gradle/APK and emulator were skipped. This is a deterministic fixture integration path, not a 15,350-card imported live-data full-match certification. #325 remains the full pack/import gate on its earlier core code SHA.
 - APK PR #28 remains Open/Draft and unmerged; DB29 preserved; DB30 not published. T PR #9/#12/#13 remain open/unmerged.
+
+
+## OPS-019 — 2026-11-06 — AI draw-to-six deck exhaustion gate
+
+- New test commit `de07a48573b8752a635e81667e5d905614c19550`, Actions #345 / run `42215759449`, exposed one test-fixture mismatch: expected log used uppercase `AI`, but player fixture name is lowercase `ai`. 234/235 passed; no engine defect was indicated by the failed assertion.
+- Fix commit `59384b9381cad328ed60801895635077ecdeefba` uses `ai.name` in the assertion. Actions #346 / run `42215917221` passed: 235 JS tests / 0 failures; Python converter 13 / OK.
+- The passing integration path calls `FM.endPhase()` and transfers into AI `beginPhase()`. AI hand count 5 + empty deck triggers `drawToSix()` terminal check; verifies player win, no phantom draw, no round advance, and no AI auto-play after finish.
+- Distinct from #342 direct attack end-game test; this is the draw-refill route. Both are lightweight fixture tests only. DB29 pack/APK/emulator not run. DB29 preserved; DB30 unpublished.
