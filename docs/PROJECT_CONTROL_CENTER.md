@@ -602,3 +602,11 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - The exact Manual basis is `soulcost.htm`: only units with a neutral bead owe upkeep each preparation turn; unpaid amount destroys the same number of deck cards.
 - Adjacent AI draw-to-six terminal test had initial #345 failure due to hardcoded fixture log capitalization; fixed using `ai.name`, then #346 passed 235 tests / 0 failures. This was a test expectation correction, not runtime engine change.
 - #342 direct-attack, #346 draw-to-six and #348 NCS-upkeep terminal paths are deterministic fixture tests, not full DB29 15,350-card production match certification. All runs kept DB29 pack/APK/emulator skipped.
+
+
+## OPS-021 — 2026-11-06 — Skill1 charge/frenzy AP-zero boundary audit
+
+- Manual.zip `specialability.htm` §9 and §13 were compared with APK test assertions. Pathfinder `10010624588` charge now covers AP0 with own DP exceeding defender DP (1 damage) and defender DP fully absorbing the charge (0). Dark Familiar `10010624538` frenzy now covers AP0 / HP4 sacrifice to one HP with defender DP2 reducing the bonus damage to 1.
+- Existing tests also retain Fatal Attack target HP 1/2/5 floor and no-revive, Bravery/Fear level thresholds at AP0, and Regeneration +1 at printed max HP with marker protection.
+- Test commit `9575dcd77738daacd0d57ede0baa6e6f9fc928c2`, APK PR #28 Actions #350 / run `42217090860`: success; 236 JS tests / 0 failures; Python converter 13 passed.
+- This is test-only; source mapping status, DB29 and runtime handlers were not promoted or altered. Full pack/APK/emulator skipped.
