@@ -43,3 +43,10 @@ This focused review follows Manual.zip (Dropbox `/판마/Manual.zip`) and the cu
 ## Remaining action
 
 Verify the T spec validator/consumer's allowed status vocabulary, then update the `shield_break` machine-readable status without changing `card_source_matching.effect_excerpt_status` or `exact_db29_source_text`. Separately recover the card-local source packet for `10010624551` if possible. Do not conflate focused test completion with production DB29 pack lineage.
+
+
+## OPS-026 — Vampiric Attack HP marker-direction follow-up
+
+- Manual source: `specialability.htm` §7 and `cardability.htm` §6(b). Exact DB29 Skill1 label representative: Dark Countess `10010624542` / `흡혈공격` (source value 788, 115 exact label rows).
+- APK PR #28 test HEAD `15162b6d46043e9e297392feecf48bc40d3bacce`, Actions #365 / run `42228582000`: 236 JS / 0 fail; Python converter 13 passed. Added HP `△` allows the half-up heal (+2 for actual damage 3), HP `▽` blocks positive healing, and HP `*` blocks all healing. Existing cases cover actual damage and rounding, full DP block, and `▼` increase prohibition.
+- This closes a marker-direction assertion gap only. It does not approve card-local HTML semantics or release pack lineage. Formal T spec remains design-only; no mapping or status promotion.
