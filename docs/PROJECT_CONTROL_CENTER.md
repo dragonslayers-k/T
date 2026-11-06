@@ -438,3 +438,24 @@ This append-only correction supersedes outdated status snapshots and conflicting
 - Final gates remain: runtime costs 15,350/15,350; finite unit upkeep 8,633/8,633; effect clause dispositions 48,281/48,281; zero card-wide blockers; same-SHA emulator install/launch.
 
 DB29 remains preserved; DB30 remains unpublished; all designated PRs remain unmerged.
+
+---
+
+## OPS-010 — 2026-11-06 — safe simple-spell inference and final validation gate
+
+### Additional runtime semantics
+- APK PR #28 now permits a tested inferred handler only for an exact simple-text spell effect with supported attack/defend/battle-start timing and a supported target/effect type.
+- Candidate/source status remains `pattern_candidate`; the separate runtime disposition may be `implemented_inferred` only when the converter and Android schema parser agree on the same simple handler.
+- All enchants remain `fallback_noop` until a correct event/duration-bound slot engine exists. A decoded slot plus a simple text match is not sufficient to claim enchant execution.
+- Unsupported spells and all enchants still pay runtime cost, leave the hand, reach a terminal zone, and complete the action through effect-only fallback.
+- Android pack validator cross-checks clause-level dispositions, card-level dispositions, and manifest counts so converter/parser disagreement fails the pack rather than silently misclassifying effects.
+
+### Updated pointers
+- T PR #9 HEAD is now `2aad86adf76a823446296f6754181b1cdb4da294` after the runtime contract boundary update. Latest SHA Actions success remains unconfirmed.
+- T PR #13 HEAD before this append is `161a9a97de1f0688fba0c61969fe49f7a4e264e6`; base SHA remains older than PR #9's base. The branch remains Open and unmerged; do not claim main control-center synchronization.
+- APK PR #28 HEAD is `ceaed7ae0326215ec2b990805879362179b06a40`. Actions #301 / run `42191317316` is pending on this HEAD. It is a lightweight validation run; the explicit full DB29 pack/emulator gates are still not triggered.
+- Actions #280 / run `42190525354` succeeded on the earlier HEAD `6705c06225d7954ed1ae1a9aafba33b6a5fa3fff`: JS rule tests, Python converter tests, Debug APK build, package/signature/ZIP integrity. DB29 pack, emulator, and data archive upload were skipped.
+- The latest code change adds tests for simple inferred spell, complex spell fallback, enchant fallback, NCS upkeep, BONUS one-time payment, and runtime item fallback. Wait for #301 before declaring those latest tests passed.
+
+### Remaining final gate
+After #301 completes, update PR #28 with the explicit `[build-card-pack] [run-emulator]` markers once. Confirm the generated data pack has 15,350/15,350 valid runtime costs, 8,633/8,633 finite unit upkeep profiles, 48,281/48,281 terminal effect-clause dispositions, zero card-wide blockers, and a same-SHA emulator install/launch. Do not run a second full pack or emulator job on the same SHA.
