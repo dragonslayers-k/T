@@ -15,18 +15,28 @@ class ManualSkill1EngineTestCrosswalkTests(unittest.TestCase):
         self.assertEqual(s["rule_ids_in_engine_test_catalogue"], 27)
         self.assertEqual(len(self.data["rules"]), 27)
         self.assertEqual(len({x["rule_id"] for x in self.data["rules"]}), 27)
-        self.assertEqual(self.data["engine_evidence"]["workflow_run_number"], 208)
+        self.assertEqual(self.data["engine_evidence"]["workflow_run_number"], 237)
         self.assertEqual(self.data["engine_evidence"]["workflow_conclusion"], "success")
+        self.assertEqual(self.data["engine_evidence"]["commit"], "33f981a2e7a4c268e7b2f62067364dcc95a86b4c")
+        self.assertEqual(self.data["engine_evidence"]["top_level_test_count"], 158)
 
     def test_representative_db29_fixture_gaps_are_explicit(self):
         s = self.data["summary"]
-        self.assertEqual(s["representative_db29_card_fixtures_present"], 18)
-        self.assertEqual(s["representative_db29_card_fixtures_missing"], 9)
-        self.assertEqual(len(self.data["missing_representative_fixtures"]), 9)
+        self.assertEqual(s["representative_db29_card_fixtures_present"], 27)
+        self.assertEqual(s["representative_db29_card_fixtures_missing"], 0)
+        self.assertEqual(len(self.data["missing_representative_fixtures"]), 0)
         for row in self.data["missing_representative_fixtures"]:
             self.assertTrue(row["card_id"])
             self.assertTrue(row["manual_name"])
             self.assertTrue(row["engine_name"])
+
+    def test_all_27_representative_card_ids_have_current_test_fixtures(self):
+        for row in self.data["rules"]:
+            self.assertTrue(row["representative_card_fixture_present_in_engine_tests"], row["rule_id"])
+            self.assertTrue(row["representative_card_fixture_test_names"], row["rule_id"])
+        self.assertEqual(self.data["summary"]["representative_db29_card_fixtures_present"], 27)
+        self.assertEqual(self.data["summary"]["representative_db29_card_fixtures_missing"], 0)
+        self.assertTrue(self.data["policy"]["representative_fixture_presence_is_not_card_source_semantic_approval"])
 
     def test_manual_and_engine_labels_are_not_collapsed(self):
         differences = [x for x in self.data["rules"] if x["manual_name"] != x["engine_whitelist_name"]]
