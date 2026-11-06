@@ -169,8 +169,8 @@ jobs:
         if: ${{ env.MODE == 'manual-source-match' }}
         uses: actions/upload-artifact@v4
         with:
-          name: FM1-Manual-Skill1-DB29-Source-Match
-          path: data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json
+          name: FM1-Manual-Skill1-DB29-Source-Match-Text-Evidence
+          path: data/reviews/fm1-manual-skill-db29-source-match-2026-11-06.json
           if-no-files-found: error
           retention-days: 14
 
