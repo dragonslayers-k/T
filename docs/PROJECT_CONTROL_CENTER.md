@@ -654,3 +654,11 @@ FM-OFFLINE PR #28 .github/workflows/android-ci.yml에서 다음을 반영했다.
 - Added HP `△` permitted heal, HP `▽` blocked heal and HP `*` all-change-block tests; prior actual damage/rounding and `▼` cases remain.
 - T dedicated audit file `data/reviews/fm1-skill1-vampiric-hp-marker-boundary-audit-2026-11-06.md` created separately. Formal spec test-design status, exact card-local packet and pack lineage remain pending; no status enum guessed.
 - Lightweight JS/Python only; no runtime/data/DB29 changes, no main merge, DB30 unpublished.
+
+
+## OPS-027 — 2026-11-06 — Aging Attack trigger and AP boundary
+
+- T Manual evidence: `specialability.htm` §8; target AP decreases by 2 after the attacker attacks. Common AP markers: `△` blocks decreases, `▽` permits them.
+- Exact Skill1 label fixture: 타락자 `13020626691` / `노화공격`, 53 matched rows in the T spec; exact card-local effect excerpt remains pending.
+- APK test commit `b88db5b55576854a2f8fe94ec5b72d2f078b66f6`, Actions #367 / `42229779160`: success; 236 JS / 0 fail, Python 13 / OK. Cases cover AP0 no-trigger, AP1 with defender DP fully absorbing HP damage yet aging still applying, AP `△`/`▽`, and AP1→−1.
+- Test-only; runtime handler, mapping, DB29 and release data unchanged. Formal T test-spec remains design-only; card-local source and pack lineage pending.
