@@ -336,3 +336,21 @@ This append-only correction supersedes outdated status snapshots and conflicting
 - APK PR #28 remains Open / Draft at HEAD `671b73736e4fbbce5f2cd9e2df0ca2dfffb46a75`. Actions #261 succeeded at that SHA, including data pack build, Debug APK, emulator install/launch, and artifact upload. It did not consume the newly generated runtime overlay.
 - Next implementation: update APK PR #28's pack adapter and rules engine to consume source-separated `runtimeCost`; support BONUS as inferred generic one-time payment without recurring NCS upkeep; keep source review flags for provenance; allow MagicLand installation with only its unresolved effect clause receiving deterministic fallback/no-op. Add focused payment/turn-resolution tests, then one APK pack/emulator run on the new SHA.
 - No PR merged, no DB29 mutation, no DB30 tag/release, no APK code changes by this OPS-004 append.
+
+
+---
+
+## OPS-005 — 2026-11-06 — APK runtime-cost consumer integration in progress
+
+- APK PR #28 remains Open / Draft / unmerged. Current branch HEAD: `2358f2ce75e3178d9c3a960d4ffaa84005f2c98e`.
+- Commit `6403e72fe32818d6bfea39cdd268b6c630a3326c` changed:
+  - `app/src/main/assets/game/rules.js`: prefer `runtimeCost` when `runtimeCostKnown=true`; accept `bonus` as a cost key; pay BONUS as a generic one-time requirement from the generated colored/neutral pool; keep recurring upkeep limited to `neutral`.
+  - `app/src/main/assets/game/card-schema.js`: normalize and retain separate runtime-cost fields.
+  - `scripts/fm1-offline/build-firestore-card-pack.py`: preserve source cost review and emit separate runtime cost fields from the DB29 normalized cost row; inferred hybrid/BONUS status remains explicit.
+  - `tests/rules.test.cjs`: add a regression proving a source-pending BONUS card can pay its inferred runtime cost without treating it as free.
+- Follow-up commit `2358f2c` updates the validation reason string so the pre-existing fail-closed test continues to match its expected Korean diagnostic.
+- Actions #262 failed only on that old diagnostic-string assertion. The new runtime BONUS payment test passed; other listed game-rule tests passed. The reason string was corrected.
+- Actions #263 / run `42187559110` is still in progress at this append. JavaScript tests and Firestore-to-Android converter passed; DB29 SQLite-to-Android data ZIP generation was still running. Do not claim APK pack or emulator success until this run completes.
+- Not yet changed: UI cost label does not yet display the inferred runtime-cost status; 50 MagicLand cards still hit the old special-effect installation gate; enchant candidate-only and other effect gates remain.
+- Next focused steps after #263: inspect generated pack manifest/runtime-cost coverage; update the UI to show inferred runtime costs without erasing source-review status; make MagicLand installation playable with its unresolved effect clause receiving deterministic fallback/no-op; then run one final pack/emulator validation.
+- No PR merged, no DB29 mutation, no DB30 publication.
