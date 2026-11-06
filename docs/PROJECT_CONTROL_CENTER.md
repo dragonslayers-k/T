@@ -408,3 +408,33 @@ This append-only correction supersedes outdated status snapshots and conflicting
 - DB29 tag/release/source database remain preserved by operating policy. DB30 is not published. T PR #9/#12/#13 and APK PR #28/#26/#25/#9 remain unmerged.
 - Ordinary PR sync should run lightweight tests only. Full DB29 pack and emulator smoke are explicitly gated; perform them once on the final combined HEAD using workflow dispatch inputs or both explicit markers.
 - The scheduled baseline-check automation remains read-only. This conversation's explicit development authorization does not grant future scheduled runs permission to edit repositories.
+
+---
+
+## OPS-009 — 2026-11-06 — runtime profile implementation / latest CI pointer
+
+### Canonical policy and automation
+- Library master v4.10 is now the latest project baseline. It preserves v4.9 Appendix 29 and adds Appendix 30 with the runtime profile contract, current implementation, verification limits, and next steps.
+- The scheduled task prompt was updated after v4.10 publication. It remains daily 15:00 Asia/Seoul and read-only. Its new instructions distinguish the Library master from the saved prompt and do not grant future scheduled runs repository-write authority.
+
+### Current T PR pointers
+- PR #9 remains Open/non-draft/unmerged, branch `feat/carddb-effect-semantic-pass`, HEAD `3a2bcd036f5e7c11b1b1b3da2ded39331327614f`, base SHA `af2d8af5e6a0126a9b7d8c7973561916e718e9d9`.
+- PR #9 now contains the runtime overlay BONUS/NCS correction, runtime profile contract, gameplay policy link, and overlay self-tests. No Actions success for this exact HEAD is confirmed in the latest connector check. Previous #682/#684 successes apply only to their original SHAs.
+- PR #13 remains Open/non-draft/unmerged, branch `docs/ops-artifact-access-guard-2026-11-06`, current branch HEAD before this append `f55799904f46501f10b16433072058a938a1abf4`, base SHA `75584d92ac4b4812f94d99fbc34f1360ea68eaf7`. This base is older than PR #9's base; keep the out-of-date status explicit and synchronize before merge. Main control center is still older; PR-only updates are not main synchronization.
+
+### Current APK PR #28 pointers
+- PR #28 remains Open/Draft/unmerged, branch `feat/combat-event-foundation`, latest HEAD before this append `6705c06225d7954ed1ae1a9aafba33b6a5fa3fff`, base main `8d28ac39ecc493cef40167c2c30dafa43db43f0e`.
+- Actions #279 / run `42190057320` failed in JavaScript tests only because the newly added NCS test fixture omitted its card `instanceId`; it was a fixture identity issue, not a production resolver failure.
+- Follow-up commit `6705c06225d7954ed1ae1a9aafba33b6a5fa3fff` adds the missing fixture ID. Actions #280 / run `42190525354` is in progress; JS rule tests and Python converter tests have passed, DB29 pack is intentionally skipped, and Android SDK/Gradle Debug build is still running at this checkpoint.
+- Actions #276 / run `42189332608` succeeded on an earlier SHA for lightweight JS/Python checks and Debug APK/package/signature/ZIP verification. DB29 pack and emulator were skipped.
+- Full DB29 pack run #270 failed before the later item schema fallback and clause-disposition changes. Do not repeat #270; one full pack validation is still required on the final combined SHA.
+
+### Current implementation contract
+- T and Android keep source values/review flags separate from runtime values.
+- BONUS is a one-time generic neutral payment; NCS is generic payment and unit-only recurring upkeep.
+- All runtime costs must use engine-supported color keys; no `bonus` key may reach the resolver.
+- Unmapped item conditions receive deterministic fallback target; MagicLand installs without invented ordinary production; unsupported spell/enchant clauses consume cost and complete the action through terminal no-op.
+- Each of 48,281 source effect clauses receives a terminal runtime disposition in the generated pack. This is not a claim that all original effects are semantically implemented.
+- Final gates remain: runtime costs 15,350/15,350; finite unit upkeep 8,633/8,633; effect clause dispositions 48,281/48,281; zero card-wide blockers; same-SHA emulator install/launch.
+
+DB29 remains preserved; DB30 remains unpublished; all designated PRs remain unmerged.
