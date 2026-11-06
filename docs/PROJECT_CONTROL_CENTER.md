@@ -167,3 +167,33 @@ APK PR #28의 #260 성공은 해당 HEAD에서 수행한 CI 범위의 성공이�
 5. PR 병합 및 DB30 발행은 별도 승인 게이트로 유지한다.
 
 이 문서는 작업을 대신 완료했다고 주장하지 않는다. 다음 대화에서 이 파일을 읽으면 같은 배경 설명부터 다시 시작하지 않고, 최신 SHA 확인과 마지막 미완료 작업부터 이어간다.
+
+
+## 8. 최신 재개 기준 — 2026-11-06 15:35 KST (OPS-002 적용)
+
+> 이 부록은 OPS-001의 당시 스냅샷을 보존한다. 아래 조회 결과를 기준으로 재개하며, 이후 SHA는 작업 시작 때 다시 확인한다.
+
+### 8.1 확인된 최신 GitHub 포인터
+
+- T main: `75584d92ac4b4812f94d99fbc34f1360ea68eaf7` (통합 운영 기준점 문서 추가 커밋)
+- T PR #9: Open, non-draft, HEAD `abc39b0a9fd47abb4ddc6206894bdf4c60e05d53`, base main `af2d8af5e6a0126a9b7d8c7973561916e718e9d9`; Actions #660 / run `42169246867` success on that exact SHA.
+- T PR #12: Open, Draft, HEAD `2845872c8f4cfd29cb5fa4bfc520510d09b7f5c0`, base PR #9 historical SHA `f2ba6161859c3e21c27c340438933927cedf6b51`; stacked dependency remains stale; do not merge.
+- T main audit #663: run `42173417874`, success on main SHA `75584d92ac4b4812f94d99fbc34f1360ea68eaf7`, source tag `fm1-carddb-29`, publish false. This is **not** a PR #9 HEAD validation.
+- APK main: `8d28ac39ecc493cef40167c2c30dafa43db43f0e`.
+- APK PR #28: Open, Draft, HEAD `1bf65ab2dc80035a6329b10dd8c3b80dffd78114`, base main above; Actions #260 / run `42166629234` success on exact SHA.
+- APK PR #26/#25/#9 remain Open and unmerged; their heads: `9882d0823712a4e461a69d9f17597a91d7d2bdc9`, `44f7c477d2cb09d1a0724afa6d9faa3b84a655f9`, `c84a56ec6ae4e7e86d447b127a1c5a84d4cf93b2` respectively.
+- DB29 Release tag target remains `7e2736ac49133409e7f8051ce90e21bcdeb0472e`; GitHub reports `immutable=false`, so immutability remains a strict operational rule. No DB30 publication.
+
+### 8.2 OPS-002 — artifact analysis runtime failure (D-type)
+
+- Incident: run #663 semantic-review ZIP downloaded successfully through the GitHub connector and was materialized as `/mnt/data/files/semantic-review-663.zip` (2,203,104 bytes), but Python/container runtime calls returned `ClientError`. The error is in the analysis runtime access layer; it is not evidence that the artifact is corrupt or that the user must upload it.
+- Workaround already used: recover aggregate values from Actions logs/job steps. Counts: 15,350 cards and unique IDs; 613,435 fields / 55 types; 17,407 effect texts; 48,281 effect pattern splits; 0 missing effect interpretations; 1,249 low-confidence interpretations; 0 unmapped skill rows; 30,700/30,700 images checked; 52 hybrid-cost mapping review items; 779 special-semantics review items; 0 FK errors.
+- Limits: these aggregate counts do not identify card-level rows and do not prove semantic correctness or game-engine execution. Queues may overlap; do not sum as disjoint.
+- Required next permanent improvement: have the workflow emit a compact card-ID JSON/CSV + a concise step-summary/log record, so review can continue without opening the large ZIP in a local runtime. Keep the full artifact as supporting evidence.
+- User-request rule: do not ask for the artifact upload or a manual workflow run while connector/API/log/compact-output routes remain available. Request a user action only when a specific permission/input is genuinely missing and every available route is exhausted.
+
+### 8.3 OPS-002 implementation state and next task
+
+- OPS-002 document exists on branch `docs/ops-artifact-access-guard-2026-11-06`; it must be linked from this control center and submitted as a documentation PR. No merge is authorized.
+- Next CardDB work: implement compact card-level semantic-review output for the existing review workflow and test it at PR #9's branch SHA. Do not rerun full audit #663, which was main-only.
+- Preserve DB29; do not publish DB30; do not merge T PR #9/#12 or APK PR #28/#26/#25/#9.
