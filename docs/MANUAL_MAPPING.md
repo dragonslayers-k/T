@@ -91,11 +91,11 @@ Firestore 원본 필드 대응은 다음과 같다.
 | 81 | MU | neutral |
 | 01 | NONE | 명시적 비용 없음(수량 00일 때) |
 
-혼합 속성 코드 14종(12, 13, 14, 15, 22, 23, 24, 32, 33, 42, 43, 52, 53, 62)은 색상 조합 후보를 해독하지만, 현재 Release #27 원본에는 독립적으로 대조할 정규화 비용 참조 필드가 없어 `mapping_review`로 남긴다. 이전 PR 문서에 38개 사례와 14,282건을 교차 검증했다고 기재되어 있었으나, 재현 실행에서 참조 비용 행은 0건이었다. 카드 ID·원본 코드·기대 비용을 가진 검증 fixture가 다시 확보되기 전까지 `source_cross_validated`를 부여하지 않는다. RequireSoul 원본의 코드 82(매뉴얼 enum 라벨 NCS)와 코드 83(BONUS)은 서로 다른 비용 토큰으로 보존한다. Dropbox 원본 `/판마/Manual.zip`의 `soulcost.htm`은 무속성(NCS)에 대해 소환 시 어떤 속성 소울로도 지불할 수 있고, 유닛은 매 준비턴 무속성 유지비를 지불하며 부족하면 덱 카드를 파괴한다고 설명한다. 이에 따라 RequireSoul 코드 82의 NCS 비용 토큰은 `manual_semantics_verified`로 표시하되 원본 토큰 `ncs`를 유지하고, 유지비 규칙은 유닛에만 적용한다. 이는 앞 절의 NCS(82) 유닛 스탯 표기와 별개인 필드 문맥이다.
+혼합 속성 코드 14종(12, 13, 14, 15, 22, 23, 24, 32, 33, 42, 43, 52, 53, 62)은 색상 조합 후보를 해독하지만, 현재 Release #27 원본에는 독립적으로 대조할 정규화 비용 참조 필드가 없어 `mapping_review`로 남긴다. 이전 PR 문서에 38개 사례와 14,282건을 교차 검증했다고 기재되어 있었으나, 재현 실행에서 참조 비용 행은 0건이었다. 카드 ID·원본 코드·기대 비용을 가진 검증 fixture가 다시 확보되기 전까지 `source_cross_validated`를 부여하지 않는다. RequireSoul 원본의 코드 81(MU), 82(NCS), 83(BONUS)은 서로 다른 비용 토큰으로 보존한다. Dropbox 원본 `/판마/Manual.zip`의 `soulcost.htm`은 이름을 특정하지 않은 색 없는 무속성 구슬의 소환·유지 규칙을 설명한다. enum 이름 MU(81)는 무속성의 후보 대응이지만, enum icon과 Manual 이미지의 픽셀 대조가 끝나지 않았으므로 이 연결은 런타임에서 `implemented_inferred`로만 표시한다. 유닛 유지비는 MU(81) 후보 토큰에만 연결한다. NCS(82)는 Manual 본문에 직접 정의가 없으므로 `semantic_review`로 유지하며, 일반 무속성 지불이나 반복 유지비로 승격하지 않는다. BONUS(83)도 별도 검토 상태다. 사용자가 정의한 카드 스탯 표기 NCS(82)와 Firestore `RequireSoul` enum의 NCS(82)는 서로 다른 필드/문맥이며 동일한 규칙으로 합치지 않는다.
 
 반면 추출된 `soulcost.htm` 본문은 BONUS(83)의 지불·생성 규칙을 정의하지 않는다. BONUS는 별도 `bonus` 토큰으로 보존하고 `semantic_review`로 남기며, NCS/neutral에 합산하거나 플레이 가능한 중립 비용으로 추정하지 않는다. 매뉴얼 이미지의 BONUS 아이콘 범례를 확인하기 전까지 이 상태를 유지한다.
 
-DB29 감사 기준 RequireSoul 코드 82의 NCS 토큰은 351장, 코드 83의 BONUS 토큰은 439장이고 11장은 두 토큰을 함께 가진다(합집합 779장). 이번 의미 분리 후 RequireSoul 코드 82만 포함한 340장은 매뉴얼 근거로 해석 가능하며, BONUS를 포함한 439장은 검토 대상으로 남는다. 혼합 속성 코드 52장의 `mapping_review`는 별도 유지한다.
+DB29 감사 기준 RequireSoul 코드 82의 NCS 토큰은 351장, 코드 83의 BONUS 토큰은 439장이고 11장은 두 토큰을 함께 가진다(합집합 779장). RequireSoul 코드 82만 포함한 340장도 Manual 직접 근거가 없어 semantic_review로 유지하며, BONUS를 포함한 439장은 검토 대상으로 남는다. 혼합 속성 코드 52장의 `mapping_review`는 별도 유지한다.
 
 DB29 전체 감사에서 15,350장의 RequireSoul 토큰 문자열은 모두 토큰 단위로 식별·파싱되었다(`soul_known=1`). 이 값은 원문 토큰 인식 완료를 뜻하며, BONUS 의미나 혼합 속성의 독립 비용 대조가 끝났다는 뜻은 아니다.
 
@@ -113,6 +113,11 @@ DB29 전체 감사에서 15,350장의 RequireSoul 토큰 문자열은 모두 토
 
 ## 8. 검증 상태
 `source_extracted`, `enum_mapped`, `enum_decoded`, `mapping_review`, `semantic_review`, `source_cross_validated`, `current_taxonomy_verified`, `manual_semantics_verified`, `image_verified`, `manual_review`, `effect_unmapped` 상태를 구분한다. 자동 추출만 된 값은 수동 검증 완료로 표시하지 않는다. `current_taxonomy_verified`는 다섯 카드 유형이 현재 분류 사전과 일치한다는 뜻이며, 카드별 효과 구현 완료를 의미하지 않는다.
+
+
+## 2026-11-07 정정 — NCS/MU 교차판정 철회
+
+기존 문서의 RequireSoul 코드 82 NCS를 Manual 무속성 규칙에 연결한 판정은 직접 근거가 부족해 철회했다. Manual은 무속성 구슬을 설명하지만 NCS라는 enum 문자열을 정의하지 않는다. enumtable은 MU(81), NCS(82), BONUS(83)를 별도 RequireSoul 항목으로 구분한다. 따라서 NCS(82)는 원본 토큰·수량만 보존하고 semantic_review로 유지한다. MU(81)는 무속성의 후보 대응으로 유지하되 이미지 교차확인이 끝날 때까지 inferred 상태로 표시한다. NCS(82) 유닛 스탯 약어와 RequireSoul enum NCS(82)는 같은 이름을 공유할 뿐 서로 다른 문맥이다.
 
 
 ## 2026-11-07 정정 — NCS/MU 교차판정 철회

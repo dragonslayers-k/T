@@ -145,8 +145,8 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             token_result["inference"] = "hybrid_symbol_payment_choice_unverified"
             result["mapping_review"] = True
         elif code == NCS_SOUL_CODE:
-            # Manual.zip soulcost.htm defines NCS/무속성 as payable with any
-            # attribute at summon; recurring upkeep is a separate unit-only rule.
+            # Manual.zip does not define the NCS label. Keep this token unresolved;
+            # the Manual's colorless bead is only an inferred MU(81) crosswalk.
             result["colors"]["ncs"] += amount
             token_result["normalized_color"] = "ncs"
             token_result["status"] = "semantic_review"

@@ -19,7 +19,7 @@ Every card must receive a valid, payable runtime cost object. Valid keys are `da
 - `runtimeCost` is the normalized cost passed to the engine.
 - `runtimeCostStatus` is `implemented_verified`, `implemented_inferred`, or `fallback_payable`.
 - `runtimeCostInference` records why an inferred/fallback value was selected.
-- `runtimeUpkeepCost.neutral` records only recurring NCS upkeep for units.
+- `runtimeUpkeepCost.neutral` records only recurring MU(81)-crosswalk upkeep for units; it must never be inferred from generic one-time neutral payment.
 
 Special soul handling:
 - MU(81) is the candidate crosswalk to the Manual's colorless/neutral bead. Its generic any-generated-soul payment and unit-only recurring upkeep are implemented as `implemented_inferred` until the MU icon is visually matched to the Manual bead.
@@ -96,12 +96,12 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - This covers a second terminal route distinct from #342's direct deck attack: preparation draw exhaustion. This is still fixture-level lightweight integration; DB29 pack/APK/emulator skipped and no full 15,350-card match is certified.
 
 
-## 11. NCS upkeep deck-exhaustion terminal transition — 2026-11-06
+## 11. MU(81) candidate upkeep deck-exhaustion terminal transition — 2026-11-06
 
 - APK PR #28 test HEAD `c4bb96875778d3a038fba6e3a058191e943fa4a4`, Actions #348 / run `42216514570`: success; 236 JS tests / 0 failures, 13 Python converter tests / OK.
-- The test traverses `FM.endPhase()` → AI `beginPhase()` → `payNeutralUpkeep()`. A single NCS upkeep remains unpaid because the AI has no available souls; the final deck card is destroyed; the human wins; AI hand refill/card review/action and round transition are prevented.
-- Source basis: Dropbox Manual.zip `soulcost.htm` rules for neutral-cost units, upkeep each preparation turn, and deck-card destruction equal to unpaid amount. The test verifies the terminal boundary without modifying upkeep logic.
-- The distinct terminal paths now have focused integration tests: #342 direct deck hit, #346 draw-to-six exhaustion, #348 unpaid NCS upkeep. These are fixtures and do not equal a full DB29 production-deck match. DB29 pack/APK/emulator remain separately evidenced by #325.
+- The test traverses `FM.endPhase()` → AI `beginPhase()` → `payNeutralUpkeep()`. A single MU(81)-crosswalk upkeep remains unpaid because the AI has no available souls; the final deck card is destroyed; the human wins; AI hand refill/card review/action and round transition are prevented.
+- Source basis: Dropbox Manual.zip `soulcost.htm` rules for the Manual's colorless-bead units, upkeep each preparation turn; MU(81) is an inferred enum crosswalk, not a literal Manual label, and deck-card destruction equal to unpaid amount. The test verifies the terminal boundary without modifying upkeep logic.
+- The distinct terminal paths now have focused integration tests: #342 direct deck hit, #346 draw-to-six exhaustion, #348 unpaid MU(81)-crosswalk upkeep. These are fixtures and do not equal a full DB29 production-deck match. DB29 pack/APK/emulator remain separately evidenced by #325.
 
 
 ## 12. Manual Skill1 secondary cluster — charge/frenzy AP-zero DP boundaries
@@ -174,7 +174,7 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 
 ## 2026-11-07 — Runtime cost fallback boundary tests (#763)
 
-- Added overlay self-test cases for NCS cost on a non-unit card: payment remains generic, but recurring upkeep is zero.
+- Added overlay self-test cases for unresolved NCS(82) cost on a non-unit card: payment remains a tagged generic fallback, but recurring upkeep is zero.
 - Added a missing source-cost row case: the profile remains playable with a conservative neutral fallback, records source parse as unknown, and exposes the fallback inference rather than silently becoming free.
 - Commit `187dd6bd68261a8d82c43b88e3b8fa01c31b17f3`; Actions #763 / run `42305530316` passed lightweight T regression tests, including runtime cost overlay self-test and compact DB29 source inventory. Full 15,350-card rebuild, image audit, SQLite release and DB30 publication were not run.
 - DB29 immutable; no new release or main merge.
