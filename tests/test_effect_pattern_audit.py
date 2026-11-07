@@ -180,11 +180,12 @@ class SoulCostParserReviewTests(unittest.TestCase):
         self.assertEqual(parsed["tokens"][0]["status"], "semantic_review")
         self.assertEqual(parsed["tokens"][0]["inference"], "bonus_semantics_unverified")
 
-    def test_hybrid_token_preserves_both_candidate_colors_but_requires_mapping_review(self):
+    def test_hybrid_token_preserves_component_candidates_without_costing_both_colors(self):
         parsed = parse_require_soul("1301")
         self.assertTrue(parsed["known"], "token parsing is distinct from playable-cost approval")
-        self.assertEqual(parsed["colors"]["dark"], 1)
-        self.assertEqual(parsed["colors"]["fire"], 1)
+        self.assertEqual(parsed["colors"]["dark"], 0)
+        self.assertEqual(parsed["colors"]["fire"], 0)
+        self.assertEqual(parsed["tokens"][0]["components"], ["dark", "fire"])
         self.assertTrue(parsed["mapping_review"])
         self.assertFalse(parsed["semantic_review"])
         self.assertEqual(parsed["tokens"][0]["status"], "hybrid_payment_unverified")
