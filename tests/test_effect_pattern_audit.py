@@ -160,14 +160,15 @@ class CostReviewClassificationTests(unittest.TestCase):
 
 
 class SoulCostParserReviewTests(unittest.TestCase):
-    def test_ncs_is_separate_and_manual_semantics_verified(self):
+    def test_ncs_is_separate_and_remains_semantic_review(self):
         parsed = parse_require_soul("8201")
         self.assertTrue(parsed["known"])
         self.assertEqual(parsed["colors"]["ncs"], 1)
         self.assertEqual(parsed["colors"]["bonus"], 0)
         self.assertEqual(parsed["colors"]["neutral"], 0)
-        self.assertFalse(parsed["semantic_review"])
-        self.assertEqual(parsed["tokens"][0]["status"], "manual_semantics_verified")
+        self.assertTrue(parsed["semantic_review"])
+        self.assertEqual(parsed["tokens"][0]["status"], "semantic_review")
+        self.assertEqual(parsed["tokens"][0]["inference"], "ncs_requiresoul_semantics_unverified")
 
     def test_bonus_is_separate_and_remains_semantic_review(self):
         parsed = parse_require_soul("8301")
@@ -186,7 +187,7 @@ class SoulCostParserReviewTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["fire"], 1)
         self.assertTrue(parsed["mapping_review"])
         self.assertFalse(parsed["semantic_review"])
-        self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
+        self.assertEqual(parsed["tokens"][0]["status"], "hybrid_payment_unverified")
 
 
 class CostTokenReviewQueueTests(unittest.TestCase):
