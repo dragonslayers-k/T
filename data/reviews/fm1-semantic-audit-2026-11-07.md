@@ -30,3 +30,8 @@ The Firestore enumtable defines `EarnSoul` raw code 82 as `MU02` (two neutral so
 The earlier app/overlay code used a tagged generic neutral payment fallback for RequireSoul NCS(82), BONUS(83), hybrid pairs, and unknown/missing costs. Although those tokens were labelled unverified, the overlay marked cards playable and the app accepted the generic payment. This contradicted the source review status. The runtime overlay and app converter now block these cards until the payment semantics are supported by authoritative evidence. The source token and candidate interpretation remain preserved; no fallback payment is emitted.
 
 Hybrid RequireSoul tokens are now stored as one candidate token with component names, not added to the normalized color totals as if both component colors were independently required. This prevents the SQLite representation from silently encoding a false both-colors cost.
+
+
+## Runtime overlay revalidation request
+
+The fail-closed RequireSoul correction is ready for a DB29-only runtime inventory pass. Reuse the immutable `fm1-carddb-29` SQLite Release as input; do not rebuild or publish a database Release. The audit must report the exact counts of source-decoded payable costs, inferred MU(81) costs, and intentionally blocked NCS/BONUS/hybrid/unknown costs, and preserve each blocked card's source token. This validation is diagnostic only and does not authorize DB29 mutation.
