@@ -74,7 +74,7 @@ def build(db_path, jsonl_gz, csv_path, summary_path, expected=EXPECTED):
             "source_field_rows", "distinct_source_fields", "text_rows", "image_rows",
             "archive_verified_images", "cost_source_text", "lp_known", "soul_known",
             "mapping_review", "semantic_review", "soul_token_rows", "skill_mapping_rows",
-            "manual_verified_skill_rows", "effect_source_rows", "effect_clause_rows",
+            "manual_verified_skill_rows", "effect_source_rows", "effect_candidate_summary_rows", "effect_clause_rows",
             "effect_interpretation_rows", "identity_status", "image_status", "cost_status",
             "skill_status", "effect_status", "overall_semantic_status"
         ]

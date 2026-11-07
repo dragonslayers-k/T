@@ -82,6 +82,11 @@ class CardSemanticLedgerTests(unittest.TestCase):
             self.assertEqual(rows[0]["effect_candidate_summaries"][0]["candidate_id"], 1)
             self.assertEqual(rows[0]["axis_status"]["effects"], "clauses_and_candidate_summaries_not_verified")
             self.assertEqual(rows[1]["axis_status"]["identity"], "source_card_url_present")
+            with (root / "index.csv").open(encoding="utf-8-sig", newline="") as index_file:
+                import csv
+                index_reader = csv.DictReader(index_file)
+                self.assertIn("effect_candidate_summary_rows", index_reader.fieldnames)
+                self.assertEqual(len(list(index_reader)), 2)
 
 
 if __name__ == "__main__":
