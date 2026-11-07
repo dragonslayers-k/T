@@ -13,3 +13,8 @@ This audit separates same-looking labels that belong to different source namespa
 | 치명공격기술 | Manual special ability catalogue | A named special skill; not equated to the N/C/S Critical category without evidence. |
 
 The source app converter previously omitted ATKStatType/DEFStatType/HPStatType from the card pack. The current app PR now preserves those fields as sourceStatTech and maps only Manual-defined markers. Original raw source fields are retained.
+
+
+## Enumtable raw-code convention correction
+
+Firestore enumtable outer map keys are indexes; raw card fields use the first integer in each enum row. StatType raw codes: 1 NONE, 11 CONST, 12 UP, 13 DOWN, 21 FRONT, 22 BACK, 23 HAND, 24 TURN, 31 PLUS, 32 MINUS, 33 EQUAL. CoinType raw codes: 1 NONE, 2 PLUS, 3 MINUS, 4 X, 5 EQUAL. The app parser and tests were updated to use these raw values, not outer indexes.

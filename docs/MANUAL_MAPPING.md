@@ -71,7 +71,7 @@ Firestore 원본 필드 대응은 다음과 같다.
 - ATKCoin / DEFCoin / HPCoin: C개수 및 배율 표현식(예: C3, 2C2)
 - ATKCoinType / DEFCoinType / HPCoinType: Enum+CoinType 연산 유형
 - ATKCoinCount / DEFCoinCount / HPCoinCount: 코인 개수 대조 필드
-- Enum+CoinType 코드: 0 NONE, 1 PLUS(+), 2 MINUS(-), 3 X(x), 4 EQUAL(=)
+- Enum+CoinType raw codes: 1 NONE, 2 PLUS(+), 3 MINUS(-), 4 X(x), 5 EQUAL(=)
 
 런타임 변환 시 원본 문자열·유형·개수를 함께 보존하고, 표현식의 C 개수와 CoinCount가 불일치하거나 연산 유형이 누락된 경우 임의 보정하지 않고 review 상태로 둔다. 이 코인 연산은 N/C/S(82) 표기 자체와 혼동하지 않으며, N/C/S 표기의 N·C·S는 사용자 확인에 따른 Normal 공격·Critical 공격·Defensive 방어 스탯 범주다. 반면 코인 표현식 C3의 C는 매뉴얼 정의대로 Coin(코인)이며, 두 표기의 C는 문맥이 다르다.
 
@@ -131,19 +131,19 @@ Firestore exposes separate source fields `ATKStatType`, `DEFStatType`, and `HPSt
 
 | code | enum | icon | handling |
 |---:|---|---|---|
-| 0 | NONE | 없음 | no marker |
-| 1 | CONST | ★ | Manual-defined: cannot be changed |
-| 2 | UP | ▲ | Manual-defined: cannot decrease |
-| 3 | DOWN | ▼ | Manual-defined: cannot increase |
-| 4 | FRONT | F | preserve; semantics unverified |
-| 5 | BACK | B | preserve; semantics unverified |
-| 6 | HAND | H | preserve; semantics unverified |
-| 7 | TURN | T | preserve; semantics unverified |
-| 8 | PLUS | + | preserve; semantics unverified |
-| 9 | MINUS | - | preserve; semantics unverified |
-| 10 | EQUAL | = | preserve; semantics unverified |
+| 1 | NONE | 없음 | no marker |
+| 11 | CONST | ★ | Manual-defined: cannot be changed |
+| 12 | UP | ▲ | Manual-defined: cannot decrease |
+| 13 | DOWN | ▼ | Manual-defined: cannot increase |
+| 21 | FRONT | F | preserve; semantics unverified |
+| 22 | BACK | B | preserve; semantics unverified |
+| 23 | HAND | H | preserve; semantics unverified |
+| 24 | TURN | T | preserve; semantics unverified |
+| 31 | PLUS | + | preserve; semantics unverified |
+| 32 | MINUS | - | preserve; semantics unverified |
+| 33 | EQUAL | = | preserve; semantics unverified |
 
-Manual `cardability.htm` explicitly defines the star and up/down triangle restrictions. It does not define runtime semantics for FRONT/BACK/HAND/TURN/PLUS/MINUS/EQUAL; these remain source-preserved and must not be guessed. The app pack builder now emits `sourceStatTech` from all three raw fields and the app maps only codes 1–3 to Manual-defined restrictions.
+Manual `cardability.htm` explicitly defines the star and up/down triangle restrictions. It does not define runtime semantics for FRONT/BACK/HAND/TURN/PLUS/MINUS/EQUAL; these remain source-preserved and must not be guessed. The app pack builder now emits `sourceStatTech` from all three raw fields and the app maps only raw codes 11/12/13 to Manual-defined restrictions; raw code 1 is NONE.
 
 Keep these namespaces separate:
 - User-confirmed N/C/S(82) shorthand: N=Normal attack, C=Critical attack, S=Defense; (82)=attack dice 0–8 and defense dice 0–2. No exact Firestore source field for this shorthand has yet been demonstrated, so it is not synthesized from other fields.
@@ -162,3 +162,8 @@ Firestore livecardlist records `16120828657`–`16120828663` share a `TextExtra`
 For one source variant (`16120828663`), `Skill1=51` maps to `관통공격`, `Skill2=129` maps to `절해라`, while `TextExtra` separately describes `전력봉인` and `중급열사`. Do not relabel Skill2=129 as 중급열사. Its `RequireSoul=71048103` is 4 light + 3 MU candidate cost; it does not contain RequireSoul NCS(82), showing that the NCS소울 text is not simply this card's summon-cost token.
 
 No reviewed Manual page or independent web result defined the `NCS소울` resource pool, its production, or the exact status lifecycle. Keep the raw TextExtra, mark these effects source-text-defined but runtime-unverified, and do not implement a generic NCS stat/soul conversion. Open questions: which effect produces NCS소울; whether `유소울` and `NCS소울` are separate pools; activation timing; how the three-turn duration counts; how permanent AP/DP=0 interacts with reset; and how the status's upkeep is charged.
+
+
+### Enumtable raw-code convention
+
+The outer map key in the Firestore enumtable is an index, not necessarily the numeric value stored in a card field. For the fields audited here, use the first integer in each enum row as the raw code: `StatType` = 1 NONE, 11 CONST, 12 UP, 13 DOWN, 21 FRONT, 22 BACK, 23 HAND, 24 TURN, 31 PLUS, 32 MINUS, 33 EQUAL; `CoinType` = 1 NONE, 2 PLUS, 3 MINUS, 4 X, 5 EQUAL. Do not use outer keys 0–10 or 0–4 as field values.
