@@ -80,7 +80,8 @@ class CardSemanticLedgerTests(unittest.TestCase):
             self.assertEqual(rows[0]["axis_status"]["semantic_review"], "pending_card_level_adjudication")
             self.assertEqual(rows[0]["cost_tokens"][0]["raw_token"], "8201")
             self.assertEqual(rows[0]["effect_candidate_summaries"][0]["candidate_id"], 1)
-            self.assertEqual(rows[0]["axis_status"]["effects"], "clauses_and_candidate_summaries_not_verified")
+            self.assertEqual(rows[0]["axis_status"]["effects"], "interpretation_rows_present_not_verified")
+            self.assertEqual(rows[0]["effect_interpretations"][0]["verification_status"], "pending")
             self.assertEqual(rows[1]["axis_status"]["identity"], "source_card_url_present")
             with (root / "index.csv").open(encoding="utf-8-sig", newline="") as index_file:
                 import csv
