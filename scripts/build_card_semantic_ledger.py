@@ -98,6 +98,7 @@ def build(db_path, jsonl_gz, csv_path, summary_path, expected=EXPECTED):
                 tokens = relations.get("card_soul_cost_tokens", {}).get(card_id, [])
                 images = relations.get("card_images", {}).get(card_id, [])
                 effects = relations.get("card_effects", {}).get(card_id, [])
+                effect_candidates = relations.get("card_effect_candidate_summaries", {}).get(card_id, [])
                 pages = relations.get("source_pages", {}).get(card_id, [])
                 verification = relations.get("verification", {}).get(card_id, [])
                 skill_maps = relations.get("card_rule_mappings", {}).get(card_id, [])
@@ -137,8 +138,12 @@ def build(db_path, jsonl_gz, csv_path, summary_path, expected=EXPECTED):
                 )
                 effect_status = "verified_interpretation_present" if effect_verified else (
                     "interpretation_rows_present_not_verified" if card_interpretations else (
-                        "clauses_extracted_not_verified" if card_clauses else (
-                            "effect_source_extracted" if effects else "no_effect_source_row"
+                        "clauses_and_candidate_summaries_not_verified" if card_clauses and effect_candidates else (
+                            "clauses_extracted_not_verified" if card_clauses else (
+                                "candidate_summaries_not_verified" if effect_candidates else (
+                                    "effect_source_extracted" if effects else "no_effect_source_row"
+                                )
+                            )
                         )
                     )
                 )
@@ -165,6 +170,7 @@ def build(db_path, jsonl_gz, csv_path, summary_path, expected=EXPECTED):
                     "verification_records": verification,
                     "skill_mappings": skill_maps,
                     "effect_source_rows": effects,
+                    "effect_candidate_summaries": effect_candidates,
                     "effect_clauses": card_clauses,
                     "effect_interpretations": card_interpretations,
                     "field_coverage": field_coverage,
@@ -189,7 +195,8 @@ def build(db_path, jsonl_gz, csv_path, summary_path, expected=EXPECTED):
                     "soul_known": cost.get("soul_known"), "mapping_review": cost.get("mapping_review"),
                     "semantic_review": cost.get("semantic_review"), "soul_token_rows": len(tokens),
                     "skill_mapping_rows": len(skill_maps), "manual_verified_skill_rows": manual_skills,
-                    "effect_source_rows": len(effects), "effect_clause_rows": len(card_clauses),
+                    "effect_source_rows": len(effects), "effect_candidate_summary_rows": len(effect_candidates),
+                    "effect_clause_rows": len(card_clauses),
                     "effect_interpretation_rows": len(card_interpretations), "identity_status": identity_status,
                     "image_status": image_status, "cost_status": cost_status, "skill_status": skill_status,
                     "effect_status": effect_status, "overall_semantic_status": "pending_card_level_adjudication"
@@ -199,7 +206,6 @@ def build(db_path, jsonl_gz, csv_path, summary_path, expected=EXPECTED):
                 metrics["source_url_present"] += bool(source_url)
                 metrics["cards_with_text"] += bool(texts)
                 metrics["source_field_rows"] += len(fields)
-                metrics["cards_with_55_fields"] += len(field_names) >= 55
                 metrics["image_rows"] += len(images)
                 metrics["archive_verified_images"] += verified_images
                 metrics["cost_rows"] += bool(cost)
@@ -210,11 +216,13 @@ def build(db_path, jsonl_gz, csv_path, summary_path, expected=EXPECTED):
                 metrics["skill_mapping_rows"] += len(skill_maps)
                 metrics["manual_verified_skill_rows"] += manual_skills
                 metrics["effect_source_rows"] += len(effects)
+                metrics["effect_candidate_summary_rows"] += len(effect_candidates)
                 metrics["effect_clause_rows"] += len(card_clauses)
                 metrics["effect_interpretation_rows"] += len(card_interpretations)
                 metrics["pending_semantic_cards"] += 1
         if len(seen) != expected:
             raise ValueError(f"Unique card count {len(seen)} != expected {expected}")
+        metrics["distinct_source_field_keys"] = db.execute("SELECT COUNT(DISTINCT field_key) FROM card_fields").fetchone()[0]
         result = {
             "schema_version": 1, "source_release_tag": SOURCE_TAG,
             "source_sqlite_sha256": db_sha, "sqlite_integrity_check": integrity,

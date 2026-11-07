@@ -39,6 +39,11 @@ class CardSemanticLedgerTests(unittest.TestCase):
                 CREATE TABLE card_rule_mappings(mapping_id INTEGER PRIMARY KEY,card_id TEXT,source_field TEXT,mapping_status TEXT);
                 CREATE TABLE card_field_coverage(coverage_id INTEGER PRIMARY KEY,card_id TEXT,field_key TEXT,
                     coverage_status TEXT,source_payload_match INTEGER);
+                CREATE TABLE card_effect_candidate_summaries(candidate_id INTEGER PRIMARY KEY,text_id INTEGER,card_id TEXT,
+                    text_type TEXT,source_text_sha256 TEXT,source_detail_url TEXT,source_text_class_candidate TEXT,
+                    topic_candidates_json TEXT,trigger_candidates_json TEXT,actor_candidates_json TEXT,target_candidates_json TEXT,
+                    operation_candidates_json TEXT,number_candidates_json TEXT,special_token_candidates_json TEXT,analysis_json TEXT,
+                    verification_status TEXT,span_integrity_status TEXT);
                 CREATE TABLE card_effect_clauses(clause_id TEXT PRIMARY KEY,card_id TEXT,source_text TEXT);
                 CREATE TABLE card_effect_interpretations(clause_id TEXT,verification_status TEXT,confidence TEXT);
             """)
@@ -56,6 +61,9 @@ class CardSemanticLedgerTests(unittest.TestCase):
             db.execute("INSERT INTO card_soul_cost_tokens VALUES(1,'1',0,'8201',82,1,'NCS',NULL,'ncs','semantic_review')")
             db.execute("INSERT INTO card_images VALUES(1,'1','large','url',NULL,'archive','image/webp',10,'sha','archive_verified')")
             db.execute("INSERT INTO card_effects VALUES(1,'1',0,'TextBase','원문 효과',NULL,NULL,NULL,NULL,'extracted_unverified')")
+            db.execute("""INSERT INTO card_effect_candidate_summaries VALUES(
+                1,1,'1','card_text','sha','https://fmlunatic.com/card/1','candidate',
+                '[]','[]','[]','[]','[]','[]','[]','{}','pattern_candidate','exact')""")
             db.execute("INSERT INTO card_effect_clauses VALUES('cl1','1','원문 효과')")
             db.execute("INSERT INTO card_effect_interpretations VALUES('cl1','pending','low')")
             db.commit()
@@ -71,6 +79,8 @@ class CardSemanticLedgerTests(unittest.TestCase):
             self.assertEqual(rows[0]["axis_status"]["cost"], "semantic_review_blocked")
             self.assertEqual(rows[0]["axis_status"]["semantic_review"], "pending_card_level_adjudication")
             self.assertEqual(rows[0]["cost_tokens"][0]["raw_token"], "8201")
+            self.assertEqual(rows[0]["effect_candidate_summaries"][0]["candidate_id"], 1)
+            self.assertEqual(rows[0]["axis_status"]["effects"], "clauses_and_candidate_summaries_not_verified")
             self.assertEqual(rows[1]["axis_status"]["identity"], "source_card_url_present")
 
 
