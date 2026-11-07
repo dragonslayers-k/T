@@ -116,7 +116,7 @@ def main():
     ap.add_argument("--language",default="eng+kor"); ap.add_argument("--no-ocr",action="store_true"); ap.add_argument("--self-test",action="store_true")
     args=ap.parse_args()
     if args.self_test: self_test(); return
-    if not args.archive or not args.cards-jsonl or not args.output-dir: ap.error("archive, cards-jsonl and output-dir required")
-    result=run(args.archive,args.cards-jsonl,args.output-dir,args.expected-cards,args.language,not args.no_ocr)
+    if not args.archive or not args.cards_jsonl or not args.output_dir: ap.error("archive, cards-jsonl and output-dir required")
+    result=run(args.archive,args.cards_jsonl,args.output_dir,args.expected-cards,args.language,not args.no_ocr)
     print(json.dumps({k:v for k,v in result.items() if k not in ("missing","invalid")},ensure_ascii=False))
 if __name__=="__main__": main()
