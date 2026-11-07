@@ -65,13 +65,13 @@ Dropbox 원본: `/판마/Manual.zip` (약 5.1 MB, 2026-11-01 수정본)
 RequireSoul 원본에서 별도로 관찰되는 토큰 코드 82는 원문 필드와 매뉴얼의 소울 비용 문맥에 한해서만 다룬다. 카드 화면의 NCS(82) 표기와 혼동하지 않도록 데이터 사전·테스트·UI에서 문맥을 분리한다.
 ### 코인 기술과 원본 필드 대응
 
-Dropbox 원본 Manual.zip의 coin.htm은 C 뒤 숫자를 던지는 코인 개수로 정의한다. 예를 들어 C3은 코인 3개, 2C3은 결과값에 2를 곱한다. 선행 연산자(+, -, x, =)는 해당 결과를 AP/DP/HP에 더하기·빼기·곱하기·대입하는 방식이다. 공+2C1 / 방-C1 예시는 코인 1개를 한 번만 던지고 동일한 결과를 AP와 DP에 각각 적용한다고 명시한다. 즉 스탯마다 독립 주사위를 굴리는 방식이 아니다.
+Dropbox 원본 Manual.zip의 coin.htm은 C 뒤 숫자를 던지는 코인 개수로 정의한다. 예를 들어 C3은 코인 3개, 2C3은 결과값에 2를 곱한다. 매뉴얼의 예시는 AP에 +2C1, DP에 -C1을 적용할 때 코인 1개를 한 번만 던지고 동일한 결과를 AP와 DP에 각각 적용한다고 명시한다. 매뉴얼 본문이 직접 설명하는 연산은 +, -, x이며, 이 예시로 스탯마다 독립 주사위를 굴리지 않는다는 점도 확인된다. 매뉴얼 본문은 CoinType EQUAL(=)의 동작을 별도로 정의하지 않는다.
 
 Firestore 원본 필드 대응은 다음과 같다.
 - ATKCoin / DEFCoin / HPCoin: C개수 및 배율 표현식(예: C3, 2C2)
 - ATKCoinType / DEFCoinType / HPCoinType: Enum+CoinType 연산 유형
 - ATKCoinCount / DEFCoinCount / HPCoinCount: 코인 개수 대조 필드
-- Enum+CoinType raw codes: 1 NONE, 2 PLUS(+), 3 MINUS(-), 4 X(x), 5 EQUAL(=)
+- Enum+CoinType raw codes: 1 NONE, 2 PLUS(+), 3 MINUS(-), 4 X(x), 5 EQUAL(=). 코드 1~4는 매뉴얼의 연산 설명과 대응한다. 코드 5 EQUAL은 enum 이름/기호만 확인되며 매뉴얼에 실행 의미가 없어 앱의 대입(set) 해석은 enum 기반 추론으로 표시하고 Manual-verified로 취급하지 않는다.
 
 런타임 변환 시 원본 문자열·유형·개수를 함께 보존하고, 표현식의 C 개수와 CoinCount가 불일치하거나 연산 유형이 누락된 경우 임의 보정하지 않고 review 상태로 둔다. 이 코인 연산은 N/C/S(82) 표기 자체와 혼동하지 않으며, N/C/S 표기의 N·C·S는 사용자 확인에 따른 Normal 공격·Critical 공격·Defensive 방어 스탯 범주다. 반면 코인 표현식 C3의 C는 매뉴얼 정의대로 Coin(코인)이며, 두 표기의 C는 문맥이 다르다.
 
@@ -119,10 +119,6 @@ DB29 전체 감사에서 15,350장의 RequireSoul 토큰 문자열은 모두 토
 
 기존 문서의 RequireSoul 코드 82 NCS를 Manual 무속성 규칙에 연결한 판정은 직접 근거가 부족해 철회했다. Manual은 무속성 구슬을 설명하지만 NCS라는 enum 문자열을 정의하지 않는다. enumtable은 MU(81), NCS(82), BONUS(83)를 별도 RequireSoul 항목으로 구분한다. 따라서 NCS(82)는 원본 토큰·수량만 보존하고 semantic_review로 유지한다. MU(81)는 무속성의 후보 대응으로 유지하되 이미지 교차확인이 끝날 때까지 inferred 상태로 표시한다. NCS(82) 유닛 스탯 약어와 RequireSoul enum NCS(82)는 같은 이름을 공유할 뿐 서로 다른 문맥이다.
 
-
-## 2026-11-07 정정 — NCS/MU 교차판정 철회
-
-기존 문서의 RequireSoul 코드 82 NCS를 Manual 무속성 규칙에 연결한 판정은 직접 근거가 부족해 철회했다. Manual은 무속성 구슬을 설명하지만 NCS라는 enum 문자열을 정의하지 않는다. enumtable은 MU(81), NCS(82), BONUS(83)를 별도 RequireSoul 항목으로 구분한다. 따라서 NCS(82)는 원본 토큰·수량만 보존하고 semantic_review로 유지한다. MU(81)는 무속성의 후보 대응으로 유지하되 이미지 교차확인이 끝날 때까지 inferred 상태로 표시한다. NCS(82) 유닛 스탯 약어와 RequireSoul enum NCS(82)는 같은 이름을 공유할 뿐 서로 다른 문맥이다.
 
 
 ## 2026-11-07 — StatType / RankType / NCS namespace audit
@@ -181,3 +177,10 @@ The prior runtime overlay contradicted its own source-review policy: NCS(82), BO
 The shared RequireSoul parser no longer adds both component colors of a hybrid icon to the normalized `colors` totals. It retains the component names only on the token as candidate metadata. Thus a hybrid token is not persisted as two required colors and is not treated as one generic neutral soul either. The app pack converter follows the same rule. DB29 source rows and the published DB29 ZIP are unchanged; this is a parser/overlay correction only.
 
 The runtime overlay policy now explicitly blocks unresolved NCS/BONUS/hybrid/unknown costs instead of applying generic payment. This supersedes the earlier `fallback_payable` language in the cost-overlay work log.
+
+
+## 2026-11-07 — Manual soul-cost rule, scoped to MU candidate
+
+The Dropbox Manual.zip `soulcost.htm` states that the Soul Cost rule applies only to Unit cards carrying the colorless/neutral bead. The bead is payable at summon by spending any generated attribute soul; from the next preparation phase onward, the same amount is recurring unit upkeep. If the player cannot pay, the unpaid amount destroys that many cards from the deck. This is a unit-only recurring rule: a neutral bead on a land/item/spell/enchant is not automatically recurring upkeep.
+
+The Firestore `RequireSoul` enum separately identifies MU(81), NCS(82), and BONUS(83). MU(81) is the inferred crosswalk candidate to the Manual neutral bead; the icon pixel comparison remains outstanding. NCS(82), BONUS(83), and all hybrid pair codes remain non-executable until independent payment evidence is found. The user's N/C/S(82) combat-stat shorthand is a fourth, separate context and is never used as a RequireSoul mapping.
