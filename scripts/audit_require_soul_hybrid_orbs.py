@@ -127,12 +127,12 @@ def main() -> None:
     summary = {
         "population": 52, "hybrid_code_classes": len(hybrid_templates),
         "secondary_marker_classes": len(secondary_templates),
-        "method": "First hybrid orb RGB template comparison plus 7 following left-rail positions classified against 7 elemental and neutral reference templates; exact secondary token counts required.",
+        "method": "First hybrid orb RGB template comparison plus 7 following left-rail positions classified against 7 elemental and MU reference templates; exact secondary token counts required.",
         "counts": dict(counts),
         "hybrid_template_reference_cards": {str(k): v for k, v in HYBRID_CODE_REFS.items()},
         "secondary_template_reference_cards": {str(k): {"card_id": v[0], "center_y": v[1]} for k, v in SINGLE_CODE_REFS.items()},
         "manual_visual_confirmations": HYBRID_MANUAL_CONFIRMATIONS,
-        "interpretation": "FULL_SEQUENCE_MATCH verifies hybrid orb class and following elemental/neutral marker counts. FULL_SEQUENCE_MATCH_MANUAL_HYBRID includes one explicit manual visual confirmation for alternate rendering.",
+        "interpretation": "FULL_SEQUENCE_MATCH verifies hybrid orb class and following elemental/MU marker counts. FULL_SEQUENCE_MATCH_MANUAL_HYBRID includes one explicit manual visual confirmation for alternate rendering.",
     }
     (out / "require-soul-hybrid-orb-audit-summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
