@@ -63,6 +63,18 @@ Dropbox 원본: `/판마/Manual.zip` (약 5.1 MB, 2026-11-01 수정본)
 사용자 확인 기준으로 카드의 NCS(82) 스탯 표기는 N(Normal 공격), C(Critical 공격), S(Defensive 방어)를 뜻하며, 괄호의 8은 공격 주사위 0~8, 2는 방어 주사위 0~2 범위다. NC(80)은 S 방어 항목이 없는 표기다. 이 표기는 유닛 카드의 스탯/주사위 배치 설명이며, RequireSoul의 4문자 비용 토큰과 동일한 필드나 의미로 취급하지 않는다. NCS(82) 스탯 표기를 소울 생성·지불 규칙으로 변환하지 않는다.
 
 RequireSoul 원본에서 별도로 관찰되는 토큰 코드 82는 원문 필드와 매뉴얼의 소울 비용 문맥에 한해서만 다룬다. 카드 화면의 NCS(82) 표기와 혼동하지 않도록 데이터 사전·테스트·UI에서 문맥을 분리한다.
+### 코인 기술과 원본 필드 대응
+
+Dropbox 원본 Manual.zip의 coin.htm은 C 뒤 숫자를 던지는 코인 개수로 정의한다. 예를 들어 C3은 코인 3개, 2C3은 결과값에 2를 곱한다. 선행 연산자(+, -, x, =)는 해당 결과를 AP/DP/HP에 더하기·빼기·곱하기·대입하는 방식이다. 공+2C1 / 방-C1 예시는 코인 1개를 한 번만 던지고 동일한 결과를 AP와 DP에 각각 적용한다고 명시한다. 즉 스탯마다 독립 주사위를 굴리는 방식이 아니다.
+
+Firestore 원본 필드 대응은 다음과 같다.
+- ATKCoin / DEFCoin / HPCoin: C개수 및 배율 표현식(예: C3, 2C2)
+- ATKCoinType / DEFCoinType / HPCoinType: Enum+CoinType 연산 유형
+- ATKCoinCount / DEFCoinCount / HPCoinCount: 코인 개수 대조 필드
+- Enum+CoinType 코드: 0 NONE, 1 PLUS(+), 2 MINUS(-), 3 X(x), 4 EQUAL(=)
+
+런타임 변환 시 원본 문자열·유형·개수를 함께 보존하고, 표현식의 C 개수와 CoinCount가 불일치하거나 연산 유형이 누락된 경우 임의 보정하지 않고 review 상태로 둔다. 이 코인 연산은 N/C/S(82) 표기 자체와 혼동하지 않으며, N/C/S의 N·C·S는 사용자 확인에 따른 Normal 공격·Critical 공격·Defensive 방어 스탯 범주다.
+
 ## 5. 소울 비용 코드 판독
 사이트 원본 `RequireSoul`은 4문자 단위 토큰의 연결 문자열로 확인됐다. 각 토큰은 앞 2자리의 소울 종류 코드와 뒤 2자리의 수량으로 분리한다. 원본 문자열은 절대 덮어쓰지 않는다.
 
