@@ -27,10 +27,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "probe = inspect live site; audit-release = rebuild DB from an existing Release; crawl = collect a new source snapshot"
+        description: "probe = inspect live site; audit-release = full DB29 audit; crawl = collect source; soul-image-evidence = export only the 831 review cards’ image pairs"
         required: true
         type: choice
-        options: [probe, audit-release, crawl]
+        options: [probe, audit-release, crawl, soul-image-evidence]
         default: audit-release
       source_release_tag:
         description: "Existing immutable DB Release used by audit-release mode"
@@ -75,11 +75,12 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py scripts/build_runtime_cost_overlay.py
+          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/export_soul_review_images.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py scripts/build_runtime_cost_overlay.py
           python scripts/build_runtime_cost_overlay.py --self-test
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_compact_effect_review.py
           python -m unittest tests/test_cost_decoding.py
+          python -m unittest tests/test_export_soul_review_images.py
           python -m unittest tests/test_effect_candidates.py
           python -m unittest tests/test_manual_rules.py
           python -m unittest tests/test_infer_unmapped_skills.py
@@ -154,7 +155,7 @@ jobs:
           retention-days: 30
 
       - name: Install image decoder for full audits
-        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' || env.MODE == 'soul-image-evidence' }}
         run: python -m pip install --disable-pip-version-check Pillow
 
       - name: Set up Node and browser tools
@@ -206,6 +207,41 @@ jobs:
           cp data/source-archive/image-summary.json data/raw/image-summary.json
           cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
           tar -tzf data/images.tar.gz >/dev/null
+
+      - name: Download DB29 source cards and image archive for focused soul review
+        if: ${{ env.MODE == 'soul-image-evidence' }}
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${SOURCE_RELEASE_TAG}"
+          mkdir -p data/raw data/source-archive
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/cards.jsonl.gz" -o data/source-archive/cards.jsonl.gz
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/images.tar.gz.part-aa" -o data/source-archive/images.tar.gz.part-aa
+          gzip -t data/source-archive/cards.jsonl.gz
+          gzip -dc data/source-archive/cards.jsonl.gz > data/raw/cards.jsonl
+          cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
+          tar -tzf data/images.tar.gz >/dev/null
+
+      - name: Export all 831 RequireSoul review-card image pairs
+        if: ${{ env.MODE == 'soul-image-evidence' }}
+        run: |
+          set -euo pipefail
+          python scripts/export_soul_review_images.py \
+            --archive data/images.tar.gz \
+            --cards-jsonl data/raw/cards.jsonl \
+            --output-dir data/soul-image-evidence \
+            --expected-cards 831
+
+      - name: Upload focused soul review image evidence
+        if: ${{ env.MODE == 'soul-image-evidence' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-soul-cost-image-evidence-${{ github.run_number }}
+          path: data/soul-image-evidence/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
 
       - name: Archive freshly downloaded images
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl' }}
