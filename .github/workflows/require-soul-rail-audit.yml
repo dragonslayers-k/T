@@ -8,6 +8,7 @@ on:
       - "scripts/audit_require_soul_rail.py"
       - "scripts/audit_require_soul_hybrid_orbs.py"
       - "scripts/audit_require_soul_source_join.py"
+      - "scripts/probe_require_soul_source_image.py"
       - ".github/workflows/require-soul-rail-audit.yml"
   workflow_dispatch:
     inputs:
@@ -54,6 +55,13 @@ jobs:
           gzip -t source/cards.jsonl.gz
           gzip -dc source/cards.jsonl.gz > source/cards.jsonl
           test -s source/cards.jsonl
+
+      - name: Probe original high-resolution image for the one unresolved card
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/probe_require_soul_source_image.py
+          python scripts/probe_require_soul_source_image.py --output-dir output/source-image-probe
+          test -s output/source-image-probe/source-image-probe-summary.json
 
       - name: Download the immutable 831-card evidence artifact
         run: |
@@ -110,6 +118,7 @@ jobs:
             output/require-soul-hybrid-orb-audit-summary.json
             output/require-soul-source-join-audit.csv
             output/require-soul-source-join-summary.json
+            output/source-image-probe/
           if-no-files-found: error
           compression-level: 6
           retention-days: 30
@@ -122,6 +131,7 @@ jobs:
           rail=json.loads(Path("output/require-soul-rail-audit-summary.json").read_text(encoding="utf-8"))
           hybrid=json.loads(Path("output/require-soul-hybrid-orb-audit-summary.json").read_text(encoding="utf-8"))
           source=json.loads(Path("output/require-soul-source-join-summary.json").read_text(encoding="utf-8"))
+          probe=json.loads(Path("output/source-image-probe/source-image-probe-summary.json").read_text(encoding="utf-8"))
           print("## DB29 RequireSoul visual and source audit")
           print()
           print("| Metric | Result |")
@@ -134,6 +144,6 @@ jobs:
           print(f"| Independent DB29 source join complete | {source['source_join_complete']} |")
           print(f"| Source and visual matches | {source['counts'].get('SOURCE_AND_VISUAL_MATCH', 0)} |")
           print(f"| Source matches with visual evidence unresolved | {source['counts'].get('SOURCE_MATCH_VISUAL_UNRESOLVED', 0)} |")
-          print()
-          print("> A low-resolution image is not classified as a source-data error.")
+          print(f"| Unresolved card source page probe | {probe['page_status']} |")
+          print(f"| Candidate image URLs found | {len(probe.get('discovered_image_urls', []))} |")
           PY
