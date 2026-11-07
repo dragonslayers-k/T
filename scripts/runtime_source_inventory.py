@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only DB29 SQLite inventory for the runtime overlay workstream."""
+"""Read-only DB29 SQLite inventory for the runtime overlay workstream.
+
+CI opt-in inventory reads the already-published fm1-carddb-29 SQLite Release in
+read-only mode and emits diagnostic inventory/overlay artifacts only. It does
+not rebuild, modify, retag, or publish any CardDB release.
+"""
 import argparse, collections, hashlib, json, sqlite3
 from pathlib import Path
 from soul_costs import parse_require_soul
