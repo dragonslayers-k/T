@@ -10,6 +10,7 @@ on:
       - "scripts/audit_require_soul_source_join.py"
       - "scripts/probe_require_soul_source_image.py"
       - "scripts/audit_require_soul_semantic_matrix.py"
+      - "scripts/audit_require_soul_special_text_census.py"
       - ".github/workflows/require-soul-rail-audit.yml"
   workflow_dispatch:
     inputs:
@@ -127,6 +128,17 @@ jobs:
           test -s output/db29-requiresoul-semantic-card-matrix.csv
           test -s output/db29-requiresoul-semantic-matrix-summary.json
 
+      - name: Census full-population NCS BONUS and hybrid card effect text
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/audit_require_soul_special_text_census.py
+          python scripts/audit_require_soul_special_text_census.py \
+            --source-cards-jsonl source/cards.jsonl \
+            --evidence-dir evidence \
+            --output-dir output
+          test -s output/db29-requiresoul-special-card-effect-text-census.csv
+          test -s output/db29-requiresoul-special-card-effect-text-summary.json
+
       - name: Publish complete card-level review artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -141,6 +153,8 @@ jobs:
             output/db29-requiresoul-semantic-token-matrix.csv
             output/db29-requiresoul-semantic-card-matrix.csv
             output/db29-requiresoul-semantic-matrix-summary.json
+            output/db29-requiresoul-special-card-effect-text-census.csv
+            output/db29-requiresoul-special-card-effect-text-summary.json
             output/source-image-probe/
           if-no-files-found: error
           compression-level: 6
