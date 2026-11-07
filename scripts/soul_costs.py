@@ -136,11 +136,11 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             token_result["normalized_color"] = color
             token_result["status"] = "enum_decoded"
         elif code in HYBRID_SOUL_CODES:
-            colors = HYBRID_SOUL_CODES[code]
-            for color in colors:
-                result["colors"][color] += amount
-            token_result["normalized_color"] = "+".join(colors)
-            # Inferred playable rule: a hybrid orb requires both component colors.
+            components = HYBRID_SOUL_CODES[code]
+            # Preserve the icon's component names as candidates only. They are
+            # not separate required colors until payment semantics are verified.
+            token_result["components"] = list(components)
+            token_result["normalized_color"] = "+".join(components)
             token_result["status"] = "hybrid_payment_unverified"
             token_result["inference"] = "hybrid_symbol_payment_choice_unverified"
             result["mapping_review"] = True

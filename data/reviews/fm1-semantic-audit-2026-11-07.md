@@ -23,3 +23,10 @@ Firestore enumtable outer map keys are indexes; raw card fields use the first in
 ### EarnSoul / RequireSoul code-82 namespace split
 
 The Firestore enumtable defines `EarnSoul` raw code 82 as `MU02` (two neutral souls produced per token), while `RequireSoul` raw code 82 is the separate `NCS` token. The user-confirmed `NCS(82)` notation is a third, unrelated unit-stat shorthand (N/C/S with attack dice 0–8 and defense dice 0–2). A fourth literal, `NCS소울`, appears in some `TextExtra` effects and remains a separate source-text resource question. These meanings must never be joined by the shared number/string alone. The app's `parse_earn_soul_list` already decodes `EarnSoul` 8201 as two neutral output; converter self-tests cover it separately from `RequireSoul` 8201 review handling.
+
+
+## 2026-11-07 — Runtime cost fail-closed correction
+
+The earlier app/overlay code used a tagged generic neutral payment fallback for RequireSoul NCS(82), BONUS(83), hybrid pairs, and unknown/missing costs. Although those tokens were labelled unverified, the overlay marked cards playable and the app accepted the generic payment. This contradicted the source review status. The runtime overlay and app converter now block these cards until the payment semantics are supported by authoritative evidence. The source token and candidate interpretation remain preserved; no fallback payment is emitted.
+
+Hybrid RequireSoul tokens are now stored as one candidate token with component names, not added to the normalized color totals as if both component colors were independently required. This prevents the SQLite representation from silently encoding a false both-colors cost.

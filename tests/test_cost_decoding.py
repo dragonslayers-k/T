@@ -15,8 +15,9 @@ class RequireSoulTests(unittest.TestCase):
         parsed = parse_require_soul("5301")
         self.assertTrue(parsed["known"])
         self.assertTrue(parsed["mapping_review"])
-        self.assertEqual(parsed["colors"]["iron"], 1)
-        self.assertEqual(parsed["colors"]["light"], 1)
+        self.assertEqual(parsed["colors"]["iron"], 0)
+        self.assertEqual(parsed["colors"]["light"], 0)
+        self.assertEqual(parsed["tokens"][0]["components"], ["iron", "light"])
         self.assertEqual(parsed["tokens"][0]["status"], "hybrid_payment_unverified")
         self.assertEqual(parsed["tokens"][0]["inference"], "hybrid_symbol_payment_choice_unverified")
 

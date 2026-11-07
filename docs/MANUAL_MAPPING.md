@@ -172,3 +172,12 @@ The outer map key in the Firestore enumtable is an index, not necessarily the nu
 ### EarnSoul / RequireSoul code-82 namespace split
 
 The Firestore enumtable defines `EarnSoul` raw code 82 as `MU02` (two neutral souls produced per token), while `RequireSoul` raw code 82 is the separate `NCS` token. The user-confirmed `NCS(82)` notation is a third, unrelated unit-stat shorthand (N/C/S with attack dice 0–8 and defense dice 0–2). A fourth literal, `NCS소울`, appears in some `TextExtra` effects and remains a separate source-text resource question. These meanings must never be joined by the shared number/string alone. The app's `parse_earn_soul_list` already decodes `EarnSoul` 8201 as two neutral output; converter self-tests cover it separately from `RequireSoul` 8201 review handling.
+
+
+## 2026-11-07 — Corrected runtime overlay and hybrid candidate storage
+
+The prior runtime overlay contradicted its own source-review policy: NCS(82), BONUS(83), hybrid tokens, and unknown/missing costs were assigned generic neutral runtime costs and marked `playable=true`. The overlay now sets `runtimeCostKnown=false`, an empty runtime cost, `runtimeCostStatus=semantic_review_blocked`, and `playable=false` for unresolved costs. Only source-backed pure colors, explicit no-cost, and the inferred MU(81) neutral crosswalk remain playable.
+
+The shared RequireSoul parser no longer adds both component colors of a hybrid icon to the normalized `colors` totals. It retains the component names only on the token as candidate metadata. Thus a hybrid token is not persisted as two required colors and is not treated as one generic neutral soul either. The app pack converter follows the same rule. DB29 source rows and the published DB29 ZIP are unchanged; this is a parser/overlay correction only.
+
+The runtime overlay policy now explicitly blocks unresolved NCS/BONUS/hybrid/unknown costs instead of applying generic payment. This supersedes the earlier `fallback_payable` language in the cost-overlay work log.

@@ -16,7 +16,7 @@ def profile_for_card(card, cost_row):
     candidate = {}
     runtime = {}
     inference = []
-    fallback = False
+    blocked = False
     neutral_upkeep = 0
     mu_crosswalk_inferred = False
 
@@ -48,23 +48,19 @@ def profile_for_card(card, cost_row):
                 neutral_upkeep += amount
         elif code == 82 or color == "ncs":
             add(candidate, "ncs", amount)
-            # Preserve source identity. This generic payment is a tagged
-            # playability fallback, not a claim that NCS means neutral.
-            add(runtime, "neutral", amount)
-            inference.append("ncs_requiresoul_semantics_unverified_generic_fallback")
-            fallback = True
+            # Preserve source identity; no payment rule is inferred.
+            inference.append("ncs_requiresoul_semantics_unverified_blocked")
+            blocked = True
         elif code == 83 or color == "bonus":
             add(candidate, "bonus", amount)
-            add(runtime, "neutral", amount)
-            inference.append("bonus_requiresoul_semantics_unverified_generic_fallback")
-            fallback = True
+            inference.append("bonus_requiresoul_semantics_unverified_blocked")
+            blocked = True
         elif status == "hybrid_payment_unverified" or (isinstance(color, str) and "+" in color):
             add(candidate, "hybrid:" + str(color), amount)
-            # A pair icon is one source token. Do not charge both colors until
-            # the payment choice (both vs either) is independently proven.
-            add(runtime, "neutral", amount)
-            inference.append("hybrid_payment_semantics_unverified_generic_fallback")
-            fallback = True
+            # A pair icon is one source token; payment is blocked until its
+            # both-vs-either semantics are established from authoritative rules.
+            inference.append("hybrid_payment_semantics_unverified_blocked")
+            blocked = True
         elif color in {"dark", "fire", "water", "forest", "iron", "earth", "light"}:
             add(candidate, color, amount)
             add(runtime, "metal" if color == "iron" else color, amount)
@@ -77,34 +73,29 @@ def profile_for_card(card, cost_row):
             inference.append("text_neutral_bead_upkeep_crosswalk_inferred")
         else:
             add(candidate, str(color or "unknown"), amount)
-            add(runtime, "neutral", amount)
-            inference.append("unknown_source_token_generic_payable_fallback")
-            fallback = True
+            inference.append("unknown_source_token_blocked")
+            blocked = True
 
-    if not parsed.get("known") and not tokens:
-        add(runtime, "neutral", 1)
-        inference.append("missing_or_invalid_source_cost_conservative_payable_fallback")
-        fallback = True
+    source_review = bool(
+        (cost_row and (cost_row.get("mapping_review") or cost_row.get("semantic_review")))
+        or parsed.get("mapping_review") or parsed.get("semantic_review")
+    )
+    if not parsed.get("known") or source_review:
+        blocked = True
+        inference.append("unresolved-requiresoul-cost-blocked")
 
-    if not runtime:
-        if parsed.get("known"):
-            runtime = {"neutral": 0}
-        else:
-            runtime = {"neutral": 1}
-            inference.append("missing_source_cost_conservative_payable_fallback")
-            fallback = True
+    if not runtime and not blocked:
+        runtime = {"neutral": 0}
+    if blocked:
+        runtime = {}
 
     allowed = {"dark", "fire", "water", "forest", "metal", "earth", "light", "neutral"}
     for key, value in runtime.items():
         if key not in allowed or not isinstance(value, int) or value < 0:
             raise ValueError(f"Invalid runtime cost for {card.get('card_id')}: {key}={value}")
 
-    source_review = bool(
-        (cost_row and (cost_row.get("mapping_review") or cost_row.get("semantic_review")))
-        or fallback
-    )
-    status = "fallback_payable" if fallback else (
-        "implemented_inferred" if mu_crosswalk_inferred or source_review else "implemented_verified"
+    status = "semantic_review_blocked" if blocked else (
+        "implemented_inferred" if mu_crosswalk_inferred else "implemented_verified"
     )
     return {
         "cardId": str(card["card_id"]),
@@ -119,11 +110,12 @@ def profile_for_card(card, cost_row):
         "sourceTokens": tokens,
         "candidateCost": candidate,
         "runtimeCost": runtime,
+        "runtimeCostKnown": not blocked,
         "runtimeCostStatus": status,
         "runtimeCostInference": sorted(set(inference)),
         "runtimeUpkeepCost": {"neutral": neutral_upkeep},
         "runtimeUpkeepStatus": "mu_81_manual_neutral_crosswalk_inferred" if neutral_upkeep else "zero_upkeep",
-        "playable": True
+        "playable": not blocked
     }
 
 def build_overlay(db_path):
@@ -159,11 +151,11 @@ def build_overlay(db_path):
             "sourceTokenStatusCounts": dict(token_counts),
             "policy": {
                 "sourceValuesImmutable": True,
-                "sourceReviewSeparateFromPlayability": True,
-                "ncsPayment": "any-colored-or-neutral-soul; unit-only-recurring-upkeep",
-                "bonusPayment": "generic-any-generated-soul-once; no-recurring-upkeep-inference",
-                "hybridPayment": "all-component-colors-required-inference",
-                "unknownCost": "conservative-payable-neutral-fallback",
+                "sourceReviewBlocksPlayability": True,
+                "ncsPayment": "blocked-until-source-semantics-verified",
+                "bonusPayment": "blocked-until-source-semantics-verified",
+                "hybridPayment": "blocked-until-both-vs-either-payment-is-verified",
+                "unknownCost": "blocked-no-generic-neutral-fallback",
                 "db29Modified": False,
                 "db30Published": False
             },
@@ -175,24 +167,24 @@ def build_overlay(db_path):
 
 def self_test():
     cases = [
-        ({"card_id":"a","name":"dark","card_type":"유닛"}, {"source_text":"1101","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"dark":1}, "implemented_verified", 0),
-        ({"card_id":"b","name":"mu","card_type":"유닛"}, {"source_text":"8102","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":2}, "implemented_inferred", 2),
-        ({"card_id":"c","name":"ncs","card_type":"유닛"}, {"source_text":"8201","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable", 0),
-        ({"card_id":"d","name":"bonus","card_type":"아이템"}, {"source_text":"8301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable", 0),
-        ({"card_id":"e","name":"hybrid","card_type":"유닛"}, {"source_text":"1201","mapping_review":1,"semantic_review":0,"verification_status":"mapping_review"}, {"neutral":1}, "fallback_payable", 0),
-        ({"card_id":"f","name":"mixed","card_type":"유닛"}, {"source_text":"810182018301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":3}, "fallback_payable", 1),
-        ({"card_id":"g","name":"no-cost","card_type":"마법"}, {"source_text":"0100","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":0}, "implemented_verified", 0),
-        ({"card_id":"h","name":"unknown","card_type":"유닛"}, {"source_text":"9901","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable", 0),
-        ({"card_id":"i","name":"missing-cost","card_type":"마법"}, None, {"neutral":1}, "fallback_payable", 0)
+        ({"card_id":"a","name":"dark","card_type":"유닛"}, {"source_text":"1101","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"dark":1}, "implemented_verified", 0, True),
+        ({"card_id":"b","name":"mu","card_type":"유닛"}, {"source_text":"8102","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":2}, "implemented_inferred", 2, True),
+        ({"card_id":"c","name":"ncs","card_type":"유닛"}, {"source_text":"8201","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {}, "semantic_review_blocked", 0, False),
+        ({"card_id":"d","name":"bonus","card_type":"아이템"}, {"source_text":"8301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {}, "semantic_review_blocked", 0, False),
+        ({"card_id":"e","name":"hybrid","card_type":"유닛"}, {"source_text":"1201","mapping_review":1,"semantic_review":0,"verification_status":"mapping_review"}, {}, "semantic_review_blocked", 0, False),
+        ({"card_id":"f","name":"mixed","card_type":"유닛"}, {"source_text":"810182018301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {}, "semantic_review_blocked", 1, False),
+        ({"card_id":"g","name":"no-cost","card_type":"마법"}, {"source_text":"0100","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":0}, "implemented_verified", 0, True),
+        ({"card_id":"h","name":"unknown","card_type":"유닛"}, {"source_text":"9901","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {}, "semantic_review_blocked", 0, False),
+        ({"card_id":"i","name":"missing-cost","card_type":"마법"}, None, {}, "semantic_review_blocked", 0, False)
     ]
-    for card, row, expected, status, upkeep in cases:
+    for card, row, expected, status, upkeep, playable in cases:
         result = profile_for_card(card, row)
         assert result["runtimeCost"] == expected, (result, expected)
         assert result["runtimeCostStatus"] == status, (result, status)
+        assert result["runtimeCostKnown"] is playable, result
         assert result["runtimeUpkeepCost"] == {"neutral": upkeep}, result
-        assert result["playable"] is True
+        assert result["playable"] is playable, result
     print("runtime cost overlay self-test: PASS")
-
 
 def main():
     parser = argparse.ArgumentParser()
