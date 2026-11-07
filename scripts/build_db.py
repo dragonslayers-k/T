@@ -44,8 +44,9 @@ def parse_soul(raw):
 if "--self-test" in sys.argv:
  sample=parse_soul("43017101")
  assert sample["known"] and sample["mapping_review"]
- assert sample["colors"]["forest"]==1 and sample["colors"]["light"]==2
- assert parse_soul("5301")["colors"]["iron"]==1
+ assert sample["colors"]["forest"]==0 and sample["colors"]["light"]==1
+ assert sample["tokens"][0]["components"]==["forest","light"]
+ assert parse_soul("5101")["colors"]["iron"]==1
  mu=parse_soul("8101")
  assert mu["known"] and mu["colors"]["neutral"]==1
  ncs=parse_soul("8201")
