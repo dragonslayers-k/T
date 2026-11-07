@@ -35,3 +35,10 @@ Hybrid RequireSoul tokens are now stored as one candidate token with component n
 ## Runtime overlay revalidation request
 
 The fail-closed RequireSoul correction is ready for a DB29-only runtime inventory pass. Reuse the immutable `fm1-carddb-29` SQLite Release as input; do not rebuild or publish a database Release. The audit must report the exact counts of source-decoded payable costs, inferred MU(81) costs, and intentionally blocked NCS/BONUS/hybrid/unknown costs, and preserve each blocked card's source token. This validation is diagnostic only and does not authorize DB29 mutation.
+
+
+## 2026-11-07 — Firestore code 82 namespace proof
+
+Firestore source card 16112710291 (구름도시) stores RequireSoul="71018101", EarnSoulList="8201", and MuSoul=2. RequireSoul uses Enum+RequireSoul: code 71 LIGHT ×1 and code 81 MU ×1. EarnSoulList uses Enum+EarnSoul: code 82 is MU02, one token produces two neutral/MU souls, and MuSoul=2 cross-checks the output. TextExtra independently says the land installation consumes 1 MU soul and 1 colored soul.
+
+This is source-backed evidence that EarnSoul code 82 (MU02 production) is not RequireSoul code 82 (NCS cost token). They remain separate namespaces and neither is the user-defined N/C/S(82) stat shorthand.

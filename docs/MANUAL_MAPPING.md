@@ -63,6 +63,19 @@ Dropbox 원본: `/판마/Manual.zip` (약 5.1 MB, 2026-11-01 수정본)
 사용자 확인 기준으로 카드의 NCS(82) 스탯 표기는 N(Normal 공격), C(Critical 공격), S(Defensive 방어)를 뜻하며, 괄호의 8은 공격 주사위 0~8, 2는 방어 주사위 0~2 범위다. NC(80)은 S 방어 항목이 없는 표기다. 이 표기는 유닛 카드의 스탯/주사위 배치 설명이며, RequireSoul의 4문자 비용 토큰과 동일한 필드나 의미로 취급하지 않는다. NCS(82) 스탯 표기를 소울 생성·지불 규칙으로 변환하지 않는다.
 
 RequireSoul 원본에서 별도로 관찰되는 토큰 코드 82는 원문 필드와 매뉴얼의 소울 비용 문맥에 한해서만 다룬다. 카드 화면의 NCS(82) 표기와 혼동하지 않도록 데이터 사전·테스트·UI에서 문맥을 분리한다.
+### EarnSoul / RequireSoul 코드 공간 분리 — Firestore 카드 원본으로 교차확인
+
+숫자 코드가 같아도 반드시 원본 필드의 enum namespace를 함께 확인한다.
+
+| 원본 필드 | Enum | 코드 82 | 코드 81 / 83 | 역할 |
+|---|---|---|---|---|
+| `RequireSoul` | `Enum+RequireSoul` | `NCS` / `ncs.webp` | 81=`MU`; 83=`BONUS` | 카드 설치·소환 비용 토큰 |
+| `EarnSoulList` | `Enum+EarnSoul` | `MU02` / `mu02.webp` | 81=`MU01`; 83=`MU03` | 지형의 소울 생산 토큰 |
+
+실제 Firestore 카드 `16112710291`(`구름도시`)의 원본은 `RequireSoul="71018101"`, `EarnSoulList="8201"`, `MuSoul=2`다. RequireSoul은 LIGHT 1 + MU 1의 설치 비용을 나타낸다. 별도 EarnSoulList는 MU02 1개를 생산해 무소울 2개를 출력하며, MuSoul=2와 일치한다. 원문 TextExtra 역시 지형 설치에 1무소울과 1유소울을 소비한다고 설명한다.
+
+따라서 `EarnSoulList=8201`의 MU02 생산 의미를 `RequireSoul=8201`의 NCS 비용 토큰으로 옮기거나, 그 반대로 적용해서는 안 된다. 사용자 확인의 N/C/S(82) 전투 스탯 표기 역시 두 Firestore enum과 독립된 표기다. 앱 converter의 회귀 테스트에서 EarnSoulList=8201 → MU02 출력 2와 RequireSoul=8201 → NCS 의미 검토/사용 차단을 같은 테스트 실행 안에서 별도로 확인한다.
+
 ### 코인 기술과 원본 필드 대응
 
 Dropbox 원본 Manual.zip의 coin.htm은 C 뒤 숫자를 던지는 코인 개수로 정의한다. 예를 들어 C3은 코인 3개, 2C3은 결과값에 2를 곱한다. 매뉴얼의 예시는 AP에 +2C1, DP에 -C1을 적용할 때 코인 1개를 한 번만 던지고 동일한 결과를 AP와 DP에 각각 적용한다고 명시한다. 매뉴얼 본문이 직접 설명하는 연산은 +, -, x이며, 이 예시로 스탯마다 독립 주사위를 굴리지 않는다는 점도 확인된다. 매뉴얼 본문은 CoinType EQUAL(=)의 동작을 별도로 정의하지 않는다.
