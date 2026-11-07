@@ -168,7 +168,7 @@ class SoulCostParserReviewTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["neutral"], 0)
         self.assertTrue(parsed["semantic_review"])
         self.assertEqual(parsed["tokens"][0]["status"], "semantic_review")
-        self.assertEqual(parsed["tokens"][0]["inference"], "ncs_requiresoul_semantics_unverified")
+        self.assertEqual(parsed["tokens"][0]["inference"], "ncs_soul_distinct_resource_candidate_runtime_blocked")
 
     def test_bonus_is_separate_and_remains_semantic_review(self):
         parsed = parse_require_soul("8301")

@@ -190,3 +190,8 @@ This addendum supersedes the earlier generic-payable fallback language in Sectio
 - EarnSoul raw code 82 is MU02 (two neutral souls produced per token); it is a different enum namespace from RequireSoul raw code 82 (NCS). User shorthand N/C/S(82) is a third independent notation and must not be derived from either enum.
 - DB29 runtime inventory from Actions #42328574195: 15,350 source cards retained; 14,519 runtime-payable profiles; 831 semantically blocked profiles. The blocked set is expected and must not be reported as data loss or as a successful all-playable gate.
 - Source-review-only statuses do not disable cards; an unresolved required payment cost does. Effects with a known payable cost may use their separately tagged fallback_noop disposition without fabricating effect behavior.
+
+
+## 2026-11-07 — NCS soul resource candidate
+
+Community evidence describes NCS소울 as a distinct resource converted from YuSoul, used to create/replace NCS-soul-cost cards, and consumed by certain effects. The RequireSoul enum NCS(82) is therefore labelled `community_documented_candidate` / `ncs_soul`, not generic unknown. This does not authorize runtime payment: resource pool, generation, debit and turn timing remain unverified. NCS remains blocked and cannot be paid with neutral/MU souls.

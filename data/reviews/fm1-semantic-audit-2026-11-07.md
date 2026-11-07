@@ -42,3 +42,16 @@ The fail-closed RequireSoul correction is ready for a DB29-only runtime inventor
 Firestore source card 16112710291 (구름도시) stores RequireSoul="71018101", EarnSoulList="8201", and MuSoul=2. RequireSoul uses Enum+RequireSoul: code 71 LIGHT ×1 and code 81 MU ×1. EarnSoulList uses Enum+EarnSoul: code 82 is MU02, one token produces two neutral/MU souls, and MuSoul=2 cross-checks the output. TextExtra independently says the land installation consumes 1 MU soul and 1 colored soul.
 
 This is source-backed evidence that EarnSoul code 82 (MU02 production) is not RequireSoul code 82 (NCS cost token). They remain separate namespaces and neither is the user-defined N/C/S(82) stat shorthand.
+
+
+## NCS-soul community evidence — 2026-11-07
+
+A 2017-01-30 Inven community special-ability list describes NCS소울 as a resource distinct from YuSoul and MU/neutral soul. Examples include:
+- 소울체인지: converts a YuSoul on one allied hand card to NCS.
+- 중급 열사: consumes 1 YuSoul or NCS soul and increases upkeep.
+- Card/effect creation or replacement with NCS-soul costs, and moving captured units into the hand “using NCS soul”.
+- NCS soul can be converted permanently into upkeep by 신입생환영회.
+
+Source: https://www.inven.co.kr/board/hs/3509/1426815, Equinoxx, 2017-01-30; secondary/community reference, not official Manual.
+
+Decision: mark RequireSoul NCS(82) as a separate `ncs_soul` resource candidate with `community_documented_candidate` provenance. Keep semantic_review/runtime blocked until generation, pool/debit, and payment timing are cross-validated against official or source-card evidence. Do not map to MU/neutral, do not charge upkeep from NCS unless a specific effect says so, and do not conflate with user-defined N/C/S(82) stats.

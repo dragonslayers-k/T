@@ -63,7 +63,10 @@ def _parse_human_readable_cost(raw: str, result: dict) -> bool:
             "status":"text_decoded","source_format":"human_readable"}
         if color=="ncs":
             token["status"]="semantic_review"
-            token["inference"]="ncs_requiresoul_semantics_unverified"
+            token["resource_candidate"]="ncs_soul"
+            token["resource_candidate_status"]="community_documented_candidate"
+            token["runtime_payment_status"]="blocked_pending_resource_rules"
+            token["inference"]="ncs_soul_distinct_resource_candidate_runtime_blocked"
             result["semantic_review"]=True
         elif color=="bonus":
             token["status"]="semantic_review"
@@ -150,7 +153,14 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             result["colors"]["ncs"] += amount
             token_result["normalized_color"] = "ncs"
             token_result["status"] = "semantic_review"
-            token_result["inference"] = "ncs_requiresoul_semantics_unverified"
+            # Community card-skill references use NCS소울 as a distinct summon
+            # resource (creation, replacement, conversion, and consumption).
+            # Exact pool production/debit rules remain unverified, so this is a
+            # documented candidate only and must not become generic neutral.
+            token_result["resource_candidate"] = "ncs_soul"
+            token_result["resource_candidate_status"] = "community_documented_candidate"
+            token_result["runtime_payment_status"] = "blocked_pending_resource_rules"
+            token_result["inference"] = "ncs_soul_distinct_resource_candidate_runtime_blocked"
             result["semantic_review"] = True
         elif code == BONUS_SOUL_CODE:
             # The extracted Manual soulcost.htm text does not define BONUS.

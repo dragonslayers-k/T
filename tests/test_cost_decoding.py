@@ -32,7 +32,10 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(ncs["colors"]["ncs"], 1)
         self.assertEqual(ncs["colors"]["neutral"], 0)
         self.assertEqual(ncs["tokens"][0]["status"], "semantic_review")
-        self.assertEqual(ncs["tokens"][0]["inference"], "ncs_requiresoul_semantics_unverified")
+        self.assertEqual(ncs["tokens"][0]["inference"], "ncs_soul_distinct_resource_candidate_runtime_blocked")
+        self.assertEqual(ncs["tokens"][0]["resource_candidate"], "ncs_soul")
+        self.assertEqual(ncs["tokens"][0]["resource_candidate_status"], "community_documented_candidate")
+        self.assertEqual(ncs["tokens"][0]["runtime_payment_status"], "blocked_pending_resource_rules")
 
     def test_bonus_remains_separate_and_semantically_unverified(self):
         parsed = parse_require_soul("8302")
@@ -51,6 +54,8 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["bonus"], 2)
         self.assertEqual([x["status"] for x in parsed["tokens"]],
                          ["semantic_review", "semantic_review"])
+        self.assertEqual(parsed["tokens"][0]["resource_candidate"], "ncs_soul")
+        self.assertEqual(parsed["tokens"][0]["runtime_payment_status"], "blocked_pending_resource_rules")
 
     def test_human_readable_ncs_and_bonus_keep_independent_statuses(self):
         parsed = parse_require_soul("NCS 1 BONUS 2")

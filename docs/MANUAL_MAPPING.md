@@ -104,7 +104,7 @@ Firestore 원본 필드 대응은 다음과 같다.
 | 81 | MU | neutral |
 | 01 | NONE | 명시적 비용 없음(수량 00일 때) |
 
-혼합 속성 코드 14종(12, 13, 14, 15, 22, 23, 24, 32, 33, 42, 43, 52, 53, 62)은 색상 조합 후보를 해독하지만, 현재 Release #27 원본에는 독립적으로 대조할 정규화 비용 참조 필드가 없어 `mapping_review`로 남긴다. 이전 PR 문서에 38개 사례와 14,282건을 교차 검증했다고 기재되어 있었으나, 재현 실행에서 참조 비용 행은 0건이었다. 카드 ID·원본 코드·기대 비용을 가진 검증 fixture가 다시 확보되기 전까지 `source_cross_validated`를 부여하지 않는다. RequireSoul 원본의 코드 81(MU), 82(NCS), 83(BONUS)은 서로 다른 비용 토큰으로 보존한다. Dropbox 원본 `/판마/Manual.zip`의 `soulcost.htm`은 이름을 특정하지 않은 색 없는 무속성 구슬의 소환·유지 규칙을 설명한다. enum 이름 MU(81)는 무속성의 후보 대응이지만, enum icon과 Manual 이미지의 픽셀 대조가 끝나지 않았으므로 이 연결은 런타임에서 `implemented_inferred`로만 표시한다. 유닛 유지비는 MU(81) 후보 토큰에만 연결한다. NCS(82)는 Manual 본문에 직접 정의가 없으므로 `semantic_review`로 유지하며, 일반 무속성 지불이나 반복 유지비로 승격하지 않는다. BONUS(83)도 별도 검토 상태다. 사용자가 정의한 카드 스탯 표기 NCS(82)와 Firestore `RequireSoul` enum의 NCS(82)는 서로 다른 필드/문맥이며 동일한 규칙으로 합치지 않는다.
+혼합 속성 코드 14종(12, 13, 14, 15, 22, 23, 24, 32, 33, 42, 43, 52, 53, 62)은 색상 조합 후보를 해독하지만, 현재 Release #27 원본에는 독립적으로 대조할 정규화 비용 참조 필드가 없어 `mapping_review`로 남긴다. 이전 PR 문서에 38개 사례와 14,282건을 교차 검증했다고 기재되어 있었으나, 재현 실행에서 참조 비용 행은 0건이었다. 카드 ID·원본 코드·기대 비용을 가진 검증 fixture가 다시 확보되기 전까지 `source_cross_validated`를 부여하지 않는다. RequireSoul 원본의 코드 81(MU), 82(NCS), 83(BONUS)은 서로 다른 비용 토큰으로 보존한다. Dropbox 원본 `/판마/Manual.zip`의 `soulcost.htm`은 이름을 특정하지 않은 색 없는 무속성 구슬의 소환·유지 규칙을 설명한다. enum 이름 MU(81)는 무속성의 후보 대응이지만, enum icon과 Manual 이미지의 픽셀 대조가 끝나지 않았으므로 이 연결은 런타임에서 `implemented_inferred`로만 표시한다. 유닛 유지비는 MU(81) 후보 토큰에만 연결한다. NCS(82)는 Manual 본문에는 정의되어 있지 않지만, 2017년 커뮤니티 특수능력 정리에는 NCS소울이 별도 소환 자원/비용으로 사용되는 사례가 다수 기록되어 있다. 따라서 NCS 토큰은 `ncs_soul` 자원 후보로 분류하되 `community_documented_candidate`로만 표시한다. 실제 NCS소울 풀의 생성·보유·지불·대체 규칙은 미확정이므로 `semantic_review`와 런타임 차단을 유지하며, 무소울/MU로 환산하지 않는다. BONUS(83)는 별도 검토 상태다. 사용자가 정의한 카드 스탯 표기 NCS(82)와 Firestore `RequireSoul` enum의 NCS(82)는 서로 다른 필드/문맥이며 동일한 규칙으로 합치지 않는다.
 
 반면 추출된 `soulcost.htm` 본문은 BONUS(83)의 지불·생성 규칙을 정의하지 않는다. BONUS는 별도 `bonus` 토큰으로 보존하고 `semantic_review`로 남기며, NCS/neutral에 합산하거나 플레이 가능한 중립 비용으로 추정하지 않는다. 매뉴얼 이미지의 BONUS 아이콘 범례를 확인하기 전까지 이 상태를 유지한다.
 
@@ -197,3 +197,16 @@ The runtime overlay policy now explicitly blocks unresolved NCS/BONUS/hybrid/unk
 The Dropbox Manual.zip `soulcost.htm` states that the Soul Cost rule applies only to Unit cards carrying the colorless/neutral bead. The bead is payable at summon by spending any generated attribute soul; from the next preparation phase onward, the same amount is recurring unit upkeep. If the player cannot pay, the unpaid amount destroys that many cards from the deck. This is a unit-only recurring rule: a neutral bead on a land/item/spell/enchant is not automatically recurring upkeep.
 
 The Firestore `RequireSoul` enum separately identifies MU(81), NCS(82), and BONUS(83). MU(81) is the inferred crosswalk candidate to the Manual neutral bead; the icon pixel comparison remains outstanding. NCS(82), BONUS(83), and all hybrid pair codes remain non-executable until independent payment evidence is found. The user's N/C/S(82) combat-stat shorthand is a fourth, separate context and is never used as a RequireSoul mapping.
+
+
+## 2026-11-07 — NCS소울 community evidence, candidate only
+
+The 2017-01-30 Inven community post “이쯤에서 카드특수능력을 마구찍는 판마를보자(강스압)” describes NCS소울 as a distinct resource used by card effects:
+- “소울체인지” converts a YuSoul on an allied hand card to NCS.
+- “중급 열사” consumes one YuSoul or NCS소울 and increases upkeep.
+- Several effects move an enemy unit to the hand using NCS소울, create cards “as NCS소울”, replace hand cards with NCS-soul-cost cards, or convert an NCS soul into permanent upkeep.
+- “망자의항해” creates an NCS소울 card; “신입생환영회” converts one NCS soul to upkeep; “홀리데이” gives a unit from a hand card its native YuSoul level or NCS soul for a colorless unit.
+
+Reference (community documentation, not official Manual): https://www.inven.co.kr/board/hs/3509/1426815 (Equinoxx, 2017-01-30).
+
+This evidence is sufficient to distinguish NCS소울 from ordinary MU/neutral soul and from the user's N/C/S(82) stat shorthand. It supports a `community_documented_candidate` resource classification for the RequireSoul NCS enum token, but it does not establish the canonical resource ledger, generation timing, exact payment procedure, or interactions with MU upkeep. The token therefore remains `semantic_review`, is represented as a separate `ncs_soul` candidate, and is blocked from runtime play. Never translate it into neutral soul or treat it as NCS stat dice.
