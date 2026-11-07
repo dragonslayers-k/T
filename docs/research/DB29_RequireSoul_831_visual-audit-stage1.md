@@ -4,6 +4,7 @@
 - 기준 데이터: DB29 `fm1-carddb-29` 불변 기준선.
 - 이미지 증거: GitHub Actions run #809 산출물 `fm1-soul-cost-image-evidence-809.zip`.
 - 대상: `target-cards.jsonl` 기준 카드 831장, large/small 이미지 각 831장.
+- 이미지 감사 요약: 기대 1,662장 / 검증 1,662장, 누락 0장, 손상 0장, `complete=true`.
 - 분석 문서와 CSV만 추가한다. DB29 카드 데이터, 릴리스 태그, 기존 PR의 병합/리베이스는 수행하지 않는다.
 
 ## 전수 집계
