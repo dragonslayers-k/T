@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Probe source SPA and its JS bundle for a higher-resolution image endpoint."""
+"""Probe source SPA, source card record, and enum metadata for the unresolved image."""
 from __future__ import annotations
-import hashlib, json, re
+import argparse, hashlib, json, re
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 from PIL import Image
 import io
+
 
 CARD_ID = "10091525191"
 PAGE_URL = f"https://fmlunatic.com/card/{CARD_ID}"
@@ -52,14 +53,43 @@ def get(url: str, limit: int = MAX_BYTES) -> tuple[bytes, str]:
         return data, response.headers.get("Content-Type", "")
 
 
+def find_source_row(path: Path) -> dict | None:
+    if not path or not path.is_file():
+        return None
+    with path.open(encoding="utf-8") as stream:
+        for line in stream:
+            row = json.loads(line)
+            raw = row.get("raw_payload") if isinstance(row.get("raw_payload"), dict) else row
+            cid = str(row.get("card_id") or row.get("id") or raw.get("ID") or "").strip()
+            if cid == CARD_ID:
+                return row
+    return None
+
+
 def main():
-    import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--output-dir", type=Path, required=True)
+    ap.add_argument("--source-cards-jsonl", type=Path)
+    ap.add_argument("--enumtable-json", type=Path)
     args = ap.parse_args()
     out = args.output_dir
     out.mkdir(parents=True, exist_ok=True)
     result = {"card_id": CARD_ID, "page_url": PAGE_URL, "page_status": "not_fetched", "image_candidates": [], "bundle_analysis": []}
+
+    source_row = find_source_row(args.source_cards_jsonl) if args.source_cards_jsonl else None
+    if source_row:
+        (out / "source-card-record.json").write_text(json.dumps(source_row, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        raw = source_row.get("raw_payload") if isinstance(source_row.get("raw_payload"), dict) else source_row
+        result["source_card_fields"] = {k: raw.get(k) for k in ("ID", "Name", "Category", "KIND", "RequireSoul") if k in raw}
+    else:
+        result["source_card_record_found"] = False
+
+    if args.enumtable_json and args.enumtable_json.is_file():
+        enum = json.loads(args.enumtable_json.read_text(encoding="utf-8"))
+        (out / "enumtable.json").write_text(json.dumps(enum, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        result["enumtable_top_level_keys"] = list(enum.keys()) if isinstance(enum, dict) else []
+        result["enumtable_category_preview"] = enum.get("Category") if isinstance(enum, dict) else None
+
     try:
         body, content_type = get(PAGE_URL, 2 * 1024 * 1024)
         html = body.decode("utf-8", errors="replace")
@@ -92,10 +122,9 @@ def main():
             if urlparse(url).scheme in ("http", "https") and url not in bundle_urls:
                 bundle_urls.append(url)
         result["script_urls"] = bundle_urls
-        string_hits = []
         for index, url in enumerate(bundle_urls[:10], 1):
             try:
-                data, ctype = get(url, 12 * 1024 * 1024)
+                data, ctype = get(url, MAX_BYTES)
                 text = data.decode("utf-8", errors="replace")
                 name = f"source-bundle-{index:02d}.js"
                 (out / name).write_text(text, encoding="utf-8")
