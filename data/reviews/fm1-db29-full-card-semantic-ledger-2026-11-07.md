@@ -7,7 +7,7 @@
 - Builder commit: `3da860c6c99da86b0af23a6791133c60c1f7a73e`.
 - Actions #811 / run `42376614515`: success on that exact SHA.
 - Artifact: `fm1-db29-runtime-source-inventory-811`, artifact ID `13576145880`.
-- Current PR #9 head at report time: `c4bbbd40d78ed885cde823153f9ebf78569195d3`. The follow-up candidate-summary linkage commit is newer than #811 and has no exact-SHA Actions result confirmed in this report.
+- PR #9 branch follow-up commits: `c4bbbd40d78ed885cde823153f9ebf78569195d3` added candidate-summary linkage; `d82cdda1f3f45acce61c8f0dd45a492e8e0218ab` fixed the CSV index schema to include the candidate-summary count. The first follow-up test runs #812 / #813 failed because the CSV DictWriter received `effect_candidate_summary_rows` absent from its header. The d82cdda fix adds that header field and a regression assertion; its exact-SHA CI validation is pending.
 
 ## Full population
 
@@ -61,3 +61,11 @@ The Actions artifact contains the base per-card JSONL, compact card index, sourc
 This is a complete card-level source/evidence inventory for the 15,350-card DB29 population, not a complete semantic adjudication. Every card remains pending card-level semantic review until cost, Skill1, Skill2, effect, visual/OCR and runtime evidence are separately resolved. The existing 831-card RequireSoul census is a completed subgroup and must be linked, not counted as additional cards.
 
 DB29 remains unchanged. DB30 is not created. PR #9 remains open/unmerged. No APK Release or seeded full-game certification is claimed.
+
+
+## Follow-up test failure and correction
+
+- Actions #812 / run `42376736039` failed on the card ledger unit test with `ValueError: dict contains fields not in fieldnames: 'effect_candidate_summary_rows'`.
+- Actions #813 / run `42376960319` repeated the same failure on the preceding report commit; it did not validate the correction commit.
+- Fix commit: `d82cdda1f3f45acce61c8f0dd45a492e8e0218ab`; adds `effect_candidate_summary_rows` to the CSV fieldnames and asserts that the column is present.
+- A follow-up PR synchronization check is required before this corrected code is considered validated. The already-generated #811 artifact remains valid for its exact SHA and the DB29 SQLite source hash; it predates the candidate-summary addition.
