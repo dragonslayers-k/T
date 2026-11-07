@@ -167,3 +167,8 @@ No reviewed Manual page or independent web result defined the `NCS소울` resour
 ### Enumtable raw-code convention
 
 The outer map key in the Firestore enumtable is an index, not necessarily the numeric value stored in a card field. For the fields audited here, use the first integer in each enum row as the raw code: `StatType` = 1 NONE, 11 CONST, 12 UP, 13 DOWN, 21 FRONT, 22 BACK, 23 HAND, 24 TURN, 31 PLUS, 32 MINUS, 33 EQUAL; `CoinType` = 1 NONE, 2 PLUS, 3 MINUS, 4 X, 5 EQUAL. Do not use outer keys 0–10 or 0–4 as field values.
+
+
+### EarnSoul / RequireSoul code-82 namespace split
+
+The Firestore enumtable defines `EarnSoul` raw code 82 as `MU02` (two neutral souls produced per token), while `RequireSoul` raw code 82 is the separate `NCS` token. The user-confirmed `NCS(82)` notation is a third, unrelated unit-stat shorthand (N/C/S with attack dice 0–8 and defense dice 0–2). A fourth literal, `NCS소울`, appears in some `TextExtra` effects and remains a separate source-text resource question. These meanings must never be joined by the shared number/string alone. The app's `parse_earn_soul_list` already decodes `EarnSoul` 8201 as two neutral output; converter self-tests cover it separately from `RequireSoul` 8201 review handling.

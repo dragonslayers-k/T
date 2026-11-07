@@ -18,3 +18,8 @@ The source app converter previously omitted ATKStatType/DEFStatType/HPStatType f
 ## Enumtable raw-code convention correction
 
 Firestore enumtable outer map keys are indexes; raw card fields use the first integer in each enum row. StatType raw codes: 1 NONE, 11 CONST, 12 UP, 13 DOWN, 21 FRONT, 22 BACK, 23 HAND, 24 TURN, 31 PLUS, 32 MINUS, 33 EQUAL. CoinType raw codes: 1 NONE, 2 PLUS, 3 MINUS, 4 X, 5 EQUAL. The app parser and tests were updated to use these raw values, not outer indexes.
+
+
+### EarnSoul / RequireSoul code-82 namespace split
+
+The Firestore enumtable defines `EarnSoul` raw code 82 as `MU02` (two neutral souls produced per token), while `RequireSoul` raw code 82 is the separate `NCS` token. The user-confirmed `NCS(82)` notation is a third, unrelated unit-stat shorthand (N/C/S with attack dice 0–8 and defense dice 0–2). A fourth literal, `NCS소울`, appears in some `TextExtra` effects and remains a separate source-text resource question. These meanings must never be joined by the shared number/string alone. The app's `parse_earn_soul_list` already decodes `EarnSoul` 8201 as two neutral output; converter self-tests cover it separately from `RequireSoul` 8201 review handling.
