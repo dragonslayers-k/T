@@ -13,7 +13,7 @@ FAMILIES = {
         "crop": (1, -9, 21, 10),
         "templates": {
             "NCS": ("10020324677", 103),
-            "NEUTRAL": ("10020324677", 211),
+            "MU": ("10020324677", 211),
             "BONUS": ("13041726794", 238),
         },
     },
@@ -22,7 +22,7 @@ FAMILIES = {
         "crop": (7, -8, 25, 9),
         "templates": {
             "NCS": ("5042721718", 88),
-            "NEUTRAL": ("5042721718", 111),
+            "MU": ("5042721718", 111),
             "BONUS_A": ("4061821131", 157),
             "BONUS_B": ("7111423264", 111),
         },
@@ -49,7 +49,7 @@ def token_amounts(card: dict) -> Counter:
     for token in card.get("all_tokens", []):
         code = int(token.get("code", -1))
         if code in (81, 82, 83):
-            result[{81: "NEUTRAL", 82: "NCS", 83: "BONUS"}[code]] += int(token.get("amount", 0))
+            result[{81: "MU", 82: "NCS", 83: "BONUS"}[code]] += int(token.get("amount", 0))
     return result
 
 
@@ -98,8 +98,8 @@ def main() -> None:
     templates = build_templates(evidence)
 
     fields = ["card_id", "name", "review_groups", "source_require_soul",
-              "expected_ncs", "expected_neutral", "expected_bonus",
-              "detected_ncs", "detected_neutral", "detected_bonus",
+              "expected_ncs", "expected_MU", "expected_bonus",
+              "detected_ncs", "detected_MU", "detected_bonus",
               "detected_family", "unknown_slots", "best_template_score", "status", "image_width", "image_height", "image_path"]
     rows, counts, family_matches = [], Counter(), Counter()
     special_population = 0
@@ -113,8 +113,8 @@ def main() -> None:
         row = {
             "card_id": cid, "name": card.get("name", ""), "review_groups": ";".join(groups),
             "source_require_soul": card.get("source_require_soul", ""),
-            "expected_ncs": expected["NCS"], "expected_neutral": expected["NEUTRAL"], "expected_bonus": expected["BONUS"],
-            "detected_ncs": "", "detected_neutral": "", "detected_bonus": "",
+            "expected_ncs": expected["NCS"], "expected_MU": expected["MU"], "expected_bonus": expected["BONUS"],
+            "detected_ncs": "", "detected_MU": "", "detected_bonus": "",
             "detected_family": "", "unknown_slots": "", "best_template_score": "",
             "status": "", "image_width": "", "image_height": "", "image_path": rel,
         }
@@ -134,7 +134,7 @@ def main() -> None:
                 candidates = {family: detect_family(image, family, templates) for family in FAMILIES}
                 exact = [
                     (family, result) for family, result in candidates.items()
-                    if all(result["detected"][key] == expected[key] for key in ("NCS", "NEUTRAL", "BONUS"))
+                    if all(result["detected"][key] == expected[key] for key in ("NCS", "MU", "BONUS"))
                 ]
                 if exact:
                     family, result = min(exact, key=lambda item: item[1]["mean_score"])
@@ -145,7 +145,7 @@ def main() -> None:
                     row["status"] = "TEMPLATE_FAMILY_UNMATCHED" if result["unknown"] else "COUNT_MISMATCH"
                 row.update({
                     "detected_ncs": result["detected"]["NCS"],
-                    "detected_neutral": result["detected"]["NEUTRAL"],
+                    "detected_MU": result["detected"]["MU"],
                     "detected_bonus": result["detected"]["BONUS"],
                     "detected_family": family,
                     "unknown_slots": result["unknown"],
@@ -169,7 +169,7 @@ def main() -> None:
         "counts": dict(counts), "exact_matches_by_family": dict(family_matches),
         "special_token_population": special_population,
         "exact_count_match_rate_of_special_population": round(counts["EXACT_COUNT_MATCH"] / max(1, special_population), 4),
-        "interpretation": "EXACT_COUNT_MATCH means one of the two reviewed frame families matched NCS/neutral/BONUS counts. LOW_RES_OR_NONSTANDARD_IMAGE remains unresolved. No DB source data is modified.",
+        "interpretation": "EXACT_COUNT_MATCH means one of the two reviewed frame families matched NCS/MU/BONUS counts. LOW_RES_OR_NONSTANDARD_IMAGE remains unresolved. No DB source data is modified.",
     }
     (out / "require-soul-rail-audit-summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
