@@ -22,7 +22,7 @@ def inspect_db(path):
         costs=db.execute('''SELECT COUNT(*) rows,SUM(lp_known=1) lp,SUM(soul_known=1) soul,
             SUM(semantic_review=1) semantic,SUM(mapping_review=1) mapping FROM card_costs''').fetchone()
         fields={}
-        for key in ('RequireLP','RequireSoul','EarnSoul'):
+        for key in ('RequireLP','RequireSoul','EarnSoulList'):
             fields[key]={r['card_type']:r['n'] for r in db.execute('''SELECT c.card_type,COUNT(DISTINCT f.card_id) n
                 FROM card_fields f JOIN cards c USING(card_id) WHERE f.field_key=?
                 AND f.source_value_json IS NOT NULL AND f.source_value_json NOT IN ('null','""') GROUP BY c.card_type''',(key,))}
@@ -62,7 +62,7 @@ def inspect_db(path):
             })
         stat_fields={r['field_key']:r['n'] for r in db.execute('''SELECT field_key,COUNT(DISTINCT card_id) n FROM card_fields
             WHERE field_key LIKE '%ATK%' OR field_key LIKE '%DEF%' OR field_key LIKE '%HP%'
-            OR field_key IN ('AP','DP','HP','LV','RankType','UnitType','EarnSoul') GROUP BY field_key''')}
+            OR field_key IN ('AP','DP','HP','LV','RankType','UnitType','EarnSoulList') GROUP BY field_key''')}
         vectors=collections.Counter()
         for row in db.execute('SELECT soul_json FROM card_costs WHERE soul_known=1'):
             try:
