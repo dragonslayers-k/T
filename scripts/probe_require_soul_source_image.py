@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Probe the source card page for a higher-resolution image of one unresolved card."""
+"""Probe source SPA and its JS bundle for a higher-resolution image endpoint."""
 from __future__ import annotations
-import hashlib, json
+import hashlib, json, re
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
@@ -14,23 +14,25 @@ PAGE_URL = f"https://fmlunatic.com/card/{CARD_ID}"
 MAX_BYTES = 12 * 1024 * 1024
 
 
-class ImageParser(HTMLParser):
+class PageParser(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.urls, self.title, self.text = [], False, []
+        self.image_urls, self.script_urls, self.title, self.title_text = [], [], False, []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == "title":
             self.title = True
+        if tag == "script" and attrs.get("src"):
+            self.script_urls.append(attrs["src"])
         if tag == "img":
             for key in ("src", "data-src", "data-original", "data-lazy-src"):
                 if attrs.get(key):
-                    self.urls.append(attrs[key])
+                    self.image_urls.append(attrs[key])
             if attrs.get("srcset"):
-                self.urls.extend(part.strip().split(" ")[0] for part in attrs["srcset"].split(","))
+                self.image_urls.extend(part.strip().split(" ")[0] for part in attrs["srcset"].split(","))
         if tag == "meta" and attrs.get("property") in ("og:image", "twitter:image") and attrs.get("content"):
-            self.urls.append(attrs["content"])
+            self.image_urls.append(attrs["content"])
 
     def handle_endtag(self, tag):
         if tag == "title":
@@ -38,11 +40,11 @@ class ImageParser(HTMLParser):
 
     def handle_data(self, data):
         if self.title:
-            self.text.append(data.strip())
+            self.title_text.append(data.strip())
 
 
 def get(url: str, limit: int = MAX_BYTES) -> tuple[bytes, str]:
-    req = Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; FM-OFFLINE-research/1.0)", "Accept": "text/html,image/*,*/*"})
+    req = Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; FM-OFFLINE-research/1.0)", "Accept": "text/html,application/javascript,image/*,*/*"})
     with urlopen(req, timeout=25) as response:
         data = response.read(limit + 1)
         if len(data) > limit:
@@ -57,39 +59,53 @@ def main():
     args = ap.parse_args()
     out = args.output_dir
     out.mkdir(parents=True, exist_ok=True)
-    result = {"card_id": CARD_ID, "page_url": PAGE_URL, "page_status": "not_fetched", "image_candidates": []}
+    result = {"card_id": CARD_ID, "page_url": PAGE_URL, "page_status": "not_fetched", "image_candidates": [], "bundle_analysis": []}
     try:
         body, content_type = get(PAGE_URL, 2 * 1024 * 1024)
         html = body.decode("utf-8", errors="replace")
         (out / "source-page.html").write_text(html, encoding="utf-8")
         result.update({"page_status": "fetched", "content_type": content_type, "html_bytes": len(body), "html_sha256": hashlib.sha256(body).hexdigest()})
-        parser = ImageParser()
+        parser = PageParser()
         parser.feed(html)
-        result["page_title"] = " ".join(parser.text)
-        urls = []
-        for raw in parser.urls:
+        result["page_title"] = " ".join(parser.title_text)
+        page_images = []
+        for raw in parser.image_urls:
             url = urljoin(PAGE_URL, raw.strip())
-            parsed = urlparse(url)
-            if parsed.scheme in ("http", "https") and url not in urls:
-                urls.append(url)
-        result["discovered_image_urls"] = urls
-        for index, url in enumerate(urls[:20], 1):
+            if urlparse(url).scheme in ("http", "https") and url not in page_images:
+                page_images.append(url)
+        result["discovered_image_urls"] = page_images
+        for index, url in enumerate(page_images[:20], 1):
             item = {"url": url, "status": "not_downloaded"}
             try:
-                data, candidate_type = get(url)
-                image = Image.open(io.BytesIO(data))
-                image.load()
-                ext = (image.format or "img").lower()
-                name = f"candidate-{index:02d}.{ext}"
+                data, ctype = get(url)
+                image = Image.open(io.BytesIO(data)); image.load()
+                name = f"candidate-{index:02d}.{(image.format or 'img').lower()}"
                 (out / name).write_bytes(data)
-                item.update({
-                    "status": "downloaded", "file": name, "content_type": candidate_type,
-                    "width": image.width, "height": image.height, "format": image.format,
-                    "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(),
-                })
+                item.update({"status": "downloaded", "file": name, "content_type": ctype, "width": image.width, "height": image.height, "format": image.format, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
             except Exception as exc:
                 item.update({"status": "unavailable_or_not_image", "error": str(exc)[:240]})
             result["image_candidates"].append(item)
+
+        bundle_urls = []
+        for raw in parser.script_urls:
+            url = urljoin(PAGE_URL, raw.strip())
+            if urlparse(url).scheme in ("http", "https") and url not in bundle_urls:
+                bundle_urls.append(url)
+        result["script_urls"] = bundle_urls
+        string_hits = []
+        for index, url in enumerate(bundle_urls[:10], 1):
+            try:
+                data, ctype = get(url, 12 * 1024 * 1024)
+                text = data.decode("utf-8", errors="replace")
+                name = f"source-bundle-{index:02d}.js"
+                (out / name).write_text(text, encoding="utf-8")
+                hits = re.findall(r"""['"]([^'"]{1,240})['"]""", text)
+                selected = [s for s in hits if re.search(r"(image|\.webp|\.png|\.jpg|\.jpeg|/api|firestore|storage|card)", s, re.I)]
+                selected = list(dict.fromkeys(selected))[:250]
+                (out / f"bundle-{index:02d}-interesting-strings.txt").write_text("\n".join(selected), encoding="utf-8")
+                result["bundle_analysis"].append({"url": url, "file": name, "content_type": ctype, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(), "interesting_string_count": len(selected), "interesting_strings_file": f"bundle-{index:02d}-interesting-strings.txt"})
+            except Exception as exc:
+                result["bundle_analysis"].append({"url": url, "error": str(exc)[:240]})
     except Exception as exc:
         result["page_status"] = "unavailable"
         result["page_error"] = str(exc)[:400]
