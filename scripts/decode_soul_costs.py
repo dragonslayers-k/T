@@ -130,7 +130,8 @@ def main():
     if args.self_test:
         hybrid = parse_require_soul("43017101")
         assert hybrid["known"] and hybrid["mapping_review"]
-        assert hybrid["colors"]["forest"] == 1 and hybrid["colors"]["light"] == 2
+        assert hybrid["colors"]["forest"] == 0 and hybrid["colors"]["light"] == 0
+    assert hybrid["tokens"][0]["components"] == ["forest", "light"]
         assert parse_require_soul("5301")["colors"]["iron"] == 1
         mu = parse_require_soul("8101")
         assert mu["known"] and mu["colors"]["neutral"] == 1
