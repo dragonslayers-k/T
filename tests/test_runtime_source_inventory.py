@@ -60,6 +60,49 @@ class RuntimeSourceInventoryFieldTests(unittest.TestCase):
             self.assertEqual(result["landEarnSoulListValues"], {'"8201"':1})
             self.assertEqual(result["landProductionPairs"][0]["earnSoulList"], "8201")
 
+    def test_unresolved_queue_contains_raw_text_and_source_fields_for_card_level_review(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "db29-review.sqlite"
+            db = sqlite3.connect(path)
+            db.executescript("""
+                CREATE TABLE cards(
+                    card_id TEXT PRIMARY KEY, name TEXT, card_type TEXT,
+                    attribute TEXT, raw_payload_json TEXT
+                );
+                CREATE TABLE card_fields(
+                    field_id INTEGER PRIMARY KEY, card_id TEXT, field_key TEXT,
+                    source_value_json TEXT, normalized_value TEXT, verification_status TEXT
+                );
+                CREATE TABLE card_costs(
+                    card_id TEXT PRIMARY KEY, source_text TEXT, soul_json TEXT,
+                    lp_value REAL, lp_known INTEGER, soul_known INTEGER,
+                    mapping_review INTEGER, semantic_review INTEGER, verification_status TEXT
+                );
+            """)
+            raw = {
+                "RequireSoul":"8201", "EarnSoulList":"", "MuSoul":0, "Skill1":51, "Skill2":129,
+                "TextBase":"NCS source text base",
+                "TextExtra":"NCS source text extra / resource conversion"
+            }
+            db.execute("INSERT INTO cards VALUES(?,?,?,?,?)",
+                       ("unit-ncs-1","NCS test unit","유닛","빛",json.dumps(raw,ensure_ascii=False)))
+            db.execute("INSERT INTO card_costs VALUES(?,?,?,?,?,?,?,?,?)",
+                       ("unit-ncs-1","8201",json.dumps({
+                           "known":True,"semantic_review":True,"mapping_review":False,
+                           "colors":{"ncs":1},
+                           "tokens":[{"code":82,"count":1,"normalized_color":"ncs","status":"semantic_review"}]
+                       }),None,0,1,0,1,"semantic_review"))
+            db.commit()
+            db.close()
+
+            result = inspect_db(path)
+            item = result["reviewQueue"][0]
+            self.assertEqual(item["sourceFields"]["RequireSoul"], "8201")
+            self.assertEqual(item["sourceFields"]["Skill1"], 51)
+            self.assertEqual(item["sourceFields"]["Skill2"], 129)
+            self.assertEqual(item["sourceTexts"]["TextBase"], "NCS source text base")
+            self.assertEqual(item["sourceTexts"]["TextExtra"], "NCS source text extra / resource conversion")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -53,11 +53,23 @@ def inspect_db(path):
         """):
             raw=json.loads(row["raw_payload_json"] or "{}")
             soul=json.loads(row["soul_json"] or "{}")
+            source_field_names=(
+                "RequireSoul","EarnSoulList","MuSoul","RequireLP",
+                "Skill1","Skill2","RankType","UnitType","RaceType",
+                "ATK","DEF","HP","ATKStatType","DEFStatType","HPStatType",
+                "ATKCoin","ATKCoinType","ATKCoinCount",
+                "DEFCoin","DEFCoinType","DEFCoinCount",
+                "HPCoin","HPCoinType","HPCoinCount"
+            )
+            source_fields={k:raw[k] for k in source_field_names if k in raw}
+            source_text_names=("TextBase","TextExtra")
+            source_texts={k:raw[k] for k in source_text_names if k in raw and raw[k] not in (None,"")}
             review_queue.append({
                 "cardId":row["card_id"],"name":row["name"],"cardType":row["card_type"],
                 "attribute":row["attribute"],"semanticReview":int(row["semantic_review"]),
                 "mappingReview":int(row["mapping_review"]),"requireSoul":row["source_text"],
                 "colors":soul.get("colors",{}),"tokens":soul.get("tokens",[]),
+                "sourceFields":source_fields,"sourceTexts":source_texts,
                 "cohortFields":{k:raw.get(k) for k in ("LV","RareType","UnitType","RaceType","SoulType","CompanyType","EtcType","Skill1","Skill2")}
             })
         stat_fields={r['field_key']:r['n'] for r in db.execute('''SELECT field_key,COUNT(DISTINCT card_id) n FROM card_fields
