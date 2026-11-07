@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Probe source SPA, source card record, and enum metadata for the unresolved image."""
+"""Probe source SPA, DB29 metadata, and original image URLs for one unresolved card."""
 from __future__ import annotations
 import argparse, hashlib, json, re
 from html.parser import HTMLParser
@@ -8,7 +8,6 @@ from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 from PIL import Image
 import io
-
 
 CARD_ID = "10091525191"
 PAGE_URL = f"https://fmlunatic.com/card/{CARD_ID}"
@@ -35,14 +34,6 @@ class PageParser(HTMLParser):
         if tag == "meta" and attrs.get("property") in ("og:image", "twitter:image") and attrs.get("content"):
             self.image_urls.append(attrs["content"])
 
-    def handle_endtag(self, tag):
-        if tag == "title":
-            self.title = False
-
-    def handle_data(self, data):
-        if self.title:
-            self.title_text.append(data.strip())
-
 
 def get(url: str, limit: int = MAX_BYTES) -> tuple[bytes, str]:
     req = Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; FM-OFFLINE-research/1.0)", "Accept": "text/html,application/javascript,image/*,*/*"})
@@ -54,8 +45,6 @@ def get(url: str, limit: int = MAX_BYTES) -> tuple[bytes, str]:
 
 
 def find_source_row(path: Path) -> dict | None:
-    if not path or not path.is_file():
-        return None
     with path.open(encoding="utf-8") as stream:
         for line in stream:
             row = json.loads(line)
@@ -69,26 +58,42 @@ def find_source_row(path: Path) -> dict | None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--output-dir", type=Path, required=True)
-    ap.add_argument("--source-cards-jsonl", type=Path)
-    ap.add_argument("--enumtable-json", type=Path)
+    ap.add_argument("--source-cards-jsonl", type=Path, required=True)
+    ap.add_argument("--enumtable-json", type=Path, required=True)
     args = ap.parse_args()
     out = args.output_dir
     out.mkdir(parents=True, exist_ok=True)
     result = {"card_id": CARD_ID, "page_url": PAGE_URL, "page_status": "not_fetched", "image_candidates": [], "bundle_analysis": []}
 
-    source_row = find_source_row(args.source_cards_jsonl) if args.source_cards_jsonl else None
+    source_row = find_source_row(args.source_cards_jsonl)
     if source_row:
         (out / "source-card-record.json").write_text(json.dumps(source_row, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         raw = source_row.get("raw_payload") if isinstance(source_row.get("raw_payload"), dict) else source_row
         result["source_card_fields"] = {k: raw.get(k) for k in ("ID", "Name", "Category", "KIND", "RequireSoul") if k in raw}
+        source_urls = source_row.get("source_image_urls") or {}
+        result["source_image_urls"] = source_urls
+        for label in ("large", "small"):
+            url = source_urls.get(label)
+            if not url:
+                continue
+            item = {"kind": label, "url": url, "status": "not_downloaded"}
+            try:
+                data, ctype = get(url)
+                image = Image.open(io.BytesIO(data)); image.load()
+                ext = (image.format or "img").lower()
+                name = f"source-original-{label}.{ext}"
+                (out / name).write_bytes(data)
+                item.update({"status": "downloaded", "file": name, "content_type": ctype, "width": image.width, "height": image.height, "format": image.format, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+            except Exception as exc:
+                item.update({"status": "download_failed", "error": str(exc)[:300]})
+            result["image_candidates"].append(item)
     else:
         result["source_card_record_found"] = False
 
-    if args.enumtable_json and args.enumtable_json.is_file():
-        enum = json.loads(args.enumtable_json.read_text(encoding="utf-8"))
-        (out / "enumtable.json").write_text(json.dumps(enum, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        result["enumtable_top_level_keys"] = list(enum.keys()) if isinstance(enum, dict) else []
-        result["enumtable_category_preview"] = enum.get("Category") if isinstance(enum, dict) else None
+    enum = json.loads(args.enumtable_json.read_text(encoding="utf-8"))
+    (out / "enumtable.json").write_text(json.dumps(enum, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    result["enumtable_top_level_keys"] = list(enum.keys()) if isinstance(enum, dict) else []
+    result["enumtable_category"] = enum.get("Enum+Category") if isinstance(enum, dict) else None
 
     try:
         body, content_type = get(PAGE_URL, 2 * 1024 * 1024)
@@ -104,18 +109,6 @@ def main():
             if urlparse(url).scheme in ("http", "https") and url not in page_images:
                 page_images.append(url)
         result["discovered_image_urls"] = page_images
-        for index, url in enumerate(page_images[:20], 1):
-            item = {"url": url, "status": "not_downloaded"}
-            try:
-                data, ctype = get(url)
-                image = Image.open(io.BytesIO(data)); image.load()
-                name = f"candidate-{index:02d}.{(image.format or 'img').lower()}"
-                (out / name).write_bytes(data)
-                item.update({"status": "downloaded", "file": name, "content_type": ctype, "width": image.width, "height": image.height, "format": image.format, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
-            except Exception as exc:
-                item.update({"status": "unavailable_or_not_image", "error": str(exc)[:240]})
-            result["image_candidates"].append(item)
-
         bundle_urls = []
         for raw in parser.script_urls:
             url = urljoin(PAGE_URL, raw.strip())
