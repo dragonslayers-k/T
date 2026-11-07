@@ -27,10 +27,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "probe = inspect live site; audit-release = full DB29 audit; crawl = collect source; soul-image-evidence = export only the 831 review cards’ image pairs"
+        description: "probe = inspect live site; audit-release = full DB29 audit; crawl = collect source; soul-image-evidence = export 831 image pairs; soul-image-preview = make contact sheet from existing artifact"
         required: true
         type: choice
-        options: [probe, audit-release, crawl, soul-image-evidence]
+        options: [probe, audit-release, crawl, soul-image-evidence, soul-image-preview]
         default: audit-release
       source_release_tag:
         description: "Existing immutable DB Release used by audit-release mode"
@@ -50,6 +50,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: fm1-carddb-${{ github.ref }}
@@ -60,7 +61,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[soul-image-evidence]') && 'soul-image-evidence') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-db-audit]') && 'audit-release') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[soul-image-preview]') && 'soul-image-preview') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[soul-image-evidence]') && 'soul-image-evidence') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-db-audit]') && 'audit-release') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
@@ -73,7 +74,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Pillow for focused image-evidence tests
-        if: ${{ env.MODE == 'soul-image-evidence' }}
+        if: ${{ env.MODE == 'soul-image-evidence' || env.MODE == 'soul-image-preview' }}
         run: python -m pip install --disable-pip-version-check Pillow
 
       - name: Run all lightweight regression tests
@@ -211,6 +212,73 @@ jobs:
           cp data/source-archive/image-summary.json data/raw/image-summary.json
           cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
           tar -tzf data/images.tar.gz >/dev/null
+
+      - name: Download verified 831-card image evidence for contact-sheet preview
+        if: ${{ env.MODE == 'soul-image-preview' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: fm1-soul-cost-image-evidence-798
+          run-id: 42352285013
+          github-token: ${{ github.token }}
+          path: data/soul-image-evidence
+
+      - name: Generate NCS and BONUS overlap contact sheet
+        if: ${{ env.MODE == 'soul-image-preview' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, io, json
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont
+
+          root = Path("data/soul-image-evidence")
+          rows = [json.loads(line) for line in (root / "target-cards.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+          assert len(rows) == 831, f"Expected 831 target cards, got {len(rows)}"
+          overlap = [r for r in rows if {"NCS", "BONUS"}.issubset(set(r.get("review_groups", [])))]
+          assert len(overlap) == 11, f"Expected 11 NCS+BONUS overlaps, got {len(overlap)}"
+          overlap.sort(key=lambda r: str(r["card_id"]))
+
+          cols, cell_w, cell_h, gap, header_h = 3, 360, 500, 18, 76
+          row_count = (len(overlap) + cols - 1) // cols
+          sheet = Image.new("RGB", (cols * cell_w + (cols + 1) * gap, row_count * cell_h + (row_count + 1) * gap + header_h), "white")
+          draw = ImageDraw.Draw(sheet)
+          font = ImageFont.load_default()
+          draw.text((gap, gap), "DB29 RequireSoul review • NCS + BONUS overlap • 11 cards", fill="black", font=font)
+
+          for index, record in enumerate(overlap):
+              x = gap + (index % cols) * (cell_w + gap)
+              y = gap + header_h + (index // cols) * (cell_h + gap)
+              draw.rectangle((x, y, x + cell_w, y + cell_h), outline="#777777", width=2)
+              image_path = root / "images" / "large" / f"{record['card_id']}.webp"
+              with Image.open(image_path) as source:
+                  source = source.convert("RGB")
+                  source.thumbnail((cell_w - 20, cell_h - 82), Image.Resampling.LANCZOS)
+                  image_x = x + (cell_w - source.width) // 2
+                  image_y = y + 8
+                  sheet.paste(source, (image_x, image_y))
+              draw.text((x + 10, y + cell_h - 62), f"ID {record['card_id']}", fill="black", font=font)
+              draw.text((x + 10, y + cell_h - 42), f"RequireSoul {record['source_require_soul']}", fill="black", font=font)
+              draw.text((x + 10, y + cell_h - 22), " ".join(record.get("review_groups", [])), fill="black", font=font)
+
+          output = Path("data/soul-image-preview")
+          output.mkdir(parents=True, exist_ok=True)
+          preview_path = output / "overlap-11.png"
+          sheet.save(preview_path, format="PNG", optimize=True)
+          buffer = io.BytesIO()
+          sheet.save(buffer, format="PNG", optimize=True)
+          print("PREVIEW_OVERLAP_BASE64=" + base64.b64encode(buffer.getvalue()).decode("ascii"))
+          print(f"Contact sheet created: {preview_path}; cards={len(overlap)}; size={sheet.width}x{sheet.height}")
+          PY
+
+      - name: Upload NCS and BONUS overlap contact sheet
+        if: ${{ env.MODE == 'soul-image-preview' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-soul-cost-contact-sheet-${{ github.run_number }}
+          path: data/soul-image-preview/overlap-11.png
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
 
       - name: Download DB29 source cards and image archive for focused soul review
         if: ${{ env.MODE == 'soul-image-evidence' }}
