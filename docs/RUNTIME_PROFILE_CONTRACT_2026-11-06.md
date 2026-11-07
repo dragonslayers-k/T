@@ -7,7 +7,7 @@
 
 ## 1. Two independent completion axes
 
-The source/provenance axis records what the original site, DB, Manual, or other evidence verifies. The runtime/playability axis records whether the Android engine can complete a legal card action. A pending source review must never be interpreted as a card-wide usability block.
+The source/provenance axis records what the original site, DB, Manual, or other evidence verifies. The runtime/playability axis records whether the Android engine can complete a legal card action. A pending source-review flag alone must never be interpreted as a card-wide usability block. However, when the mandatory payment cost itself is unresolved or ambiguous, the card action must be blocked until a legal payment rule is verified; provenance status is not a substitute for payment semantics.
 
 Preserve the original source fields and review flags. Never overwrite them with inferred values. The Android pack validator must report source-verified coverage and runtime-ready coverage separately.
 
@@ -17,16 +17,16 @@ Every card must receive a valid, payable runtime cost object. Valid keys are `da
 
 - `candidateCost` preserves source token distinctions and parsed candidate components.
 - `runtimeCost` is the normalized cost passed to the engine.
-- `runtimeCostStatus` is `implemented_verified`, `implemented_inferred`, or `fallback_payable`.
+- `runtimeCostStatus` is `implemented_verified`, `implemented_inferred`, or `semantic_review_blocked`. Do not emit `fallback_payable` for unresolved RequireSoul semantics.
 - `runtimeCostInference` records why an inferred/fallback value was selected.
 - `runtimeUpkeepCost.neutral` records only recurring MU(81)-crosswalk upkeep for units; it must never be inferred from generic one-time neutral payment.
 
 Special soul handling:
 - MU(81) is the candidate crosswalk to the Manual's colorless/neutral bead. Its generic any-generated-soul payment and unit-only recurring upkeep are implemented as `implemented_inferred` until the MU icon is visually matched to the Manual bead.
-- NCS(82) is not defined by the Manual. Preserve its source identity; use only a tagged generic payable fallback and do not assign recurring upkeep.
-- BONUS(83) is not defined by the Manual. Preserve its source identity; use only a tagged generic payable fallback and do not assign recurring upkeep.
-- Hybrid RequireSoul pair tokens preserve both component labels, but payment semantics (both colors vs either color) are unverified. Use a tagged generic payable fallback; do not charge both colors as a verified rule.
-- Unknown or unparseable tokens receive a conservative payable neutral fallback; they are not silently treated as free.
+- NCS(82) is not defined by the Manual. Preserve its source identity and candidate amount, but block the card from play; do not assign generic payment or recurring upkeep.
+- BONUS(83) is not defined by the Manual. Preserve its source identity and candidate amount, but block the card from play; do not assign generic payment or recurring upkeep.
+- Hybrid RequireSoul pair tokens preserve their component labels as one candidate token. Payment semantics (both colors vs either color) are unverified, so block play; do not charge both colors or substitute neutral payment.
+- Unknown, unparseable, missing, or invalid required-cost tokens are blocked from play until verified. They are never treated as free and never assigned an invented neutral fallback.
 - Explicit source no-cost is represented as `{ "neutral": 0 }`, never as a missing or empty object.
 
 ## 3. Runtime card-action disposition
@@ -40,15 +40,15 @@ Special soul handling:
 
 ## 4. Engine and validator requirements
 
-The resolver must select runtime values before source-review flags. A source-review flag is not a reason to reject a card. Actual invalid player actions remain rejected: insufficient resources, illegal phase, exhausted LP/deploy capacity, invalid ownership, invalid zone transfer, or an invalid target when no fallback target policy exists.
+The resolver must select runtime values before source-review flags. A source-review flag alone is not a reason to reject a card. But an unresolved mandatory cost is an actual legality block, not merely a provenance flag. Actual invalid player actions remain rejected: insufficient resources, illegal phase, exhausted LP/deploy capacity, invalid ownership, invalid zone transfer, or an invalid target when no fallback target policy exists.
 
 The pack validator must verify:
 1. Exactly 15,350 unique card IDs and expected category totals.
-2. A valid runtime cost for all 15,350 cards, with no unsupported `bonus` key.
+2. Every source card retains its raw cost and candidate token record. Only source-backed pure colors, explicit no-cost, and inferred MU(81) crosswalk receive runtime costs; unresolved NCS/BONUS/hybrid/unknown/missing/invalid costs remain blocked.
 3. A finite runtime upkeep profile for all 8,633 units.
 4. Every spell/enchant clause has a terminal effect disposition.
-5. All 15,350 cards pass the runtime action-readiness validation; blocked count is zero.
-6. Source review counts remain visible and unchanged; they are not rewritten as source-verified.
+5. The validator reports runtime-ready and semantically blocked cards separately; no blocked card is marked playable and no blocked cost is converted to generic neutral.
+6. Source review counts remain visible and unchanged; they are not rewritten as source-verified. All 15,350 source cards remain present even when some cannot yet be played.
 7. MagicLand has no invented normal production.
 8. Source image/card identity hashes and DB29 SQLite integrity remain intact.
 
@@ -178,3 +178,15 @@ APK PR #28 now has a DB29 SQLite converter that creates a runtime cost profile, 
 - Added a missing source-cost row case: the profile remains playable with a conservative neutral fallback, records source parse as unknown, and exposes the fallback inference rather than silently becoming free.
 - Commit `187dd6bd68261a8d82c43b88e3b8fa01c31b17f3`; Actions #763 / run `42305530316` passed lightweight T regression tests, including runtime cost overlay self-test and compact DB29 source inventory. Full 15,350-card rebuild, image audit, SQLite release and DB30 publication were not run.
 - DB29 immutable; no new release or main merge.
+
+
+## 2026-11-07 — Effective RequireSoul runtime policy correction
+
+This addendum supersedes the earlier generic-payable fallback language in Sections 1–4 and the #763 work-log text below.
+
+- RequireSoul pure-color tokens retain their source-backed color costs.
+- RequireSoul MU(81) is only an inferred crosswalk to the Manual's colorless bead. It is payable using any generated soul; unit-only recurring upkeep equals the MU amount. Keep the inference tag until the /mu.webp icon is visually compared against the Manual image.
+- RequireSoul NCS(82), BONUS(83), hybrid pair tokens, unknown tokens, and missing/invalid costs are blocked from play. Their raw tokens/candidate components remain stored; no generic neutral fallback is allowed.
+- EarnSoul raw code 82 is MU02 (two neutral souls produced per token); it is a different enum namespace from RequireSoul raw code 82 (NCS). User shorthand N/C/S(82) is a third independent notation and must not be derived from either enum.
+- DB29 runtime inventory from Actions #42328574195: 15,350 source cards retained; 14,519 runtime-payable profiles; 831 semantically blocked profiles. The blocked set is expected and must not be reported as data loss or as a successful all-playable gate.
+- Source-review-only statuses do not disable cards; an unresolved required payment cost does. Effects with a known payable cost may use their separately tagged fallback_noop disposition without fabricating effect behavior.

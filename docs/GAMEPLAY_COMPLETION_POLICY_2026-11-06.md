@@ -8,14 +8,14 @@
 
 원본 사이트, 원본 DB/Firestore, 카드 이미지, Manual.zip, 기존 보고서, 나무위키/namu.moe, 커뮤니티/공략, 외부 웹 검색을 교차 조사한다. 그래도 확인되지 않는 필드와 효과는 다른 카드·동일 계열·동일 기술/효과 템플릿·카드 유형/속성/레벨/등급/종족·DB 분포·규칙 제약을 분석해 가장 타당한 추정값을 반드시 보완한다.
 
-**원본 근거가 없다는 이유로 카드 전체가 사용 불가가 되거나 게임/턴 진행이 멈추는 상태를 최종 산출물로 남기지 않는다.**
+**원본 근거가 부족하다는 이유만으로 카드 데이터를 삭제하거나 덱 편성을 막지 않는다. 다만 필수 소환/사용 비용의 의미가 불명확하면, 임의 결제로 카드를 내보내지 말고 해당 카드 사용을 차단한다.**
 
 ## 2. 엄격히 분리할 두 축
 
 - 원작 의미 검증: `source_verified`, `pending_source_review`, `semantic_pending`, `non_executable` 등 provenance/review 메타데이터.
 - 게임 진행 가능성: 카드의 필수 runtime profile 및 effect disposition이 존재하고 실제 엔진에서 action이 완료되는지.
 
-Provenance가 pending/non_executable이어도 그것만으로 카드 선택, 덱 편성, 사용, 비용 처리, 턴 진행을 차단하지 않는다. 런타임은 source verification gate와 playability gate를 분리해야 한다.
+Provenance가 pending/non_executable이라는 표지만으로 카드 선택이나 덱 편성을 막지 않는다. 단, 필수 RequireSoul 비용 자체가 NCS/BONUS/하이브리드/미상/누락/오류 상태라면 합법적인 지불 규칙이 확인될 때까지 해당 카드의 실제 사용은 차단한다. source-review gate와 payment-legality gate를 구분한다.
 
 ## 3. Runtime 값 선택
 
@@ -34,10 +34,10 @@ Provenance가 pending/non_executable이어도 그것만으로 카드 선택, 덱
 ## 4. 필수 필드 및 효과 처리
 
 - 필수 runtime field는 15,350장 모두 null/blank가 아니어야 한다. 원본 누락은 inferred/fallback layer로 채운다.
-- 비용 미확정은 무료(0)로 처리하지 않는다. 유사 비용과 규칙 제약으로 지불 가능한 보수적 비용을 추정하고 지불 테스트를 수행한다.
+- 비용 미확정은 무료(0)나 임의의 중립 소울 결제로 처리하지 않는다. 원본 토큰과 후보 해석을 보존하고, 의미가 확인될 때까지 해당 카드 사용을 차단한다. 검증된 순수 속성 비용, 명시적 무비용, 추정 상태가 분명한 MU(81) 후보 대응만 런타임 지불 프로필을 받는다.
 - 모든 효과 clause는 `implemented_verified`, `implemented_inferred`, `fallback_noop`, `not_applicable` 중 하나로 최종 disposition한다.
 - 효과를 안전하게 추정할 수 있으면 보수적 handler를 적용한다. 해석 불가능하면 해당 clause만 `fallback_noop`으로 종료 처리한다.
-- 효과 no-op은 카드 사용 거부나 미완료 action을 뜻하지 않는다. 카드의 비용/기본 action을 정상 처리하고 effect resolution을 닫아 턴 진행을 계속한다.
+- 효과 no-op은 비용이 별도로 확인된 카드에 한해 카드 기본 action을 정상 처리하고 effect resolution을 닫아 턴 진행을 계속한다. 필수 비용이 미확정인 카드는 no-op 효과를 이유로 지불 검증을 우회하지 않는다.
 - 즉사, 무한 반복, 무제한 자원, 확정 승리 같은 강한 효과는 명시적 근거 없이 추정하지 않는다.
 
 ## 5. E663-0014 용의위압 7개 카드의 적용 판정
@@ -51,7 +51,7 @@ Provenance가 pending/non_executable이어도 그것만으로 카드 선택, 덱
 1. 15,350장 전부 runtime profile 존재.
 2. 필수 runtime field null/blank 0.
 3. 모든 effect clause에 네 가지 disposition 중 하나가 배정됨.
-4. provenance pending만으로 카드가 deck builder/legality/action selection에서 제외되지 않음.
+4. provenance pending만으로 카드가 deck builder에서 제외되지 않음. 단, 미확정 필수 비용은 action legality에서 차단되고 별도 집계됨.
 5. 추정 비용 지불, 소환, 장착, 마법/인챈트, unsupported effect no-op, 대상 없음, 수치 경계, 상태 만료, 턴 종료, 승패 판정의 고정 seed 테스트 통과.
 6. unsupported effect가 action/match deadlock을 만들지 않음.
 7. source-verified coverage와 inferred/fallback runtime coverage를 별도 보고.
@@ -74,8 +74,19 @@ Provenance가 pending/non_executable이어도 그것만으로 카드 선택, 덱
 상세 필드 계약은 같은 브랜치의 `docs/RUNTIME_PROFILE_CONTRACT_2026-11-06.md`를 따른다. 특히 다음 경계를 고정한다.
 
 - `sourceRequireSoul` / `candidateCost`는 원본·후보 의미를 보존하고, `runtimeCost`는 엔진 허용 키(`dark/fire/water/forest/metal/earth/light/neutral`)만 사용한다.
-- NCS는 범용 결제이며 유닛의 `runtimeUpkeepCost.neutral`에만 유지비로 반영한다. BONUS는 범용 1회 결제로 `runtimeCost.neutral`에 합산하지만 반복 유지비에는 포함하지 않는다.
-- 누락·미해석 비용은 0/무료로 만들지 않고 지불 가능한 보수적 neutral fallback을 부여한다. source review flag는 그대로 보존한다.
+- RequireSoul MU(81)만 Manual 무속성 구슬의 추정 대응으로 any-color 결제와 유닛 한정 반복 유지비를 받는다. NCS(82)와 BONUS(83)는 범용 결제가 아니며, 의미가 확인될 때까지 카드 사용을 차단한다.
+- 하이브리드/미상/누락/오류 비용은 중립 fallback을 부여하지 않고 차단한다. 원본 비용 문자열과 후보 토큰은 보존한다.
 - 모든 effect candidate clause는 별도 `runtimeDisposition`을 갖는다. 카드별 검증 handler가 없는 clause는 `fallback_noop`으로 종료하고, 원본 후보 텍스트/구간은 수정하지 않는다.
 - APK pack validator는 15,350장의 runtime cost와 8,633 유닛의 유한 upkeep, 48,281 effect clause의 terminal disposition, 카드별 runtime action readiness를 검사한다. source-verified coverage는 별도로 집계한다.
 - DB29/DB30/PR 병합 승인 경계는 기존과 동일하다.
+
+
+## 2026-11-07 — RequireSoul 비용 차단 정책 정정
+
+이 부록은 본 문서의 기존 '모든 카드가 지불 가능한 비용을 가져야 한다', '미확정 비용은 보수적 중립 fallback' 문구와 Section 9의 NCS/BONUS 범용 결제 문구를 대체한다.
+
+- 데이터 보존/덱 편성과 실제 카드 사용 가능성은 구분한다. 모든 15,350장 원본 카드는 보존하지만, 비용 의미가 불명확한 카드는 플레이를 허용하지 않는다.
+- RequireSoul 81(MU)은 Manual의 무속성 구슬에 대한 추정 crosswalk다. 지불은 어떤 생성 소울로도 가능하며 유닛에만 같은 수량의 매턴 유지비를 적용한다. 아이콘 시각 대조가 끝날 때까지 inferred로 표시한다.
+- RequireSoul 82(NCS), 83(BONUS), 하이브리드 코드, unknown/missing/invalid는 비용을 만들어내지 않고 차단한다.
+- EarnSoul 82(MU02)는 지형 생산 토큰으로 중립 소울 2개를 뜻하며 RequireSoul 82(NCS)와 다른 enum이다. 사용자가 설명한 N/C/S(82) 스탯 표기도 제3의 별도 표기다.
+- 최신 DB29 runtime inventory: 원본 카드 15,350장, 지불 프로필 14,519장, 의미 검토 차단 831장. 차단 831장은 삭제/변환 실패가 아니라 의도적인 안전 차단이다.
