@@ -153,3 +153,12 @@ Keep these namespaces separate:
 - Manual `치명공격기술` special skill: a named combat ability, not automatically equivalent to the C category in the user-defined N/C/S shorthand.
 
 No automatic conversion is allowed between these fields merely because labels overlap.
+
+
+## 2026-11-07 — TextExtra-only status/resource effects (Klub variants)
+
+Firestore livecardlist records `16120828657`–`16120828663` share a `TextExtra` effect block that names `전력봉인`, applies `중급열사` for three turns, and says that when `중급열사` activates it removes one `유소울` or `NCS소울`, increases upkeep by one, and decreases DP by one. These are literal card-source descriptions, not definitions found in the reviewed Manual pages. They are not the same thing as the user-confirmed N/C/S(82) stat shorthand.
+
+For one source variant (`16120828663`), `Skill1=51` maps to `관통공격`, `Skill2=129` maps to `절해라`, while `TextExtra` separately describes `전력봉인` and `중급열사`. Do not relabel Skill2=129 as 중급열사. Its `RequireSoul=71048103` is 4 light + 3 MU candidate cost; it does not contain RequireSoul NCS(82), showing that the NCS소울 text is not simply this card's summon-cost token.
+
+No reviewed Manual page or independent web result defined the `NCS소울` resource pool, its production, or the exact status lifecycle. Keep the raw TextExtra, mark these effects source-text-defined but runtime-unverified, and do not implement a generic NCS stat/soul conversion. Open questions: which effect produces NCS소울; whether `유소울` and `NCS소울` are separate pools; activation timing; how the three-turn duration counts; how permanent AP/DP=0 interacts with reset; and how the status's upkeep is charged.
