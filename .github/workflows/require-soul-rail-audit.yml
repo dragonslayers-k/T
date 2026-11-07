@@ -66,7 +66,7 @@ jobs:
           test -s output/require-soul-rail-card-audit.csv
           test -s output/require-soul-rail-audit-summary.json
 
-      - name: Run 14-class hybrid orb audit
+      - name: Run hybrid orb and complete secondary marker sequence audit
         run: |
           set -euo pipefail
           python -m py_compile scripts/audit_require_soul_hybrid_orbs.py
@@ -101,11 +101,11 @@ jobs:
           print("| Metric | Result |")
           print("|---|---:|")
           print(f"| Unique target cards | {rail['actual_unique_cards']} |")
-          print(f"| BONUS/NCS/neutral exact matches | {rail['counts'].get('EXACT_COUNT_MATCH', 0)} / {rail['special_token_population']} |")
+          print(f"| BONUS/NCS/neutral exact count matches | {rail['counts'].get('EXACT_COUNT_MATCH', 0)} / {rail['special_token_population']} |")
           print(f"| Low-resolution / nonstandard images | {rail['counts'].get('LOW_RES_OR_NONSTANDARD_IMAGE', 0)} |")
-          print(f"| Hybrid orb template matches | {hybrid['counts'].get('TEMPLATE_MATCH', 0)} / {hybrid['population']} |")
-          print(f"| Hybrid manual visual confirmations | {hybrid['counts'].get('MANUAL_VISUAL_CONFIRMED', 0)} |")
-          print(f"| Hybrid manual review queue | {hybrid['counts'].get('MANUAL_REVIEW', 0)} |")
+          print(f"| Hybrid full-sequence matches | {hybrid['counts'].get('FULL_SEQUENCE_MATCH', 0)} |")
+          print(f"| Hybrid full-sequence matches with manual orb confirmation | {hybrid['counts'].get('FULL_SEQUENCE_MATCH_MANUAL_HYBRID', 0)} |")
+          print(f"| Hybrid unresolved cards | {hybrid['counts'].get('HYBRID_ORB_REVIEW', 0) + hybrid['counts'].get('SECONDARY_SEQUENCE_MISMATCH', 0)} |")
           print()
           print("> A low-resolution image or unresolved template is not classified as a source-data error.")
           PY
