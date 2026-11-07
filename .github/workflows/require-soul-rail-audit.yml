@@ -6,6 +6,7 @@ on:
       - research/require-soul-visual-audit-831-stage1
     paths:
       - "scripts/audit_require_soul_rail.py"
+      - "scripts/audit_require_soul_hybrid_orbs.py"
       - ".github/workflows/require-soul-rail-audit.yml"
   workflow_dispatch:
     inputs:
@@ -39,8 +40,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install image processing dependency
-        run: python -m pip install --disable-pip-version-check Pillow
+      - name: Install image processing dependencies
+        run: python -m pip install --disable-pip-version-check Pillow numpy
 
       - name: Download the immutable 831-card evidence artifact
         run: |
@@ -55,7 +56,7 @@ jobs:
           test "$(find evidence/images/large -maxdepth 1 -name '*.webp' | wc -l)" -eq 831
           test "$(find evidence/images/small -maxdepth 1 -name '*.webp' | wc -l)" -eq 831
 
-      - name: Run conservative card-by-card rail marker audit
+      - name: Run modern and legacy special-token rail audit
         run: |
           set -euo pipefail
           python -m py_compile scripts/audit_require_soul_rail.py
@@ -65,33 +66,46 @@ jobs:
           test -s output/require-soul-rail-card-audit.csv
           test -s output/require-soul-rail-audit-summary.json
 
-      - name: Publish review artifacts
+      - name: Run 14-class hybrid orb audit
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/audit_require_soul_hybrid_orbs.py
+          python scripts/audit_require_soul_hybrid_orbs.py \
+            --evidence-dir evidence \
+            --output-dir output
+          test -s output/require-soul-hybrid-orb-audit.csv
+          test -s output/require-soul-hybrid-orb-audit-summary.json
+
+      - name: Publish complete card-level review artifacts
         uses: actions/upload-artifact@v4
         with:
           name: db29-require-soul-rail-audit-${{ github.run_number }}
           path: |
             output/require-soul-rail-card-audit.csv
             output/require-soul-rail-audit-summary.json
+            output/require-soul-hybrid-orb-audit.csv
+            output/require-soul-hybrid-orb-audit-summary.json
           if-no-files-found: error
           compression-level: 6
           retention-days: 30
 
-      - name: Add audit summary to run page
+      - name: Add combined audit summary to run page
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
           from pathlib import Path
-          data=json.loads(Path("output/require-soul-rail-audit-summary.json").read_text(encoding="utf-8"))
-          print("## DB29 RequireSoul rail visual audit")
+          rail=json.loads(Path("output/require-soul-rail-audit-summary.json").read_text(encoding="utf-8"))
+          hybrid=json.loads(Path("output/require-soul-hybrid-orb-audit-summary.json").read_text(encoding="utf-8"))
+          print("## DB29 RequireSoul visual audit")
           print()
           print("| Metric | Result |")
           print("|---|---:|")
-          print(f"| Unique cards | {data['actual_unique_cards']} |")
-          print(f"| Exact template count matches | {data['counts'].get('EXACT_COUNT_MATCH', 0)} |")
-          print(f"| Template family unresolved | {data['counts'].get('TEMPLATE_FAMILY_UNMATCHED', 0)} |")
-          print(f"| Count mismatches | {data['counts'].get('COUNT_MISMATCH', 0)} |")
-          print(f"| Hybrid out of scope | {data['counts'].get('HYBRID_OUT_OF_SCOPE', 0)} |")
-          print(f"| Exact match rate (special-token population) | {data['exact_count_match_rate_of_special_population']:.1%} |")
+          print(f"| Unique target cards | {rail['actual_unique_cards']} |")
+          print(f"| BONUS/NCS/neutral exact matches | {rail['counts'].get('EXACT_COUNT_MATCH', 0)} / {rail['special_token_population']} |")
+          print(f"| Low-resolution / nonstandard images | {rail['counts'].get('LOW_RES_OR_NONSTANDARD_IMAGE', 0)} |")
+          print(f"| Hybrid orb template matches | {hybrid['counts'].get('TEMPLATE_MATCH', 0)} / {hybrid['population']} |")
+          print(f"| Hybrid manual visual confirmations | {hybrid['counts'].get('MANUAL_VISUAL_CONFIRMED', 0)} |")
+          print(f"| Hybrid manual review queue | {hybrid['counts'].get('MANUAL_REVIEW', 0)} |")
           print()
-          print("> Unmatched template families are unresolved and are not classified as source-data errors.")
+          print("> A low-resolution image or unresolved template is not classified as a source-data error.")
           PY
