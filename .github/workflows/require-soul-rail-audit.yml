@@ -9,6 +9,7 @@ on:
       - "scripts/audit_require_soul_hybrid_orbs.py"
       - "scripts/audit_require_soul_source_join.py"
       - "scripts/probe_require_soul_source_image.py"
+      - "scripts/audit_require_soul_semantic_matrix.py"
       - ".github/workflows/require-soul-rail-audit.yml"
   workflow_dispatch:
     inputs:
@@ -113,6 +114,19 @@ jobs:
           test -s output/require-soul-source-join-audit.csv
           test -s output/require-soul-source-join-summary.json
 
+      - name: Build complete DB29 RequireSoul semantic evidence matrix
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/audit_require_soul_semantic_matrix.py
+          python scripts/audit_require_soul_semantic_matrix.py \
+            --source-cards-jsonl source/cards.jsonl \
+            --evidence-dir evidence \
+            --enumtable-json source/enumtable.json \
+            --output-dir output
+          test -s output/db29-requiresoul-semantic-token-matrix.csv
+          test -s output/db29-requiresoul-semantic-card-matrix.csv
+          test -s output/db29-requiresoul-semantic-matrix-summary.json
+
       - name: Publish complete card-level review artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -124,6 +138,9 @@ jobs:
             output/require-soul-hybrid-orb-audit-summary.json
             output/require-soul-source-join-audit.csv
             output/require-soul-source-join-summary.json
+            output/db29-requiresoul-semantic-token-matrix.csv
+            output/db29-requiresoul-semantic-card-matrix.csv
+            output/db29-requiresoul-semantic-matrix-summary.json
             output/source-image-probe/
           if-no-files-found: error
           compression-level: 6
