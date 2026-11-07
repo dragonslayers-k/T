@@ -11,22 +11,27 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["iron"], 2)
         self.assertNotIn("metal", parsed["colors"])
 
-    def test_hybrid_tokens_are_candidate_mapping_not_cross_validated(self):
+    def test_hybrid_tokens_preserve_component_names_but_payment_is_unverified(self):
         parsed = parse_require_soul("5301")
         self.assertTrue(parsed["known"])
         self.assertTrue(parsed["mapping_review"])
         self.assertEqual(parsed["colors"]["iron"], 1)
         self.assertEqual(parsed["colors"]["light"], 1)
-        self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
+        self.assertEqual(parsed["tokens"][0]["status"], "hybrid_payment_unverified")
+        self.assertEqual(parsed["tokens"][0]["inference"], "hybrid_symbol_payment_choice_unverified")
 
-    def test_ncs_is_manual_verified_colorless_payment(self):
-        parsed = parse_require_soul("8201")
-        self.assertTrue(parsed["known"])
-        self.assertFalse(parsed["semantic_review"])
-        self.assertEqual(parsed["colors"]["ncs"], 1)
-        self.assertEqual(parsed["colors"]["neutral"], 0)
-        self.assertEqual(parsed["tokens"][0]["status"], "manual_semantics_verified")
-        self.assertEqual(parsed["tokens"][0]["inference"], "manual_colorless_any_color_payment")
+    def test_mu_is_distinct_from_ncs_and_is_the_manual_neutral_crosswalk_candidate(self):
+        mu = parse_require_soul("8101")
+        self.assertTrue(mu["known"])
+        self.assertEqual(mu["colors"]["neutral"], 1)
+        self.assertEqual(mu["tokens"][0]["symbol"], "MU")
+        ncs = parse_require_soul("8201")
+        self.assertTrue(ncs["known"])
+        self.assertTrue(ncs["semantic_review"])
+        self.assertEqual(ncs["colors"]["ncs"], 1)
+        self.assertEqual(ncs["colors"]["neutral"], 0)
+        self.assertEqual(ncs["tokens"][0]["status"], "semantic_review")
+        self.assertEqual(ncs["tokens"][0]["inference"], "ncs_requiresoul_semantics_unverified")
 
     def test_bonus_remains_separate_and_semantically_unverified(self):
         parsed = parse_require_soul("8302")
@@ -44,7 +49,7 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["ncs"], 1)
         self.assertEqual(parsed["colors"]["bonus"], 2)
         self.assertEqual([x["status"] for x in parsed["tokens"]],
-                         ["manual_semantics_verified", "semantic_review"])
+                         ["semantic_review", "semantic_review"])
 
     def test_human_readable_ncs_and_bonus_keep_independent_statuses(self):
         parsed = parse_require_soul("NCS 1 BONUS 2")

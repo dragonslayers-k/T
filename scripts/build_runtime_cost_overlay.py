@@ -13,64 +13,82 @@ from soul_costs import parse_require_soul
 def profile_for_card(card, cost_row):
     raw = cost_row["source_text"] if cost_row else None
     parsed = parse_require_soul(raw)
-    colors = parsed.get("colors") or {}
     candidate = {}
     runtime = {}
     inference = []
     fallback = False
+    neutral_upkeep = 0
+    mu_crosswalk_inferred = False
 
-    for source_color, raw_amount in colors.items():
-        amount = int(raw_amount or 0)
-        if amount == 0:
-            continue
-        if amount < 0:
-            fallback = True
-            continue
-        if source_color == "ncs":
-            candidate["ncs"] = candidate.get("ncs", 0) + amount
-            runtime["neutral"] = runtime.get("neutral", 0) + amount
-            inference.append("ncs_generic_payment_unit_only_upkeep")
-        elif source_color == "bonus":
-            # BONUS is a one-time generic payment. It is deliberately
-            # normalized to neutral for the engine, while its source identity
-            # remains in candidateCost and its amount is excluded from upkeep.
-            candidate["bonus"] = candidate.get("bonus", 0) + amount
-            runtime["neutral"] = runtime.get("neutral", 0) + amount
-            inference.append("bonus_generic_one_time_payment_no_upkeep")
-        elif source_color == "iron":
-            candidate["iron"] = candidate.get("iron", 0) + amount
-            runtime["metal"] = runtime.get("metal", 0) + amount
-        elif source_color in {"dark", "fire", "water", "forest", "metal", "earth", "light"}:
-            candidate[source_color] = candidate.get(source_color, 0) + amount
-            runtime[source_color] = runtime.get(source_color, 0) + amount
-        else:
-            candidate[source_color] = candidate.get(source_color, 0) + amount
-            runtime["neutral"] = runtime.get("neutral", 0) + max(1, amount)
-            inference.append("unknown_source_color_conservative_payable_fallback")
-            fallback = True
+    def add(target, key, amount):
+        target[key] = target.get(key, 0) + amount
 
     tokens = parsed.get("tokens") or []
     for token in tokens:
         status = token.get("status")
-        if status == "inferred_hybrid_both_colors":
-            inference.append("hybrid_requires_both_component_colors")
-        elif status in {"manual_review", "unmapped", "unknown", "unresolved"}:
-            amount = max(1, int(token.get("amount") or 1))
-            runtime["neutral"] = runtime.get("neutral", 0) + amount
-            inference.append("unknown_token_conservative_payable_fallback")
+        amount = max(0, int(token.get("count") or 0))
+        code = token.get("code")
+        color = token.get("normalized_color")
+        if status == "no_cost" or amount == 0:
+            continue
+
+        if code in {11, 21, 31, 41, 51, 61, 71} and color in {
+            "dark", "fire", "water", "forest", "iron", "earth", "light"
+        }:
+            add(candidate, color, amount)
+            add(runtime, "metal" if color == "iron" else color, amount)
+        elif code == 81 or (code is None and color == "neutral" and status == "text_decoded"):
+            # MU(81) is the inferred crosswalk to the Manual's colorless bead.
+            # The rule is direct; icon identity still needs visual verification.
+            add(candidate, "neutral", amount)
+            add(runtime, "neutral", amount)
+            mu_crosswalk_inferred = True
+            inference.append("mu_81_manual_neutral_bead_crosswalk_inferred")
+            if card.get("card_type") == "유닛":
+                neutral_upkeep += amount
+        elif code == 82 or color == "ncs":
+            add(candidate, "ncs", amount)
+            # Preserve source identity. This generic payment is a tagged
+            # playability fallback, not a claim that NCS means neutral.
+            add(runtime, "neutral", amount)
+            inference.append("ncs_requiresoul_semantics_unverified_generic_fallback")
+            fallback = True
+        elif code == 83 or color == "bonus":
+            add(candidate, "bonus", amount)
+            add(runtime, "neutral", amount)
+            inference.append("bonus_requiresoul_semantics_unverified_generic_fallback")
+            fallback = True
+        elif status == "hybrid_payment_unverified" or (isinstance(color, str) and "+" in color):
+            add(candidate, "hybrid:" + str(color), amount)
+            # A pair icon is one source token. Do not charge both colors until
+            # the payment choice (both vs either) is independently proven.
+            add(runtime, "neutral", amount)
+            inference.append("hybrid_payment_semantics_unverified_generic_fallback")
+            fallback = True
+        elif color in {"dark", "fire", "water", "forest", "iron", "earth", "light"}:
+            add(candidate, color, amount)
+            add(runtime, "metal" if color == "iron" else color, amount)
+        elif color == "neutral":
+            add(candidate, "neutral", amount)
+            add(runtime, "neutral", amount)
+            if card.get("card_type") == "유닛":
+                neutral_upkeep += amount
+            mu_crosswalk_inferred = True
+            inference.append("text_neutral_bead_upkeep_crosswalk_inferred")
+        else:
+            add(candidate, str(color or "unknown"), amount)
+            add(runtime, "neutral", amount)
+            inference.append("unknown_source_token_generic_payable_fallback")
             fallback = True
 
-    if not parsed.get("known") and not any(
-        t.get("status") in {"manual_review", "unmapped", "unknown", "unresolved"}
-        for t in tokens
-    ):
-        runtime["neutral"] = runtime.get("neutral", 0) + 1
+    if not parsed.get("known") and not tokens:
+        add(runtime, "neutral", 1)
         inference.append("missing_or_invalid_source_cost_conservative_payable_fallback")
         fallback = True
 
     if not runtime:
         if parsed.get("known"):
-            runtime = {"neutral": 0}  # Explicit source no-cost token.
+            runtime = {"neutral": 0}
         else:
             runtime = {"neutral": 1}
             inference.append("missing_source_cost_conservative_payable_fallback")
@@ -81,11 +99,12 @@ def profile_for_card(card, cost_row):
         if key not in allowed or not isinstance(value, int) or value < 0:
             raise ValueError(f"Invalid runtime cost for {card.get('card_id')}: {key}={value}")
 
-    ncs_upkeep = max(0, int(colors.get("ncs") or 0)) if card.get("card_type") == "유닛" else 0
-    source_review = bool(cost_row and (cost_row.get("mapping_review") or cost_row.get("semantic_review")))
-    bonus_amount = max(0, int(colors.get("bonus") or 0))
+    source_review = bool(
+        (cost_row and (cost_row.get("mapping_review") or cost_row.get("semantic_review")))
+        or fallback
+    )
     status = "fallback_payable" if fallback else (
-        "implemented_inferred" if source_review or bonus_amount else "implemented_verified"
+        "implemented_inferred" if mu_crosswalk_inferred or source_review else "implemented_verified"
     )
     return {
         "cardId": str(card["card_id"]),
@@ -102,11 +121,10 @@ def profile_for_card(card, cost_row):
         "runtimeCost": runtime,
         "runtimeCostStatus": status,
         "runtimeCostInference": sorted(set(inference)),
-        "runtimeUpkeepCost": {"neutral": ncs_upkeep},
-        "runtimeUpkeepStatus": "manual_verified_ncs_only" if ncs_upkeep else "zero_upkeep",
+        "runtimeUpkeepCost": {"neutral": neutral_upkeep},
+        "runtimeUpkeepStatus": "mu_81_manual_neutral_crosswalk_inferred" if neutral_upkeep else "zero_upkeep",
         "playable": True
     }
-
 
 def build_overlay(db_path):
     digest = hashlib.sha256()
@@ -157,30 +175,22 @@ def build_overlay(db_path):
 
 def self_test():
     cases = [
-        ({"card_id":"a","name":"dark","card_type":"유닛"}, {"source_text":"1101","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"dark":1}, "implemented_verified"),
-        ({"card_id":"b","name":"ncs","card_type":"유닛"}, {"source_text":"8201","mapping_review":0,"semantic_review":0,"verification_status":"manual_semantics_verified"}, {"neutral":1}, "implemented_verified"),
-        ({"card_id":"c","name":"bonus","card_type":"아이템"}, {"source_text":"11018301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"dark":1,"neutral":1}, "implemented_inferred"),
-        ({"card_id":"d","name":"hybrid","card_type":"유닛"}, {"source_text":"1201","mapping_review":1,"semantic_review":0,"verification_status":"mapping_review"}, {"dark":1,"earth":1}, "implemented_inferred"),
-        ({"card_id":"e","name":"no-cost","card_type":"마법"}, {"source_text":"0100","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":0}, "implemented_verified"),
-        ({"card_id":"f","name":"unknown","card_type":"유닛"}, {"source_text":"9901","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable"),
-        ({"card_id":"g","name":"mixed","card_type":"유닛"}, {"source_text":"82018302","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":3}, "implemented_inferred"),
-        ({"card_id":"h","name":"ncs-non-unit","card_type":"아이템"}, {"source_text":"8202","mapping_review":0,"semantic_review":0,"verification_status":"manual_semantics_verified"}, {"neutral":2}, "implemented_verified"),
-        ({"card_id":"i","name":"missing-cost","card_type":"마법"}, None, {"neutral":1}, "fallback_payable")
+        ({"card_id":"a","name":"dark","card_type":"유닛"}, {"source_text":"1101","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"dark":1}, "implemented_verified", 0),
+        ({"card_id":"b","name":"mu","card_type":"유닛"}, {"source_text":"8102","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":2}, "implemented_inferred", 2),
+        ({"card_id":"c","name":"ncs","card_type":"유닛"}, {"source_text":"8201","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable", 0),
+        ({"card_id":"d","name":"bonus","card_type":"아이템"}, {"source_text":"8301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable", 0),
+        ({"card_id":"e","name":"hybrid","card_type":"유닛"}, {"source_text":"1201","mapping_review":1,"semantic_review":0,"verification_status":"mapping_review"}, {"neutral":1}, "fallback_payable", 0),
+        ({"card_id":"f","name":"mixed","card_type":"유닛"}, {"source_text":"810182018301","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":3}, "fallback_payable", 1),
+        ({"card_id":"g","name":"no-cost","card_type":"마법"}, {"source_text":"0100","mapping_review":0,"semantic_review":0,"verification_status":"enum_decoded"}, {"neutral":0}, "implemented_verified", 0),
+        ({"card_id":"h","name":"unknown","card_type":"유닛"}, {"source_text":"9901","mapping_review":0,"semantic_review":1,"verification_status":"semantic_review"}, {"neutral":1}, "fallback_payable", 0),
+        ({"card_id":"i","name":"missing-cost","card_type":"마법"}, None, {"neutral":1}, "fallback_payable", 0)
     ]
-    for card, row, expected, status in cases:
+    for card, row, expected, status, upkeep in cases:
         result = profile_for_card(card, row)
         assert result["runtimeCost"] == expected, (result, expected)
         assert result["runtimeCostStatus"] == status, (result, status)
+        assert result["runtimeUpkeepCost"] == {"neutral": upkeep}, result
         assert result["playable"] is True
-        if card["card_id"] in {"b", "g"}:
-            assert result["runtimeUpkeepCost"] == {"neutral": 1}, result
-        if card["card_id"] == "c":
-            assert result["runtimeUpkeepCost"] == {"neutral": 0}, result
-        if card["card_id"] == "h":
-            assert result["runtimeUpkeepCost"] == {"neutral": 0}, result
-        if card["card_id"] == "i":
-            assert result["sourceParseKnown"] is False, result
-            assert result["runtimeCostInference"] == ["missing_or_invalid_source_cost_conservative_payable_fallback"], result
     print("runtime cost overlay self-test: PASS")
 
 

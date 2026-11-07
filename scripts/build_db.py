@@ -46,9 +46,11 @@ if "--self-test" in sys.argv:
  assert sample["known"] and sample["mapping_review"]
  assert sample["colors"]["forest"]==1 and sample["colors"]["light"]==2
  assert parse_soul("5301")["colors"]["iron"]==1
+ mu=parse_soul("8101")
+ assert mu["known"] and mu["colors"]["neutral"]==1
  ncs=parse_soul("8201")
- assert ncs["known"] and not ncs["semantic_review"] and ncs["colors"]["ncs"]==1
- assert ncs["tokens"][0]["status"]=="manual_semantics_verified"
+ assert ncs["known"] and ncs["semantic_review"] and ncs["colors"]["ncs"]==1
+ assert ncs["tokens"][0]["status"]=="semantic_review"
  bonus=parse_soul("8301")
  assert bonus["known"] and bonus["semantic_review"] and bonus["colors"]["bonus"]==1
  assert bonus["tokens"][0]["status"]=="semantic_review"

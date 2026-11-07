@@ -62,9 +62,9 @@ def _parse_human_readable_cost(raw: str, result: dict) -> bool:
             "symbol":name,"icon":None,"normalized_color":color,
             "status":"text_decoded","source_format":"human_readable"}
         if color=="ncs":
-            token["status"]="manual_semantics_verified"
-            token["inference"]="manual_colorless_any_color_payment"
-            token["manualMeaning"]="무속성: 소환 시 모든 속성 소울로 지불 가능; 유지비는 유닛에만 적용"
+            token["status"]="semantic_review"
+            token["inference"]="ncs_requiresoul_semantics_unverified"
+            result["semantic_review"]=True
         elif color=="bonus":
             token["status"]="semantic_review"
             token["inference"]="bonus_semantics_unverified"
@@ -141,17 +141,17 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
                 result["colors"][color] += amount
             token_result["normalized_color"] = "+".join(colors)
             # Inferred playable rule: a hybrid orb requires both component colors.
-            token_result["status"] = "inferred_hybrid_both_colors"
-            token_result["inference"] = "hybrid_code_components_each_required"
+            token_result["status"] = "hybrid_payment_unverified"
+            token_result["inference"] = "hybrid_symbol_payment_choice_unverified"
             result["mapping_review"] = True
         elif code == NCS_SOUL_CODE:
             # Manual.zip soulcost.htm defines NCS/무속성 as payable with any
             # attribute at summon; recurring upkeep is a separate unit-only rule.
             result["colors"]["ncs"] += amount
             token_result["normalized_color"] = "ncs"
-            token_result["status"] = "manual_semantics_verified"
-            token_result["inference"] = "manual_colorless_any_color_payment"
-            token_result["manualMeaning"] = "무속성: 소환 시 모든 속성 소울로 지불 가능; 유지비는 유닛에만 적용"
+            token_result["status"] = "semantic_review"
+            token_result["inference"] = "ncs_requiresoul_semantics_unverified"
+            result["semantic_review"] = True
         elif code == BONUS_SOUL_CODE:
             # The extracted Manual soulcost.htm text does not define BONUS.
             # Preserve it as a separate token and do not infer neutral payment.

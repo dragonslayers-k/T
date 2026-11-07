@@ -132,10 +132,12 @@ def main():
         assert hybrid["known"] and hybrid["mapping_review"]
         assert hybrid["colors"]["forest"] == 1 and hybrid["colors"]["light"] == 2
         assert parse_require_soul("5301")["colors"]["iron"] == 1
+        mu = parse_require_soul("8101")
+        assert mu["known"] and mu["colors"]["neutral"] == 1
         ncs = parse_require_soul("8201")
-        assert ncs["known"] and not ncs["semantic_review"]
-        assert ncs["colors"]["ncs"] == 1
-        assert ncs["tokens"][0]["status"] == "manual_semantics_verified"
+        assert ncs["known"] and ncs["semantic_review"]
+        assert ncs["colors"]["ncs"] == 1 and ncs["colors"]["neutral"] == 0
+        assert ncs["tokens"][0]["status"] == "semantic_review"
         bonus = parse_require_soul("8301")
         assert bonus["known"] and bonus["semantic_review"]
         assert bonus["colors"]["bonus"] == 1

@@ -61,3 +61,8 @@ ZIP 추출 목록에는 `images/soulcost.jpg`, `images/color.jpg`, `images/sb.jp
 - NCS 351행, BONUS 439행, 14 hybrid 그룹 52행은 모두 pending/non-executable 유지.
 - DB29 불변, DB30 미발행, 원본 RequireSoul 토큰 순서/값 보존.
 - 다음 단계는 ZIP 내부의 세 이미지 자산을 시각적으로 비교하고, DB29 NCS/BONUS 실제 카드 이미지/아이콘과 연결되는지 확인하는 것이다.
+
+
+## 2026-11-07 correction — NCS/MU enum crosswalk
+
+A later PR document incorrectly promoted RequireSoul NCS(82) to the Manual's colorless-bead rule. That promotion is withdrawn. The enumtable distinguishes MU(81), NCS(82), and BONUS(83); the Manual does not literally define NCS. MU(81) is the inferred candidate for the Manual's colorless bead, pending visual comparison of /mu.webp with Manual images. NCS(82) and BONUS(83) remain semantic_review. No NCS(82) token may be used to calculate recurring unit upkeep. Hybrid pair tokens also remain unresolved: do not infer both-color payment from enum names alone.

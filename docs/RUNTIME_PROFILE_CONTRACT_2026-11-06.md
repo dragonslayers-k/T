@@ -22,9 +22,10 @@ Every card must receive a valid, payable runtime cost object. Valid keys are `da
 - `runtimeUpkeepCost.neutral` records only recurring NCS upkeep for units.
 
 Special soul handling:
-- NCS is generic payment from any generated colored or neutral soul; for units only, its amount is recurring neutral upkeep.
-- BONUS is normalized to generic `neutral` payment at card use. Its original BONUS identity remains in `candidateCost`; it is a one-time requirement and is excluded from recurring unit upkeep.
-- Hybrid tokens require every inferred component color.
+- MU(81) is the candidate crosswalk to the Manual's colorless/neutral bead. Its generic any-generated-soul payment and unit-only recurring upkeep are implemented as `implemented_inferred` until the MU icon is visually matched to the Manual bead.
+- NCS(82) is not defined by the Manual. Preserve its source identity; use only a tagged generic payable fallback and do not assign recurring upkeep.
+- BONUS(83) is not defined by the Manual. Preserve its source identity; use only a tagged generic payable fallback and do not assign recurring upkeep.
+- Hybrid RequireSoul pair tokens preserve both component labels, but payment semantics (both colors vs either color) are unverified. Use a tagged generic payable fallback; do not charge both colors as a verified rule.
 - Unknown or unparseable tokens receive a conservative payable neutral fallback; they are not silently treated as free.
 - Explicit source no-cost is represented as `{ "neutral": 0 }`, never as a missing or empty object.
 

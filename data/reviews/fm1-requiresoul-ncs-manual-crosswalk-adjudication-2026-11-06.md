@@ -34,3 +34,8 @@
 ## APK 경계
 
 APK PR #28의 현재 DB29 import는 불변 DB29 release를 사용한다. APK helper의 fail-closed gate는 기존 DB29의 mapping/semantic review를 실행 비용으로 승격하지 않는다. 새 T branch crosswalk를 APK로 가져오려면 별도 새 release 승인 절차가 필요하다. 현재는 DB29를 덮어쓰거나 DB30을 발행하지 않는다.
+
+
+## SUPERSEDED — 2026-11-07
+
+The earlier adjudication that mapped RequireSoul NCS(82) to the Manual's colorless bead and recurring upkeep is withdrawn. The Manual text does not name NCS; the enumtable distinguishes MU(81), NCS(82), and BONUS(83). The updated decision is in `docs/MANUAL_MAPPING.md`. NCS(82) now remains semantic_review and is not assigned upkeep. MU(81) is the inferred Manual-neutral crosswalk candidate pending icon-level verification.
