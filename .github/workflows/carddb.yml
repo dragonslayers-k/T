@@ -30,7 +30,7 @@ on:
         description: "probe = inspect live site; audit-release = full DB29 audit; crawl = collect source; soul-image-evidence = export 831 image pairs"
         required: true
         type: choice
-        options: [probe, audit-release, crawl, soul-image-evidence]
+        options: [probe, audit-release, crawl, soul-image-evidence, full-image-ocr]
         default: audit-release
       source_release_tag:
         description: "Existing immutable DB Release used by audit-release mode"
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[soul-image-evidence]') && 'soul-image-evidence') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-db-audit]') && 'audit-release') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-image-ocr]') && 'full-image-ocr') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-image-ocr]') && 'full-image-ocr') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[soul-image-evidence]') && 'soul-image-evidence') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-db-audit]') && 'audit-release') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
@@ -74,6 +74,14 @@ jobs:
 
       - name: Install Pillow for image regression tests
         run: python -m pip install --disable-pip-version-check Pillow
+
+      - name: Install Tesseract OCR with English and Korean models
+        if: ${{ env.MODE == 'full-image-ocr' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-kor
+          tesseract --list-langs
 
       - name: Run all lightweight regression tests
         run: |
@@ -231,6 +239,35 @@ jobs:
           cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
           tar -tzf data/images.tar.gz >/dev/null
 
+      - name: Download immutable DB29 source cards and full image archive for visual OCR census
+        if: ${{ env.MODE == 'full-image-ocr' }}
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${SOURCE_RELEASE_TAG}"
+          mkdir -p data/raw data/source-archive
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/cards.jsonl.gz" -o data/source-archive/cards.jsonl.gz
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/images.tar.gz.part-aa" -o data/source-archive/images.tar.gz.part-aa
+          gzip -t data/source-archive/cards.jsonl.gz
+          gzip -dc data/source-archive/cards.jsonl.gz > data/raw/cards.jsonl
+          cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
+          tar -tzf data/images.tar.gz >/dev/null
+          sha256sum data/source-archive/cards.jsonl.gz data/images.tar.gz
+
+
+      - name: Run full 15,350-card visual and OCR inventory
+        if: ${{ env.MODE == 'full-image-ocr' }}
+        timeout-minutes: 300
+        run: |
+          set -euo pipefail
+          python scripts/full_card_visual_ocr_inventory.py \
+            --archive data/images.tar.gz \
+            --cards-jsonl data/raw/cards.jsonl \
+            --output-dir data/full-card-visual-ocr \
+            --expected-cards 15350 \
+            --language eng+kor
+
       - name: Export all 831 RequireSoul review-card image pairs
         if: ${{ env.MODE == 'soul-image-evidence' }}
         run: |
@@ -240,6 +277,16 @@ jobs:
             --cards-jsonl data/raw/cards.jsonl \
             --output-dir data/soul-image-evidence \
             --expected-cards 831
+
+      - name: Upload complete-population visual OCR evidence
+        if: ${{ always() && env.MODE == 'full-image-ocr' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-db29-full-card-visual-ocr-${{ github.run_number }}
+          path: data/full-card-visual-ocr/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
 
       - name: Upload focused soul review image evidence
         if: ${{ env.MODE == 'soul-image-evidence' }}
