@@ -72,6 +72,10 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Pillow for focused image-evidence tests
+        if: ${{ env.MODE == 'soul-image-evidence' }}
+        run: python -m pip install --disable-pip-version-check Pillow
+
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
@@ -155,7 +159,7 @@ jobs:
           retention-days: 30
 
       - name: Install image decoder for full audits
-        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' || env.MODE == 'soul-image-evidence' }}
+        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
         run: python -m pip install --disable-pip-version-check Pillow
 
       - name: Set up Node and browser tools
