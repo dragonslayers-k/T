@@ -330,11 +330,11 @@ jobs:
               with Image.open(image_path) as source:
                   source = source.convert("RGB")
                   width, height = source.size
-                  center_y = 0.22 + 0.08 * slot_index
-                  left = max(0, int(width*0.015))
-                  right = min(width, int(width*0.13))
-                  top = max(0, int(height*(center_y-0.035)))
-                  bottom = min(height, int(height*(center_y+0.035)))
+                  center_y = 0.25 + 0.08 * slot_index
+                  left = max(0, int(width*0.0))
+                  right = min(width, int(width*0.18))
+                  top = max(0, int(height*(center_y-0.06)))
+                  bottom = min(height, int(height*(center_y+0.06)))
                   glyph = source.crop((left,top,right,bottom)).resize((180,180), Image.Resampling.LANCZOS)
               x = glyph_gap + (index % glyph_cols) * (glyph_cell_w + glyph_gap)
               y = glyph_gap + glyph_header + (index // glyph_cols) * (glyph_cell_h + glyph_gap)
