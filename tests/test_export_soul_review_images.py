@@ -54,6 +54,26 @@ class SoulReviewImageExportTests(unittest.TestCase):
         self.assertEqual(targets["hybrid-card"]["review_groups"], ["hybrid:DARK_EARTH"])
         self.assertEqual(targets["ncs-card"]["source_card_url"], "https://fmlunatic.com/card/ncs-card")
 
+
+    def test_earnsoul_namespace_does_not_select_require_soul_review(self):
+        rows = [
+            {
+                "card_id": "earn-mu02-only",
+                "name": "EarnSoul MU02 only",
+                "type": "unit",
+                "raw_payload": {"RequireSoul": "8101", "EarnSoul": "8201"},
+            },
+            {
+                "card_id": "require-ncs",
+                "name": "RequireSoul NCS",
+                "type": "unit",
+                "raw_payload": {"RequireSoul": "8201", "EarnSoul": "0101"},
+            },
+        ]
+        targets = build_target_cards(rows, expected_cards=1)
+        self.assertEqual(set(targets), {"require-ncs"})
+        self.assertEqual(targets["require-ncs"]["review_groups"], ["NCS"])
+
     def test_stream_extracts_only_target_cards_and_verifies_all_six_images(self):
         rows = self.rows()
         targets = build_target_cards(rows, expected_cards=3)
