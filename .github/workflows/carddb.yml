@@ -299,6 +299,62 @@ jobs:
           make_crop_sheet("top left icon", lambda w,h: (0, 0, int(w*0.24), int(h*0.20)))
           make_crop_sheet("top right badge", lambda w,h: (int(w*0.76), 0, w, int(h*0.20)))
           make_crop_sheet("below art row", lambda w,h: (int(w*0.08), int(h*0.60), int(w*0.94), int(h*0.74)))
+
+          hybrid_symbols = {
+              12:"DARK_EARTH", 13:"DARK_FIRE", 14:"DARK_LIGHT", 15:"DARK_WATER",
+              22:"FIRE_FOREST", 23:"FIRE_IRON", 24:"FIRE_WATER",
+              32:"WATER_EARTH", 33:"WATER_FOREST", 42:"FOREST_IRON",
+              43:"FOREST_LIGHT", 52:"IRON_EARTH", 53:"IRON_LIGHT", 62:"EARTH_LIGHT",
+          }
+          code_labels = {81:"MU", 82:"NCS", 83:"BONUS", **hybrid_symbols}
+          sample_codes = [81,82,83] + sorted(hybrid_symbols)
+          glyph_cols, glyph_cell_w, glyph_cell_h, glyph_gap, glyph_header = 4, 260, 240, 16, 62
+          glyph_rows = (len(sample_codes) + glyph_cols - 1) // glyph_cols
+          glyph_sheet = Image.new("RGB", (glyph_cols*glyph_cell_w+(glyph_cols+1)*glyph_gap, glyph_rows*glyph_cell_h+(glyph_rows+1)*glyph_gap+glyph_header), "white")
+          glyph_draw = ImageDraw.Draw(glyph_sheet)
+          glyph_draw.text((glyph_gap,glyph_gap), "DB29 visual RequireSoul glyph samples • codes 81/82/83 + 14 hybrids", fill="black", font=font)
+          glyph_samples = []
+
+          def sample_score(record):
+              token_list = record.get("all_tokens", [])
+              return (len(token_list), sum(int(t.get("amount",0)) for t in token_list), str(record.get("card_id","")))
+
+          for index, code in enumerate(sample_codes):
+              candidates = [record for record in rows if any(int(token.get("code",-1)) == code for token in record.get("all_tokens", []))]
+              assert candidates, f"No image candidate for RequireSoul code {code}"
+              record = min(candidates, key=sample_score)
+              token_list = record.get("all_tokens", [])
+              token_index = next(i for i,token in enumerate(token_list) if int(token.get("code",-1)) == code)
+              slot_index = sum(int(token.get("amount",0)) for token in token_list[:token_index])
+              image_path = root / "images" / "large" / f"{record['card_id']}.webp"
+              with Image.open(image_path) as source:
+                  source = source.convert("RGB")
+                  width, height = source.size
+                  center_y = 0.22 + 0.08 * slot_index
+                  left = max(0, int(width*0.015))
+                  right = min(width, int(width*0.13))
+                  top = max(0, int(height*(center_y-0.035)))
+                  bottom = min(height, int(height*(center_y+0.035)))
+                  glyph = source.crop((left,top,right,bottom)).resize((180,180), Image.Resampling.LANCZOS)
+              x = glyph_gap + (index % glyph_cols) * (glyph_cell_w + glyph_gap)
+              y = glyph_gap + glyph_header + (index // glyph_cols) * (glyph_cell_h + glyph_gap)
+              glyph_draw.rectangle((x,y,x+glyph_cell_w,y+glyph_cell_h), outline="#777777", width=2)
+              glyph_sheet.paste(glyph, (x+40,y+8))
+              glyph_draw.text((x+8,y+glyph_cell_h-44), f"Code {code_labels[code]}", fill="black", font=font)
+              glyph_draw.text((x+8,y+glyph_cell_h-26), f"ID {record['card_id']} • raw {record['source_require_soul']}", fill="black", font=font)
+              glyph_samples.append({
+                  "code":code, "label":code_labels[code], "card_id":record["card_id"],
+                  "require_soul":record["source_require_soul"], "slot_index":slot_index,
+                  "crop_box":[left,top,right,bottom], "image_size":[width,height],
+              })
+
+          glyph_path = output / "token-glyphs-17.png"
+          glyph_sheet.save(glyph_path, format="PNG", optimize=True)
+          glyph_buffer = io.BytesIO()
+          glyph_sheet.save(glyph_buffer, format="PNG", optimize=True)
+          print("TOKEN_GLYPH_SAMPLES_JSON=" + json.dumps(glyph_samples, ensure_ascii=False))
+          print("PREVIEW_TOKEN_GLYPHS_BASE64=" + base64.b64encode(glyph_buffer.getvalue()).decode("ascii"))
+          print(f"Token glyph sheet created: {glyph_path}; samples={len(glyph_samples)}; size={glyph_sheet.width}x{glyph_sheet.height}")
           PY
 
       - name: Upload NCS and BONUS overlap contact sheet
