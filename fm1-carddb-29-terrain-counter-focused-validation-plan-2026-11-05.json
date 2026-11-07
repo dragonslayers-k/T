@@ -1,0 +1,314 @@
+{
+  "schema_version": "FM1-DB29-TERRAIN-COUNTER-FOCUSED-VALIDATION-PLAN-1.0",
+  "created_at": "2026-11-05",
+  "baseline": {
+    "release": "DB29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "purpose": "7개 area/terrain counter 레코드의 TextBase/TextExtra 원문을 그대로 유지하며, counter identity/LP 경계/지형 슬롯/교체 대상/Hero Point timing의 검증 항목을 분리한다.",
+  "source_file": "data/reviews/fm1-carddb-29-semantic-review-reference-adjudication-2026-11-04.json",
+  "policy": {
+    "original_fields_unchanged": true,
+    "external_claims_not_executable": true,
+    "no_alias_automerge": true,
+    "unknowns_remain_pending": true
+  },
+  "summary": {
+    "card_count": 7,
+    "test_case_count": 8,
+    "all_pending": true,
+    "all_non_executable": true
+  },
+  "tests": [
+    {
+      "test_id": "LP-BOUNDARY-0",
+      "setup": "아군 남은 LP=0",
+      "expected": "카운터 발동 조건 불충족; LP 및 지형 변화 없음",
+      "status": "pending_manual_or_engine_validation"
+    },
+    {
+      "test_id": "LP-BOUNDARY-1",
+      "setup": "아군 남은 LP=1",
+      "expected": "조건 충족 시 LP 1 감소; 결과 LP=0",
+      "status": "pending_manual_or_engine_validation"
+    },
+    {
+      "test_id": "LP-BOUNDARY-2",
+      "setup": "아군 남은 LP=2",
+      "expected": "조건 충족 시 LP 1 감소; 결과 LP=1",
+      "status": "pending_manual_or_engine_validation"
+    },
+    {
+      "test_id": "COUNTER-COUNT",
+      "setup": "카운터 수 2 / 3 / 4",
+      "expected": "3카운터 표시의 실제 카운트 경계 및 발동 타이밍 확인; 추정 금지",
+      "status": "pending_manual_or_engine_validation"
+    },
+    {
+      "test_id": "TERRAIN-SLOT",
+      "setup": "아군 백필드의 원본 지형 1번이 존재 / 부재 / 다른 지형",
+      "expected": "카드 원문이 지정한 [원본지형]1 대상이 어떤 슬롯 해석인지 확인",
+      "status": "pending_manual_or_engine_validation"
+    },
+    {
+      "test_id": "REPLACEMENT",
+      "setup": "조건 충족 후 지형 교체",
+      "expected": "해당 카드별 원본 지형명에서 지정 교체 지형명으로 바뀌는지 확인; 다른 슬롯·카드 보존",
+      "status": "pending_manual_or_engine_validation"
+    },
+    {
+      "test_id": "LABEL-MISMATCH",
+      "setup": "TextBase와 TextExtra의 마레마/아레아 명칭이 불일치하는 사례",
+      "expected": "명칭 alias 자동 병합 금지; 원문 둘 다 보존하고 실제 counter identity 별도 확인",
+      "status": "pending_manual_or_engine_validation"
+    },
+    {
+      "test_id": "HERO-POINT",
+      "setup": "카운터 진행 전후",
+      "expected": "TextBase의 Hero Point 효과와 TextExtra LP/지형 교체 효과가 각각 어떤 타이밍에 적용되는지 분리 확인",
+      "status": "pending_manual_or_engine_validation"
+    }
+  ],
+  "cards": [
+    {
+      "card_id": "16112610278",
+      "card_name": "스컬시티",
+      "source_url": "https://fmlunatic.com/card/16112610278",
+      "TextBase": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 다크마레마 히어로 포인트를 1증가시킨다. ※ 다크마레아(3카운터) [끝없이 해골이 쏟아지는 도시.]",
+      "TextExtra": "※ 다크아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [스컬시티]1을 [해골도시]1로 변경시킨다.",
+      "candidate": {
+        "kind": "terrain_area_counter_replacement",
+        "counter_label_in_TextBase": "다크마레아(3카운터)",
+        "counter_label_in_TextExtra": "다크아레아(3카운터)",
+        "requires_lp_minimum": 1,
+        "lp_cost": 1,
+        "terrain_replacement": [
+          "스컬시티",
+          "해골도시"
+        ],
+        "label_mismatch": true,
+        "source_authority": "card_local_TextBase_and_TextExtra",
+        "engine_verified": false
+      },
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "applicable_test_ids": [
+        "LP-BOUNDARY-0",
+        "LP-BOUNDARY-1",
+        "LP-BOUNDARY-2",
+        "COUNTER-COUNT",
+        "TERRAIN-SLOT",
+        "REPLACEMENT",
+        "LABEL-MISMATCH",
+        "HERO-POINT"
+      ]
+    },
+    {
+      "card_id": "16112610283",
+      "card_name": "지나간자리",
+      "source_url": "https://fmlunatic.com/card/16112610283",
+      "TextBase": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 머스마레마 히어로 포인트를 1증가시킨다. ※ 머스마레마(3카운터) [투스샌드웜이 지나간 자리.]",
+      "TextExtra": "※ 어스아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [지나간자리]1을 [솟아난호수]1로 변경시킨다.",
+      "candidate": {
+        "kind": "terrain_area_counter_replacement",
+        "counter_label_in_TextBase": "머스마레마(3카운터)",
+        "counter_label_in_TextExtra": "어스아레아(3카운터)",
+        "requires_lp_minimum": 1,
+        "lp_cost": 1,
+        "terrain_replacement": [
+          "지나간자리",
+          "솟아난호수"
+        ],
+        "label_mismatch": true,
+        "source_authority": "card_local_TextBase_and_TextExtra",
+        "engine_verified": false
+      },
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "applicable_test_ids": [
+        "LP-BOUNDARY-0",
+        "LP-BOUNDARY-1",
+        "LP-BOUNDARY-2",
+        "COUNTER-COUNT",
+        "TERRAIN-SLOT",
+        "REPLACEMENT",
+        "LABEL-MISMATCH",
+        "HERO-POINT"
+      ]
+    },
+    {
+      "card_id": "16112610282",
+      "card_name": "초복합연구실",
+      "source_url": "https://fmlunatic.com/card/16112610282",
+      "TextBase": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 메탈마레마 히어로 포인트를 1증가시킨다. ※ 메탈아레아(3카운터) [실험체를 피해 차원이동중...]",
+      "TextExtra": "※ 메탈아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [초복합연구실]1을 [이동식연구소]1로 변경시킨다. ",
+      "candidate": {
+        "kind": "terrain_area_counter_replacement",
+        "counter_label_in_TextBase": "메탈아레아(3카운터)",
+        "counter_label_in_TextExtra": "메탈아레아(3카운터)",
+        "requires_lp_minimum": 1,
+        "lp_cost": 1,
+        "terrain_replacement": [
+          "초복합연구실",
+          "이동식연구소"
+        ],
+        "label_mismatch": false,
+        "source_authority": "card_local_TextBase_and_TextExtra",
+        "engine_verified": false
+      },
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "applicable_test_ids": [
+        "LP-BOUNDARY-0",
+        "LP-BOUNDARY-1",
+        "LP-BOUNDARY-2",
+        "COUNTER-COUNT",
+        "TERRAIN-SLOT",
+        "REPLACEMENT",
+        "LABEL-MISMATCH",
+        "HERO-POINT"
+      ]
+    },
+    {
+      "card_id": "16112610280",
+      "card_name": "생환의도시",
+      "source_url": "https://fmlunatic.com/card/16112610280",
+      "TextBase": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 워터마레마 히어로 포인트를 1증가시킨다. ※ 워터마레마(3카운터) [강력한 바다 영수와 고대 문명.]",
+      "TextExtra": "※ 워터아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [생환의도시]1을 [갑골위문명]1로 변경시킨다.",
+      "candidate": {
+        "kind": "terrain_area_counter_replacement",
+        "counter_label_in_TextBase": "워터마레마(3카운터)",
+        "counter_label_in_TextExtra": "워터아레아(3카운터)",
+        "requires_lp_minimum": 1,
+        "lp_cost": 1,
+        "terrain_replacement": [
+          "생환의도시",
+          "갑골위문명"
+        ],
+        "label_mismatch": true,
+        "source_authority": "card_local_TextBase_and_TextExtra",
+        "engine_verified": false
+      },
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "applicable_test_ids": [
+        "LP-BOUNDARY-0",
+        "LP-BOUNDARY-1",
+        "LP-BOUNDARY-2",
+        "COUNTER-COUNT",
+        "TERRAIN-SLOT",
+        "REPLACEMENT",
+        "LABEL-MISMATCH",
+        "HERO-POINT"
+      ]
+    },
+    {
+      "card_id": "16112610279",
+      "card_name": "강자의왕국",
+      "source_url": "https://fmlunatic.com/card/16112610279",
+      "TextBase": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 파이어아레마 히어로 포인트를 1증가시킨다. ※ 파이어마레마(3카운터) [강자만의 질서, 강자만의 왕국.]",
+      "TextExtra": "※ 파이어아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [강자의왕국]1을 [고블린왕국]1로 변경시킨다.",
+      "candidate": {
+        "kind": "terrain_area_counter_replacement",
+        "counter_label_in_TextBase": "파이어마레마(3카운터)",
+        "counter_label_in_TextExtra": "파이어아레아(3카운터)",
+        "requires_lp_minimum": 1,
+        "lp_cost": 1,
+        "terrain_replacement": [
+          "강자의왕국",
+          "고블린왕국"
+        ],
+        "label_mismatch": true,
+        "source_authority": "card_local_TextBase_and_TextExtra",
+        "engine_verified": false
+      },
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "applicable_test_ids": [
+        "LP-BOUNDARY-0",
+        "LP-BOUNDARY-1",
+        "LP-BOUNDARY-2",
+        "COUNTER-COUNT",
+        "TERRAIN-SLOT",
+        "REPLACEMENT",
+        "LABEL-MISMATCH",
+        "HERO-POINT"
+      ]
+    },
+    {
+      "card_id": "16112610281",
+      "card_name": "숲의안식처",
+      "source_url": "https://fmlunatic.com/card/16112610281",
+      "TextBase": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 포레스마레마 히어로 포인트를 1증가시킨다. ※ 포레스마레마 (3카운터) [세계수의 아래 울창한 안식처.]",
+      "TextExtra": "※ 포레스아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [숲의안식처]1을 [세계수의그늘]1로 변경시킨다.",
+      "candidate": {
+        "kind": "terrain_area_counter_replacement",
+        "counter_label_in_TextBase": "포레스마레마 (3카운터)",
+        "counter_label_in_TextExtra": "포레스아레아(3카운터)",
+        "requires_lp_minimum": 1,
+        "lp_cost": 1,
+        "terrain_replacement": [
+          "숲의안식처",
+          "세계수의그늘"
+        ],
+        "label_mismatch": true,
+        "source_authority": "card_local_TextBase_and_TextExtra",
+        "engine_verified": false
+      },
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "applicable_test_ids": [
+        "LP-BOUNDARY-0",
+        "LP-BOUNDARY-1",
+        "LP-BOUNDARY-2",
+        "COUNTER-COUNT",
+        "TERRAIN-SLOT",
+        "REPLACEMENT",
+        "LABEL-MISMATCH",
+        "HERO-POINT"
+      ]
+    },
+    {
+      "card_id": "16112610284",
+      "card_name": "클라우드시티",
+      "source_url": "https://fmlunatic.com/card/16112610284",
+      "TextBase": "LP=0 아군 필드 유닛 1,2의 AP/HP를 1증가시키고 홀리마레마 히어로 포인트를 1증가시킨다. ※ 폴리아레아(3카운터) [구름이 운반하는 공중도시.]",
+      "TextExtra": "※ 홀리아레아(3카운터) : 아군 남은 LP가 1 이상일때, 아군 Lp를 1감소시키고 아군 백필드 [클라우드시티]1을 [구름도시]1로 변경시킨다.",
+      "candidate": {
+        "kind": "terrain_area_counter_replacement",
+        "counter_label_in_TextBase": "폴리아레아(3카운터)",
+        "counter_label_in_TextExtra": "홀리아레아(3카운터)",
+        "requires_lp_minimum": 1,
+        "lp_cost": 1,
+        "terrain_replacement": [
+          "클라우드시티",
+          "구름도시"
+        ],
+        "label_mismatch": true,
+        "source_authority": "card_local_TextBase_and_TextExtra",
+        "engine_verified": false
+      },
+      "review_note": "카운터 수와 LP 조건·지형 교체 원문은 보존한다. TextBase 명칭과 TextExtra 작동 명칭의 차이를 alias로 확정하기 전까지 통합하지 않는다.",
+      "status": "pending_manual_semantic_review",
+      "runtime_status": "non_executable",
+      "applicable_test_ids": [
+        "LP-BOUNDARY-0",
+        "LP-BOUNDARY-1",
+        "LP-BOUNDARY-2",
+        "COUNTER-COUNT",
+        "TERRAIN-SLOT",
+        "REPLACEMENT",
+        "LABEL-MISMATCH",
+        "HERO-POINT"
+      ]
+    }
+  ]
+}

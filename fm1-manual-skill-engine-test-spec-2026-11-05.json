@@ -1,0 +1,2293 @@
+{
+  "schema_version": "FM1-MANUAL-SKILL-ENGINE-TEST-SPEC-1.0",
+  "baseline": {
+    "db_release": "DB29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "authority_note": "Definitions are copied from the Manual.zip-backed source catalog. DB29 Skill1 exact-label matching is complete for all 27 Manual rules (3,158 card rows; see data/reviews/fm1-manual-skill-db29-source-match-2026-11-05.json from Actions #571). The original card_specific_source_matches=0 count refers only to fully adjudicated card-local effect packets / runtime promotion, not to the completed exact Skill1 label match. Test cases remain design-only until independently implemented and passed.",
+  "source_catalog": "data/rules/fm1-skill-catalog-v1.json",
+  "summary": {
+    "manual_rule_count": 27,
+    "definitions_preserved": 27,
+    "executable_rules": 0,
+    "card_specific_source_matches": 0,
+    "tests_design_only": 108,
+    "exact_db29_skill1_label_rule_groups": 27,
+    "exact_db29_skill1_label_matched_card_rows": 3158,
+    "rules_without_exact_db29_skill1_label_match": 0,
+    "runtime_executable_rules": 0
+  },
+  "promotion_gate": [
+    "exact skill label and card_id from DB29 source rows",
+    "exact source text and card detail URL",
+    "manual source clause reviewed",
+    "concrete expected outcome for each test",
+    "engine test passes",
+    "no source data mutation"
+  ],
+  "rules": [
+    {
+      "rule_id": "normal_attack",
+      "skill_name_exact": "일반공격",
+      "aliases": [
+        "일반공격",
+        "일반공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "normal_damage",
+        "formula": "max(0, attacker.ap - defender.dp)"
+      },
+      "rule_definition": {
+        "kind": "normal_damage",
+        "formula": "max(0, attacker.ap - defender.dp)",
+        "requiresAttackerAP": 1,
+        "sourceNote": "매뉴얼은 일반공격을 특수기술이 없는 유닛의 기본 공격으로 정의"
+      },
+      "exceptions": [],
+      "test_design": {
+        "test_id_prefix": "MANUAL-NORMAL_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "일반공격",
+        "matched_card_rows": 68,
+        "representative_card": {
+          "card_id": "10020341112",
+          "card_name": "은룡의검",
+          "source_field": "Skill1",
+          "source_value": 552,
+          "exact_source_label": "일반공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10020341112"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "defense_bypass",
+      "skill_name_exact": "방어무시",
+      "aliases": [
+        "방어무시",
+        "방어무시기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "direct_hp_damage",
+        "formula": "attacker.ap"
+      },
+      "rule_definition": {
+        "kind": "direct_hp_damage",
+        "formula": "attacker.ap",
+        "ignoresDefenderDP": true,
+        "ignoresNegativeDefenderDP": true
+      },
+      "exceptions": [
+        "대상의 DP를 피해 계산에 사용하지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-DEFENSE_BYPASS",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "방어무시",
+        "matched_card_rows": 234,
+        "representative_card": {
+          "card_id": "10091525193",
+          "card_name": "카오틱비스트",
+          "source_field": "Skill1",
+          "source_value": 243,
+          "exact_source_label": "방어무시",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10091525193"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "fatal_attack",
+      "skill_name_exact": "치명공격",
+      "aliases": [
+        "치명공격",
+        "치명공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "set_target_hp",
+        "value": 1
+      },
+      "rule_definition": {
+        "kind": "set_target_hp",
+        "value": 1,
+        "trigger": "after_attack"
+      },
+      "exceptions": [
+        "HP가 이미 0인 대상은 소생시키지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-FATAL_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "치명공격",
+        "matched_card_rows": 153,
+        "representative_card": {
+          "card_id": "10012024612",
+          "card_name": "선더골렘",
+          "source_field": "Skill1",
+          "source_value": 643,
+          "exact_source_label": "치명공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10012024612"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "piercing_attack",
+      "skill_name_exact": "관통공격",
+      "aliases": [
+        "관통공격",
+        "관통공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "pierce_dp_then_hp",
+        "formula": "attacker.ap",
+        "order": [
+          "reduce_positive_dp",
+          "overflow_to_hp"
+        ]
+      },
+      "rule_definition": {
+        "kind": "pierce_dp_then_hp",
+        "formula": "attacker.ap",
+        "order": [
+          "reduce_defender_dp_by_attacker_ap",
+          "overflow_damage_to_hp"
+        ]
+      },
+      "exceptions": [
+        "DP 감소가 대상의 DP 표식을 거스르면 해당 감소는 차단될 수 있다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-PIERCING_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "관통공격",
+        "matched_card_rows": 172,
+        "representative_card": {
+          "card_id": "10091525214",
+          "card_name": "블랙유니콘",
+          "source_field": "Skill1",
+          "source_value": 51,
+          "exact_source_label": "관통공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10091525214"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "weaken_attack",
+      "skill_name_exact": "약화공격",
+      "aliases": [
+        "약화공격",
+        "약화공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "modify_target_stats",
+        "ap": -1,
+        "dp": -1
+      },
+      "rule_definition": {
+        "kind": "modify_target_stats",
+        "ap": -1,
+        "dp": -1
+      },
+      "exceptions": [
+        "수치 보호 표식은 감소를 막는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-WEAKEN_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "약화공격",
+        "matched_card_rows": 141,
+        "representative_card": {
+          "card_id": "10091525190",
+          "card_name": "이블크로우",
+          "source_field": "Skill1",
+          "source_value": 454,
+          "exact_source_label": "약화공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10091525190"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "petrify_attack",
+      "skill_name_exact": "석화공격",
+      "aliases": [
+        "석화공격",
+        "석화공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "set_and_modify_target_stats",
+        "ap": 0,
+        "dp": 1
+      },
+      "rule_definition": {
+        "kind": "set_and_modify_target_stats",
+        "ap": 0,
+        "dp": 1
+      },
+      "exceptions": [
+        "수치 보호 표식은 각 변경을 막을 수 있다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-PETRIFY_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "석화공격",
+        "matched_card_rows": 120,
+        "representative_card": {
+          "card_id": "10010624589",
+          "card_name": "파프니르",
+          "source_field": "Skill1",
+          "source_value": 339,
+          "exact_source_label": "석화공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624589"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "vampiric_attack",
+      "skill_name_exact": "흡혈공격",
+      "aliases": [
+        "흡혈공격",
+        "흡혈공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "after_damage",
+      "conditions": {
+        "actualHpDamageMin": 1
+      },
+      "effect": {
+        "kind": "heal_from_damage",
+        "formula": "ceil(actual_hp_damage / 2)"
+      },
+      "rule_definition": {
+        "kind": "heal_from_damage",
+        "formula": "ceil(actual_hp_damage/2)",
+        "usesActualHpDamage": true
+      },
+      "exceptions": [
+        "DP에 막혀 HP 피해가 0이면 회복하지 않는다.",
+        "공격자 HP 상한과 HP 표식을 적용한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-VAMPIRIC_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "흡혈공격",
+        "matched_card_rows": 115,
+        "representative_card": {
+          "card_id": "10010624542",
+          "card_name": "다크카운티스",
+          "source_field": "Skill1",
+          "source_value": 788,
+          "exact_source_label": "흡혈공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624542"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "aging_attack",
+      "skill_name_exact": "노화공격",
+      "aliases": [
+        "노화공격",
+        "노화공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "modify_target_stats",
+        "ap": -2
+      },
+      "rule_definition": {
+        "kind": "modify_target_stats",
+        "ap": -2
+      },
+      "exceptions": [
+        "수치 보호 표식은 감소를 막는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-AGING_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "노화공격",
+        "matched_card_rows": 53,
+        "representative_card": {
+          "card_id": "13020626691",
+          "card_name": "타락자",
+          "source_field": "Skill1",
+          "source_value": 106,
+          "exact_source_label": "노화공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/13020626691"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "charge_attack",
+      "skill_name_exact": "돌진공격",
+      "aliases": [
+        "돌진공격",
+        "돌진공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {},
+      "effect": {
+        "kind": "attack_with_ap_and_dp",
+        "formula": "attacker.ap + attacker.dp - defender.dp"
+      },
+      "rule_definition": {
+        "kind": "attack_with_ap_and_dp",
+        "formula": "attacker.ap + attacker.dp",
+        "can_attack_whenApZero": true,
+        "can_attack_whenApCoinZero": true
+      },
+      "exceptions": [
+        "DP가 음수인 경우에도 부호를 유지한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-CHARGE_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "돌진공격",
+        "matched_card_rows": 189,
+        "representative_card": {
+          "card_id": "10010624588",
+          "card_name": "패스파인더",
+          "source_field": "Skill1",
+          "source_value": 135,
+          "exact_source_label": "돌진공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624588"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "beast_tamer",
+      "skill_name_exact": "야수조련",
+      "aliases": [
+        "야수조련",
+        "야수조련기술",
+        "야수조련공격"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "targetAbility": "beast"
+      },
+      "effect": {
+        "kind": "set_target_stats",
+        "ap": 0
+      },
+      "rule_definition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == beast",
+        "ap": 0,
+        "dp": null
+      },
+      "exceptions": [
+        "대상의 야수 능력이 확인된 경우에만 발동한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-BEAST_TAMER",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "야수조련",
+        "matched_card_rows": 63,
+        "representative_card": {
+          "card_id": "11011925567",
+          "card_name": "네추럴마스터",
+          "source_field": "Skill1",
+          "source_value": 450,
+          "exact_source_label": "야수조련",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/11011925567"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "bravery_attack",
+      "skill_name_exact": "용맹공격",
+      "aliases": [
+        "용맹공격",
+        "용맹공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "targetLevelGreaterThanOrEqualAttacker": true
+      },
+      "effect": {
+        "kind": "bonus_damage",
+        "amount": 1
+      },
+      "rule_definition": {
+        "kind": "bonus_damage",
+        "amount": 1,
+        "condition": "defender.level >= attacker.level",
+        "apZeroStillDealsBonus": true,
+        "noEffectWhenTargetLevelLower": true
+      },
+      "exceptions": [
+        "공격자가 유효 AP 조건을 충족하지 못하면 상대 효과를 발동하지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-BRAVERY_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "용맹공격",
+        "matched_card_rows": 221,
+        "representative_card": {
+          "card_id": "10010624545",
+          "card_name": "타투파이터",
+          "source_field": "Skill1",
+          "source_value": 508,
+          "exact_source_label": "용맹공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624545"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "regeneration",
+      "skill_name_exact": "재생능력",
+      "aliases": [
+        "재생능력",
+        "재생공격",
+        "재생공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {},
+      "effect": {
+        "kind": "modify_attacker_stats",
+        "hp": 1
+      },
+      "rule_definition": {
+        "kind": "modify_attacker_stats",
+        "hp": 1,
+        "trigger": "on_attack",
+        "appliesEvenWhenNoHpDamage": true
+      },
+      "exceptions": [
+        "대상에게 피해를 주지 못해도 자기 회복은 적용된다.",
+        "HP 표식과 최대 HP를 적용한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-REGENERATION",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "재생능력",
+        "matched_card_rows": 157,
+        "representative_card": {
+          "card_id": "10010624560",
+          "card_name": "울프라이더",
+          "source_field": "Skill1",
+          "source_value": 572,
+          "exact_source_label": "재생능력",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624560"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "frenzy_attack",
+      "skill_name_exact": "광분공격",
+      "aliases": [
+        "광분공격",
+        "광분공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "before_unit_damage",
+      "conditions": {},
+      "effect": {
+        "kind": "sacrifice_hp_for_damage",
+        "leaveHp": 1,
+        "bonusFormula": "max(0, attacker.hp_before - 1)"
+      },
+      "rule_definition": {
+        "kind": "sacrifice_hp_for_damage",
+        "leaveHp": 1,
+        "bonusFormula": "attacker.hp_before - 1",
+        "addToAttackPower": true,
+        "canAttackWhenApZero": true,
+        "canAttackWhenApCoinZero": true
+      },
+      "exceptions": [
+        "HP 감소 보호 표식으로 희생이 막히면 희생량을 보너스로 더하지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-FRENZY_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "광분공격",
+        "matched_card_rows": 110,
+        "representative_card": {
+          "card_id": "10010624538",
+          "card_name": "다크퍼밀리어",
+          "source_field": "Skill1",
+          "source_value": 54,
+          "exact_source_label": "광분공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624538"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "consecutive_attack",
+      "skill_name_exact": "연속공격",
+      "aliases": [
+        "연속공격",
+        "연속공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "double_after_ap_minus_one",
+        "formula": "max(0, (attacker.ap - 1) * 2 - defender.dp)"
+      },
+      "rule_definition": {
+        "kind": "double_after_ap_minus_one",
+        "formula": "max(0,(attacker.ap - 1)*2)"
+      },
+      "exceptions": [
+        "AP 감소는 수치 표식을 적용한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-CONSECUTIVE_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "연속공격",
+        "matched_card_rows": 116,
+        "representative_card": {
+          "card_id": "10050441142",
+          "card_name": "트윈스컬소드",
+          "source_field": "Skill1",
+          "source_value": 482,
+          "exact_source_label": "연속공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10050441142"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "fear_attack",
+      "skill_name_exact": "공포공격",
+      "aliases": [
+        "공포공격",
+        "공포공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "targetLevelLessThanOrEqualAttacker": true
+      },
+      "effect": {
+        "kind": "bonus_damage",
+        "amount": 1
+      },
+      "rule_definition": {
+        "kind": "bonus_damage",
+        "amount": 1,
+        "condition": "defender.level <= attacker.level",
+        "apZeroStillDealsBonus": true,
+        "noEffectWhenTargetLevelHigher": true
+      },
+      "exceptions": [
+        "공격자가 유효 AP 조건을 충족하지 못하면 상대 효과를 발동하지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-FEAR_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "공포공격",
+        "matched_card_rows": 167,
+        "representative_card": {
+          "card_id": "10050424835",
+          "card_name": "다크프리스트",
+          "source_field": "Skill1",
+          "source_value": 49,
+          "exact_source_label": "공포공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10050424835"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "charm_attack",
+      "skill_name_exact": "매료공격",
+      "aliases": [
+        "매료공격",
+        "매료공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "after_damage",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "actualHpDamage": 0
+      },
+      "effect": {
+        "kind": "set_target_stats",
+        "ap": 0
+      },
+      "rule_definition": {
+        "kind": "set_target_stats",
+        "ap": 0,
+        "condition": "actual_hp_damage == 0 && defender.dp_blocked_attack == true"
+      },
+      "exceptions": [
+        "HP 피해가 1 이상이면 발동하지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-CHARM_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "매료공격",
+        "matched_card_rows": 127,
+        "representative_card": {
+          "card_id": "10020324637",
+          "card_name": "데몬",
+          "source_field": "Skill1",
+          "source_value": 198,
+          "exact_source_label": "매료공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10020324637"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "ability_seal",
+      "skill_name_exact": "기술봉쇄",
+      "aliases": [
+        "기술봉쇄",
+        "봉쇄공격",
+        "봉쇄공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "replace_target_special_skill",
+        "value": "일반공격"
+      },
+      "rule_definition": {
+        "kind": "replace_target_special_skill",
+        "value": "일반공격",
+        "trigger": "after_attack",
+        "suppressesSpecialSkillEffects": true
+      },
+      "exceptions": [
+        "한 유닛은 특수 공격 기술 하나만 가지며 새 기술이 이전 기술을 대체한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-ABILITY_SEAL",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "기술봉쇄",
+        "matched_card_rows": 203,
+        "representative_card": {
+          "card_id": "10020324644",
+          "card_name": "환상낚시꾼",
+          "source_field": "Skill1",
+          "source_value": 82,
+          "exact_source_label": "기술봉쇄",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10020324644"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "spell_suppression",
+      "skill_name_exact": "주문봉쇄",
+      "aliases": [
+        "주문봉쇄",
+        "마법봉쇄",
+        "마법봉쇄기술",
+        "마법봉쇄공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "targetAbility": "magic"
+      },
+      "effect": {
+        "kind": "set_target_stats",
+        "ap": 0
+      },
+      "rule_definition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == magic",
+        "ap": 0,
+        "dp": null
+      },
+      "exceptions": [
+        "마법 능력 여부를 확인한 경우에만 적용한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-SPELL_SUPPRESSION",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "주문봉쇄",
+        "matched_card_rows": 56,
+        "representative_card": {
+          "card_id": "10010624550",
+          "card_name": "혼드비스트",
+          "source_field": "Skill1",
+          "source_value": 602,
+          "exact_source_label": "주문봉쇄",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624550"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "weapon_suppression",
+      "skill_name_exact": "무기봉쇄",
+      "aliases": [
+        "무기봉쇄",
+        "무기뺏기",
+        "무기뺏기기술",
+        "무기뺏기공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "targetAbility": "gear"
+      },
+      "effect": {
+        "kind": "set_target_stats",
+        "ap": 0
+      },
+      "rule_definition": {
+        "kind": "set_target_stats",
+        "condition": "defender.ability == equipment",
+        "ap": 0,
+        "dp": null
+      },
+      "exceptions": [
+        "장비 능력 여부를 확인한 경우에만 적용한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-WEAPON_SUPPRESSION",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "무기봉쇄",
+        "matched_card_rows": 48,
+        "representative_card": {
+          "card_id": "10010624543",
+          "card_name": "데크라프",
+          "source_field": "Skill1",
+          "source_value": 224,
+          "exact_source_label": "무기봉쇄",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624543"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "copy_attack",
+      "skill_name_exact": "공격복제",
+      "aliases": [
+        "공격복제",
+        "복제공격",
+        "복제공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "copy_target_ap_for_attack",
+        "source": "defender.ap",
+        "dpPolicy": "manual_unspecified"
+      },
+      "rule_definition": {
+        "kind": "copy_target_ap_for_attack",
+        "source": "defender.ap",
+        "usesDefenderEffectiveAp": true,
+        "ignoresAttackerCoinAndAttackModifiers": true
+      },
+      "exceptions": [
+        "자신의 코인 기술 또는 공격력 증감이 복제 공격값을 직접 바꾸지 않는다.",
+        "DP 무시 여부는 매뉴얼에 명시되지 않아 별도 확인이 필요하다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-COPY_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "공격복제",
+        "matched_card_rows": 48,
+        "representative_card": {
+          "card_id": "10050441147",
+          "card_name": "진실의거울",
+          "source_field": "Skill1",
+          "source_value": 42,
+          "exact_source_label": "공격복제",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10050441147"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "shield_break",
+      "skill_name_exact": "방패파괴",
+      "aliases": [
+        "방패파괴",
+        "방패파괴기술",
+        "방패파괴공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "targetDpNonNegative": true
+      },
+      "effect": {
+        "kind": "set_target_stats",
+        "dp": 0
+      },
+      "rule_definition": {
+        "kind": "set_target_stats",
+        "dp": 0,
+        "condition": "defender.dp >= 0",
+        "noEffectWhenDefenderDpNegative": true
+      },
+      "exceptions": [
+        "대상 DP가 음수이면 효과가 없다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-SHIELD_BREAK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "방패파괴",
+        "matched_card_rows": 96,
+        "representative_card": {
+          "card_id": "10010624551",
+          "card_name": "해적전투원",
+          "source_field": "Skill1",
+          "source_value": 249,
+          "exact_source_label": "방패파괴",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624551"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "curse_attack",
+      "skill_name_exact": "저주공격",
+      "aliases": [
+        "저주공격",
+        "저주공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "modify_target_stats",
+        "ap": -2,
+        "dp": -2
+      },
+      "rule_definition": {
+        "kind": "modify_target_stats",
+        "ap": -2,
+        "dp": -2
+      },
+      "exceptions": [
+        "수치 보호 표식은 감소를 막는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-CURSE_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "저주공격",
+        "matched_card_rows": 84,
+        "representative_card": {
+          "card_id": "10030324708",
+          "card_name": "다크조커",
+          "source_field": "Skill1",
+          "source_value": 576,
+          "exact_source_label": "저주공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10030324708"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "defensive_use",
+      "skill_name_exact": "방어이용",
+      "aliases": [
+        "방어이용",
+        "방어이용기술",
+        "방어이용공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "direct_hp_damage",
+        "formula": "max(0, attacker.ap + defender.dp)"
+      },
+      "rule_definition": {
+        "kind": "direct_hp_damage",
+        "formula": "attacker.ap + defender.dp",
+        "negativeDefenderDpReducesAttackerAp": true
+      },
+      "exceptions": [
+        "대상 DP가 음수이면 공격자의 AP를 그만큼 상쇄한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-DEFENSIVE_USE",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "방어이용",
+        "matched_card_rows": 164,
+        "representative_card": {
+          "card_id": "10010624568",
+          "card_name": "포춘텔러",
+          "source_field": "Skill1",
+          "source_value": 245,
+          "exact_source_label": "방어이용",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624568"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "taunt_attack",
+      "skill_name_exact": "조롱공격",
+      "aliases": [
+        "조롱공격",
+        "조롱",
+        "조롱능력",
+        "조롱공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "after_damage",
+      "conditions": {
+        "attackerRolledAPMin": 1,
+        "targetSurvives": true
+      },
+      "effect": {
+        "kind": "set_target_hp_and_transfer_lost_hp_to_ap",
+        "hp": 1
+      },
+      "rule_definition": {
+        "kind": "set_target_hp_and_transfer_lost_hp_to_ap",
+        "hp": 1,
+        "apGainFormula": "defender.hp_before - 1"
+      },
+      "exceptions": [
+        "대상이 이미 파괴된 경우에는 발동하지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-TAUNT_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "조롱공격",
+        "matched_card_rows": 47,
+        "representative_card": {
+          "card_id": "10030324709",
+          "card_name": "다크조커",
+          "source_field": "Skill1",
+          "source_value": 598,
+          "exact_source_label": "조롱공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10030324709"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "confusion_attack",
+      "skill_name_exact": "혼란공격",
+      "aliases": [
+        "혼란공격",
+        "혼란공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "swap_target_stats",
+        "stats": [
+          "ap",
+          "hp"
+        ]
+      },
+      "rule_definition": {
+        "kind": "swap_target_stats",
+        "stats": [
+          "ap",
+          "hp"
+        ]
+      },
+      "exceptions": [
+        "각 수치 표식과 HP 상한을 적용한다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-CONFUSION_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "혼란공격",
+        "matched_card_rows": 94,
+        "representative_card": {
+          "card_id": "10040724804",
+          "card_name": "견습수도사",
+          "source_field": "Skill1",
+          "source_value": 767,
+          "exact_source_label": "혼란공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10040724804"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "stealth_attack",
+      "skill_name_exact": "은폐공격",
+      "aliases": [
+        "은폐공격",
+        "은폐공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "unit_attack",
+      "conditions": {},
+      "effect": {
+        "kind": "modify_attacker_stats",
+        "dp": 1
+      },
+      "rule_definition": {
+        "kind": "modify_attacker_stats",
+        "dp": 1,
+        "trigger": "after_attack"
+      },
+      "exceptions": [
+        "대상에게 피해를 주지 못해도 자기 DP 증가는 적용된다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-STEALTH_ATTACK",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "은폐공격",
+        "matched_card_rows": 86,
+        "representative_card": {
+          "card_id": "10040724812",
+          "card_name": "블라인드랩터",
+          "source_field": "Skill1",
+          "source_value": 533,
+          "exact_source_label": "은폐공격",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10040724812"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    },
+    {
+      "rule_id": "defense_convert",
+      "skill_name_exact": "방어변환",
+      "aliases": [
+        "방어변환",
+        "방어전환",
+        "방어전환기술",
+        "방어전환공격기술"
+      ],
+      "authority": "manual",
+      "verification_status": "manual_verified",
+      "implementation_status": "pending_engine_test",
+      "source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "trigger": "after_damage",
+      "conditions": {
+        "attackerRolledAPMin": 1
+      },
+      "effect": {
+        "kind": "set_target_dp_negative",
+        "policy": "manual_negative_marker"
+      },
+      "rule_definition": {
+        "kind": "set_target_dp_negative",
+        "policy": "apply_negative_sign_to_dp",
+        "trigger": "after_attack"
+      },
+      "exceptions": [
+        "현재 매뉴얼은 DP에 음수 표식을 붙인다고 설명한다. 이미 음수인 DP의 부호 반전 여부는 확정하지 않는다."
+      ],
+      "test_design": {
+        "test_id_prefix": "MANUAL-DEFENSE_CONVERT",
+        "cases": [
+          {
+            "case": "trigger_positive",
+            "intent": "Confirm documented trigger causes this rule's effect.",
+            "status": "design_only"
+          },
+          {
+            "case": "trigger_negative",
+            "intent": "Confirm the effect does not occur when trigger conditions are unmet.",
+            "status": "design_only"
+          },
+          {
+            "case": "boundary",
+            "intent": "Exercise exact documented threshold/value boundary.",
+            "status": "design_only"
+          },
+          {
+            "case": "interaction",
+            "intent": "Check ordering and interaction with ordinary attack/defense or another rule.",
+            "status": "design_only"
+          }
+        ],
+        "executable": false
+      },
+      "card_source_matching": {
+        "status": "exact_skill1_label_matched_effect_semantics_pending",
+        "exact_db29_skill1_label": "방어변환",
+        "matched_card_rows": 26,
+        "representative_card": {
+          "card_id": "10010624563",
+          "card_name": "리듬포이",
+          "source_field": "Skill1",
+          "source_value": 244,
+          "exact_source_label": "방어변환",
+          "match_type": "exact_manual_label",
+          "source_card_url": "https://fmlunatic.com/card/10010624563"
+        },
+        "effect_excerpt_status": "pending_card_local_semantic_packet",
+        "runtime_status": "pending_engine_test",
+        "card_id": null,
+        "exact_db29_source_text": null,
+        "source_card_url": null
+      }
+    }
+  ]
+}

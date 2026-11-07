@@ -7,23 +7,30 @@ on:
     paths:
       - "scripts/**"
       - "tests/**"
-      - "docs/**"
       - "data/rules/**"
+      - "data/raw/**"
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "package*.json"
       - ".github/workflows/carddb.yml"
   pull_request:
     branches: [main]
     paths:
       - "scripts/**"
       - "tests/**"
-      - "docs/**"
+      - "data/rules/**"
+      - "data/raw/**"
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "package*.json"
       - ".github/workflows/carddb.yml"
   workflow_dispatch:
     inputs:
       mode:
-        description: "probe = inspect live site; audit-release = rebuild DB from an existing Release; crawl = collect a new source snapshot"
+        description: "probe = inspect live site; audit-release = full DB29 audit; crawl = collect source; soul-image-evidence = export 831 image pairs"
         required: true
         type: choice
-        options: [probe, audit-release, crawl]
+        options: [probe, audit-release, crawl, soul-image-evidence, full-image-ocr]
         default: audit-release
       source_release_tag:
         description: "Existing immutable DB Release used by audit-release mode"
@@ -53,7 +60,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-db-audit]') && 'audit-release') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-image-ocr]') && 'full-image-ocr') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-image-ocr]') && 'full-image-ocr') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[soul-image-evidence]') && 'soul-image-evidence') || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[full-db-audit]') && 'audit-release') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-db-audit]') && 'audit-release') || 'tests' }}
       SOURCE_RELEASE_TAG: ${{ inputs.source_release_tag || 'fm1-carddb-29' }}
       PUBLISH_RELEASE: ${{ inputs.publish_release || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]')) }}
       RELEASE_TAG: ${{ inputs.release_tag || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-db-release]') && 'fm1-carddb-30') || 'fm1-carddb-29' }}
@@ -65,16 +72,34 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Pillow for image regression tests
+        run: python -m pip install --disable-pip-version-check Pillow
+
+      - name: Install Tesseract OCR with English and Korean models
+        if: ${{ env.MODE == 'full-image-ocr' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-kor
+          tesseract --list-langs
+
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py
+          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/export_soul_review_images.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py scripts/build_runtime_cost_overlay.py scripts/build_card_semantic_ledger.py scripts/full_card_visual_ocr_inventory.py
+          python scripts/build_runtime_cost_overlay.py --self-test
           python -m unittest tests/test_effect_pattern_audit.py
+          python -m unittest tests/test_compact_effect_review.py
           python -m unittest tests/test_cost_decoding.py
+          python -m unittest tests/test_export_soul_review_images.py
           python -m unittest tests/test_effect_candidates.py
           python -m unittest tests/test_manual_rules.py
           python -m unittest tests/test_infer_unmapped_skills.py
           python -m unittest tests/test_card_field_coverage.py
+          python -m unittest tests/test_runtime_source_inventory.py
+          python -m unittest tests/test_card_semantic_ledger.py
+          python -m unittest tests/test_full_card_visual_ocr_inventory.py
+          python scripts/full_card_visual_ocr_inventory.py --self-test
           python -m unittest tests/test_semantic_gap_completion.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
@@ -82,9 +107,74 @@ jobs:
           python scripts/decode_soul_costs.py --self-test
           python scripts/build_db.py --self-test
 
-      - name: Install image decoder for full audits
-        if: ${{ env.MODE == 'audit-release' || env.MODE == 'crawl' }}
-        run: python -m pip install --disable-pip-version-check Pillow
+      - name: Build compact DB29 runtime source inventory (explicit marker only)
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+            git fetch --no-tags --depth=1 origin "$PR_HEAD_SHA"
+          else
+            PR_HEAD_SHA="$GITHUB_SHA"
+          fi
+          if ! git log -1 --format=%B "$PR_HEAD_SHA" | grep -Fq 'runtime-inventory'; then
+            echo "No [runtime-inventory] marker on PR head $PR_HEAD_SHA; skipping DB29 source download."
+            exit 0
+          fi
+          mkdir -p "$RUNNER_TEMP/runtime-source"
+          BASE="https://github.com/dragonslayers-k/T/releases/download/fm1-carddb-29"
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "$BASE/fm1_cards.sqlite.gz" -o "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite.gz"
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "$BASE/sqlite-build-summary.json" -o "$RUNNER_TEMP/runtime-source/sqlite-build-summary.json"
+          python - "$RUNNER_TEMP/runtime-source" <<'PY'
+          import hashlib, json, sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          summary=json.loads((root/"sqlite-build-summary.json").read_text(encoding="utf-8"))
+          actual=hashlib.sha256((root/"fm1_cards.sqlite.gz").read_bytes()).hexdigest()
+          expected=summary.get("sqliteGzipSha256")
+          if not expected or actual.lower()!=str(expected).lower():
+              raise SystemExit(f"DB29 SQLite gzip checksum mismatch: {actual} != {expected}")
+          if summary.get("cards") != 15350 or summary.get("integrity") != "ok":
+              raise SystemExit("Downloaded SQLite summary does not describe a valid 15,350-card DB29 dataset")
+          print(json.dumps({
+              "sourceReleaseTag":"fm1-carddb-29",
+              "sqliteGzipSha256":actual,
+              "cards":summary.get("cards"),
+              "categories":summary.get("categories"),
+              "integrity":summary.get("integrity")
+          },ensure_ascii=False))
+          PY
+          gzip -t "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite.gz"
+          gzip -dc "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite.gz" > "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite"
+          python scripts/runtime_source_inventory.py \
+            --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
+            --output data/runtime-source-inventory.json
+          python scripts/build_runtime_cost_overlay.py \
+            --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
+            --output data/runtime-cost-overlay.json
+          python scripts/build_card_semantic_ledger.py \
+            --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
+            --jsonl-gz data/card-semantic-ledger/cards.jsonl.gz \
+            --csv data/card-semantic-ledger/card-index.csv \
+            --summary data/card-semantic-ledger/summary.json
+          echo "RUN_RUNTIME_INVENTORY=true" >> "$GITHUB_ENV"
+
+      - name: Upload compact DB29 runtime source inventory
+        if: ${{ always() && env.RUN_RUNTIME_INVENTORY == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-db29-runtime-source-inventory-${{ github.run_number }}
+          path: |
+            data/runtime-source-inventory.json
+            data/runtime-cost-overlay.json
+            data/card-semantic-ledger/cards.jsonl.gz
+            data/card-semantic-ledger/card-index.csv
+            data/card-semantic-ledger/summary.json
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
 
       - name: Set up Node and browser tools
         if: ${{ env.MODE == 'probe' || env.MODE == 'crawl' }}
@@ -135,6 +225,80 @@ jobs:
           cp data/source-archive/image-summary.json data/raw/image-summary.json
           cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
           tar -tzf data/images.tar.gz >/dev/null
+
+      - name: Download DB29 source cards and image archive for focused soul review
+        if: ${{ env.MODE == 'soul-image-evidence' }}
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${SOURCE_RELEASE_TAG}"
+          mkdir -p data/raw data/source-archive
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/cards.jsonl.gz" -o data/source-archive/cards.jsonl.gz
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/images.tar.gz.part-aa" -o data/source-archive/images.tar.gz.part-aa
+          gzip -t data/source-archive/cards.jsonl.gz
+          gzip -dc data/source-archive/cards.jsonl.gz > data/raw/cards.jsonl
+          cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
+          tar -tzf data/images.tar.gz >/dev/null
+
+      - name: Download immutable DB29 source cards and full image archive for visual OCR census
+        if: ${{ env.MODE == 'full-image-ocr' }}
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${SOURCE_RELEASE_TAG}"
+          mkdir -p data/raw data/source-archive
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/cards.jsonl.gz" -o data/source-archive/cards.jsonl.gz
+          curl --fail --location --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 30 \
+            "${BASE}/images.tar.gz.part-aa" -o data/source-archive/images.tar.gz.part-aa
+          gzip -t data/source-archive/cards.jsonl.gz
+          gzip -dc data/source-archive/cards.jsonl.gz > data/raw/cards.jsonl
+          cat data/source-archive/images.tar.gz.part-* > data/images.tar.gz
+          tar -tzf data/images.tar.gz >/dev/null
+          sha256sum data/source-archive/cards.jsonl.gz data/images.tar.gz
+
+
+      - name: Run full 15,350-card visual and OCR inventory
+        if: ${{ env.MODE == 'full-image-ocr' }}
+        timeout-minutes: 300
+        run: |
+          set -euo pipefail
+          python scripts/full_card_visual_ocr_inventory.py \
+            --archive data/images.tar.gz \
+            --cards-jsonl data/raw/cards.jsonl \
+            --output-dir data/full-card-visual-ocr \
+            --expected-cards 15350 \
+            --language eng+kor
+
+      - name: Export all 831 RequireSoul review-card image pairs
+        if: ${{ env.MODE == 'soul-image-evidence' }}
+        run: |
+          set -euo pipefail
+          python scripts/export_soul_review_images.py \
+            --archive data/images.tar.gz \
+            --cards-jsonl data/raw/cards.jsonl \
+            --output-dir data/soul-image-evidence \
+            --expected-cards 831
+
+      - name: Upload complete-population visual OCR evidence
+        if: ${{ always() && env.MODE == 'full-image-ocr' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-db29-full-card-visual-ocr-${{ github.run_number }}
+          path: data/full-card-visual-ocr/
+          if-no-files-found: warn
+          compression-level: 6
+          retention-days: 30
+
+      - name: Upload focused soul review image evidence
+        if: ${{ env.MODE == 'soul-image-evidence' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm1-soul-cost-image-evidence-${{ github.run_number }}
+          path: data/soul-image-evidence/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
 
       - name: Archive freshly downloaded images
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'crawl' }}
@@ -203,6 +367,16 @@ jobs:
           assert r.get("unmapped_skill_card_rows",0)==0, r
           PY
 
+      - name: Build compact card-level effect review output
+        if: ${{ always() && (env.MODE == 'audit-release' || env.MODE == 'crawl') && hashFiles('data/gap-reports/effect-gap-report.jsonl') != '' }}
+        run: |
+          set -euo pipefail
+          python scripts/compact_effect_review.py \
+            --input data/gap-reports/effect-gap-report.jsonl \
+            --csv data/gap-reports/effect-review-compact.csv \
+            --summary data/gap-reports/effect-review-compact-summary.json \
+            --step-summary "$GITHUB_STEP_SUMMARY"
+
       - name: Upload focused semantic review queues
         if: ${{ always() && (env.MODE == 'audit-release' || env.MODE == 'crawl') && hashFiles('data/gap-reports/effect-gap-report.jsonl') != '' }}
         uses: actions/upload-artifact@v4
@@ -211,9 +385,15 @@ jobs:
           path: |
             data/gap-reports/effect-gap-report.jsonl
             data/gap-reports/effect-low-confidence-summary.json
+            data/gap-reports/effect-review-compact.csv
+            data/gap-reports/effect-review-compact-summary.json
+            data/gap-reports/effect-review-compact.csv
+            data/gap-reports/effect-review-compact-summary.json
             data/gap-reports/inferred-skill-report.jsonl
             data/gap-reports/community-skill-report.jsonl
             data/gap-reports/cost-inference-report.jsonl
+            data/gap-reports/cost-token-review-queue.jsonl
+            data/gap-reports/cost-token-review-queue.csv
             data/gap-reports/unmapped-skill-inventory.csv
             data/gap-reports/gap-report-summary.json
           if-no-files-found: error
@@ -376,7 +556,7 @@ jobs:
           if (
               integrity != "ok" or cards != 15350 or unique_ids != 15350
               or categories != expected_categories or costs != 15350 or token_known != 15350
-              or mapping_review != 52 or semantic_review != 779 or tokens != 24166
+              or mapping_review != 52 or semantic_review != 439 or tokens != 24166
               or images != 30700 or verified_images != 30700 or detail_urls != 15350
               or search_rows != 15350 or korean_hits < 1 or ncs_hits < 1 or fk_errors
               or fields < 600000 or field_keys != 55 or texts < 17000 or effects < 17000

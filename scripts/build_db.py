@@ -44,10 +44,17 @@ def parse_soul(raw):
 if "--self-test" in sys.argv:
  sample=parse_soul("43017101")
  assert sample["known"] and sample["mapping_review"]
- assert sample["colors"]["forest"]==1 and sample["colors"]["light"]==2
- assert parse_soul("5301")["colors"]["iron"]==1
- assert parse_soul("8201")["semantic_review"] and parse_soul("8201")["colors"]["ncs"]==1
- assert parse_soul("8301")["semantic_review"] and parse_soul("8301")["colors"]["bonus"]==1
+ assert sample["colors"]["forest"]==0 and sample["colors"]["light"]==1
+ assert sample["tokens"][0]["components"]==["forest","light"]
+ assert parse_soul("5101")["colors"]["iron"]==1
+ mu=parse_soul("8101")
+ assert mu["known"] and mu["colors"]["neutral"]==1
+ ncs=parse_soul("8201")
+ assert ncs["known"] and ncs["semantic_review"] and ncs["colors"]["ncs"]==1
+ assert ncs["tokens"][0]["status"]=="semantic_review"
+ bonus=parse_soul("8301")
+ assert bonus["known"] and bonus["semantic_review"] and bonus["colors"]["bonus"]==1
+ assert bonus["tokens"][0]["status"]=="semantic_review"
  assert parse_soul("0100")["known"] and not parse_soul("0101")["known"]
  assert not parse_soul("9901")["known"] and not parse_soul("")["known"]
  print("SQLite builder RequireSoul self-test passed")

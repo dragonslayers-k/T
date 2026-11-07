@@ -1,0 +1,328 @@
+{
+  "schema_version": "FM1-SOUL-SOURCE-COOCCURRENCE-PROBE-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source": {
+    "workflow_run_number": 573,
+    "workflow_run_id": 41970905894,
+    "artifact_id": 13388874560,
+    "artifact_member": "gap-reports/cost-inference-report.jsonl",
+    "queue_member": "gap-reports/soul-semantic-review-queue.json"
+  },
+  "policy": {
+    "observed_cooccurrence_is_not_payment_rule_verification": true,
+    "manual_MU_rule_not_applied_to_NCS_or_BONUS": true,
+    "hybrid_pair_not_flattened": true,
+    "source_tokens_and_order_preserved": true,
+    "no_runtime_promotion": true
+  },
+  "summary": {
+    "unique_pending_cards": 831,
+    "token_rows": 842,
+    "groups": 16,
+    "ncs_cards": 351,
+    "bonus_cards": 439,
+    "hybrid_cards": 52,
+    "source_rows_matched": 842,
+    "source_rows_missing": 0
+  },
+  "groups": [
+    {
+      "code": 12,
+      "symbol": "DARK_EARTH",
+      "card_rows": 3,
+      "types": {
+        "unit": 2,
+        "land": 1
+      }
+    },
+    {
+      "code": 13,
+      "symbol": "DARK_FIRE",
+      "card_rows": 4,
+      "types": {
+        "unit": 2,
+        "land": 1,
+        "spell": 1
+      }
+    },
+    {
+      "code": 14,
+      "symbol": "DARK_LIGHT",
+      "card_rows": 4,
+      "types": {
+        "unit": 2,
+        "land": 1,
+        "spell": 1
+      }
+    },
+    {
+      "code": 15,
+      "symbol": "DARK_WATER",
+      "card_rows": 3,
+      "types": {
+        "unit": 2,
+        "land": 1
+      }
+    },
+    {
+      "code": 22,
+      "symbol": "FIRE_FOREST",
+      "card_rows": 4,
+      "types": {
+        "unit": 3,
+        "land": 1
+      }
+    },
+    {
+      "code": 23,
+      "symbol": "FIRE_IRON",
+      "card_rows": 3,
+      "types": {
+        "unit": 2,
+        "land": 1
+      }
+    },
+    {
+      "code": 24,
+      "symbol": "FIRE_WATER",
+      "card_rows": 5,
+      "types": {
+        "unit": 3,
+        "land": 1,
+        "spell": 1
+      }
+    },
+    {
+      "code": 32,
+      "symbol": "WATER_EARTH",
+      "card_rows": 3,
+      "types": {
+        "unit": 2,
+        "land": 1
+      }
+    },
+    {
+      "code": 33,
+      "symbol": "WATER_FOREST",
+      "card_rows": 4,
+      "types": {
+        "unit": 2,
+        "land": 1,
+        "spell": 1
+      }
+    },
+    {
+      "code": 42,
+      "symbol": "FOREST_IRON",
+      "card_rows": 4,
+      "types": {
+        "unit": 2,
+        "land": 1,
+        "spell": 1
+      }
+    },
+    {
+      "code": 43,
+      "symbol": "FOREST_LIGHT",
+      "card_rows": 3,
+      "types": {
+        "unit": 2,
+        "land": 1
+      }
+    },
+    {
+      "code": 52,
+      "symbol": "IRON_EARTH",
+      "card_rows": 4,
+      "types": {
+        "unit": 2,
+        "land": 1,
+        "spell": 1
+      }
+    },
+    {
+      "code": 53,
+      "symbol": "IRON_LIGHT",
+      "card_rows": 3,
+      "types": {
+        "unit": 2,
+        "land": 1
+      }
+    },
+    {
+      "code": 62,
+      "symbol": "EARTH_LIGHT",
+      "card_rows": 5,
+      "types": {
+        "unit": 3,
+        "land": 1,
+        "spell": 1
+      }
+    },
+    {
+      "code": 82,
+      "symbol": "NCS",
+      "card_rows": 351,
+      "types": {
+        "unit": 337,
+        "enchant": 9,
+        "item": 5
+      },
+      "amounts": {
+        "1": 146,
+        "2": 125,
+        "3": 66,
+        "4": 11,
+        "5": 3
+      },
+      "cooccurrence": {
+        "neutral": 285,
+        "none": 66
+      },
+      "icon_path": "/ncs.webp"
+    },
+    {
+      "code": 83,
+      "symbol": "BONUS",
+      "card_rows": 439,
+      "types": {
+        "unit": 403,
+        "item": 36
+      },
+      "amounts": {
+        "1": 438,
+        "3": 1
+      },
+      "cooccurrence": {
+        "forest": 36,
+        "iron": 35,
+        "water": 35,
+        "earth": 33,
+        "dark": 32,
+        "light": 32,
+        "fire": 30,
+        "fire+neutral": 28,
+        "dark+neutral": 26,
+        "earth+neutral": 25,
+        "light+neutral": 25,
+        "neutral+water": 24,
+        "forest+neutral": 23,
+        "iron+neutral": 22,
+        "neutral": 8,
+        "none": 5,
+        "dark+light+neutral": 2,
+        "earth+forest": 2,
+        "earth+iron": 2,
+        "fire+water": 2,
+        "forest+iron": 2,
+        "light+water": 2,
+        "dark+earth": 1,
+        "dark+fire": 1,
+        "dark+water": 1,
+        "earth+water": 1,
+        "fire+forest": 1,
+        "fire+iron": 1,
+        "forest+light": 1,
+        "iron+light": 1
+      },
+      "icon_path": "/bonus.webp"
+    }
+  ],
+  "findings": [
+    {
+      "id": "ncs_type_distribution",
+      "counts": {
+        "unit": 337,
+        "enchant": 9,
+        "item": 5
+      },
+      "observation": "NCS candidate token occurs on units, enchants, and items.",
+      "not_proven": "NCS payment or upkeep behavior."
+    },
+    {
+      "id": "ncs_cooccurrence",
+      "counts": {
+        "neutral": 285,
+        "none": 66
+      },
+      "observation": "NCS co-occurs with a neutral token in 285 rows and appears without another parsed soul identity in 66 rows.",
+      "not_proven": "NCS is identical to the Manual blank/neutral bead."
+    },
+    {
+      "id": "bonus_type_distribution",
+      "counts": {
+        "unit": 403,
+        "item": 36
+      },
+      "observation": "BONUS candidate token occurs on units and items.",
+      "not_proven": "BONUS substitutes for, discounts, or adds to colored/neutral payment."
+    },
+    {
+      "id": "bonus_cooccurrence",
+      "observation": "BONUS co-occurs with multiple colored identities and sometimes neutral; raw token identities and order are retained.",
+      "not_proven": "BONUS payment priority or discount/substitution semantics."
+    },
+    {
+      "id": "hybrid_scope",
+      "observation": "All 14 hybrid codes appear on terrain, units, and spells in the aggregate inventory; each enum remains a distinct pair.",
+      "not_proven": "Whether both colors are required or either color may pay."
+    },
+    {
+      "id": "overlap",
+      "example_card_id": "10021024687",
+      "example_name": "발렌타인걸",
+      "raw_require_soul": "820181018301",
+      "observation": "One card row contains both NCS and BONUS tokens; the 11 multi-group IDs are retained by the source queue.",
+      "not_proven": "The interaction or payment order between NCS and BONUS."
+    }
+  ],
+  "sample_rows": [
+    {
+      "card_id": "10020324677",
+      "name": "소울바드",
+      "type": "unit",
+      "raw_require_soul": "82048102",
+      "source_card_url": "https://fmlunatic.com/card/10020324677",
+      "token_icon": "/ncs.webp"
+    },
+    {
+      "card_id": "10021724688",
+      "name": "본드래곤",
+      "type": "unit",
+      "raw_require_soul": "110381048301",
+      "source_card_url": "https://fmlunatic.com/card/10021724688",
+      "token_icon": "/bonus.webp"
+    },
+    {
+      "card_id": "10021024687",
+      "name": "발렌타인걸",
+      "type": "unit",
+      "raw_require_soul": "820181018301",
+      "source_card_url": "https://fmlunatic.com/card/10021024687",
+      "token_icons": [
+        "/ncs.webp",
+        "/bonus.webp"
+      ]
+    },
+    {
+      "card_id": "13030626729",
+      "name": "비르티유",
+      "type": "unit",
+      "raw_require_soul": "12011101",
+      "source_card_url": "https://fmlunatic.com/card/13030626729",
+      "token_icon": "/dark_earth.webp"
+    }
+  ],
+  "integrity": {
+    "matched_token_occurrences": 842,
+    "queue_token_rows": 842,
+    "unique_pending_card_rows": 831,
+    "source_report_sha256": "a9dbf67ac15367999670a6e03784e677ad1a54e1f1167dfab9298e85066b1a9c"
+  },
+  "decision": "This is a source-distribution probe only. It does not resolve any NCS, BONUS, or hybrid payment semantics and does not authorize runtime promotion."
+}

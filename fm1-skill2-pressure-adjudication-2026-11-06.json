@@ -1,0 +1,108 @@
+{
+  "schema_version": "FM1-SKILL2-PRESSURE-ADJUDICATION-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source": {
+    "repository": "dragonslayers-k/T",
+    "branch": "feat/carddb-effect-semantic-pass",
+    "workflow_run_number": 573,
+    "workflow_run_id": 41970905894,
+    "artifact_id": 13388874560,
+    "artifact_member": "gap-reports/skill2-execution-review.jsonl",
+    "artifact_head_sha": "049a6623ae5caeacc1cf3fe7f3761d587abe801e"
+  },
+  "scope": {
+    "skill2": "프레셔",
+    "source_enum_value": "166",
+    "candidate_rows": 1,
+    "distinct_card_ids": 1,
+    "additional_text_rows": 1,
+    "unit_rows": 1,
+    "item_rows": 0,
+    "missing_card_local_excerpt_rows": 0
+  },
+  "summary": {
+    "candidate_rows": 1,
+    "additional_text_rows": 1,
+    "distinct_additional_text_variants": 1,
+    "source_card_verified_rows": 0,
+    "executable_rows": 0
+  },
+  "policy": {
+    "all_card_mappings_remain_inferred": true,
+    "source_excerpt_availability_is_not_semantic_approval": true,
+    "no_runtime_promotion": true
+  },
+  "source_text_variants": [
+    {
+      "key": "explicit_half_floor",
+      "count": 1,
+      "text": "방어시, 아군 필드 빈공간수 절반(내림) 만큼 받은 데미지를 감소시킨다",
+      "disposition": "floor_candidate"
+    }
+  ],
+  "semantic_questions": [
+    {
+      "id": "field_capacity",
+      "question": "아군 필드의 총 슬롯 수를 5로 고정하는지, 전장/규칙 상태의 실제 슬롯 용량을 사용하는지 확인한다.",
+      "current_engine_hypothesis": "five field slots",
+      "status": "candidate_only"
+    },
+    {
+      "id": "empty_slot_snapshot",
+      "question": "빈 공간 수는 공격 피해 계산 직전 현재 아군 필드 상태를 기준으로 세는가? 파괴·이동 이벤트 중 슬롯 예약 상태와 구분한다.",
+      "status": "unresolved"
+    },
+    {
+      "id": "floor_rounding",
+      "question": "빈 슬롯 0~4개에서 내림 결과가 각각 0,0,1,1,2인지 확인한다.",
+      "status": "candidate_inclusive"
+    },
+    {
+      "id": "damage_floor",
+      "question": "감소 후 피해는 0 미만이 되지 않아야 한다.",
+      "status": "engine_tested"
+    }
+  ],
+  "engine_crosswalk": {
+    "repository": "dragonslayers-k/FM-OFFLINE",
+    "branch": "feat/combat-event-foundation",
+    "commit": "7ce2304475d36a3f61917be1d4bd5ff94396d165",
+    "workflow_run_number": 236,
+    "workflow_run_id": 42132319978,
+    "workflow_conclusion": "success",
+    "existing_tests": [
+      "source Skill2 Pressure rounds down with one empty slot and reduces damage with two",
+      "production Pressure Defense respects the five-slot floor boundary"
+    ],
+    "limitation": "Existing production boundary test covers 0-3 empty slots; the four-empty-slot maximum-capacity boundary is added separately in APK."
+  },
+  "rule_hypothesis": {
+    "rule_id": "skill2_pressure_defense",
+    "condition": "defender is attacked",
+    "candidate_formula": "floor(empty friendly field slots / 2)",
+    "candidate_effect": "reduce incoming damage by that amount, minimum zero",
+    "status": "candidate_only_not_adjudicated",
+    "do_not_promote": true
+  },
+  "cards": [
+    {
+      "card_id": "13100227071",
+      "name": "루요",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/13100227071",
+      "source_field": "Skill2",
+      "source_enum_value": "166",
+      "skill2": "프레셔",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시, 아군 필드 빈공간수 절반(내림) 만큼 받은 데미지를 감소시킨다",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    }
+  ]
+}

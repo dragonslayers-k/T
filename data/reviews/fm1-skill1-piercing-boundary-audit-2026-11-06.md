@@ -1,0 +1,68 @@
+# FM1 Manual Skill1 piercing attack — overflow / DP-marker boundary audit
+Date: 2026-11-06
+
+## Evidence and source provenance
+
+- Primary rules source: Dropbox `/판마/Manual.zip`, `specialability.htm`, section 4 (관통공격기술): the attack destroys defender DP by the attacker's AP; when defender DP reaches zero, remaining AP deals HP damage.
+- Shared stat-marker source in the same Manual file: `*` blocks all changes; `△` prevents decreases but still permits increases; `▽` prevents increases but still permits decreases.
+- T Manual Skill1 specification: `fm1-manual-skill-engine-test-spec-2026-11-05.json`, blob `833a8bc14525e54c6ed595f47c4c37e316395363`. For `piercing_attack`, it records canonical label `관통공격`, 172 exact DB29 Skill1 label rows, and representative card 블랙유니콘 / `10091525214` / Skill1 source value 51 / exact label match. It also explicitly keeps `effect_excerpt_status=pending_card_local_semantic_packet`, `runtime_status=pending_engine_test`, and `exact_db29_source_text=null`.
+- The specification records the card detail URL `https://fmlunatic.com/card/10091525214`; the page could not be independently retrieved in this pass. Do not claim a card-local effect text packet was recovered.
+- The APK rule fixtures inject Manual mapping metadata directly. They test the engine rule branch and do not establish SQLite→converter→release pack→Android import lineage for this card.
+
+## Test matrix — APK PR #28
+
+Representative fixture: 블랙유니콘 / `10091525214` / Skill1 `관통공격` / `piercing_attack`.
+
+| Attacker AP | Defender DP | Marker | Expected / asserted result | Meaning |
+|---:|---:|---|---|---|
+| 4 | 2 | none | DP 0, HP damage 2 | DP breaks; remaining AP overflows to HP |
+| 2 | 4 | none | DP 2 remains, HP damage 0 | AP cannot destroy more DP than it has |
+| 3 | 0 | none | HP damage 3 | DP is already zero; all AP reaches HP |
+| 3 | 3 | none | DP 0, HP damage 0 | exact boundary: all AP is consumed breaking DP |
+| 4 | -2 | none | DP remains -2, HP damage 4 | conservative interpretation: already-below-zero DP is exhausted; negative magnitude is not added as bonus damage |
+| 4 | 2 | △ | DP remains 2, HP damage 0 | protected DP cannot be decreased; no DP-break overflow occurs |
+| 4 | 2 | ▽ | DP 0, HP damage 2 | marker blocks increases only; the decrease required for piercing remains legal |
+
+The negative-DP result is an explicit conservative runtime interpretation, not a verbatim piercing-specific statement from Manual §4. Manual §4 does not define whether negative DP should modify overflow beyond the attacker's printed AP. The test intentionally prevents a generic `AP - negative DP` bonus from being invented.
+
+## Failure found and correction
+
+- Commit `c665a105de796bb4eb10a60bdf1650990e52f2bd`, Actions #356 / run `42221573459`: failed one assertion (236 tests, 1 failure). The new `△` case expected 0 HP damage but actual HP damage was 4. The existing handler treated a blocked DP decrease as if no DP had been consumed and incorrectly passed all AP through to HP.
+- Corrective commit `6d736aa9e56c677aa7f2dcbfe94571b9a54d818b`, Actions #357 / run `42221699683`: success; 236 JS tests / 0 failures; Python converter 13 tests / OK.
+- Runtime now carries AP overflow to HP only if defender DP was already at/below zero or positive DP was actually reduced to zero. When a marker blocks the positive-DP decrease, the DP remains and HP overflow is zero. A `▽` marker still permits decrease.
+
+## Scope and limits
+
+- #357 includes the focused JS rules and Python converter checks. DB29 pack generation, Gradle/APK, signature/ZIP, and emulator steps were skipped by the lightweight PR CI policy.
+- No source-row mapping, Skill1 authority, converter output, SQLite source row, DB29 tag or Release was changed.
+- This audit does not promote the rule to end-to-end DB29 source execution. The T specification's card-local semantic packet remains pending; exact source label matching (172 rows) is not semantic approval.
+- DB29 remains preserved; DB30 remains unpublished; T PR #9/#12/#13 and APK PR #28/#26/#25/#9 remain open and unmerged.
+
+
+## Follow-up — shield-break is a distinct rule and its card-local packet remains pending
+
+- Manual.zip `specialability.htm` §21: after an attack, target DP becomes 0; negative target DP is unaffected.
+- Exact DB29 Skill1 label matches: 96 rows, representative 해적전투원 / `10010624551` / `방패파괴`, source value 249. The T spec's exact card-local effect text is still null/pending. Do not treat exact label matching as evidence that the card-detail packet has been retrieved.
+- APK PR #28 test commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`, Actions #361 / run `42223636601`: 236 JS / 0 fail; Python converter passed. The tests assert AP0 does not trigger; DP0 baseline; positive DP is set to zero; negative DP remains unchanged; `△` blocks decrease; `▽` allows decrease; no post-attack HP spillover from the shield-break effect.
+- This is focused Manual rule fixture evidence, not an SQLite row / card-local HTML extract / pack provenance promotion. Keep `runtime_status` and `implementation_status` distinctions in the machine-readable spec pending resolution of its accepted status vocabulary.
+
+
+## 2026-11-06 — Manual Skill1 shield-break and curse test evidence
+
+### Shield Break — §21
+
+- Rule definition: after an attack, set target DP to 0; if target DP is negative, no effect.
+- DB29 exact Skill1 label: 해적전투원 / `10010624551` / `방패파괴`, source value 249; 96 exact label rows in the T spec. The representative row's exact card-local effect text is still pending (`exact_db29_source_text=null`).
+- APK #361 / run `42223636601`, commit `74ce501d4b97081ad4223b9868eb9bb26711ea68`: success, 236 JS / 0 fail, Python converter passed. Checks AP0 no trigger; DP0 ordinary hit; negative DP no effect; positive DP set to zero after attack; `△` blocks decrease; `▽` permits decrease. Shield-break does not convert the removed DP into extra HP damage.
+
+### Curse Attack — §22
+
+- Rule definition: the attacked target receives AP−2 and DP−2.
+- DB29 exact Skill1 label: 다크조커 / `10030324708` / `저주공격`.
+- APK #363 / run `42224203597`, commit `51222519ffa6f22b015bf0cea9ef16829b92ea73`: success, 236 JS / 0 fail, Python converter passed. Checks AP0 no-trigger; AP `△` protection paired with DP `▽` allowed decrease; AP `▽` allowed decrease paired with DP `△` protection.
+
+### Interpretation boundary
+
+- Common marker directions are from Manual `cardability.htm`; rule wording is from `specialability.htm` §§21–22.
+- T machine-readable spec still says `implementation_status=pending_engine_test` for Shield Break and has no card-local exact text. The focused fixture test is evidence that the handler path is tested, but accepted spec enum values were not established; do not invent one. Exact label matching is not card-local source evidence.
+- These are deterministic fixture tests only. No runtime code, source mapping, DB29 SQLite, pack or Release was changed. DB29 remains preserved; DB30 unpublished.

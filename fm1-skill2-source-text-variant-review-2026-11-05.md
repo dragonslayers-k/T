@@ -1,0 +1,102 @@
+# DB29 Skill2 원문 변형 검토 (run #430)
+
+기준 산출물은 CardDB Actions #430의 `skill2-execution-review.jsonl`이다. DB29는 불변으로 유지하며, 본 문서는 검토/테스트 큐를 기록한다. 원문 발췌는 카드별 증거 후보이지 단독으로 엔진 매핑을 승격하는 근거가 아니다.
+
+## 증거 범위
+
+- Skill2 8종 실행 규칙 카탈로그
+- 후보 377 카드 행
+- 카드별 원문 증거 연결 369행
+- 카드별 원문 증거 누락 8행
+- 정책: 본 리뷰로 `source_card_verified` 상태를 부여하지 않는다.
+
+## 원문 변형군 및 주의사항
+
+### 기선제압 — 181행, 10개 고유 원문 표현
+
+주요 표현은 “적군이 아군보다 이하 레벨일 경우 데미지를 1 덜 받는다”(133행), “상대 레벨 수치가 자신 레벨 이하이면 받는 데미지를 1 감소”(18행), “상대 AP로 인한 데미지 1 감소”(16행), “상대 레벨이 자신보다 이하인 경우”(6행) 등이다.
+
+검증 필요:
+- 비교 경계가 `attackerLevel <= defenderLevel`인지 각 원문 문구와 대조한다.
+- “상대 AP로 인한 데미지” 문구가 일반 피해 감소와 의미상 동일한지 따로 판정한다.
+- 능력부여/기술부여/아이템 설명 문장은 효과 텍스트로 추출하지 않는다.
+
+### 헌신방어 — 66행, 8개 고유 원문 표현
+
+주요 문구는 “자신 파괴시 아군 필드 다음 유닛 공방체 +1”(45행 및 띄어쓰기/마침표 변형 12행), “다음 유닛의 AP/DP/HP를 1 증가”(1행) 등이다.
+
+검증 필요:
+- “다음”은 파괴된 필드 위치 바로 다음의 생존 유닛인지 확인한다.
+- HP 증가가 전투 중 임시 HP인지, 현재 HP와 최대 HP를 어떻게 처리하는지 확인한다.
+- “아군 다음 유닛” 등 위치 범위가 다른 표현은 개별 검토한다.
+
+### 강한헌신방어 — 28행, 2개 고유 원문 표현
+
+“자신 파괴시, 아군 필드 유닛 전체의 공방체가 1증가한다”(21행)와 “공방체를 1씩 증가시킨다”(7행).
+
+검증 필요:
+- 파괴된 유닛을 제외한 모든 생존 아군만 대상인지 확인한다.
+- 필드가 비어 있는 경우 효과 없음, 모든 스탯 변화는 전투 임시 처리인지 검증한다.
+
+### 얼라이디펜스 — 44행, 3개 고유 원문 표현
+
+주요 문구는 “자신을 제외한 동일 소속 필드 유닛 수 만큼 받는 데미지 감소”(40행), 띄어쓰기 오류형 2행, “아군 필드 중 동일 소속” 풀어쓴 표현 2행.
+
+검증 필요: 자기 자신 제외, 동일 소속, 아군 필드 한정 및 피해 최소 0 조건.
+
+### 레이셜디펜스 — 35행, 2개 고유 원문 표현
+
+주요 문구는 “자신을 제외한 동일 종족 필드 유닛 수 만큼 받는 데미지 감소”(30행), “아군 필드 중 동일 종족” 풀어쓴 표현 5행.
+
+검증 필요: 자기 자신 제외, 동일 종족, 아군 필드 한정 및 피해 최소 0 조건.
+
+### 격노 — 20행, 3개 고유 원문 표현
+
+전투 원문은 방어 중 실제 HP 손실만큼 AP가 상승하는 문구 19행과 축약형 1행. 나머지 한 문구는 아이템 빌드업/서사 텍스트로 분류해 효과 근거에서 제외한다.
+
+검증 필요: 실제 HP 감소분만 적용, 생존 조건, 반격에 사용할 AP 반영 시점.
+
+### 홀리오오라 — 2행, 2개 고유 원문 표현
+
+두 원문은 “적군 AP가 자신 방/체 합 1/2 이하”와 “이하(내림)”로 나뉜다.
+
+검증 필요: 계산식의 내림, AP 경계 포함, 방어력/HP 사용값의 전투 계산 순서.
+
+### 프레셔 — 1행, 1개 고유 원문 표현
+
+“아군 필드 빈공간수 절반(내림) 만큼 받은 데미지를 감소”.
+
+검증 필요: 빈 슬롯 0~5에서 내림값 경계 및 최대 피해 0 보장.
+
+## 카드별 원문 증거 누락
+
+8개 행은 기선제압 5개, 헌신방어 3개이다. 상세 페이지 원문을 확보하기 전까지 후보로만 유지하고 자동 승격하지 않는다.
+
+## 다음 단계
+
+1. 위 원문 변형군을 기준으로 양성/음성/경계 카드 픽스처를 구성한다.
+2. 원문 변형마다 Rule ID 및 처리 조건을 독립 검증한다.
+3. 미확인/의미 불일치 후보는 fail-closed 상태로 둔다.
+4. DB29 및 main 병합 없이 리뷰 산출물과 테스트만 갱신한다.
+
+
+## 2026-11-05 effect-only evidence reconciliation addendum
+
+The initial unique-variant counts above include all matched card-local references. A later source-type audit separated actual `additional_text` effect clauses from `card_text` annotations/build-up prose:
+
+| Skill2 | Initial all-reference variants | Actual additional_text variants | additional_text rows | Missing rows |
+|---|---:|---:|---:|---:|
+| 기선제압 | 10 | 6 | 175 | 5 |
+| 헌신방어 | 8 | 6 | 63 | 3 |
+| 얼라이디펜스 | 3 | 3 | 44 | 0 |
+| 레이셜디펜스 | 2 | 2 | 35 | 0 |
+| 강한헌신방어 | 2 | 2 | 28 | 0 |
+| 격노 | 3 | 2 | 20 | 0 |
+| 홀리오오라 | 2 | 2 | 2 | 0 |
+| 프레셔 | 1 | 1 | 1 | 0 |
+| **합계** | **31** | **24** | **368** | **8** |
+
+- 377 Skill2 candidate rows: 368 rows have `additional_text` effect evidence; 1 row has only `card_text` and is not a Skill2 effect; 8 rows have no matched local excerpt.
+- Seven `card_text` references are excluded from effect evidence. One is the only reference for 고대의반지 (9071541045); six co-occur with a separate `additional_text` reference.
+- All 377 mappings remain `inferred`; no card is promoted to `source_card_verified` by this reconciliation.
+- The original 10/8/3 variant figures remain valid as all-reference counts; the 6/6/2 figures above are effect-only counts. Keep both definitions explicit and do not mix them.

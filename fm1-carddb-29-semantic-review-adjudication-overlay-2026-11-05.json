@@ -1,0 +1,1213 @@
+{
+  "schema_version": "FM1-SEMANTIC-REVIEW-ADJUDICATION-OVERLAY-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source_queue": {
+    "path": "data/reviews/fm1-carddb-29-semantic-review-pending-460.json",
+    "run_number": 460,
+    "artifact_id": 13329152529,
+    "original_records_unchanged": true
+  },
+  "adjudication_source": {
+    "path": "data/reviews/fm1-carddb-29-semantic-review-adjudication-pass-3-2026-11-05.md",
+    "source_context_only": true
+  },
+  "policy": {
+    "context_resolution_is_not_runtime_semantic_completion": true,
+    "source_text_and_card_ids_preserved": true,
+    "all_records_non_executable": true,
+    "unresolved_fragments_not_reconstructed": true
+  },
+  "summary": {
+    "unique_patterns": 41,
+    "occurrences": 54,
+    "source_context_resolved_patterns": 39,
+    "source_context_resolved_occurrences": 52,
+    "pending_patterns": 2,
+    "pending_occurrences": 2,
+    "runtime_executable_occurrences": 0,
+    "groups": [
+      {
+        "id": "shared_disenchant_rule_reference",
+        "patterns": 22,
+        "occurrences": 23,
+        "status": "resolved_source_context_runtime_pending"
+      },
+      {
+        "id": "named_area_hero_counter_reference",
+        "patterns": 7,
+        "occurrences": 7,
+        "status": "resolved_source_context_runtime_pending"
+      },
+      {
+        "id": "card_pool_reference",
+        "patterns": 2,
+        "occurrences": 8,
+        "status": "resolved_source_context_non_executable_reference"
+      },
+      {
+        "id": "summon_profile_reference",
+        "patterns": 2,
+        "occurrences": 8,
+        "status": "resolved_source_context_runtime_pending"
+      },
+      {
+        "id": "named_card_variant_reference",
+        "patterns": 2,
+        "occurrences": 2,
+        "status": "resolved_source_context_runtime_pending"
+      },
+      {
+        "id": "condition_branch_profile_context",
+        "patterns": 4,
+        "occurrences": 4,
+        "status": "resolved_source_context_runtime_pending"
+      },
+      {
+        "id": "opaque_source_annotation_pending",
+        "patterns": 1,
+        "occurrences": 1,
+        "status": "pending_source_annotation"
+      },
+      {
+        "id": "incomplete_source_fragment_pending",
+        "patterns": 1,
+        "occurrences": 1,
+        "status": "pending_source_fragment"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "shared_disenchant_rule_reference",
+      "status": "resolved_source_context_runtime_pending",
+      "pattern_ids": [
+        "5bbd71cd5e652d02",
+        "839e622dec75b37a",
+        "cf496fbe1a4ad7b0",
+        "a89c167e47d6d1a6",
+        "ac99e5a38665171f",
+        "7824c438fd6b1a5c",
+        "de567b286c4932e6",
+        "315583fe67130afe",
+        "e413b817f58df766",
+        "1c167e2486441070",
+        "83d8fccfa54ce720",
+        "ac655a5a0d2e8f7c",
+        "b940d63fea79ba65",
+        "e24af7068b6972ba",
+        "dc1c1158b89fec26",
+        "021bd824961a80e4",
+        "e5a1a195f573cc15",
+        "0e5b31a93f6d48f2",
+        "c0399da6ece0425c",
+        "bd862ece40b0c729",
+        "369637133f626c14",
+        "e6d9caade4df19f0"
+      ],
+      "note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "id": "named_area_hero_counter_reference",
+      "status": "resolved_source_context_runtime_pending",
+      "pattern_ids": [
+        "f9049299119cb6b0",
+        "327f4c47871c6609",
+        "97934a59c18dd67c",
+        "28386de8f17ad3ee",
+        "772e1ef990796eef",
+        "6b241c7fecddb732",
+        "9a33edf7012c9271"
+      ],
+      "note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    },
+    {
+      "id": "card_pool_reference",
+      "status": "resolved_source_context_non_executable_reference",
+      "pattern_ids": [
+        "b8ddb2d0e1f2521e",
+        "5fe169892b95ee55"
+      ],
+      "note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "id": "summon_profile_reference",
+      "status": "resolved_source_context_runtime_pending",
+      "pattern_ids": [
+        "1281196d90b8c905",
+        "14f9984f95b70270"
+      ],
+      "note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "id": "named_card_variant_reference",
+      "status": "resolved_source_context_runtime_pending",
+      "pattern_ids": [
+        "ac958ad20571c5bd",
+        "2e0e433bbc59c599"
+      ],
+      "note": "C형 카드 변형/전환 참조. 별도 카드 ID를 추정하지 않고 identity/effect-state 전환 검증 대기."
+    },
+    {
+      "id": "condition_branch_profile_context",
+      "status": "resolved_source_context_runtime_pending",
+      "pattern_ids": [
+        "ac59fb25a5696940",
+        "351525db0d5b2cbb",
+        "301c96ab44070fed",
+        "bfa9cd5ed2238e2c"
+      ],
+      "note": "라이트닝버그·녹음의습격·황제의일갈·추억의 조건/분기/프로필 문맥 복원. 수치·대상·실패 분기 테스트 대기."
+    },
+    {
+      "id": "opaque_source_annotation_pending",
+      "status": "pending_source_annotation",
+      "pattern_ids": [
+        "f41dfd55352a6ebd"
+      ],
+      "note": "펭귄여왕투척의 cwda! 의미 미확인. 효과로 해석하지 않음."
+    },
+    {
+      "id": "incomplete_source_fragment_pending",
+      "status": "pending_source_fragment",
+      "pattern_ids": [
+        "3c2d6ddb4a94f1f3"
+      ],
+      "note": "고대의검의 단독 조각 '상'. 원본 HTML/렌더링 확인 전 단어 복원 금지."
+    }
+  ],
+  "records": [
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "source_card": {
+        "card_id": "14012227224",
+        "name": "엘리트아이바",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227224"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "source_card": {
+        "card_id": "14012227225",
+        "name": "불량학생메사",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227225"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "source_card": {
+        "card_id": "14012227226",
+        "name": "비서루티카",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227226"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "source_card": {
+        "card_id": "14012227227",
+        "name": "간호사디드",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227227"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "source_card": {
+        "card_id": "14012227228",
+        "name": "마법소녀길단",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227228"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "source_card": {
+        "card_id": "14012227229",
+        "name": "반라의테미란",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227229"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "b8ddb2d0e1f2521e",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상",
+      "source_text_variants": [
+        "▶ 블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상"
+      ],
+      "source_card": {
+        "card_id": "14012227230",
+        "name": "학생회장엔체",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012227230"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "source_card": {
+        "card_id": "10102025324",
+        "name": "키뇨엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025324"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "source_card": {
+        "card_id": "10102025325",
+        "name": "라드비엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025325"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "source_card": {
+        "card_id": "10102025326",
+        "name": "쿠두루스엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025326"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "source_card": {
+        "card_id": "10102025327",
+        "name": "피드엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025327"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "source_card": {
+        "card_id": "10102025328",
+        "name": "올피리엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025328"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "source_card": {
+        "card_id": "10102025329",
+        "name": "산치엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025329"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "1281196d90b8c905",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에카마엘 유닛 (챕터)",
+      "source_text_variants": [
+        "에카마엘 유닛 (챕터)"
+      ],
+      "source_card": {
+        "card_id": "10102025330",
+        "name": "마이엘",
+        "card_type": "유닛",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/10102025330"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "5bbd71cd5e652d02",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드",
+      "source_text_variants": [
+        "◇디스인첸트 카드",
+        "◇ 디스인첸트 카드"
+      ],
+      "source_card": {
+        "card_id": "3062730277",
+        "name": "화룡의분노",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/3062730277"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "5bbd71cd5e652d02",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드",
+      "source_text_variants": [
+        "◇디스인첸트 카드",
+        "◇ 디스인첸트 카드"
+      ],
+      "source_card": {
+        "card_id": "4111730687",
+        "name": "지축변경",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4111730687"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "ac59fb25a5696940",
+      "adjudication_class": "condition_branch_profile_context",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "AP1이상으로 공격시, 상대 유닛이 장비/야수면 3턴간",
+      "source_text_variants": [
+        "AP1이상으로 공격시, 상대 유닛이 장비/야수면 3턴간"
+      ],
+      "source_card": {
+        "card_id": "8111923702",
+        "name": "라이트닝버그",
+        "card_type": "유닛",
+        "clause_index": 2,
+        "source_detail_url": "https://fmlunatic.com/card/8111923702"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "라이트닝버그·녹음의습격·황제의일갈·추억의 조건/분기/프로필 문맥 복원. 수치·대상·실패 분기 테스트 대기."
+    },
+    {
+      "pattern_id": "f41dfd55352a6ebd",
+      "adjudication_class": "opaque_source_annotation_pending",
+      "context_status": "pending_source_annotation",
+      "source_text": "cwda!",
+      "source_text_variants": [
+        "cwda!"
+      ],
+      "source_card": {
+        "card_id": "13010233113",
+        "name": "펭귄여왕투척",
+        "card_type": "마법",
+        "clause_index": 2,
+        "source_detail_url": "https://fmlunatic.com/card/13010233113"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "펭귄여왕투척의 cwda! 의미 미확인. 효과로 해석하지 않음."
+    },
+    {
+      "pattern_id": "f9049299119cb6b0",
+      "adjudication_class": "named_area_hero_counter_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "다크마레아(3카운터) [끝없이 해골이 쏟아지는 도시.]",
+      "source_text_variants": [
+        "※ 다크마레아(3카운터) [끝없이 해골이 쏟아지는 도시.]"
+      ],
+      "source_card": {
+        "card_id": "16112610278",
+        "name": "스컬시티",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610278"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    },
+    {
+      "pattern_id": "839e622dec75b37a",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인챈트 카드 [누가 더 빠르게 시전하는 자가 큰 영향을 미치지.]",
+      "source_text_variants": [
+        "◇디스인챈트 카드 [누가 더 빠르게 시전하는 자가 큰 영향을 미치지.]"
+      ],
+      "source_card": {
+        "card_id": "4062530566",
+        "name": "스펠카운터",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4062530566"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "cf496fbe1a4ad7b0",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [과연 그 회담에서 어떠한 일이 있었는지는 아무도 모른다. 그들은 그 후에도 만난 적이 없다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [과연 그 회담에서 어떠한 일이 있었는지는 아무도 모른다. 그들은 그 후에도 만난 적이 없다.]"
+      ],
+      "source_card": {
+        "card_id": "12070432965",
+        "name": "숙명",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432965"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "a89c167e47d6d1a6",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [그 열매들은 마법의 힘을 흡수하여 맺은 것입니다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [그 열매들은 마법의 힘을 흡수하여 맺은 것입니다.]"
+      ],
+      "source_card": {
+        "card_id": "4121530702",
+        "name": "이그조스트리",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4121530702"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "ac99e5a38665171f",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [그가 호수 앞에 있을 것이 니 숨통을 끊게. 그리하면 방어결계가 무너진다네.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드 [그가 호수 앞에 있을 것이 니 숨통을 끊게. 그리하면 방어결계가 무너진다네.]"
+      ],
+      "source_card": {
+        "card_id": "4072130593",
+        "name": "성직자암살",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4072130593"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "7824c438fd6b1a5c",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [그대의 악행을 아무리 숨기려고 해도 하늘의 눈은 피할 수 없소.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [그대의 악행을 아무리 숨기려고 해도 하늘의 눈은 피할 수 없소.]"
+      ],
+      "source_card": {
+        "card_id": "4111730690",
+        "name": "천계의심판",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4111730690"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "de567b286c4932e6",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [깊은 바다의 위험한 뱀과 시선을 마주쳐버렸다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [깊은 바다의 위험한 뱀과 시선을 마주쳐버렸다.]"
+      ],
+      "source_card": {
+        "card_id": "12070432961",
+        "name": "청사의시선",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432961"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "315583fe67130afe",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [끌고가봐. 내가 애송이 도둑이라고 생각하는 건 아니겠지? 감시를 게을리 하지 말라고.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [끌고가봐. 내가 애송이 도둑이라고 생각하는 건 아니겠지? 감시를 게을리 하지 말라고.]"
+      ],
+      "source_card": {
+        "card_id": "12070432959",
+        "name": "연행",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432959"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "e413b817f58df766",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [늪지에선 항상 조심해야하네. 지난 번에는 거대한 괴물 뱀이 지나가던 여행자를 질식시켜서 잡아 먹었다는군.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [늪지에선 항상 조심해야하네. 지난 번에는 거대한 괴물 뱀이 지나가던 여행자를 질식시켜서 잡아 먹었다는군.]"
+      ],
+      "source_card": {
+        "card_id": "12070432963",
+        "name": "숨막히는공격",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432963"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "1c167e2486441070",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [마법을 모두 흡수했다.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드 [마법을 모두 흡수했다.]"
+      ],
+      "source_card": {
+        "card_id": "7020731304",
+        "name": "매직블랙홀",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/7020731304"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "83d8fccfa54ce720",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [모래 마법의 장막.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드 [모래 마법의 장막.]"
+      ],
+      "source_card": {
+        "card_id": "7020731319",
+        "name": "회오리장막",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/7020731319"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "ac655a5a0d2e8f7c",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [새로운 생명의 찬란함이란 얼마나 고귀한 것인가!]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [새로운 생명의 찬란함이란 얼마나 고귀한 것인가!]"
+      ],
+      "source_card": {
+        "card_id": "12070432969",
+        "name": "고귀한생명",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432969"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "b940d63fea79ba65",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [생존을 위해서라면 도마뱀조차도 뜨거운 태양별에 상관하지 않는다. 생존이란 긴장이다.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [생존을 위해서라면 도마뱀조차도 뜨거운 태양별에 상관하지 않는다. 생존이란 긴장이다.]"
+      ],
+      "source_card": {
+        "card_id": "12070432967",
+        "name": "사막의감시",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432967"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "e24af7068b6972ba",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [신령스러운 새요. 동방에서는 신조라하고 이곳에서는 칠색조라 하오. 그 울음은 천리를 가고 깃털은 불과 물을 가리지 않고 빛난다오. 나는 그 새를 찾고 있소.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [신령스러운 새요. 동방에서는 신조라하고 이곳에서는 칠색조라 하오. 그 울음은 천리를 가고 깃털은 불과 물을 가리지 않고 빛난다오. 나는 그 새를 찾고 있소.]"
+      ],
+      "source_card": {
+        "card_id": "14012233385",
+        "name": "칠색조의가호",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/14012233385"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "dc1c1158b89fec26",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [죽음은 모든 이에게 공평하다. 앞으로 닥칠 일을 미리 두려워할 필요는 없지.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [죽음은 모든 이에게 공평하다. 앞으로 닥칠 일을 미리 두려워할 필요는 없지.]"
+      ],
+      "source_card": {
+        "card_id": "6120631255",
+        "name": "킬링타임",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/6120631255"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "021bd824961a80e4",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드 [흡혈귀에게 아내를 빼앗긴 그는 그 후로 미친듯이 훈련을 거듭했다. 오로지 복수를 위해서.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드 [흡혈귀에게 아내를 빼앗긴 그는 그 후로 미친듯이 훈련을 거듭했다. 오로지 복수를 위해서.]"
+      ],
+      "source_card": {
+        "card_id": "12070432957",
+        "name": "복수의준비",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/12070432957"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "e5a1a195f573cc15",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드.",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드."
+      ],
+      "source_card": {
+        "card_id": "4111730684",
+        "name": "불가침조약",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4111730684"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "0e5b31a93f6d48f2",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드. [그리핀과의 사투.]",
+      "source_text_variants": [
+        "◇ 디스인첸트 카드. [그리핀과의 사투.]"
+      ],
+      "source_card": {
+        "card_id": "9020431914",
+        "name": "그리핀출몰",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/9020431914"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "c0399da6ece0425c",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드. [배를 돌리지 않으면 곧 불길에 닿게 될 것입니다!]",
+      "source_text_variants": [
+        "◇디스인첸트 카드. [배를 돌리지 않으면 곧 불길에 닿게 될 것입니다!]"
+      ],
+      "source_card": {
+        "card_id": "4062530563",
+        "name": "파이어플래쉬",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/4062530563"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "bd862ece40b0c729",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트 카드. [이 밤이 지나면 저 성안은 하얀 눈에 뒤덮여 아무것도 보이지 않게 될 겁니다.]",
+      "source_text_variants": [
+        "◇디스인첸트 카드. [이 밤이 지나면 저 성안은 하얀 눈에 뒤덮여 아무것도 보이지 않게 될 겁니다.]"
+      ],
+      "source_card": {
+        "card_id": "3062730281",
+        "name": "프로즌노바",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/3062730281"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "369637133f626c14",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트카드. [다함께 공격하여 침입자를 내쫓을 수가 있었다네.]",
+      "source_text_variants": [
+        "◇ 디스인첸트카드. [다함께 공격하여 침입자를 내쫓을 수가 있었다네.]"
+      ],
+      "source_card": {
+        "card_id": "5090730915",
+        "name": "그룹차징",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/5090730915"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "e6d9caade4df19f0",
+      "adjudication_class": "shared_disenchant_rule_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "디스인첸트카드. [성난 바람이 부정한 기운을 몰아 내고 태양 빛은 어두운 기운을 물리쳤다. 만물에 새로운 세상을 말리듯 사방천지의 생명이 살아 숨 쉬고 있었다.]",
+      "source_text_variants": [
+        "◇디스인첸트카드. [성난 바람이 부정한 기운을 몰아 내고 태양 빛은 어두운 기운을 물리쳤다. 만물에 새로운 세상을 말리듯 사방천지의 생명이 살아 숨 쉬고 있었다.]"
+      ],
+      "source_card": {
+        "card_id": "15042933603",
+        "name": "시스카이",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/15042933603"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "공통 디스인첸트 정의/분류표시 참조. 카드별 TextBase 효과와 분리하며, 공통 파괴 순서·snapshot·재생성 예외는 엔진 검증 대기."
+    },
+    {
+      "pattern_id": "5fe169892b95ee55",
+      "adjudication_class": "card_pool_reference",
+      "context_status": "resolved_source_context_non_executable_reference",
+      "source_text": "롯트, 장생수, 맨이터롯트N, 이모탈트리, 손드트리, 뮤턴트엔트, 에인션트엔트.",
+      "source_text_variants": [
+        "◆ 롯트, 장생수, 맨이터롯트N, 이모탈트리, 손드트리, 뮤턴트엔트, 에인션트엔트."
+      ],
+      "source_card": {
+        "card_id": "13112727128",
+        "name": "사케크리에",
+        "card_type": "유닛",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/13112727128"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "지정 아이템/소환 카드 목록 pool 참조. 이름-to-ID 매칭과 선택·대상·실패 처리 검증은 별도."
+    },
+    {
+      "pattern_id": "327f4c47871c6609",
+      "adjudication_class": "named_area_hero_counter_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "머스마레마(3카운터) [투스샌드웜이 지나간 자리.]",
+      "source_text_variants": [
+        "※ 머스마레마(3카운터) [투스샌드웜이 지나간 자리.]"
+      ],
+      "source_card": {
+        "card_id": "16112610283",
+        "name": "지나간자리",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610283"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    },
+    {
+      "pattern_id": "97934a59c18dd67c",
+      "adjudication_class": "named_area_hero_counter_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "메탈아레아(3카운터) [실험체를 피해 차원이동중...]",
+      "source_text_variants": [
+        "※ 메탈아레아(3카운터) [실험체를 피해 차원이동중...]"
+      ],
+      "source_card": {
+        "card_id": "16112610282",
+        "name": "초복합연구실",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610282"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    },
+    {
+      "pattern_id": "14f9984f95b70270",
+      "adjudication_class": "summon_profile_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "모래형상 유닛(야수, 골렘, 돌진공격).",
+      "source_text_variants": [
+        "★ 모래형상 유닛(야수, 골렘, 돌진공격)."
+      ],
+      "source_card": {
+        "card_id": "9010731883",
+        "name": "모래의형상화",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/9010731883"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "에카마엘 프로필과 모래형상 프로필을 분리. 랜덤 후보·비용·수치 계산 테스트 대기."
+    },
+    {
+      "pattern_id": "351525db0d5b2cbb",
+      "adjudication_class": "condition_branch_profile_context",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "발동시 이름종류수에 따라 특 별 효과가 발동한다(특이사항)",
+      "source_text_variants": [
+        "※ 발동시 이름종류수에 따라 특 별 효과가 발동한다(특이사항)"
+      ],
+      "source_card": {
+        "card_id": "13071033261",
+        "name": "녹음의습격",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/13071033261"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "라이트닝버그·녹음의습격·황제의일갈·추억의 조건/분기/프로필 문맥 복원. 수치·대상·실패 분기 테스트 대기."
+    },
+    {
+      "pattern_id": "3c2d6ddb4a94f1f3",
+      "adjudication_class": "incomplete_source_fragment_pending",
+      "context_status": "pending_source_fragment",
+      "source_text": "상",
+      "source_text_variants": [
+        "상"
+      ],
+      "source_card": {
+        "card_id": "9071541048",
+        "name": "고대의검",
+        "card_type": "아이템",
+        "clause_index": 4,
+        "source_detail_url": "https://fmlunatic.com/card/9071541048"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "고대의검의 단독 조각 '상'. 원본 HTML/렌더링 확인 전 단어 복원 금지."
+    },
+    {
+      "pattern_id": "301c96ab44070fed",
+      "adjudication_class": "condition_branch_profile_context",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "실패시.",
+      "source_text_variants": [
+        "※ 실패시."
+      ],
+      "source_card": {
+        "card_id": "14030533415",
+        "name": "황제의일갈",
+        "card_type": "마법",
+        "clause_index": 0,
+        "source_detail_url": "https://fmlunatic.com/card/14030533415"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "라이트닝버그·녹음의습격·황제의일갈·추억의 조건/분기/프로필 문맥 복원. 수치·대상·실패 분기 테스트 대기."
+    },
+    {
+      "pattern_id": "ac958ad20571c5bd",
+      "adjudication_class": "named_card_variant_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "에네퍼브렌C",
+      "source_text_variants": [
+        "※ 에네퍼브렌C"
+      ],
+      "source_card": {
+        "card_id": "14022627282",
+        "name": "에네퍼브렌",
+        "card_type": "유닛",
+        "clause_index": 4,
+        "source_detail_url": "https://fmlunatic.com/card/14022627282"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "C형 카드 변형/전환 참조. 별도 카드 ID를 추정하지 않고 identity/effect-state 전환 검증 대기."
+    },
+    {
+      "pattern_id": "2e0e433bbc59c599",
+      "adjudication_class": "named_card_variant_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "여왕엘류이드C",
+      "source_text_variants": [
+        "※ 여왕엘류이드C"
+      ],
+      "source_card": {
+        "card_id": "14022627281",
+        "name": "여왕엘류이드",
+        "card_type": "유닛",
+        "clause_index": 6,
+        "source_detail_url": "https://fmlunatic.com/card/14022627281"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "C형 카드 변형/전환 참조. 별도 카드 ID를 추정하지 않고 identity/effect-state 전환 검증 대기."
+    },
+    {
+      "pattern_id": "28386de8f17ad3ee",
+      "adjudication_class": "named_area_hero_counter_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "워터마레마(3카운터) [강력한 바다 영수와 고대 문명.]",
+      "source_text_variants": [
+        "※ 워터마레마(3카운터) [강력한 바다 영수와 고대 문명.]"
+      ],
+      "source_card": {
+        "card_id": "16112610280",
+        "name": "생환의도시",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610280"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    },
+    {
+      "pattern_id": "bfa9cd5ed2238e2c",
+      "adjudication_class": "condition_branch_profile_context",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "조건에 따른 이서리얼의 능력.",
+      "source_text_variants": [
+        "▶ 조건에 따른 이서리얼의 능력."
+      ],
+      "source_card": {
+        "card_id": "11050432579",
+        "name": "추억",
+        "card_type": "마법",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/11050432579"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "라이트닝버그·녹음의습격·황제의일갈·추억의 조건/분기/프로필 문맥 복원. 수치·대상·실패 분기 테스트 대기."
+    },
+    {
+      "pattern_id": "772e1ef990796eef",
+      "adjudication_class": "named_area_hero_counter_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "파이어마레마(3카운터) [강자만의 질서, 강자만의 왕국.]",
+      "source_text_variants": [
+        "※ 파이어마레마(3카운터) [강자만의 질서, 강자만의 왕국.]"
+      ],
+      "source_card": {
+        "card_id": "16112610279",
+        "name": "강자의왕국",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610279"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    },
+    {
+      "pattern_id": "6b241c7fecddb732",
+      "adjudication_class": "named_area_hero_counter_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "포레스마레마 (3카운터) [세계수의 아래 울창한 안식처.]",
+      "source_text_variants": [
+        "※ 포레스마레마 (3카운터) [세계수의 아래 울창한 안식처.]"
+      ],
+      "source_card": {
+        "card_id": "16112610281",
+        "name": "숲의안식처",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610281"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    },
+    {
+      "pattern_id": "9a33edf7012c9271",
+      "adjudication_class": "named_area_hero_counter_reference",
+      "context_status": "resolved_source_context_runtime_pending",
+      "source_text": "폴리아레아(3카운터) [구름이 운반하는 공중도시.]",
+      "source_text_variants": [
+        "※ 폴리아레아(3카운터) [구름이 운반하는 공중도시.]"
+      ],
+      "source_card": {
+        "card_id": "16112610284",
+        "name": "클라우드시티",
+        "card_type": "지형",
+        "clause_index": 1,
+        "source_detail_url": "https://fmlunatic.com/card/16112610284"
+      },
+      "runtime_status": "non_executable",
+      "review_status": "pending_manual_semantic_review",
+      "adjudication_note": "아레아/마레마 3카운터 및 히어로 카운터 참조. TextBase/TextExtra 명칭 차이를 alias로 합치지 않으며 LP·지형 교체 순서 테스트 대기."
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "schema_version": "FM1-EXTERNAL-CLAIM-RECONCILIATION-1.0",
+  "reviewed_at": "2026-11-05",
+  "baseline": {
+    "release": "DB29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source_records": [
+    {
+      "id": "WIKI-OVERVIEW-2026-11-05",
+      "url": "https://www.namu.moe/w/판타지%20마스터즈",
+      "section": "3.6.4 숲 속성 카드",
+      "reliability": "community wiki, secondary",
+      "captured_text_claims": [
+        {
+          "card_name": "뿌리침투",
+          "text": "공격마법 카드. 1레벨. 자신의 1번 지형과 상대 1번 지형을 동시에 없앤다.",
+          "candidate": {
+            "kind": "terrain_destroy",
+            "spell_level": 1,
+            "targets": [
+              "friendly_terrain_slot_1",
+              "opponent_terrain_slot_1"
+            ],
+            "simultaneous": true
+          }
+        },
+        {
+          "card_name": "숲의지도자",
+          "text": "수집랭커 전용 카드. 야수지배는 공격하면 상대 필드 전체 야수를 AP 0, DP 0로 만든다.",
+          "candidate": {
+            "trigger": "attack",
+            "target": {
+              "side": "opponent",
+              "race": "beast",
+              "scope": "field_all"
+            },
+            "set_stats": {
+              "AP": 0,
+              "DP": 0
+            }
+          }
+        },
+        {
+          "card_name": "짙은안개",
+          "text": "방어마법 계열. 카운터 계열. 적군 아군 전체의 AP를 0으로 만든다.",
+          "candidate": {
+            "trigger": "defense_counter",
+            "target": {
+              "side": "both",
+              "scope": "field_all"
+            },
+            "set_stats": {
+              "AP": 0
+            }
+          }
+        },
+        {
+          "card_name": "폐허의흔적",
+          "text": "자기 소각장에 유닛 5장마다 상대가 쓴 마법을 필드에 꺼낸다. 6장 순서의 마법 중 4장을 꺼내면 3,4,5,6 순으로 튀어나온다.",
+          "candidate": {
+            "count_rule": "graveyard_unit_count_per_5",
+            "operation": "recover_opponent_used_magic_to_field",
+            "example": {
+              "used_order": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "recover_count": 4,
+              "recovered_order": [
+                3,
+                4,
+                5,
+                6
+              ]
+            }
+          }
+        }
+      ],
+      "limitations": [
+        "The accessible mirror is not canonical namu.wiki and its link graph has not yet been exhaustively crawled.",
+        "These excerpts are not card ID anchored or verified against DB29 original fields.",
+        "No duration, replacement targeting, count rounding, or engine state timing can be inferred from excerpts alone."
+      ]
+    },
+    {
+      "id": "NEGINOTE-MAGIC-ORDER-2026-11-05",
+      "url": "https://neginote.wixsite.com/fantasymasters/1",
+      "reliability": "personal guide, supplemental",
+      "claims": [
+        {
+          "text": "Magic resolves by card level: lower level first; if levels tie, the attack-turn player's card resolves first; Dispel does not inherently mean first.",
+          "candidate": {
+            "priority": [
+              "lower_level_first",
+              "attack_turn_player_first_on_equal_level"
+            ],
+            "dispel_override": false
+          }
+        },
+        {
+          "text": "A card labeled Disenchant destroys enchant cards; guide says enchant effects are neutralized and destroyed by disenchant.",
+          "candidate": {
+            "mechanic": "disenchant_vs_enchant"
+          }
+        }
+      ],
+      "limitations": [
+        "Guide date/version uncertain; must validate through manual and engine behavior."
+      ]
+    },
+    {
+      "id": "GAMECHOSUN-2002",
+      "url": "https://www.gamechosun.co.kr/webzine/article/view.php?from=articlelist&no=13712",
+      "reliability": "historical contemporary press",
+      "claims": [
+        "Early system described 7 attributes and four card types (land/unit/item/magic)."
+      ],
+      "limitations": [
+        "Historical introduction predates later enchant and neutral attribute claims in community sources."
+      ]
+    }
+  ],
+  "adjudication": {
+    "confirmed_from_sources_only": [
+      "The NamuWiki mirror currently contains the stated card-effect summaries as written.",
+      "Neginote currently states the listed magic resolution ordering."
+    ],
+    "not_confirmed": [
+      "All four exact DB29 card IDs and text matches.",
+      "Effect duration and cleanup timing.",
+      "Specific slot choice when several eligible cards exist.",
+      "Whether first terrain slots refer to occupied indexes vs ordinal present terrain.",
+      "Graveyard count rounding and card recovery selection/order outside the provided example.",
+      "Spell resolution order exceptions, enchant phase order, and implementation behavior."
+    ],
+    "status": "source_capture_only_pending_exact_card_id_and_engine_validation",
+    "executable": false
+  },
+  "engine_tests": [
+    {
+      "id": "MAGIC-ORDER-LEVEL",
+      "cases": [
+        "level 1 vs level 2: assert lower-level first",
+        "equal levels: assert attack-turn side first",
+        "dispel marker does not override level unless source-specific exception"
+      ]
+    },
+    {
+      "id": "ROOT-INVASION-SLOT",
+      "cases": [
+        "both slot 1 occupied",
+        "one side slot 1 empty",
+        "terrain removed/replaced before resolution",
+        "verify exact slot semantics and simultaneous resolution"
+      ]
+    },
+    {
+      "id": "BEAST-DOMINANCE-DURATION",
+      "cases": [
+        "opponent has 0/1/multiple beasts",
+        "AP/DP mutation then next-turn reset",
+        "attack trigger vs pre-battle timing"
+      ]
+    },
+    {
+      "id": "FOG-COUNTER-AP",
+      "cases": [
+        "both sides units, mixed targets",
+        "counter timing, resolution order",
+        "AP=0 duration/reset and unrelated stats unaffected"
+      ]
+    },
+    {
+      "id": "RUINS-RECOVERY",
+      "cases": [
+        "graveyard unit count 0,4,5,9,10",
+        "opponent used spells 0,1,3,6",
+        "confirm formula floor(n/5), selection order and source zone",
+        "recover 4 from six and compare 3..6 example"
+      ]
+    }
+  ],
+  "followup": "Next step is to locate source snapshot/database artifact for exact Card IDs and compare these claims against TextBase/TextExtra, then run focused tests only. If data snapshot artifact cannot be fetched through current connector, record this access limitation and avoid guessed IDs.",
+  "policy": {
+    "preserve_original_text": true,
+    "unverified_non_executable": true,
+    "full_audit_after_batch_only": true
+  }
+}

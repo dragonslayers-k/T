@@ -20,7 +20,8 @@ HYBRID_SOUL_CODES = {
     "43": ("forest", "light"), "52": ("earth", "iron"),
     "53": ("iron", "light"), "62": ("earth", "light"),
 }
-SPECIAL_SOUL_CODES = {"82": "ncs", "83": "bonus"}
+NCS_SOUL_CODE = "82"
+BONUS_SOUL_CODE = "83"
 NO_COST_CODE = "01"
 
 
@@ -57,9 +58,21 @@ def _parse_human_readable_cost(raw: str, result: dict) -> bool:
         count=int(match.group("count") or match.group("count_first"))
         color=TEXT_SOUL_ALIASES[name.casefold()]
         result["colors"][color]+=count
-        result["tokens"].append({"raw":match.group(0),"code":None,"count":count,
+        token={"raw":match.group(0),"code":None,"count":count,
             "symbol":name,"icon":None,"normalized_color":color,
-            "status":"text_decoded","source_format":"human_readable"})
+            "status":"text_decoded","source_format":"human_readable"}
+        if color=="ncs":
+            token["status"]="semantic_review"
+            token["resource_candidate"]="ncs_soul"
+            token["resource_candidate_status"]="community_documented_candidate"
+            token["runtime_payment_status"]="blocked_pending_resource_rules"
+            token["inference"]="ncs_soul_distinct_resource_candidate_runtime_blocked"
+            result["semantic_review"]=True
+        elif color=="bonus":
+            token["status"]="semantic_review"
+            token["inference"]="bonus_semantics_unverified"
+            result["semantic_review"]=True
+        result["tokens"].append(token)
     result["known"]=True
     result["source_format"]="human_readable"
     return True
@@ -126,21 +139,36 @@ def parse_require_soul(raw: object, soul_meta: dict | None = None) -> dict:
             token_result["normalized_color"] = color
             token_result["status"] = "enum_decoded"
         elif code in HYBRID_SOUL_CODES:
-            colors = HYBRID_SOUL_CODES[code]
-            for color in colors:
-                result["colors"][color] += amount
-            token_result["normalized_color"] = "+".join(colors)
-            # Inferred playable rule: a hybrid orb requires both component colors.
-            token_result["status"] = "inferred_hybrid_both_colors"
-            token_result["inference"] = "hybrid_code_components_each_required"
+            components = HYBRID_SOUL_CODES[code]
+            # Preserve the icon's component names as candidates only. They are
+            # not separate required colors until payment semantics are verified.
+            token_result["components"] = list(components)
+            token_result["normalized_color"] = "+".join(components)
+            token_result["status"] = "hybrid_payment_unverified"
+            token_result["inference"] = "hybrid_symbol_payment_choice_unverified"
             result["mapping_review"] = True
-        elif code in SPECIAL_SOUL_CODES:
-            color = SPECIAL_SOUL_CODES[code]
-            # Keep source identity; the APK converter applies the inferred neutral payment rule.
-            result["colors"][color] += amount
-            token_result["normalized_color"] = color
-            token_result["status"] = "inferred_flexible_neutral"
-            token_result["inference"] = "special_soul_as_flexible_neutral"
+        elif code == NCS_SOUL_CODE:
+            # Manual.zip does not define the NCS label. Keep this token unresolved;
+            # the Manual's colorless bead is only an inferred MU(81) crosswalk.
+            result["colors"]["ncs"] += amount
+            token_result["normalized_color"] = "ncs"
+            token_result["status"] = "semantic_review"
+            # Community card-skill references use NCS소울 as a distinct summon
+            # resource (creation, replacement, conversion, and consumption).
+            # Exact pool production/debit rules remain unverified, so this is a
+            # documented candidate only and must not become generic neutral.
+            token_result["resource_candidate"] = "ncs_soul"
+            token_result["resource_candidate_status"] = "community_documented_candidate"
+            token_result["runtime_payment_status"] = "blocked_pending_resource_rules"
+            token_result["inference"] = "ncs_soul_distinct_resource_candidate_runtime_blocked"
+            result["semantic_review"] = True
+        elif code == BONUS_SOUL_CODE:
+            # The extracted Manual soulcost.htm text does not define BONUS.
+            # Preserve it as a separate token and do not infer neutral payment.
+            result["colors"]["bonus"] += amount
+            token_result["normalized_color"] = "bonus"
+            token_result["status"] = "semantic_review"
+            token_result["inference"] = "bonus_semantics_unverified"
             result["semantic_review"] = True
         else:
             known = False

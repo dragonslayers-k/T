@@ -1,0 +1,346 @@
+{
+  "schema_version": "FM1-DISENCHANT-ECAEMAEL-FOCUSED-VALIDATION-BATCH-1.0",
+  "baseline": {
+    "db_release": "DB29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "origin": {
+    "disenchant_rule_file": "data/reviews/fm1-disenchant-shared-rule-v1.json",
+    "ecaemael_profile_file": "data/reviews/fm1-ecaemael-summon-profile-v1.json",
+    "authority": "DB29 card TextExtra; community references supplemental only"
+  },
+  "disenchant": {
+    "rule_id": "fm1_enchantment_disenchant_first_by_field_count",
+    "canonical_name": "디스인첸트 카드",
+    "source_definition": "디스인첸트 카드가 필드에 존재 시, 인첸트 발동 페이즈에 해당 디스인첸트 카드 수만큼 아군적군 필드 각각의 첫번째 인첸트부터 순서대로 인첸트 카드가 파괴됩니다.",
+    "named_card_count": 21,
+    "supporting_reference_rows": 23,
+    "named_cards_by_attribute": [
+      {
+        "attribute": "암흑",
+        "key": "dark",
+        "names": [
+          "매직블랙홀",
+          "킬링타임",
+          "복수의준비"
+        ],
+        "items": [
+          {
+            "name": "매직블랙홀",
+            "card_id": "7020731304",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "킬링타임",
+            "card_id": "6120631255",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "복수의준비",
+            "card_id": "12070432957",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          }
+        ]
+      },
+      {
+        "attribute": "불",
+        "key": "fire",
+        "names": [
+          "파이어플래쉬",
+          "화룡의분노",
+          "연행"
+        ],
+        "items": [
+          {
+            "name": "파이어플래쉬",
+            "card_id": "4062530563",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "화룡의분노",
+            "card_id": "3062730277",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "연행",
+            "card_id": "12070432959",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          }
+        ]
+      },
+      {
+        "attribute": "물",
+        "key": "water",
+        "names": [
+          "스펠카운터",
+          "프로즌노바",
+          "청사의시선"
+        ],
+        "items": [
+          {
+            "name": "스펠카운터",
+            "card_id": "4062530566",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "프로즌노바",
+            "card_id": "3062730281",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "청사의시선",
+            "card_id": "12070432961",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          }
+        ]
+      },
+      {
+        "attribute": "숲",
+        "key": "forest",
+        "names": [
+          "이그조스트리",
+          "그룹차징",
+          "숨막히는공격"
+        ],
+        "items": [
+          {
+            "name": "이그조스트리",
+            "card_id": "4121530702",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "그룹차징",
+            "card_id": "5090730915",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "숨막히는공격",
+            "card_id": "12070432963",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          }
+        ]
+      },
+      {
+        "attribute": "금속",
+        "key": "metal",
+        "names": [
+          "성직자암살",
+          "불가침조약",
+          "숙명"
+        ],
+        "items": [
+          {
+            "name": "성직자암살",
+            "card_id": "4072130593",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "불가침조약",
+            "card_id": "4111730684",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "숙명",
+            "card_id": "12070432965",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          }
+        ]
+      },
+      {
+        "attribute": "대지",
+        "key": "earth",
+        "names": [
+          "회오리장막",
+          "지축변경",
+          "사막의감시"
+        ],
+        "items": [
+          {
+            "name": "회오리장막",
+            "card_id": "7020731319",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "지축변경",
+            "card_id": "4111730687",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "사막의감시",
+            "card_id": "12070432967",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          }
+        ]
+      },
+      {
+        "attribute": "빛",
+        "key": "light",
+        "names": [
+          "천계의심판",
+          "그리핀출몰",
+          "고귀한생명"
+        ],
+        "items": [
+          {
+            "name": "천계의심판",
+            "card_id": "4111730690",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "그리핀출몰",
+            "card_id": "9020431914",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          },
+          {
+            "name": "고귀한생명",
+            "card_id": "12070432969",
+            "match_status": "exact_card_name_match_within_23_evidence_rows"
+          }
+        ]
+      }
+    ],
+    "verification_status": "source_rule_transcribed_mapping_not_runtime_verified",
+    "test_cases": [
+      {
+        "test_id": "DIS-0",
+        "case": "No Disenchant on either field",
+        "expected": "No enchantment destruction by shared rule",
+        "status": "pending_engine_validation"
+      },
+      {
+        "test_id": "DIS-1",
+        "case": "One Disenchant; each side has >=1 enchantment",
+        "expected": "Destroy first enchantment on each side during enchantment activation phase",
+        "status": "pending_engine_validation"
+      },
+      {
+        "test_id": "DIS-2",
+        "case": "Two Disenchant; each side has >=2 enchantments",
+        "expected": "Destroy first two enchantments in field order on each side",
+        "status": "pending_engine_validation"
+      },
+      {
+        "test_id": "DIS-3",
+        "case": "Two Disenchant; one side has only one enchantment",
+        "expected": "Destroy available first enchantment only; no out-of-bounds slot effect",
+        "status": "pending_engine_validation"
+      },
+      {
+        "test_id": "DIS-4",
+        "case": "Mixed Disenchant attributes, shared trigger phase",
+        "expected": "Count is based on all field Disenchant cards; verify no attribute-specific ordering assumption",
+        "status": "pending_engine_validation"
+      },
+      {
+        "test_id": "DIS-5",
+        "case": "Non-enchantment cards occupy field slots before enchantments",
+        "expected": "Target selector is first enchantment in field order, not first arbitrary card slot",
+        "status": "pending_engine_validation"
+      },
+      {
+        "test_id": "DIS-6",
+        "case": "Destruction causes downstream effects",
+        "expected": "Resolve each selected enchantment destruction and ordering; exact chaining not established by source",
+        "status": "pending_engine_validation"
+      }
+    ],
+    "gates": [
+      "Do not enable engine behavior until tests pass against engine and card mappings are linked.",
+      "Disenchant count must be derived from on-field card instances, not number of names/DB rows.",
+      "Keep field-order interpretation explicit; resolve multiple-trigger ordering in engine tests."
+    ]
+  },
+  "ecaemael": {
+    "rule_id": "fm1_ecaemael_chapter_summon_profile",
+    "card_count": 7,
+    "cards": [
+      {
+        "card_id": "10102025324",
+        "name": "키뇨엘",
+        "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+      },
+      {
+        "card_id": "10102025325",
+        "name": "라드비엘",
+        "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+      },
+      {
+        "card_id": "10102025326",
+        "name": "쿠두루스엘",
+        "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+      },
+      {
+        "card_id": "10102025327",
+        "name": "피드엘",
+        "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+      },
+      {
+        "card_id": "10102025328",
+        "name": "올피리엘",
+        "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+      },
+      {
+        "card_id": "10102025329",
+        "name": "산치엘",
+        "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+      },
+      {
+        "card_id": "10102025330",
+        "name": "마이엘",
+        "text_extra": "에카마엘 유닛 (챕터)<br><br>해당 에카마엘 유닛은 1~3 챕터 유닛 중 같은 레벨, 같은 속성의 유닛으로 랜덤하게 덱에 구성됩니다. (랭크카드 포함, 이벤트등급 제외) 에카마엘 유닛은 백필드의 에카마엘 지형 갯수에 따라 능력치에 보너스를 받습니다.(일부 카드는 제외되어 있습니다)<br><br>하급에카마엘상태<br><br>에카마엘 지형 수에 따라 홀수일 때 AP+1, 짝수일 때 HP+1."
+      }
+    ],
+    "terrain_count_effect": {
+      "count_source": "아군 백필드 에카마엘 지형 수",
+      "state": "하급에카마엘상태",
+      "odd_count": {
+        "stat": "AP",
+        "delta": 1
+      },
+      "even_count": {
+        "stat": "HP",
+        "delta": 1
+      },
+      "zero_count_behavior": "unverified",
+      "max_count": "not verified by card TextExtra; Inven 2017 community source mentions max 5 but not sufficient as sole authority"
+    },
+    "structured_pool_filter": {
+      "chapter_range_inclusive": [
+        1,
+        3
+      ],
+      "same_level_as_summoner_or_reference_profile": true,
+      "same_attribute": true,
+      "selection": "random",
+      "include_rank_cards": true,
+      "exclude_event_grade": true,
+      "other_exclusions": "원문에 일부 카드 제외 문구가 있으나 제외 ID 목록 미제공"
+    },
+    "unresolved_engine_questions": [
+      "Full candidate unit card ID list filtered to 1–3 chapter, same level and attribute",
+      "Exact IDs excluded by 'some cards are excluded'",
+      "Rank/event grade mapping to DB29 enum values",
+      "Random distribution and duplicate candidate weights",
+      "Zero Ecaemael terrain behavior",
+      "Whether count can exceed five and whether Inven's max-five note is authoritative for this card profile",
+      "Stat update timing and whether HP/AP bonus is re-evaluated or applied once"
+    ],
+    "verification_status": "source_text_structured_pool_unresolved",
+    "engine_verified": false,
+    "runtime_status": "non_executable",
+    "next_batch": [
+      "Extract all eligible Chapter 1-3 cards from the DB29 source snapshot by level and attribute.",
+      "Resolve exact excluded card IDs against source text / manual.",
+      "Confirm count 0, count 1, count 2 and above cap edge behavior.",
+      "Confirm whether AP/HP bonus is recalculated or applied once and when."
+    ]
+  },
+  "policy": {
+    "preserve_source_text": true,
+    "no_assumed_duration_or_order": true,
+    "external_claims_not_executable": true,
+    "unresolved_items_pending": true
+  }
+}

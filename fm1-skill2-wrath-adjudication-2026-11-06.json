@@ -1,0 +1,393 @@
+{
+  "schema_version": "FM1-SKILL2-WRATH-ADJUDICATION-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "source": {
+    "repository": "dragonslayers-k/T",
+    "branch": "feat/carddb-effect-semantic-pass",
+    "workflow_run_number": 573,
+    "workflow_run_id": 41970905894,
+    "artifact_id": 13388874560,
+    "artifact_member": "gap-reports/skill2-execution-review.jsonl",
+    "artifact_head_sha": "049a6623ae5caeacc1cf3fe7f3761d587abe801e"
+  },
+  "scope": {
+    "skill2": "격노",
+    "source_enum_value": "5",
+    "candidate_rows": 20,
+    "distinct_card_ids": 20,
+    "additional_text_rows": 20,
+    "unit_rows": 18,
+    "item_rows": 2,
+    "missing_card_local_excerpt_rows": 0
+  },
+  "summary": {
+    "candidate_rows": 20,
+    "additional_text_rows": 20,
+    "distinct_additional_text_variants": 2,
+    "source_card_verified_rows": 0,
+    "executable_rows": 0
+  },
+  "policy": {
+    "all_card_mappings_remain_inferred": true,
+    "source_excerpt_availability_is_not_semantic_approval": true,
+    "card_text_only_is_not_effect_evidence": true,
+    "no_runtime_promotion": true,
+    "item_skill2_is_not_automatically_unit_skill2": true
+  },
+  "source_text_variants": [
+    {
+      "key": "standard_hp_wording",
+      "count": 19,
+      "text": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "disposition": "candidate_hp_loss_to_ap_pending_semantics"
+    },
+    {
+      "key": "short_hp_wording",
+      "count": 1,
+      "text": "방어시 적군 유닛의 공격을 받으면 HP가 깎인 수치만큼 AP 상승.",
+      "disposition": "keep_separate_pending_equivalence"
+    }
+  ],
+  "semantic_questions": [
+    {
+      "id": "actual_hp_loss_vs_prevented_damage",
+      "question": "AP 증가량은 방어력(DP) 차감 후 실제 HP 감소량만을 뜻하는가?",
+      "current_engine_hypothesis": "actual HP damage event amount",
+      "status": "candidate_only"
+    },
+    {
+      "id": "lethal_damage",
+      "question": "방어 유닛이 파괴되는 치명 피해에서도 AP 증가가 기록되는가? 이벤트 순서를 별도 확인한다.",
+      "current_engine_hypothesis": "surviving defender only",
+      "status": "not_explicit_in_card_text"
+    },
+    {
+      "id": "ap_duration",
+      "question": "증가 AP는 해당 전투/반격에만 유효한 임시 AP인가, 이후에도 유지되는가?",
+      "current_engine_hypothesis": "battle-only temporary AP",
+      "status": "not_explicit_in_card_text"
+    },
+    {
+      "id": "item_host_scope",
+      "question": "아이템 5060240558 아크스크롤 및 9071541045 고대의반지가 장착 대상 유닛에 격노를 부여하는지, 장착·해제·복수 장착 시 효과 소유자를 확인한다.",
+      "status": "unresolved"
+    },
+    {
+      "id": "trigger_scope",
+      "question": "적군 유닛의 일반 공격만인지, 반격·특수 공격·기타 HP 피해도 포함하는지 확인한다.",
+      "status": "unresolved"
+    }
+  ],
+  "engine_crosswalk": {
+    "repository": "dragonslayers-k/FM-OFFLINE",
+    "branch": "feat/combat-event-foundation",
+    "commit": "7ce2304475d36a3f61917be1d4bd5ff94396d165",
+    "workflow_run_number": 236,
+    "workflow_run_id": 42132319978,
+    "workflow_conclusion": "success",
+    "existing_handler": "skill2_frenzy_defense",
+    "existing_test_file": "tests/rules.test.cjs",
+    "existing_test_coverage": [
+      "actual HP damage grants AP before retaliation",
+      "zero damage grants no AP",
+      "lethal damage grants no AP",
+      "surviving defender receives AP equal to actual HP loss"
+    ],
+    "limitation": "Engine fixture tests use source_card_verified metadata and do not verify the 20 DB29 card mappings or item-host attachment semantics."
+  },
+  "rule_hypothesis": {
+    "rule_id": "skill2_frenzy_defense",
+    "trigger": "defending unit receives HP damage from an enemy unit attack",
+    "candidate_operation": "gain AP equal to HP actually lost",
+    "candidate_duration": "battle-only temporary AP",
+    "status": "candidate_only_not_adjudicated",
+    "do_not_promote": true
+  },
+  "cards": [
+    {
+      "card_id": "10021724689",
+      "name": "히드라",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10021724689",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "10030324718",
+      "name": "산악광전사",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10030324718",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "10050424838",
+      "name": "헬블레이드",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10050424838",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "10050424841",
+      "name": "헬블레이드",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10050424841",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "10070724969",
+      "name": "루나틱보어",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10070724969",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "10072825034",
+      "name": "황혼의관찰자",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10072825034",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "10100625249",
+      "name": "불꽃갑옷정령",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10100625249",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "10100625255",
+      "name": "이블헌터",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/10100625255",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "12110726445",
+      "name": "심해의주인",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/12110726445",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "13042426796",
+      "name": "밀레디",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/13042426796",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "14043027373",
+      "name": "오크파이터",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/14043027373",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "15010727784",
+      "name": "돌연변이병사",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/15010727784",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "5060240558",
+      "name": "아크스크롤",
+      "card_type": "아이템",
+      "source_card_url": "https://fmlunatic.com/card/5060240558",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "9052824045",
+      "name": "밀레디",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/9052824045",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛의 공격을 받으면 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "9070124142",
+      "name": "플레임가이드",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/9070124142",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "9071541045",
+      "name": "고대의반지",
+      "card_type": "아이템",
+      "source_card_url": "https://fmlunatic.com/card/9071541045",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "9080524203",
+      "name": "카룸무",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/9080524203",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "9100724369",
+      "name": "버서커",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/9100724369",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "9110424431",
+      "name": "마그마골렘",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/9110424431",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    },
+    {
+      "card_id": "9120224487",
+      "name": "피의도살자",
+      "card_type": "유닛",
+      "source_card_url": "https://fmlunatic.com/card/9120224487",
+      "source_field": "Skill2",
+      "source_enum_value": "5",
+      "skill2": "격노",
+      "mapping_status": "inferred",
+      "evidence_type": "additional_text",
+      "source_excerpt": "방어시 적군 유닛에게 자신이 공격을 받으면 자신의 HP가 깎인 수치만큼 AP 상승.",
+      "semantic_status": "pending_semantic_adjudication",
+      "executable": false
+    }
+  ]
+}

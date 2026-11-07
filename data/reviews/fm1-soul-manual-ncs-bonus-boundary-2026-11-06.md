@@ -1,0 +1,68 @@
+# Manual.zip 소울 구슬 원문 증거 재확인 — NCS/BONUS 분리 — 2026-11-06
+
+## 1. 원본 파일 확인
+
+- Dropbox 파일: `/판마/Manual.zip`
+- Dropbox file ID: `id:FpfZw9ICIsQAAAAAAAAm8Q`
+- Dropbox revision: `65f348bcc93d60972fdd5`
+- server_modified: `2026-11-01T10:32:28Z`
+- size: 5,118,143 bytes
+- 읽기 방식: Dropbox 원본 ZIP의 추출 텍스트 전체 조회 및 관련 섹션 재확인
+- 이 보고서는 원본 파일을 수정하지 않는다.
+
+## 2. Manual의 직접 증거
+
+### 2.1 `cardtype.htm` — 카드 종류와 구슬
+
+매뉴얼은 유닛 카드 왼쪽 구슬을 소환 조건과 레벨로 설명하고, 일곱 색상 구슬과 별도로 색이 없는 빈 구슬인 무속성을 설명한다. 무속성이 포함된 유닛은 매턴 소울 코스트를 지불한다고 적는다.
+
+### 2.2 `ready.htm` — 소환 비용 예시
+
+원문 예시는 다음과 같다.
+
+- `암흑2`: 암흑 속성 소울 2개가 있어야 소환 가능
+- `암흑2 무1`: 암흑 소울 2개와 아무 속성 소울 1개가 있어야 소환 가능
+
+이는 Manual의 색 없는 빈 구슬/무속성 소환 조건 설명이다. 원문에는 `NCS` 또는 `BONUS`라는 명칭이 없다.
+
+### 2.3 `soulcost.htm` — 유지 비용
+
+매뉴얼의 핵심 원문:
+
+- `소울 코스트 룰은 무속성을 가진 유니트 카드에게만 적용된다.`
+- `무속성을 지닌 유니트 카드는 매턴 무속성만큼 소환 유지비용으로 소울을 사용한다.`
+- `소울을 지불하지 못하는 경우에는 그 수만큼 덱 카드를 파괴한다.`
+- 처음 소환할 때 무속성은 어떤 속성이든 상관없이 비용을 지불할 수 있다.
+- 다음 준비턴부터는 유닛을 유지하기 위한 비용으로 지불한다.
+- 예시: 지형 10장에서 10 소울을 얻고 무속성 유지비 5를 내면 그 준비턴에 사용할 수 있는 소울은 5.
+- 생성 소울이 유지비보다 적으면 다음 준비턴에 미지불 코스트만큼 덱 카드가 소멸한다.
+
+## 3. NCS/BONUS에 대한 매뉴얼의 비증거
+
+추출된 Manual 텍스트 전체에서 literal `NCS`, `BONUS`, `하이브리드` 명칭은 확인되지 않았다. 따라서 Manual은 다음을 증명하지 않는다.
+
+- DB enum 82 / NCS가 무속성 빈 구슬과 동일한지
+- DB enum 83 / BONUS가 어떤 소울을 생성·대체·할인하는지
+- 14개 hybrid enum이 두 색을 모두 요구하는지, 둘 중 하나로 지불 가능한지
+- NCS와 BONUS가 함께 있는 카드의 지불 순서나 상호 대체 여부
+
+또한 Manual의 소울 코스트 규칙은 유닛 카드에만 적용된다고 명시한다. 그런데 DB29 queue의 NCS는 유닛 337, 인챈트 9, 아이템 5건에 나타나고 BONUS는 유닛 403, 아이템 36건에 나타난다. 따라서 이 두 토큰을 Manual의 유닛 무속성 유지비와 동일한 의미로 취급하면 카드 유형 범위부터 충돌한다.
+
+## 4. 매뉴얼 이미지 자산의 상태
+
+ZIP 추출 목록에는 `images/soulcost.jpg`, `images/color.jpg`, `images/sb.jpg`가 포함되어 있다. 그러나 현재 텍스트 추출 결과만으로는 이미지 픽셀을 직접 검사하지 못했다. 따라서 빈 구슬과 사이트의 `/ncs.webp`, `/bonus.webp`가 시각적으로 동일한지 확인했다고 주장하지 않는다.
+
+이미지 원본 확인은 다음 단계에서 실제 ZIP 내부 이미지를 확보해 해시와 픽셀을 검사한 뒤 진행한다. 이미지 경로명이나 파일명만으로 NCS/BONUS 의미를 추정하지 않는다.
+
+## 5. 결정
+
+- Manual의 일반 무속성 규칙은 유닛의 최초 소환과 이후 준비턴 유지비, 미지불 시 덱 파괴까지 직접 뒷받침한다.
+- 이 증거를 NCS/BONUS/하이브리드 코드로 확장하지 않는다.
+- NCS 351행, BONUS 439행, 14 hybrid 그룹 52행은 모두 pending/non-executable 유지.
+- DB29 불변, DB30 미발행, 원본 RequireSoul 토큰 순서/값 보존.
+- 다음 단계는 ZIP 내부의 세 이미지 자산을 시각적으로 비교하고, DB29 NCS/BONUS 실제 카드 이미지/아이콘과 연결되는지 확인하는 것이다.
+
+
+## 2026-11-07 correction — NCS/MU enum crosswalk
+
+A later PR document incorrectly promoted RequireSoul NCS(82) to the Manual's colorless-bead rule. That promotion is withdrawn. The enumtable distinguishes MU(81), NCS(82), and BONUS(83); the Manual does not literally define NCS. MU(81) is the inferred candidate for the Manual's colorless bead, pending visual comparison of /mu.webp with Manual images. NCS(82) and BONUS(83) remain semantic_review. No NCS(82) token may be used to calculate recurring unit upkeep. Hybrid pair tokens also remain unresolved: do not infer both-color payment from enum names alone.

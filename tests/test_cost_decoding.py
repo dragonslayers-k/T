@@ -11,21 +11,58 @@ class RequireSoulTests(unittest.TestCase):
         self.assertEqual(parsed["colors"]["iron"], 2)
         self.assertNotIn("metal", parsed["colors"])
 
-    def test_hybrid_tokens_are_candidate_mapping_not_cross_validated(self):
+    def test_hybrid_tokens_preserve_component_names_but_payment_is_unverified(self):
         parsed = parse_require_soul("5301")
         self.assertTrue(parsed["known"])
         self.assertTrue(parsed["mapping_review"])
-        self.assertEqual(parsed["colors"]["iron"], 1)
-        self.assertEqual(parsed["colors"]["light"], 1)
-        self.assertEqual(parsed["tokens"][0]["status"], "inferred_hybrid_both_colors")
+        self.assertEqual(parsed["colors"]["iron"], 0)
+        self.assertEqual(parsed["colors"]["light"], 0)
+        self.assertEqual(parsed["tokens"][0]["components"], ["iron", "light"])
+        self.assertEqual(parsed["tokens"][0]["status"], "hybrid_payment_unverified")
+        self.assertEqual(parsed["tokens"][0]["inference"], "hybrid_symbol_payment_choice_unverified")
 
-    def test_ncs_and_bonus_are_separate_semantic_review_tokens(self):
+    def test_mu_is_distinct_from_ncs_and_is_the_manual_neutral_crosswalk_candidate(self):
+        mu = parse_require_soul("8101")
+        self.assertTrue(mu["known"])
+        self.assertEqual(mu["colors"]["neutral"], 1)
+        self.assertEqual(mu["tokens"][0]["normalized_color"], "neutral")
+        ncs = parse_require_soul("8201")
+        self.assertTrue(ncs["known"])
+        self.assertTrue(ncs["semantic_review"])
+        self.assertEqual(ncs["colors"]["ncs"], 1)
+        self.assertEqual(ncs["colors"]["neutral"], 0)
+        self.assertEqual(ncs["tokens"][0]["status"], "semantic_review")
+        self.assertEqual(ncs["tokens"][0]["inference"], "ncs_soul_distinct_resource_candidate_runtime_blocked")
+        self.assertEqual(ncs["tokens"][0]["resource_candidate"], "ncs_soul")
+        self.assertEqual(ncs["tokens"][0]["resource_candidate_status"], "community_documented_candidate")
+        self.assertEqual(ncs["tokens"][0]["runtime_payment_status"], "blocked_pending_resource_rules")
+
+    def test_bonus_remains_separate_and_semantically_unverified(self):
+        parsed = parse_require_soul("8302")
+        self.assertTrue(parsed["known"])
+        self.assertTrue(parsed["semantic_review"])
+        self.assertEqual(parsed["colors"]["bonus"], 2)
+        self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertEqual(parsed["tokens"][0]["status"], "semantic_review")
+        self.assertEqual(parsed["tokens"][0]["inference"], "bonus_semantics_unverified")
+
+    def test_mixed_ncs_and_bonus_keep_independent_semantic_statuses(self):
         parsed = parse_require_soul("82018302")
         self.assertTrue(parsed["known"])
         self.assertTrue(parsed["semantic_review"])
         self.assertEqual(parsed["colors"]["ncs"], 1)
         self.assertEqual(parsed["colors"]["bonus"], 2)
-        self.assertEqual(parsed["colors"]["neutral"], 0)
+        self.assertEqual([x["status"] for x in parsed["tokens"]],
+                         ["semantic_review", "semantic_review"])
+        self.assertEqual(parsed["tokens"][0]["resource_candidate"], "ncs_soul")
+        self.assertEqual(parsed["tokens"][0]["runtime_payment_status"], "blocked_pending_resource_rules")
+
+    def test_human_readable_ncs_and_bonus_keep_independent_statuses(self):
+        parsed = parse_require_soul("NCS 1 BONUS 2")
+        self.assertTrue(parsed["known"])
+        self.assertTrue(parsed["semantic_review"])
+        self.assertEqual([x["status"] for x in parsed["tokens"]],
+                         ["semantic_review", "semantic_review"])
 
     def test_korean_text_cost(self):
         p = parse_require_soul("숲 2, 물 1")

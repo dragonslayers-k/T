@@ -1,7 +1,93 @@
 #!/usr/bin/env python3
 """Create card-by-card gap queues without changing immutable source values."""
 import argparse, csv, hashlib, json, sqlite3
+from collections import Counter
 from pathlib import Path
+
+
+def classify_cost_review(row, token_evidence):
+    """Classify pending cost dimensions from explicit source tokens; never infer BONUS as neutral."""
+    symbols={str(token.get("symbol") or "").upper() for token in (token_evidence or [])}
+    normalized={str(token.get("normalized_color") or "").lower() for token in (token_evidence or [])}
+    dimensions=[]
+    if bool(row.get("mapping_review")):
+        dimensions.append("hybrid_mapping_review_pending")
+    if bool(row.get("semantic_review")):
+        has_bonus = "BONUS" in symbols or "bonus" in normalized
+        has_ncs = "NCS" in symbols or "ncs" in normalized
+        if has_bonus:
+            dimensions.append("bonus_semantics_unverified")
+        if has_ncs:
+            dimensions.append("ncs_semantics_unverified")
+        if not has_bonus and not has_ncs:
+            dimensions.append("semantic_review_unclassified")
+    if not bool(row.get("soul_known")):
+        dimensions.append("source_cost_unresolved")
+    if row.get("card_type")=="지형" and not bool(row.get("lp_known")):
+        dimensions.append("land_lp_unresolved")
+    status=dimensions[0] if len(dimensions)==1 else "multiple_review_dimensions" if dimensions else "verified"
+    return status,dimensions
+
+def write_jsonl_rows(path, rows):
+    """Write one independently parseable JSON object per physical line."""
+    with Path(path).open("w", encoding="utf-8") as stream:
+        for row in rows:
+            stream.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def expand_cost_token_review_rows(cost_rows, token_rows_by_card):
+    """Expand pending card-level cost reviews into immutable token-occurrence evidence rows."""
+    expanded=[]
+    for card in cost_rows:
+        status,dimensions=classify_cost_review(card,token_rows_by_card.get(card["card_id"],[]))
+        if not dimensions:
+            continue
+        tokens=token_rows_by_card.get(card["card_id"],[])
+        if not tokens:
+            tokens=[{}]
+        for token in tokens:
+            symbol=str(token.get("symbol") or "").upper()
+            normalized=str(token.get("normalized_color") or "").lower()
+            parse_status=str(token.get("parse_status") or "").lower()
+            token_dimensions=[]
+            if "hybrid_mapping_review_pending" in dimensions and ("+" in normalized or "hybrid" in parse_status):
+                token_dimensions.append("hybrid_mapping_review_pending")
+            if "bonus_semantics_unverified" in dimensions and (symbol=="BONUS" or normalized=="bonus"):
+                token_dimensions.append("bonus_semantics_unverified")
+            if "ncs_semantics_unverified" in dimensions and (symbol=="NCS" or normalized=="ncs"):
+                token_dimensions.append("ncs_semantics_unverified")
+            if "semantic_review_unclassified" in dimensions:
+                token_dimensions.append("semantic_review_unclassified")
+            card_level_dimensions=[d for d in dimensions if d in {
+                "source_cost_unresolved","land_lp_unresolved"
+            }]
+            if not token:
+                token_relevance="no_token_evidence"
+            elif token_dimensions:
+                token_relevance="direct_token_evidence"
+            else:
+                token_relevance="context_only"
+            expanded.append({
+                "card_id":card["card_id"],
+                "name":card.get("name"),
+                "card_type":card.get("card_type"),
+                "source_text":card.get("source_text"),
+                "review_status":status,
+                "review_dimensions":dimensions,
+                "token_dimensions":token_dimensions,
+                "card_level_dimensions":card_level_dimensions,
+                "token_review_relevance":token_relevance,
+                "review_scope":"token_occurrence" if token else "card_without_token_evidence",
+                "ordinal":token.get("ordinal"),
+                "raw_token":token.get("raw_token"),
+                "code":token.get("code"),
+                "count":token.get("count"),
+                "symbol":token.get("symbol"),
+                "normalized_color":token.get("normalized_color"),
+                "parse_status":token.get("parse_status"),
+            })
+    return expanded
+
 
 def build(db_path: Path, out_dir: Path):
     db=sqlite3.connect(db_path)
@@ -77,13 +163,29 @@ def build(db_path: Path, out_dir: Path):
     """):
         costs.append(dict(r))
     cost_review=[]
+    cost_tokens_by_card={}
     for r in costs:
         if not r["soul_known"] or r["mapping_review"] or r["semantic_review"] or (r["card_type"]=="지형" and not r["lp_known"]):
-            r["tokenEvidence"]=[dict(x) for x in db.execute(
+            token_evidence=[dict(x) for x in db.execute(
                 "SELECT ordinal,raw_token,code,count,symbol,normalized_color,parse_status FROM card_soul_cost_tokens WHERE card_id=? ORDER BY ordinal",
                 (r["card_id"],))]
-            r["interpretationStatus"]="inferred_hybrid_both_colors" if r["mapping_review"] else "inferred_flexible_neutral" if r["semantic_review"] else "unresolved"
+            cost_tokens_by_card[r["card_id"]]=token_evidence
+            r["tokenEvidence"]=token_evidence
+            r["interpretationStatus"],r["reviewDimensions"]=classify_cost_review(r,token_evidence)
             cost_review.append(r)
+    token_review_rows=expand_cost_token_review_rows(cost_review,cost_tokens_by_card)
+    write_jsonl_rows(out_dir/"cost-token-review-queue.jsonl", token_review_rows)
+    with (out_dir/"cost-token-review-queue.csv").open("w",newline="",encoding="utf-8-sig") as f:
+        columns=list(token_review_rows[0]) if token_review_rows else [
+            "card_id","name","card_type","source_text","review_status","review_dimensions",
+            "token_dimensions","card_level_dimensions","token_review_relevance","review_scope",
+            "ordinal","raw_token","code","count","symbol","normalized_color","parse_status"]
+        w=csv.DictWriter(f,fieldnames=columns)
+        w.writeheader()
+        for row in token_review_rows:
+            item=dict(row)
+            item["review_dimensions"]=";".join(row["review_dimensions"])
+            w.writerow(item)
     with (out_dir/"cost-gap-report.jsonl").open("w",encoding="utf-8") as f:
         for r in cost_review:
             f.write(json.dumps(r,ensure_ascii=False)+"\n")
@@ -172,12 +274,24 @@ def build(db_path: Path, out_dir: Path):
     (out_dir/"effect-low-confidence-summary.json").write_text(
       json.dumps(effect_low_summary,ensure_ascii=False,indent=2),encoding="utf-8")
 
+    cost_review_status_counts=Counter(r["interpretationStatus"] for r in cost_review)
+    cost_review_dimension_counts=Counter(
+        dimension for r in cost_review for dimension in r["reviewDimensions"]
+    )
     summary={
       "cards":len(cards),"source_field_keys":len(fields),"card_field_matrix_rows":len(field_rows),
       "field_status_counts":{},
       "source_payload_mismatches":sum(1 for x in coverage_inserts if x[4]!=1),
       "sqlite_field_coverage_rows":len(coverage_inserts),
       "cost_review_provenance_rows":len(cost_review),
+      "cost_review_token_occurrence_rows":sum(1 for r in token_review_rows if r["review_scope"]=="token_occurrence"),
+      "cost_review_direct_token_evidence_rows":sum(1 for r in token_review_rows if r["token_review_relevance"]=="direct_token_evidence"),
+      "cost_review_context_only_token_rows":sum(1 for r in token_review_rows if r["token_review_relevance"]=="context_only"),
+      "cost_review_card_without_token_evidence_rows":sum(1 for r in token_review_rows if r["review_scope"]=="card_without_token_evidence"),
+      "cost_review_token_symbol_counts":dict(sorted(Counter(str(r["symbol"] or "unlabelled") for r in token_review_rows).items())),
+      "cost_review_status_counts":dict(sorted(cost_review_status_counts.items())),
+      "cost_review_dimension_counts":dict(sorted(cost_review_dimension_counts.items())),
+      "cost_review_count_note":"Status counts are mutually exclusive; dimension counts may overlap when one card has multiple pending review dimensions.",
       "unresolved_cost_rows":sum(1 for r in costs if not r["soul_known"] or (r["card_type"]=="지형" and not r["lp_known"])),
       "unmapped_skill_card_rows":sum(1 for r in skills if r["mapping_status"]=="unmapped"),
       "inferred_skill_card_rows":len(inferred_skills),
@@ -186,7 +300,7 @@ def build(db_path: Path, out_dir: Path):
       "low_confidence_effect_interpretations":sum(1 for r in effects if r["confidence"]=="low"),
       "effect_low_confidence_unique_patterns":len(effect_groups),
       "effect_low_confidence_classification_counts":effect_classes,
-      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl"]
+      "outputs":["card-field-gap-report.csv","card-field-gap-report.jsonl","cost-gap-report.jsonl","skill-gap-report.jsonl","inferred-skill-report.jsonl","community-skill-report.jsonl","unmapped-skill-inventory.csv","effect-gap-report.jsonl","effect-low-confidence-summary.json","cost-inference-report.jsonl","cost-token-review-queue.jsonl","cost-token-review-queue.csv"]
     }
     for r in field_rows:summary["field_status_counts"][r["status"]]=summary["field_status_counts"].get(r["status"],0)+1
     (out_dir/"gap-report-summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")

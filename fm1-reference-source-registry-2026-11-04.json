@@ -1,0 +1,432 @@
+{
+  "schema_version": "FM1-REFERENCE-SOURCE-REGISTRY-1.0",
+  "scope": "DB29 semantic review only; supplemental context, never overwrites card source",
+  "authority_policy": {
+    "priority": [
+      "original_card_source_TextBase_TextExtra",
+      "official_manual_archive",
+      "engine_reproduction",
+      "community_reference"
+    ],
+    "community_sources_are_supplemental": true,
+    "community_sources_cannot_alone_set_executable": true,
+    "fantasy_masters_1_and_2_must_not_be_conflated": true
+  },
+  "sources": [
+    {
+      "id": "namuwiki_fantasy_masters",
+      "requested_url": "https://namu.wiki/w/판타지_마스터즈",
+      "resolved_url": "https://www.namu.moe/w/판타지%20마스터즈",
+      "kind": "community_wiki",
+      "status": "search_index_content_retrieved_original_domain_blocked",
+      "facts_observed": [
+        "카드 종류: 지형·유닛·아이템·마법·인챈트",
+        "유닛 AP/DP/HP 및 전투 계산 설명",
+        "아이템은 유닛 장착형이며 유닛 능력에 따른 장착 제한 설명",
+        "인챈트는 슬롯에 일정 턴 존재하며 유닛/마법에 능력을 부여하는 지속형 카드 설명",
+        "주요 문서 본문은 종족/소속, 8개 속성, 속성별 카드 목록과 일부 개별 카드 문서로 연결되는 내부 링크 색인을 포함한다.",
+        "본문의 카드 사례 설명에는 카드 사용 조건과 리콜 전후 변경 이력이 함께 기록된 예시가 있어, 현재 원문과 역사적 텍스트를 분리해 대조할 필요가 있다.",
+        "속성 하위 문서의 7개 항목과 메인 문서의 무속성 포함 8속성 서술은 서로 다른 편집/시기 맥락으로 관리한다.",
+        "종족·소속 문서의 명칭은 별도 색인이며, 카드 속성(attribute)·종족(race)·소속(affiliation)을 분리해야 한다.",
+        "개별 카드 검색 색인 사례: 스터두라엘(금속 유니트/휴먼/머시너리), 번창하는숲(핸드 지형 소각 후 트리언트 소환), 샤와타의그물(숲 스페셜), '무' 동음이의어 본문 내 숲 시크릿 유닛."
+      ],
+      "limitations": [
+        "커뮤니티 편집 내용이며 공식 매뉴얼과 동일한 권위로 취급하지 않음",
+        "일반 전투 계산 설명을 특수 기술·예외의 완전한 엔진 규칙으로 승격하지 않음",
+        "검색 색인으로 확인한 개별 카드 설명은 원본 DB29 card ID, 리콜 버전, current TextBase/TextExtra와 대조 전이며 카드 원본 필드의 덮어쓰기 근거가 아니다.",
+        "페이지 URL을 열었을 때 cache miss가 발생할 수 있으므로 search-index retrieval과 full page open success를 구분한다."
+      ],
+      "related_pages": [
+        {
+          "id": "namu_factions_races",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/종족과%20소속",
+          "use": "종족·소속 명칭 보조 색인"
+        },
+        {
+          "id": "namu_dark_terrain_cards",
+          "url": "https://dark.namu.moe/w/판타지%20마스터즈/암흑%20속성%20카드/지형",
+          "use": "지형 카드 사례·속성·LP 보조 색인"
+        },
+        {
+          "id": "namu_mudolda_card",
+          "url": "https://www.namu.moe/w/뮬도다",
+          "use": "개별 카드 항목 예시"
+        }
+      ],
+      "linked_page_followups": [
+        {
+          "id": "attributes",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/속성",
+          "kind": "linked_reference_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "races_factions",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/종족과%20소속",
+          "kind": "linked_reference_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "dark_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/암흑%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "fire_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/불%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "water_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/물%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "forest_cards",
+          "url": "https://www.namu.moe/w/숲(판타지%20마스터즈)",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "metal_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/금속%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "earth_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/대지%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "light_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/빛%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "void_cards",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/무%20속성%20카드",
+          "kind": "attribute_card_index",
+          "retrieval_status": "linked_but_body_not_distinctly_retrieved"
+        },
+        {
+          "id": "frog_transform",
+          "url": "https://www.namu.moe/w/개구리변신",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "mulldolda",
+          "url": "https://www.namu.moe/w/뮬도다",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "ulti_mator",
+          "url": "https://www.namu.moe/w/울티메이터",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "elion",
+          "url": "https://www.namu.moe/w/엘리온",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        },
+        {
+          "id": "solo_curse",
+          "url": "https://www.namu.moe/w/솔로의저주",
+          "kind": "individual_card",
+          "retrieval_status": "cache_miss"
+        }
+      ],
+      "retrieved_card_pages": [
+        {
+          "name": "판타지 마스터즈 main / 3.6",
+          "url": "https://www.namu.moe/w/판타지_마스터즈",
+          "status": "search_index_body_retrieved",
+          "observed": "five card types, 3.6 card list, sample card descriptions, attribute-era narrative"
+        },
+        {
+          "name": "판타지 마스터즈/속성",
+          "url": "https://m.namu.moe/w/판타지%20마스터즈/속성",
+          "status": "search_index_body_retrieved",
+          "revision_label": "2026-08-05",
+          "observed": "seven attribute sections; community balance/concept descriptions"
+        },
+        {
+          "name": "판타지 마스터즈/종족과 소속",
+          "url": "https://www.namu.moe/w/판타지%20마스터즈/종족과%20소속",
+          "status": "search_index_partial_body_retrieved",
+          "observed": "race/faction name index; generic links and some lore/affiliation content"
+        },
+        {
+          "name": "스터두라엘",
+          "url": "https://www.namu.moe/w/스터두라엘",
+          "status": "search_index_body_retrieved",
+          "observed": "metal unit, human race, mercenary affiliation, epic, episode and two ability descriptions"
+        },
+        {
+          "name": "번창하는숲",
+          "url": "https://namu.moe/w/번창하는숲",
+          "status": "search_index_body_retrieved",
+          "observed": "forest rare card, hand land sacrifice and summon Trient count; historic deck strategy"
+        },
+        {
+          "name": "샤와타의그물",
+          "url": "https://www.namu.moe/w/샤와타의그물",
+          "status": "search_index_body_retrieved",
+          "observed": "forest special card, episode 15 album reward, restrictions and lore"
+        },
+        {
+          "name": "무 (disambiguation)",
+          "url": "https://namu.moe/w/무",
+          "status": "search_index_body_retrieved",
+          "observed": "contains forest secret unit card entry; do not conflate card name with neutral attribute"
+        }
+      ]
+    },
+    {
+      "id": "jlplace_original_fanma_guide",
+      "requested_url": "https://m.blog.naver.com/jlplace/220468684977",
+      "alternate_url": "https://blog.naver.com/PostView.naver?blogId=jlplace&logNo=220468684977",
+      "kind": "personal_original_game_guide",
+      "status": "not_retrieved_robots_or_access_block",
+      "use_policy": "본문 확보 전에는 어떤 규칙·수치도 이 문서에서 인용하거나 추정하지 않음",
+      "required_follow_up": "본문 텍스트 또는 캡처 확보 후 문단·페이지 단위로 카드 원문과 대조",
+      "attached_capture": {
+        "filename": "Screenshot_20261104_231330_Chrome.jpg",
+        "image_dimensions_px": {
+          "width": 65,
+          "height": 1536
+        },
+        "observation": "본문 문단과 게임 화면 이미지가 포함된 세로 캡처이나 가로 65px로 축소되어 글자를 신뢰성 있게 판독할 수 없음",
+        "extraction_status": "no_rules_or_values_extracted",
+        "follow_up": "원본 해상도 캡처 또는 본문 텍스트를 확보하기 전까지 어떠한 규칙·수치도 이 출처에 귀속하지 않음"
+      }
+    },
+    {
+      "id": "neginote_fantasy_masters_guide",
+      "requested_url": "https://neginote.wixsite.com/fantasymasters/main-guide",
+      "kind": "community_guide",
+      "status": "content_retrieved",
+      "pages": [
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/main-guide",
+          "title": "가이드북",
+          "facts": [
+            "5개 카드 유형",
+            "11개 등급 체계",
+            "기본 카드 유형 설명"
+          ]
+        },
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/guide-rand",
+          "title": "지형",
+          "facts": [
+            "LP와 지형 배치 관계",
+            "유소울/무소울 및 듀얼 지형 설명",
+            "지형별 코스트 설명"
+          ]
+        },
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/guide-units",
+          "title": "유니트",
+          "facts": [
+            "유닛 구성요소: 레벨, PT(AP/DP/HP), 코인, 능력, 기술, 종족·소속",
+            "랭크별 차이",
+            "별침으로 표현되는 업그레이드 유닛 유형"
+          ]
+        },
+        {
+          "url": "https://neginote.wixsite.com/fantasymasters/guide-magic",
+          "title": "마법",
+          "facts": [
+            "레벨",
+            "공격턴/방어턴 사용 구분",
+            "유지턴"
+          ]
+        }
+      ],
+      "limitations": [
+        "개인 가이드이며 공식 매뉴얼이 아님",
+        "카드 원문·엔진 검증보다 우선하지 않음",
+        "아이템·인챈트 상세 페이지는 이번 조회에서 본문 확보 실패"
+      ]
+    },
+    {
+      "id": "inven_fm1_skill_reference_2017",
+      "requested_url": "https://www.inven.co.kr/board/hs/3509/1426815",
+      "title": "이쯤에서 카드특수능력을 마구찍는 판마를보자(강스압)",
+      "kind": "community_forum_skill_catalog",
+      "published_at": "2017-01-30",
+      "status": "content_retrieved",
+      "facts_observed": [
+        "다수의 공격·방어·특수기술 이름과 발동 조건, 수치, 대상, 상태 설명을 나열한 커뮤니티 기술 목록이다.",
+        "코스튬체인지의 지정 아이템 7개(블러드본랜스, 루비소드, 레드아이스링, 네추럴링, 생명의물약, 번개의모래, 그리핀석상)와 적 1 파괴 시 랜덤 장착 및 코스튬리턴 전환을 기재한다.",
+        "에카마엘 종족 유닛·핸드 카드 및 에카마엘 지형 수(최대 5)에 따라 효과가 달라지는 기술 설명이 포함된다."
+      ],
+      "source_locations": [
+        {
+          "lines": "868-871",
+          "topic": "코스튬체인지/코스튬리턴 및 지정 아이템"
+        },
+        {
+          "lines": "727-728; 771-773",
+          "topic": "에카마엘 종족·지형을 참조하는 효과"
+        },
+        {
+          "lines": "144-251",
+          "topic": "특수공격기술 목록 일부"
+        }
+      ],
+      "limitations": [
+        "사용자 편집 커뮤니티 게시글이며 원본 카드 데이터나 공식 매뉴얼이 아니다.",
+        "카드 ID, 카드별 현행 문구, 장착 가능 능력 범위를 완전하게 제공하지 않는다.",
+        "코스튬체인지 대상 설명은 아군 다음 행동가능 유닛으로만 기재되어 DB29 TextExtra의 '아이템 미장착' 조건을 생략한다.",
+        "게시 시점의 규칙/카드 버전과 DB29 원문 기준의 동일성이 검증되지 않았다."
+      ],
+      "use_policy": "기술명 및 원문 목록의 독립 교차참조에만 사용. DB29 카드 원문보다 우선하지 않으며 단독으로 executable=true를 설정하지 않음."
+    },
+    {
+      "id": "gamechosun_fm1_2002_overview",
+      "requested_url": "https://www.gamechosun.co.kr/webzine/article/view.php?from=articlelist&no=13712",
+      "kind": "historical_game_press_article",
+      "published_at": "circa 2002; exact publication date not verified",
+      "status": "search_index_excerpt_retrieved_full_page_cache_miss",
+      "facts_observed": [
+        "초기 FM1 소개에 공격 턴/방어 턴과 방어선·직접 공격 시 서고 카드 손실 설명이 포함된다.",
+        "초기 기사에서는 7개 속성(암흑·불·물·숲·금속·대지·빛)을 소개한다."
+      ],
+      "limitations": [
+        "역사적 소개 기사이며 대격변 이후 무속성 독립과 후대 카드/룰을 반영하지 않을 수 있음",
+        "검색 색인 발췌만 확인했고 본문 직접 열기에서 cache miss 발생",
+        "공식 매뉴얼 및 DB29 카드 원문을 대체하지 않음"
+      ],
+      "use_policy": "초기 게임 구조/당시 속성 분류의 역사적 맥락만 사용; current engine rules의 단독 근거로 사용하지 않음"
+    },
+    {
+      "id": "namuwiki_metal_item_category_mirror",
+      "requested_url": "https://seore.org/raw/판타지 마스터즈/금속 속성 아이템 카드",
+      "title": "판타지 마스터즈/금속 속성 아이템 카드",
+      "kind": "community_wiki_category_mirror",
+      "status": "search_index_excerpt_retrieved",
+      "facts_observed": [
+        "금속 속성 아이템 분류 페이지의 커먼 3레벨 목록에 생명의물약이 표시된다.",
+        "등급·레벨별 아이템 카드 분류 색인을 제공한다."
+      ],
+      "limitations": [
+        "나무위키 문서 미러/아카이브이며 공식 DB가 아니다.",
+        "개별 카드 ID, DB29의 card_type/attribute/level 및 장착 적격성을 이 분류 목록만으로 확정할 수 없다.",
+        "코스튬체인지 지정 아이템 중 나머지 6개는 이 발췌에서 확인되지 않는다."
+      ],
+      "use_policy": "생명의물약의 분류에 대한 보조 claim만 사용. 카드 ID와 상세 필드는 DB29 원본으로 별도 검증."
+    },
+    {
+      "id": "namuwiki_metal_magic_category",
+      "requested_url": "https://m.namu.moe/w/판타지 마스터즈/금속 속성 마법카드",
+      "title": "판타지 마스터즈/금속 속성 마법카드",
+      "kind": "community_wiki_category_page",
+      "status": "search_index_excerpt_retrieved",
+      "facts_observed": [
+        "금속 마법 카드의 등급·레벨 분류 구조가 표시된다."
+      ],
+      "limitations": [
+        "검색 색인의 분류 목차만 확인했으며 개별 카드 본문·DB29 매칭은 별도 확인이 필요하다."
+      ],
+      "use_policy": "카드 분류 인덱스의 보조 자료로만 사용."
+    },
+    {
+      "id": "namuwiki_dark_land_category",
+      "requested_url": "https://dark.namu.moe/w/판타지 마스터즈/암흑 속성 카드/지형",
+      "title": "판타지 마스터즈/암흑 속성 카드/지형",
+      "kind": "community_wiki_subcategory_page",
+      "status": "search_index_excerpt_retrieved",
+      "facts_observed": [
+        "암흑 속성 지형 카드 분류 페이지이며 개별 지형의 등급·레벨·LP 예시가 포함된다."
+      ],
+      "limitations": [
+        "일부 발췌만 확인했으며 전체 목록과 DB29 ID 매칭은 미완료."
+      ],
+      "use_policy": "지형 분류 및 필드 표기의 보조 교차참조."
+    },
+    {
+      "id": "namuwiki_ali_by_individual_card",
+      "requested_url": "https://www.namu.moe/w/알리바이(판타지 마스터즈)",
+      "title": "알리바이(판타지 마스터즈)",
+      "kind": "individual_card_community_page",
+      "status": "search_index_excerpt_retrieved",
+      "facts_observed": [
+        "대지 속성 마법·레어 및 정예상태 설명이 검색 색인에 표시된다."
+      ],
+      "limitations": [
+        "DB29 카드 ID/원문/현행 리콜 일치 여부 미검증."
+      ],
+      "use_policy": "카드 식별·효과 후보의 보조 claim."
+    },
+    {
+      "id": "namuwiki_succubus_individual_card",
+      "requested_url": "https://m.namu.moe/w/서큐버스(판타지 마스터즈)",
+      "title": "서큐버스(판타지 마스터즈)",
+      "kind": "individual_card_community_page",
+      "status": "search_index_excerpt_retrieved",
+      "facts_observed": [
+        "암흑 속성 레어 카드와 혼령매료 설명이 검색 색인에 표시된다."
+      ],
+      "limitations": [
+        "DB29 ID·현행 원문·엔진 처리 여부 미검증."
+      ],
+      "use_policy": "개별 카드 식별/효과 후보의 보조 교차참조."
+    },
+    {
+      "id": "namuwiki_hellraid_individual_card",
+      "requested_url": "https://d.namu.moe/w/헬레이드",
+      "title": "헬레이드",
+      "kind": "individual_card_community_page",
+      "status": "search_index_excerpt_retrieved",
+      "facts_observed": [
+        "불 속성 유니크 공격마법 및 파이어볼 생성 설명이 검색 색인에 표시된다."
+      ],
+      "limitations": [
+        "DB29 현행 카드 원문/ID와 슬롯 처리 미검증."
+      ],
+      "use_policy": "필드 소환·슬롯 상호작용 후보."
+    },
+    {
+      "id": "ggemguide_beginner_manual_legacy",
+      "requested_url": "https://www.ggemguide.com/guides/online/964/?dpage=129",
+      "title": "판타지 마스터즈 - 초보자를 위한 매뉴얼",
+      "kind": "community_beginner_guide",
+      "status": "search_index_excerpt_retrieved_page_cache_miss",
+      "facts_observed": [
+        "AP/DP/HP 용어와 지형 설치로 소울을 얻는다는 기초 설명이 검색 색인에 표시된다."
+      ],
+      "limitations": [
+        "과거 이용자 가이드; 직접 본문 열기 cache miss. 작성 시기의 규칙."
+      ],
+      "use_policy": "용어/사용자 설명의 보조 자료."
+    },
+    {
+      "id": "fantasy_masters_special_guidebook_metal",
+      "requested_url": "https://m.yes24.com/goods/detail/3480431",
+      "title": "판타지 마스터즈 스페셜 가이드북 금속",
+      "kind": "printed_strategy_guide_bibliographic_record",
+      "status": "bibliographic_toc_only",
+      "facts_observed": [
+        "목차에 게임 플레이, 시스템, 속성별 추천 카드, 덱 운영, 상대 소울 계산 등이 나타난다."
+      ],
+      "limitations": [
+        "서지 판매 페이지의 목차만 확인; 책 본문/카드별 수치 미열람."
+      ],
+      "use_policy": "원작 인쇄 가이드의 확보·추가 탐색 후보로만 등록."
+    }
+  ],
+  "facts_about_inven": [
+    "에카마엘 7개 카드의 TextExtra와 Inven 2017의 지형 최대 5 언급을 교차 확인했으나 최대 5는 커뮤니티 주장으로만 보존."
+  ]
+}

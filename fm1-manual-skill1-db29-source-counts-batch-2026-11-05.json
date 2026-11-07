@@ -1,0 +1,292 @@
+{
+  "schema_version": "FM1-MANUAL-SKILL1-DB29-SOURCE-COUNT-BATCH-1.0",
+  "baseline": {
+    "release": "fm1-carddb-29",
+    "artifact_id": 13384922100,
+    "source_file": "fm1-manual-skill-db29-source-match-2026-11-05.json",
+    "immutable": true
+  },
+  "summary": {
+    "manual_rule_count": 27,
+    "matched_exact_rows": 3158,
+    "rules_with_rows": 27,
+    "rules_without_rows": 0,
+    "runtime_promotions": 0,
+    "interpretation": "Counts establish exact Skill1 source-label row presence only; they do not establish effect semantics, engine implementation, or test verification."
+  },
+  "prioritization": {
+    "highest_row_counts": [
+      {
+        "rule_id": "defense_bypass",
+        "label": "방어무시",
+        "row_count": 234
+      },
+      {
+        "rule_id": "bravery_attack",
+        "label": "용맹공격",
+        "row_count": 221
+      },
+      {
+        "rule_id": "ability_seal",
+        "label": "기술봉쇄",
+        "row_count": 203
+      },
+      {
+        "rule_id": "charge_attack",
+        "label": "돌진공격",
+        "row_count": 189
+      },
+      {
+        "rule_id": "piercing_attack",
+        "label": "관통공격",
+        "row_count": 172
+      }
+    ],
+    "lowest_row_counts": [
+      {
+        "rule_id": "defense_convert",
+        "label": "방어변환",
+        "row_count": 26
+      },
+      {
+        "rule_id": "taunt_attack",
+        "label": "조롱공격",
+        "row_count": 47
+      },
+      {
+        "rule_id": "weapon_suppression",
+        "label": "무기봉쇄",
+        "row_count": 48
+      },
+      {
+        "rule_id": "copy_attack",
+        "label": "공격복제",
+        "row_count": 48
+      },
+      {
+        "rule_id": "aging_attack",
+        "label": "노화공격",
+        "row_count": 53
+      }
+    ],
+    "batch_next": "Map current APK implementation and test assertions across all 27 rules in one matrix; source-match counts must not be used as runtime promotion."
+  },
+  "rules": [
+    {
+      "rule_id": "normal_attack",
+      "manual_skill_name": "일반공격",
+      "exact_source_rows": 68,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "defense_bypass",
+      "manual_skill_name": "방어무시",
+      "exact_source_rows": 234,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "fatal_attack",
+      "manual_skill_name": "치명공격",
+      "exact_source_rows": 153,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "piercing_attack",
+      "manual_skill_name": "관통공격",
+      "exact_source_rows": 172,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "weaken_attack",
+      "manual_skill_name": "약화공격",
+      "exact_source_rows": 141,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "petrify_attack",
+      "manual_skill_name": "석화공격",
+      "exact_source_rows": 120,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "vampiric_attack",
+      "manual_skill_name": "흡혈공격",
+      "exact_source_rows": 115,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "aging_attack",
+      "manual_skill_name": "노화공격",
+      "exact_source_rows": 53,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "charge_attack",
+      "manual_skill_name": "돌진공격",
+      "exact_source_rows": 189,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "beast_tamer",
+      "manual_skill_name": "야수조련",
+      "exact_source_rows": 63,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "bravery_attack",
+      "manual_skill_name": "용맹공격",
+      "exact_source_rows": 221,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "regeneration",
+      "manual_skill_name": "재생능력",
+      "exact_source_rows": 157,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "frenzy_attack",
+      "manual_skill_name": "광분공격",
+      "exact_source_rows": 110,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "consecutive_attack",
+      "manual_skill_name": "연속공격",
+      "exact_source_rows": 116,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "fear_attack",
+      "manual_skill_name": "공포공격",
+      "exact_source_rows": 167,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "charm_attack",
+      "manual_skill_name": "매료공격",
+      "exact_source_rows": 127,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "ability_seal",
+      "manual_skill_name": "기술봉쇄",
+      "exact_source_rows": 203,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "spell_suppression",
+      "manual_skill_name": "주문봉쇄",
+      "exact_source_rows": 56,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "weapon_suppression",
+      "manual_skill_name": "무기봉쇄",
+      "exact_source_rows": 48,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "copy_attack",
+      "manual_skill_name": "공격복제",
+      "exact_source_rows": 48,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "shield_break",
+      "manual_skill_name": "방패파괴",
+      "exact_source_rows": 96,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "curse_attack",
+      "manual_skill_name": "저주공격",
+      "exact_source_rows": 84,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "defensive_use",
+      "manual_skill_name": "방어이용",
+      "exact_source_rows": 164,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "taunt_attack",
+      "manual_skill_name": "조롱공격",
+      "exact_source_rows": 47,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "confusion_attack",
+      "manual_skill_name": "혼란공격",
+      "exact_source_rows": 94,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "stealth_attack",
+      "manual_skill_name": "은폐공격",
+      "exact_source_rows": 86,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    },
+    {
+      "rule_id": "defense_convert",
+      "manual_skill_name": "방어변환",
+      "exact_source_rows": 26,
+      "source_match_status": "matched_exact_db29_skill1_rows",
+      "runtime_status": "pending_engine_test",
+      "promotion": false
+    }
+  ]
+}

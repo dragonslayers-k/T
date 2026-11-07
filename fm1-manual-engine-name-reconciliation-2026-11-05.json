@@ -1,0 +1,554 @@
+{
+  "schema_version": "FM1-MANUAL-ENGINE-NAME-RECONCILIATION-1.0",
+  "baseline": {
+    "db_release": "DB29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "compared_sources": {
+    "manual_catalog": "data/rules/fm1-skill-catalog-v1.json",
+    "engine_repo": "dragonslayers-k/FM-OFFLINE",
+    "engine_file": "app/src/main/assets/game/rules.js",
+    "engine_constant": "SPECIAL_SKILL_RULE_KEYWORDS"
+  },
+  "summary": {
+    "manual_rules": 27,
+    "engine_keyword_entries": 27,
+    "exact_name_match": 19,
+    "label_differences": 8,
+    "missing_engine_keywords": 0,
+    "differences": [
+      {
+        "rule_id": "beast_tamer",
+        "manual": "야수조련",
+        "engine": "야수조련공격"
+      },
+      {
+        "rule_id": "ability_seal",
+        "manual": "기술봉쇄",
+        "engine": "봉쇄공격"
+      },
+      {
+        "rule_id": "spell_suppression",
+        "manual": "주문봉쇄",
+        "engine": "마법봉쇄공격"
+      },
+      {
+        "rule_id": "weapon_suppression",
+        "manual": "무기봉쇄",
+        "engine": "무기뺏기공격"
+      },
+      {
+        "rule_id": "copy_attack",
+        "manual": "공격복제",
+        "engine": "복제공격"
+      },
+      {
+        "rule_id": "shield_break",
+        "manual": "방패파괴",
+        "engine": "방패파괴공격"
+      },
+      {
+        "rule_id": "taunt_attack",
+        "manual": "조롱공격",
+        "engine": "조롱"
+      },
+      {
+        "rule_id": "defense_convert",
+        "manual": "방어변환",
+        "engine": "방어전환공격"
+      }
+    ],
+    "missing": []
+  },
+  "findings": "Presence in the engine keyword whitelist is only a normalization gate; it does not prove runtime semantics or passing tests. The labels that differ need a source-led name/alias review before further implementation.",
+  "records": [
+    {
+      "rule_id": "normal_attack",
+      "manual_canonical_name": "일반공격",
+      "engine_whitelist_name": "일반공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "defense_bypass",
+      "manual_canonical_name": "방어무시",
+      "engine_whitelist_name": "방어무시",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "fatal_attack",
+      "manual_canonical_name": "치명공격",
+      "engine_whitelist_name": "치명공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "piercing_attack",
+      "manual_canonical_name": "관통공격",
+      "engine_whitelist_name": "관통공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "weaken_attack",
+      "manual_canonical_name": "약화공격",
+      "engine_whitelist_name": "약화공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "petrify_attack",
+      "manual_canonical_name": "석화공격",
+      "engine_whitelist_name": "석화공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "vampiric_attack",
+      "manual_canonical_name": "흡혈공격",
+      "engine_whitelist_name": "흡혈공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "aging_attack",
+      "manual_canonical_name": "노화공격",
+      "engine_whitelist_name": "노화공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "charge_attack",
+      "manual_canonical_name": "돌진공격",
+      "engine_whitelist_name": "돌진공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "beast_tamer",
+      "manual_canonical_name": "야수조련",
+      "engine_whitelist_name": "야수조련공격",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "bravery_attack",
+      "manual_canonical_name": "용맹공격",
+      "engine_whitelist_name": "용맹공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "regeneration",
+      "manual_canonical_name": "재생능력",
+      "engine_whitelist_name": "재생능력",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "frenzy_attack",
+      "manual_canonical_name": "광분공격",
+      "engine_whitelist_name": "광분공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "consecutive_attack",
+      "manual_canonical_name": "연속공격",
+      "engine_whitelist_name": "연속공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "fear_attack",
+      "manual_canonical_name": "공포공격",
+      "engine_whitelist_name": "공포공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "charm_attack",
+      "manual_canonical_name": "매료공격",
+      "engine_whitelist_name": "매료공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "ability_seal",
+      "manual_canonical_name": "기술봉쇄",
+      "engine_whitelist_name": "봉쇄공격",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "spell_suppression",
+      "manual_canonical_name": "주문봉쇄",
+      "engine_whitelist_name": "마법봉쇄공격",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "weapon_suppression",
+      "manual_canonical_name": "무기봉쇄",
+      "engine_whitelist_name": "무기뺏기공격",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "copy_attack",
+      "manual_canonical_name": "공격복제",
+      "engine_whitelist_name": "복제공격",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "shield_break",
+      "manual_canonical_name": "방패파괴",
+      "engine_whitelist_name": "방패파괴공격",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "curse_attack",
+      "manual_canonical_name": "저주공격",
+      "engine_whitelist_name": "저주공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "defensive_use",
+      "manual_canonical_name": "방어이용",
+      "engine_whitelist_name": "방어이용",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "taunt_attack",
+      "manual_canonical_name": "조롱공격",
+      "engine_whitelist_name": "조롱",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "confusion_attack",
+      "manual_canonical_name": "혼란공격",
+      "engine_whitelist_name": "혼란공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "stealth_attack",
+      "manual_canonical_name": "은폐공격",
+      "engine_whitelist_name": "은폐공격",
+      "label_status": "exact_match",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    },
+    {
+      "rule_id": "defense_convert",
+      "manual_canonical_name": "방어변환",
+      "engine_whitelist_name": "방어전환공격",
+      "label_status": "name_difference_needs_adjudication",
+      "engine_keyword_present": true,
+      "manual_source": {
+        "kind": "official_manual_archive",
+        "bundle": "Manual.zip",
+        "dropboxPath": "/판마/Manual.zip",
+        "revision": "65f348bcc93d60972fdd5",
+        "lastModified": "2026-11-01",
+        "member": "specialability.htm",
+        "section": "특수기술목록표",
+        "priority": 1
+      },
+      "mapping_policy": "Do not auto-alias/promote until source semantics and card-level Skill1/Skill2 use are verified."
+    }
+  ]
+}

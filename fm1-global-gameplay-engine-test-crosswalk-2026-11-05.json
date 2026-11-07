@@ -1,0 +1,184 @@
+{
+  "schema_version": "FM1-GLOBAL-GAMEPLAY-ENGINE-TEST-CROSSWALK-1.0",
+  "baseline": {
+    "db_release": "fm1-carddb-29",
+    "immutable": true,
+    "db30_issued": false,
+    "main_merge": false
+  },
+  "engine_evidence": {
+    "repository": "dragonslayers-k/FM-OFFLINE",
+    "branch": "feat/combat-event-foundation",
+    "commit": "dab504f649a0a110efa310d4378f682bcee8930d",
+    "workflow_run_number": 209,
+    "workflow_run_id": 42038631879,
+    "workflow_conclusion": "in_progress",
+    "test_file": "tests/rules.test.cjs",
+    "test_step_conclusion": "success",
+    "test_step_name": "Check JavaScript and run game rule tests"
+  },
+  "source_evidence": {
+    "archive": "Manual.zip",
+    "revision": "65f348bcc93d60972fdd5",
+    "catalog": "data/rules/fm1-global-gameplay-catalog-v1.json"
+  },
+  "policy": {
+    "test_presence_is_not_complete_semantic_verification": true,
+    "manual_conflict_remains_unresolved_until_source_adjudication": true,
+    "unverified_NCS_BONUS_and_hybrid_rules_not_promoted": true,
+    "DB29_unchanged": true
+  },
+  "summary": {
+    "global_rule_count": 15,
+    "rules_with_engine_test_evidence": 15,
+    "rules_without_engine_test_evidence": 0,
+    "manual_conflict_rules": 1,
+    "engine_test_status": "all_15_rules_test_step_passed_actions_209_full_build_in_progress",
+    "runtime_rule_promotions": 0
+  },
+  "rules": [
+    {
+      "rule_id": "terrain_soul_generation",
+      "name": "지형 소울 생성",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "LP accumulates each turn and a land placement consumes LP only",
+        "terrain installation spends LP and the exact RequireSoul cost before adding production",
+        "terrain with insufficient install soul cannot consume LP or leave the hand",
+        "terrain LP is spent while its colored and neutral souls are added to the pool",
+        "terrain with an explicitly verified zero install-soul cost consumes LP and produces souls",
+        "fractional dual-colour production is preserved and deployment limit rounds down"
+      ]
+    },
+    {
+      "rule_id": "terrain_placement_limit_conflict",
+      "name": "지형 배치 횟수 규칙",
+      "coverage_status": "engine_behavior_tested_source_conflict_unresolved",
+      "tests": [
+        "LP accumulates but only one land can be installed per preparation phase; field cap stays ten"
+      ],
+      "source_conflict": "Manual conflict remains unresolved: the summary section permits LP-count placements while ready.htm states one terrain per turn. The test confirms current engine behavior only, not source resolution."
+    },
+    {
+      "rule_id": "unit_neutral_soul_summon",
+      "name": "무속성 유닛 소환 비용",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "a generic neutral bead can be paid from any generated soul",
+        "colored and generic soul requirements consume a pool, not whole land cards",
+        "unit deployment spends colored soul and leaves unused soul in the pool",
+        "unit summon with insufficient colored soul leaves hand, field, and soul pool unchanged"
+      ]
+    },
+    {
+      "rule_id": "unit_neutral_soul_maintenance",
+      "name": "무속성 유닛 유지 비용",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "neutral soul upkeep is charged only for neutral summon beads",
+        "neutral upkeep is charged only for units with a neutral soul cost and limits deployment after upkeep"
+      ]
+    },
+    {
+      "rule_id": "unit_neutral_soul_shortfall",
+      "name": "무속성 유지 비용 미지불",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "unpaid neutral upkeep destroys exactly the missing number of deck cards"
+      ]
+    },
+    {
+      "rule_id": "coin_notation_and_calculation",
+      "name": "코인 기술 표기 및 계산",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "FM1 unsigned 2C3 replaces the stat while +2C3 adds the same coin result",
+        "FM1 negative DP from coin subtraction is preserved"
+      ]
+    },
+    {
+      "rule_id": "coin_single_roll_shared",
+      "name": "복수 능력치 코인 결과 공유",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "FM1 shared coin toss is rolled once and reused for AP and DP"
+      ]
+    },
+    {
+      "rule_id": "unit_stat_marker_semantics",
+      "name": "능력치 보호 기호",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "stat markers block changes in the protected direction",
+        "DB29 Manual Skill1 stat effects respect per-stat marker directions"
+      ]
+    },
+    {
+      "rule_id": "unit_combat_stat_semantics",
+      "name": "유닛 능력치 전투 의미",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "unit slot combat is paired 1:1 with shared AP/DP/HP rolls and surviving HP resets after battle"
+      ]
+    },
+    {
+      "rule_id": "item_equip_constraints",
+      "name": "아이템 장착 조건",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "item attaches only to a unit with a matching native unit ability",
+        "item with unrestricted ability still requires matching native target race",
+        "item with unrestricted ability still requires matching native affiliation",
+        "unparsed native item target restrictions fail closed"
+      ]
+    },
+    {
+      "rule_id": "preparation_phase_sequence",
+      "name": "준비 단계 진행 순서",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "opening hand is six cards and contains at least one land for both sides",
+        "AI completes its preparation phase and yields to the player",
+        "a unit cannot be deployed more times than terrain-generated souls allow in one prep phase",
+        "FM1 reshuffle is available once per turn in the first four turns and burns one card",
+        "FM1 reshuffle is disabled after a card was placed and after turn four"
+      ]
+    },
+    {
+      "rule_id": "combat_resolution_order",
+      "name": "전투 카드 처리 순서",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "a spell is queued in its magic slot and resolves only in battle",
+        "battle-start spell timing is accepted for both sides",
+        "unit slot combat is paired 1:1 with shared AP/DP/HP rolls and surviving HP resets after battle"
+      ]
+    },
+    {
+      "rule_id": "unit_deck_attack_damage",
+      "name": "유닛의 덱 공격 피해량",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "an unblocked unit attacks the deck using its printed soul cost",
+        "direct attack refuses to infer zero deck damage from an unverified empty summon cost"
+      ]
+    },
+    {
+      "rule_id": "deck_draw_and_zero_loss",
+      "name": "덱 소진 패배 조건",
+      "coverage_status": "tested_partial",
+      "tests": [
+        "both players running out of deck at once makes the attacker lose"
+      ]
+    },
+    {
+      "rule_id": "opponent_concession_win",
+      "name": "상대 이탈 승리",
+      "coverage_status": "engine_tested_partial",
+      "tests": [
+        "conceding while a match is active awards the win to the opponent",
+        "concession rejects unknown sides and incomplete match state"
+      ]
+    }
+  ]
+}
