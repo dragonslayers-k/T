@@ -286,7 +286,7 @@ jobs:
         with:
           name: fm1-db29-full-card-visual-ocr-${{ github.run_number }}
           path: data/full-card-visual-ocr/
-          if-no-files-found: error
+          if-no-files-found: warn
           compression-level: 6
           retention-days: 30
 
