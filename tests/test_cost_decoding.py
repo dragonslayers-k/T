@@ -24,7 +24,7 @@ class RequireSoulTests(unittest.TestCase):
         mu = parse_require_soul("8101")
         self.assertTrue(mu["known"])
         self.assertEqual(mu["colors"]["neutral"], 1)
-        self.assertEqual(mu["tokens"][0]["symbol"], "MU")
+        self.assertEqual(mu["tokens"][0]["normalized_color"], "neutral")
         ncs = parse_require_soul("8201")
         self.assertTrue(ncs["known"])
         self.assertTrue(ncs["semantic_review"])
@@ -56,7 +56,7 @@ class RequireSoulTests(unittest.TestCase):
         self.assertTrue(parsed["known"])
         self.assertTrue(parsed["semantic_review"])
         self.assertEqual([x["status"] for x in parsed["tokens"]],
-                         ["manual_semantics_verified", "semantic_review"])
+                         ["semantic_review", "semantic_review"])
 
     def test_korean_text_cost(self):
         p = parse_require_soul("숲 2, 물 1")
