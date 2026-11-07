@@ -71,7 +71,7 @@ Firestore 원본 필드 대응은 다음과 같다.
 - ATKCoin / DEFCoin / HPCoin: C개수 및 배율 표현식(예: C3, 2C2)
 - ATKCoinType / DEFCoinType / HPCoinType: Enum+CoinType 연산 유형
 - ATKCoinCount / DEFCoinCount / HPCoinCount: 코인 개수 대조 필드
-- Enum+CoinType raw codes: 1 NONE, 2 PLUS(+), 3 MINUS(-), 4 X(x), 5 EQUAL(=). 코드 1~4는 매뉴얼의 연산 설명과 대응한다. 코드 5 EQUAL은 enum 이름/기호만 확인되며 매뉴얼에 실행 의미가 없어 앱의 대입(set) 해석은 enum 기반 추론으로 표시하고 Manual-verified로 취급하지 않는다.
+- Enum+CoinType raw codes: 1 NONE, 2 PLUS(+), 3 MINUS(-), 4 X(x), 5 EQUAL(=). 코드 1~4는 매뉴얼의 연산 설명과 대응한다. 코드 5 EQUAL은 enum 이름/기호만 확인되며 매뉴얼에 실행 의미가 없다. 앱은 대입(set)을 enum-inferred 후보로만 보존하고 AP/DP/HP 런타임 연산에는 적용하지 않는다.
 
 런타임 변환 시 원본 문자열·유형·개수를 함께 보존하고, 표현식의 C 개수와 CoinCount가 불일치하거나 연산 유형이 누락된 경우 임의 보정하지 않고 review 상태로 둔다. 이 코인 연산은 N/C/S(82) 표기 자체와 혼동하지 않으며, N/C/S 표기의 N·C·S는 사용자 확인에 따른 Normal 공격·Critical 공격·Defensive 방어 스탯 범주다. 반면 코인 표현식 C3의 C는 매뉴얼 정의대로 Coin(코인)이며, 두 표기의 C는 문맥이 다르다.
 
