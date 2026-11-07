@@ -123,3 +123,33 @@ DB29 전체 감사에서 15,350장의 RequireSoul 토큰 문자열은 모두 토
 ## 2026-11-07 정정 — NCS/MU 교차판정 철회
 
 기존 문서의 RequireSoul 코드 82 NCS를 Manual 무속성 규칙에 연결한 판정은 직접 근거가 부족해 철회했다. Manual은 무속성 구슬을 설명하지만 NCS라는 enum 문자열을 정의하지 않는다. enumtable은 MU(81), NCS(82), BONUS(83)를 별도 RequireSoul 항목으로 구분한다. 따라서 NCS(82)는 원본 토큰·수량만 보존하고 semantic_review로 유지한다. MU(81)는 무속성의 후보 대응으로 유지하되 이미지 교차확인이 끝날 때까지 inferred 상태로 표시한다. NCS(82) 유닛 스탯 약어와 RequireSoul enum NCS(82)는 같은 이름을 공유할 뿐 서로 다른 문맥이다.
+
+
+## 2026-11-07 — StatType / RankType / NCS namespace audit
+
+Firestore exposes separate source fields `ATKStatType`, `DEFStatType`, and `HPStatType`, each mapped through `Enum+StatType`. The current enumtable values are:
+
+| code | enum | icon | handling |
+|---:|---|---|---|
+| 0 | NONE | 없음 | no marker |
+| 1 | CONST | ★ | Manual-defined: cannot be changed |
+| 2 | UP | ▲ | Manual-defined: cannot decrease |
+| 3 | DOWN | ▼ | Manual-defined: cannot increase |
+| 4 | FRONT | F | preserve; semantics unverified |
+| 5 | BACK | B | preserve; semantics unverified |
+| 6 | HAND | H | preserve; semantics unverified |
+| 7 | TURN | T | preserve; semantics unverified |
+| 8 | PLUS | + | preserve; semantics unverified |
+| 9 | MINUS | - | preserve; semantics unverified |
+| 10 | EQUAL | = | preserve; semantics unverified |
+
+Manual `cardability.htm` explicitly defines the star and up/down triangle restrictions. It does not define runtime semantics for FRONT/BACK/HAND/TURN/PLUS/MINUS/EQUAL; these remain source-preserved and must not be guessed. The app pack builder now emits `sourceStatTech` from all three raw fields and the app maps only codes 1–3 to Manual-defined restrictions.
+
+Keep these namespaces separate:
+- User-confirmed N/C/S(82) shorthand: N=Normal attack, C=Critical attack, S=Defense; (82)=attack dice 0–8 and defense dice 0–2. No exact Firestore source field for this shorthand has yet been demonstrated, so it is not synthesized from other fields.
+- `RequireSoul` enum NCS(82): a separate source token; remains `semantic_review`, not a stat profile and not the Manual neutral bead.
+- `RankType` enum: separate rank metadata (N/C/B/A/S); it is not used to derive the N/C/S unit-stat shorthand.
+- Manual coin notation C (e.g. C3): Coin, not the C in N/C/S.
+- Manual `치명공격기술` special skill: a named combat ability, not automatically equivalent to the C category in the user-defined N/C/S shorthand.
+
+No automatic conversion is allowed between these fields merely because labels overlap.
