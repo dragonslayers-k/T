@@ -1,0 +1,97 @@
+name: DB29 RequireSoul rail visual audit
+
+on:
+  push:
+    branches:
+      - research/require-soul-visual-audit-831-stage1
+    paths:
+      - "scripts/audit_require_soul_rail.py"
+      - ".github/workflows/require-soul-rail-audit.yml"
+  workflow_dispatch:
+    inputs:
+      evidence_run_id:
+        description: "Existing GitHub Actions run that produced the 831-card image evidence"
+        required: true
+        type: string
+        default: "42357466809"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: require-soul-rail-audit
+  cancel-in-progress: false
+
+jobs:
+  visual-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      EVIDENCE_RUN_ID: ${{ inputs.evidence_run_id || '42357466809' }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install image processing dependency
+        run: python -m pip install --disable-pip-version-check Pillow
+
+      - name: Download the immutable 831-card evidence artifact
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          gh run download "$EVIDENCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "fm1-soul-cost-image-evidence-809" \
+            --dir evidence
+          test -s evidence/target-cards.jsonl
+          test -s evidence/image-audit-summary.json
+          test "$(find evidence/images/large -maxdepth 1 -name '*.webp' | wc -l)" -eq 831
+          test "$(find evidence/images/small -maxdepth 1 -name '*.webp' | wc -l)" -eq 831
+
+      - name: Run conservative card-by-card rail marker audit
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/audit_require_soul_rail.py
+          python scripts/audit_require_soul_rail.py \
+            --evidence-dir evidence \
+            --output-dir output
+          test -s output/require-soul-rail-card-audit.csv
+          test -s output/require-soul-rail-audit-summary.json
+
+      - name: Publish review artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: db29-require-soul-rail-audit-${{ github.run_number }}
+          path: |
+            output/require-soul-rail-card-audit.csv
+            output/require-soul-rail-audit-summary.json
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
+
+      - name: Add audit summary to run page
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          data=json.loads(Path("output/require-soul-rail-audit-summary.json").read_text(encoding="utf-8"))
+          print("## DB29 RequireSoul rail visual audit")
+          print()
+          print("| Metric | Result |")
+          print("|---|---:|")
+          print(f"| Unique cards | {data['actual_unique_cards']} |")
+          print(f"| Exact template count matches | {data['counts'].get('EXACT_COUNT_MATCH', 0)} |")
+          print(f"| Template family unresolved | {data['counts'].get('TEMPLATE_FAMILY_UNMATCHED', 0)} |")
+          print(f"| Count mismatches | {data['counts'].get('COUNT_MISMATCH', 0)} |")
+          print(f"| Hybrid out of scope | {data['counts'].get('HYBRID_OUT_OF_SCOPE', 0)} |")
+          print(f"| Exact match rate (special-token population) | {data['exact_count_match_rate_of_special_population']:.1%} |")
+          print()
+          print("> Unmatched template families are unresolved and are not classified as source-data errors.")
+          PY
