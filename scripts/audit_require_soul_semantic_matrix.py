@@ -94,7 +94,7 @@ def main():
         enum_name=str(enum_by_id[code][1])
         if enum_name != name: raise SystemExit(f"Enum mismatch {code}: expected {name}, got {enum_name}")
 
-    rows=[]; card_type_counts=Counter(); token_card_counts=Counter(); token_occurrences=Counter()
+    rows=[]; card_type_counts=Counter(); token_card_counts=Counter(); token_occurrences=Counter(); token_amount_totals=Counter(); token_type_counts=defaultdict(Counter)
     status_counts=Counter(); hybrid_group_counts=Counter(); overlaps=[]
     for cid,evidence in sorted(target.items()):
         source_row=source.get(cid)
@@ -111,6 +111,8 @@ def main():
         for token in tokens:
             token_occurrences[token["code"]]+=1
             token_card_counts[token["code"]]+=1
+            token_amount_totals[token["code"]]+=token["amount"]
+            token_type_counts[token["code"]][type_name]+=1
         groups=[x for x in tokens if x["code"] in HYBRID]
         specials=[x for x in tokens if x["code"] in (82,83)]
         if 82 in codes and 83 in codes: overlaps.append(cid)
@@ -156,6 +158,8 @@ def main():
         "token_occurrences":len(rows),"card_type_distribution":dict(sorted(card_type_counts.items())),
         "token_card_occurrences_by_code":{str(k):token_card_counts[k] for k in sorted(token_card_counts)},
         "token_occurrences_by_code":{str(k):token_occurrences[k] for k in sorted(token_occurrences)},
+        "token_amount_totals_by_code":{str(k):token_amount_totals[k] for k in sorted(token_amount_totals)},
+        "token_card_type_distribution_by_code":{str(k):dict(sorted(token_type_counts[k].items())) for k in sorted(token_type_counts)},
         "hybrid_card_counts_by_code":dict(sorted(hybrid_group_counts.items())),
         "ncs_bonus_overlap_card_count":len(overlaps),"ncs_bonus_overlap_card_ids":sorted(overlaps),
         "evidence_states":{"81":"MU rule verified, no extension to NCS/BONUS/hybrid","82":"blocked","83":"blocked","hybrid_codes":"blocked"},
