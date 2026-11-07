@@ -78,7 +78,7 @@ jobs:
       - name: Run all lightweight regression tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/export_soul_review_images.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py scripts/build_runtime_cost_overlay.py
+          python -m py_compile scripts/compact_effect_review.py scripts/build_db.py scripts/soul_costs.py scripts/decode_soul_costs.py scripts/quality_audit.py scripts/audit_image_archive.py scripts/export_soul_review_images.py scripts/audit_card_taxonomy.py scripts/effect_pattern_audit.py scripts/build_effect_candidates.py scripts/import_manual_rules.py scripts/infer_unmapped_skills.py scripts/import_community_skill_reference.py scripts/infer_effect_interpretations.py scripts/build_gap_reports.py scripts/runtime_source_inventory.py scripts/build_runtime_cost_overlay.py scripts/build_card_semantic_ledger.py
           python scripts/build_runtime_cost_overlay.py --self-test
           python -m unittest tests/test_effect_pattern_audit.py
           python -m unittest tests/test_compact_effect_review.py
@@ -89,6 +89,7 @@ jobs:
           python -m unittest tests/test_infer_unmapped_skills.py
           python -m unittest tests/test_card_field_coverage.py
           python -m unittest tests/test_runtime_source_inventory.py
+          python -m unittest tests/test_card_semantic_ledger.py
           python -m unittest tests/test_semantic_gap_completion.py
           python scripts/build_effect_candidates.py --self-test
           python scripts/import_manual_rules.py --self-test
@@ -143,6 +144,11 @@ jobs:
           python scripts/build_runtime_cost_overlay.py \
             --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
             --output data/runtime-cost-overlay.json
+          python scripts/build_card_semantic_ledger.py \
+            --db "$RUNNER_TEMP/runtime-source/fm1_cards.sqlite" \
+            --jsonl-gz data/card-semantic-ledger/cards.jsonl.gz \
+            --csv data/card-semantic-ledger/card-index.csv \
+            --summary data/card-semantic-ledger/summary.json
           echo "RUN_RUNTIME_INVENTORY=true" >> "$GITHUB_ENV"
 
       - name: Upload compact DB29 runtime source inventory
@@ -153,6 +159,9 @@ jobs:
           path: |
             data/runtime-source-inventory.json
             data/runtime-cost-overlay.json
+            data/card-semantic-ledger/cards.jsonl.gz
+            data/card-semantic-ledger/card-index.csv
+            data/card-semantic-ledger/summary.json
           if-no-files-found: error
           compression-level: 6
           retention-days: 30
