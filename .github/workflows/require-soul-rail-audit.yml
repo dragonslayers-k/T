@@ -143,7 +143,7 @@ jobs:
           print("| Metric | Result |")
           print("|---|---:|")
           print(f"| Unique target cards | {rail['actual_unique_cards']} |")
-          print(f"| BONUS/NCS/neutral exact count matches | {rail['counts'].get('EXACT_COUNT_MATCH', 0)} / {rail['special_token_population']} |")
+          print(f"| BONUS/NCS/MU exact count matches | {rail['counts'].get('EXACT_COUNT_MATCH', 0)} / {rail['special_token_population']} |")
           print(f"| Low-resolution / nonstandard images | {rail['counts'].get('LOW_RES_OR_NONSTANDARD_IMAGE', 0)} |")
           print(f"| Hybrid full-sequence matches | {hybrid['counts'].get('FULL_SEQUENCE_MATCH', 0)} |")
           print(f"| Hybrid full-sequence matches with manual orb confirmation | {hybrid['counts'].get('FULL_SEQUENCE_MATCH_MANUAL_HYBRID', 0)} |")
