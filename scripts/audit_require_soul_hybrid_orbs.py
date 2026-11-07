@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Visual consistency audit for all DB29 hybrid RequireSoul orb classes."""
+"""Full visual sequence audit for DB29 hybrid RequireSoul cards."""
 from __future__ import annotations
 import argparse, csv, json
 from collections import Counter
@@ -7,16 +7,35 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 
-CROP_BOX = (1, 94, 21, 113)
 SIZE = (40, 38)
-MANUAL_VISUAL_CONFIRMATIONS = {
-    "13052926873": "The orb is visibly red/blue (FIRE_WATER); RGB template distance ranks WATER_EARTH due to this card's alternate rendering. Manually confirmed against source artwork."
+HYBRID_CROP = (1, 94, 21, 113)
+SINGLE_CROP = (1, -9, 21, 10)
+SECONDARY_Y = (130, 157, 184, 211, 238, 265, 292)
+HYBRID_MANUAL_CONFIRMATIONS = {
+    "13052926873": "The first orb is visibly red/blue (FIRE_WATER). RGB nearest-template distance ranks WATER_EARTH because this card uses an alternate orb rendering; manually confirmed against source artwork."
+}
+HYBRID_CODE_REFS = {
+    13: "10012010131", 24: "10012010132", 33: "10012010133",
+    42: "10012010134", 52: "10012010135", 62: "10012010136",
+    14: "10012010137", 12: "13020610159", 23: "13020610160",
+    15: "13020610161", 22: "13020610162", 53: "13020610163",
+    32: "13020610164", 43: "13020610165",
+}
+SINGLE_CODE_REFS = {
+    11: ("10012010131", 130), 21: ("10012010132", 130),
+    31: ("10012010133", 130), 41: ("10012010134", 130),
+    51: ("10012010135", 130), 61: ("10012010136", 130),
+    71: ("10012010137", 130), 81: ("10042124823", 184),
 }
 
 
-def orb(path: Path) -> np.ndarray:
-    image = Image.open(path).convert("RGB").crop(CROP_BOX).resize(SIZE)
+def image_crop(path: Path, box: tuple[int, int, int, int]) -> np.ndarray:
+    image = Image.open(path).convert("RGB").crop(box).resize(SIZE)
     return np.asarray(image, dtype=np.float32)
+
+
+def slot_crop(image: Image.Image, center_y: int) -> np.ndarray:
+    return np.asarray(image.convert("RGB").crop((1, center_y - 9, 21, center_y + 10)).resize(SIZE), dtype=np.float32)
 
 
 def mse(a: np.ndarray, b: np.ndarray) -> float:
@@ -39,51 +58,81 @@ def main() -> None:
     if len(hybrids) != 52:
         raise SystemExit(f"Expected 52 hybrid cards, got {len(hybrids)}")
 
-    refs = {}
-    for card, token in hybrids:
-        code = int(token["code"])
-        refs.setdefault(code, (str(card["card_id"]), orb(evidence / "images" / "large" / f"{card['card_id']}.webp")))
+    hybrid_templates = {}
+    for code, cid in HYBRID_CODE_REFS.items():
+        hybrid_templates[code] = image_crop(evidence / "images" / "large" / f"{cid}.webp", HYBRID_CROP)
+    secondary_templates = {}
+    for code, (cid, y) in SINGLE_CODE_REFS.items():
+        secondary_templates[code] = image_crop(evidence / "images" / "large" / f"{cid}.webp", (1, y - 9, 21, y + 10))
+
     rows, counts = [], Counter()
-    for card, token in hybrids:
-        cid, expected = str(card["card_id"]), int(token["code"])
-        image_path = evidence / "images" / "large" / f"{cid}.webp"
-        if not image_path.is_file():
-            status, predicted, score, candidates = "IMAGE_MISSING", "", "", []
+    for card, hybrid_token in hybrids:
+        cid = str(card["card_id"])
+        expected_hybrid = int(hybrid_token["code"])
+        path = evidence / "images" / "large" / f"{cid}.webp"
+        if not path.is_file():
+            status, predicted, hybrid_score = "IMAGE_MISSING", "", ""
+            expected_secondary, detected_secondary = Counter(), Counter()
         else:
-            patch = orb(image_path)
-            distances = {code: mse(patch, template) for code, (_, template) in refs.items()}
-            ranked = sorted(distances.items(), key=lambda item: item[1])
-            predicted, score = ranked[0]
-            candidates = [{"code": code, "symbol": next(t.get("symbol") for c, t in hybrids if int(t["code"]) == code), "mse": round(value, 6)} for code, value in ranked[:3]]
-            if predicted == expected:
-                status = "TEMPLATE_MATCH"
-            elif cid in MANUAL_VISUAL_CONFIRMATIONS:
-                status = "MANUAL_VISUAL_CONFIRMED"
+            image = Image.open(path).convert("RGB")
+            first_orb = slot_crop(image, 103)
+            hybrid_distances = {code: mse(first_orb, template) for code, template in hybrid_templates.items()}
+            predicted = min(hybrid_distances, key=hybrid_distances.get)
+            hybrid_score = hybrid_distances[predicted]
+
+            expected_secondary = Counter()
+            for token in card.get("all_tokens", []):
+                code = int(token.get("code", -1))
+                if code in SINGLE_CODE_REFS:
+                    expected_secondary[code] += int(token.get("amount", 0))
+
+            detected_secondary = Counter()
+            for y in SECONDARY_Y:
+                patch = slot_crop(image, y)
+                code, score = min(
+                    ((code, mse(patch, template)) for code, template in secondary_templates.items()),
+                    key=lambda item: item[1],
+                )
+                if score <= 0.01:
+                    detected_secondary[code] += 1
+
+            hybrid_ok = predicted == expected_hybrid or cid in HYBRID_MANUAL_CONFIRMATIONS
+            secondary_ok = all(detected_secondary[c] == expected_secondary[c] for c in SINGLE_CODE_REFS)
+            if hybrid_ok and secondary_ok:
+                status = "FULL_SEQUENCE_MATCH_MANUAL_HYBRID" if cid in HYBRID_MANUAL_CONFIRMATIONS else "FULL_SEQUENCE_MATCH"
+            elif not secondary_ok:
+                status = "SECONDARY_SEQUENCE_MISMATCH"
             else:
-                status = "MANUAL_REVIEW"
+                status = "HYBRID_ORB_REVIEW"
         counts[status] += 1
         rows.append({
             "card_id": cid, "name": card.get("name", ""),
-            "expected_hybrid_code": expected, "expected_symbol": token.get("symbol", ""),
-            "template_reference_card_id": refs.get(expected, ("", None))[0],
-            "predicted_code": predicted, "best_mse": f"{score:.6f}" if score != "" else "",
-            "top_3_candidates_json": json.dumps(candidates, ensure_ascii=False),
-            "status": status, "manual_note": MANUAL_VISUAL_CONFIRMATIONS.get(cid, ""),
+            "expected_hybrid_code": expected_hybrid, "expected_hybrid_symbol": hybrid_token.get("symbol", ""),
+            "predicted_hybrid_code": predicted,
+            "hybrid_orb_mse": f"{hybrid_score:.6f}" if hybrid_score != "" else "",
+            "expected_secondary_tokens_json": json.dumps(dict(expected_secondary), ensure_ascii=False, sort_keys=True),
+            "detected_secondary_tokens_json": json.dumps(dict(detected_secondary), ensure_ascii=False, sort_keys=True),
+            "secondary_sequence_match": all(detected_secondary[c] == expected_secondary[c] for c in SINGLE_CODE_REFS),
+            "status": status,
+            "manual_note": HYBRID_MANUAL_CONFIRMATIONS.get(cid, ""),
             "source_require_soul": card.get("source_require_soul", ""),
         })
-    fields = ["card_id", "name", "expected_hybrid_code", "expected_symbol", "template_reference_card_id",
-              "predicted_code", "best_mse", "top_3_candidates_json", "status", "manual_note", "source_require_soul"]
+    fields = ["card_id", "name", "expected_hybrid_code", "expected_hybrid_symbol", "predicted_hybrid_code",
+              "hybrid_orb_mse", "expected_secondary_tokens_json", "detected_secondary_tokens_json",
+              "secondary_sequence_match", "status", "manual_note", "source_require_soul"]
     with (out / "require-soul-hybrid-orb-audit.csv").open("w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
         writer.writerows(rows)
     summary = {
-        "population": len(hybrids), "hybrid_codes": len(refs),
-        "method": "RGB crop of first left-rail hybrid orb (x=1..20, y=94..112), nearest reference template by normalized RGB MSE.",
-        "reference_cards_by_code": {str(code): card_id for code, (card_id, _) in refs.items()},
+        "population": 52, "hybrid_code_classes": len(hybrid_templates),
+        "secondary_marker_classes": len(secondary_templates),
+        "method": "First hybrid orb RGB template comparison plus 7 following left-rail positions classified against 7 elemental and neutral reference templates; exact secondary token counts required.",
         "counts": dict(counts),
-        "manual_visual_confirmations": MANUAL_VISUAL_CONFIRMATIONS,
-        "interpretation": "TEMPLATE_MATCH indicates same-code orb appearance. MANUAL_VISUAL_CONFIRMED is an explicit visual override. This audit checks hybrid-orb class identity, not the entire remaining single-element rail sequence.",
+        "hybrid_template_reference_cards": {str(k): v for k, v in HYBRID_CODE_REFS.items()},
+        "secondary_template_reference_cards": {str(k): {"card_id": v[0], "center_y": v[1]} for k, v in SINGLE_CODE_REFS.items()},
+        "manual_visual_confirmations": HYBRID_MANUAL_CONFIRMATIONS,
+        "interpretation": "FULL_SEQUENCE_MATCH verifies hybrid orb class and following elemental/neutral marker counts. FULL_SEQUENCE_MATCH_MANUAL_HYBRID includes one explicit manual visual confirmation for alternate rendering.",
     }
     (out / "require-soul-hybrid-orb-audit-summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
