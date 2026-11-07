@@ -87,8 +87,8 @@ def main():
 
     enum=json.loads(args.enumtable_json.read_text(encoding="utf-8"))
     enum_entries=enum.get("Enum+RequireSoul") if isinstance(enum,dict) else None
-    if not isinstance(enum_entries,list): raise SystemExit("Missing enumtable Enum+RequireSoul list")
-    enum_by_id={int(item[0]):item for item in enum_entries if isinstance(item,list) and item and str(item[0]).isdigit()}
+    if not isinstance(enum_entries,dict): raise SystemExit("Missing enumtable Enum+RequireSoul object")
+    enum_by_id={int(item[0]):item for item in enum_entries.values() if isinstance(item,list) and item and str(item[0]).isdigit()}
     for code,name in CODE_NAMES.items():
         if code not in enum_by_id: raise SystemExit(f"Enum missing code {code}")
         enum_name=str(enum_by_id[code][1])
